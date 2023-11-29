@@ -20,6 +20,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) =>{
       clearTimeout(timer);
     };
   }, []);
+  
 
   return (
     <div className="centered-div" style={{width:"100%", height:"100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
