@@ -2,10 +2,10 @@ import {
   Has,
   defineSystem,
   getComponentValueStrict,
-  } from "@latticexyz/recs";
+  getComponentValue
+} from "@latticexyz/recs";
 import { PhaserLayer } from "..";
-import { Assets } from "../constants";
-import { SCALE } from "../constants";
+import { Assets, SCALE, addEntityAtIndex, getTileIndex, setWidthAndHeight } from "../constants";
 
 export const spawnOutposts = (layer: PhaserLayer) => {
 
@@ -14,58 +14,78 @@ export const spawnOutposts = (layer: PhaserLayer) => {
     scenes: {
       Main: { objectPool },
     },
+    
     networkLayer: {
       components: { Outpost, ClientOutpostData },
+      
     },
   } = layer;
 
   defineSystem(world, [Has(Outpost), Has(ClientOutpostData)], ({ entity }) => {
+
+
+      
+
     const outpostDojoData = getComponentValueStrict(Outpost, entity);
-    const outpostClientData = getComponentValueStrict(ClientOutpostData, entity);
+    const outpostClientData = getComponentValue(ClientOutpostData, entity);
+
+    if (outpostClientData === undefined) {return}
 
     const outpostObj = objectPool.get(entity, "Sprite");
+
+    addEntityAtIndex(getTileIndex(outpostDojoData.x, outpostDojoData.y), entity);
 
     //can this be merged?
 
     outpostObj.setComponent({
       id: "position",
-      once: (sprite) => {
+      once: (sprite:any) => {
         sprite.setPosition(outpostDojoData.x - (sprite.width * SCALE) / 2, outpostDojoData.y - (sprite.height * SCALE) / 2);
       },
     });
 
     outpostObj.setComponent({
       id: "texture",
-      once: (sprite) => {
+      once: (sprite:any) => {
 
-        sprite.depth = 0;
-
-        if (outpostClientData.selected)
-        {
+        if (outpostClientData.selected) {
           sprite.setTexture(Assets.CaslteSelectedAsset);
+          
+          sprite.depth = 1;
         }
-        else
-        {
-          if (outpostDojoData.lifes <= 0) {
-            sprite.setTexture(Assets.CastleDestroyedAsset);
-          }
-          else {
-            if (!outpostClientData.event_effected) {
-              if (outpostClientData.owned) {
-                sprite.setTexture(Assets.CastleHealthySelfAsset);
-              } else {
-                sprite.setTexture(Assets.CastleHealthyEnemyAsset);
-              }
+        else {
+
+            sprite.depth = 0;
+            sprite.setVisible(true);
+
+            if (outpostDojoData.lifes <= 0) {
+              sprite.setTexture(Assets.CastleDestroyedAsset);
             }
             else {
-              sprite.setTexture(Assets.CastleDamagedAsset);
-            }
+              if (!outpostClientData.event_effected) {
+                if (outpostClientData.owned) {
+                  sprite.setTexture(Assets.CastleHealthySelfAsset);
+                } else {
+                  sprite.setTexture(Assets.CastleHealthyEnemyAsset);
+                }
+              }
+              else {
+                sprite.setTexture(Assets.CastleDamagedAsset);
+              }
           }
         }
 
-        // sprite.setBlendMode(Phaser.BlendModes.MULTIPLY);
+        if (outpostClientData.visible === false) 
+          {
+              sprite.setVisible(false);
+          }
+
         sprite.scale = SCALE;
+
+        setWidthAndHeight(sprite.width * SCALE, sprite.height * SCALE);
+
       },
     });
+
   });
 };

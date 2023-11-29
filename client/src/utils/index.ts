@@ -1,108 +1,85 @@
-import { getComponentValue } from "@latticexyz/recs";
 
-export const FIXED_SIZE: bigint = 42535295865117307932921825928971026432n; // 2^125
-export const ONE: bigint = 18446744073709551616n; // 2^61
-export const PRIME: bigint =
-  3618502788666131213697322783095070105623107215331596699973092056135872020481n;
-export const PRIME_HALF: bigint = PRIME / 2n;
+
+import { getEntityIdFromKeys, parseComponentValueFromGraphQLEntity } from "@dojoengine/utils";
+import { setComponent, Components, ComponentValue } from "@latticexyz/recs";
+
+
+
+
 
 export function isValidArray(input: any): input is any[] {
-  return Array.isArray(input) && input != null;
+    return Array.isArray(input) && input != null;
 }
 
-export function getFirstComponentByType(
-  entities: any[] | null | undefined,
-  typename: string
-): any | null {
-  if (!isValidArray(entities)) return null;
+export function getFirstComponentByType(entities: any[] | null | undefined, typename: string): any | null {
+    if (!isValidArray(entities)) return null;
 
-  for (let entity of entities) {
-    if (isValidArray(entity?.node.components)) {
-      const foundComponent = entity.node.components.find(
-        (comp: any) => comp.__typename === typename
-      );
-      if (foundComponent) return foundComponent;
+    for (let entity of entities) {
+        if (isValidArray(entity?.node.components)) {
+            const foundComponent = entity.node.components.find((comp: any) => comp.__typename === typename);
+            if (foundComponent) return foundComponent;
+        }
     }
-  }
-
-  return null;
+    return null;
 }
 
-export function extractAndCleanKey(
-  entities?: any[] | null | undefined
-): string | null {
-  if (!isValidArray(entities) || !entities[0]?.keys) return null;
+export function extractAndCleanKey(entities?: any[] | null | undefined): string | null {
+    if (!isValidArray(entities) || !entities[0]?.keys) return null;
 
-  return entities[0].keys.replace(/,/g, "");
+    return entities[0].keys.replace(/,/g, '');
 }
 
-export function hexToAscii(hex: string) {
-  var str = "";
-  for (var n = 2; n < hex.length; n += 2) {
-    str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
-  }
-  return str;
+
+// export function addPrefix0x(input: string | number): string {
+//     // Add '0x' prefix to the input
+//     return `0x${input}`;
+// }
+
+export function decimalToHexadecimal(number: number): string {
+    if (isNaN(number) || !isFinite(number)) {
+        throw new Error("Input must be a valid number");
+    }
+
+    // Using toString with base 16 to convert the number to hexadecimal
+    const hexadecimalString = number.toString(16).toUpperCase();
+    return `0x${hexadecimalString}`;
 }
 
-export const toFelt = (num: number | bigint): bigint => BigInt(num);
+export function truncateString(inputString: string, prefixLength: number): string {
+    if (inputString.length <= prefixLength) {
+        return inputString; // No need to truncate if the string is already short enough
+    }
 
-export const toFixed = (num: number | bigint): bigint => {
-  const res: bigint = BigInt(num) * ONE;
-  if (res > FIXED_SIZE || res <= FIXED_SIZE * -1n)
-    throw new Error("Number is out of valid range");
-  return toFelt(res);
-};
+    const prefix = inputString.substring(0, prefixLength);
+    const suffix = inputString.slice(-3);
 
-export const fromFixed = (num: bigint): number => {
-  let res: bigint = BigInt(num);
-  res = res > PRIME_HALF ? res - PRIME : res;
-  const int: number = Number(res / ONE);
-  const frac: number = Number(res % ONE) / Number(ONE);
-  return int + frac;
-};
-
-export class Fixed {
-  mag: number;
-  sign: number;
-  size: number;
-
-  constructor(mag: number, sign: number, size: number = 64) {
-    if (![64, 128].includes(size))
-      throw new Error("Invalid size. Must be 64 or 128");
-    this.mag = mag;
-    this.sign = Number(sign);
-    this.size = size;
-  }
-
-  static toFixed(input: number | [number, number], size: number = 64): Fixed {
-    if (Array.isArray(input)) return new Fixed(input[0], input[1], size);
-    return new Fixed(input, 0, size); // Here I've assumed sign as 0, you might need to change this based on your actual requirements.
-  }
-
-  valueOf(): number {
-    const _value: number = this.mag / 2 ** (this.size === 64 ? 32 : 64);
-    return this.sign ? -_value : _value;
-  }
+    return `${prefix}...${suffix}`;
 }
 
-///////////////////////////////////////////////////
-//THESE ARE ALL TO CHECK AND MAYBE REMOVE LATER
 
-export function bigIntToHexAndAscii(value: bigint): string {
-  const hexString = value.toString(16);
-  let asciiString = "";
 
-  for (let i = 0; i < hexString.length; i += 2) {
-    const hexChar = hexString.substr(i, 2);
-    const decimalValue = parseInt(hexChar, 16);
-    asciiString += String.fromCharCode(decimalValue);
-  }
+export function setComponentFromGraphQLEntityTemp(components: Components, entity: any) {
+    const keys = entity.keys.map((key: string) => BigInt(key));
+    const entityIndex = getEntityIdFromKeys(keys);
 
-  return asciiString;
-}
+    entity.models.forEach((model: any) => {
+        const componentName = model.__typename;
+        const component = components[componentName];
 
-export function bigIntToHexWithPrefix(value: bigint | number): string {
-  const hexString = `0x${value.toString(16)}`;
-  return hexString;
+        if (!component) {
+            console.error(`Component ${componentName} not found`);
+            return;
+        }
+
+        const componentValues = Object.keys(component.schema).reduce((acc: ComponentValue, key) => {
+            const value = model[key];
+            const parsedValue = parseComponentValueFromGraphQLEntity(value, component.schema[key]);
+            acc[key] = parsedValue;
+            return acc;
+        }, {});
+
+        console.log(componentValues)
+        setComponent(component, entityIndex, componentValues);
+    });
 }
 

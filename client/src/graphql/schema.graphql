@@ -1,51 +1,154 @@
- query getEntities {
-    entities(keys: ["%"]) {
-      edges {
-        node {
+query getGameTrackerNew($entity_id: u128!) {
+  gametrackerModels(where: { entity_id: $entity_id }) {
+    edges {
+      node {
+        entity {
           keys
-          components {
+          models {
             __typename
-            ... on Revenant {
-              owner
-              name
-              outpost_count
-              status
-            }
-            ... on Outpost {
-              owner
-              name
-              x
-              y
-              lifes
-              status
-              last_affect_event_id
-            }
-            ... on WorldEvent {
-              x
-              y
-              radius
-              destroy_count
-              block_number
-            }
             ... on GameTracker {
+              entity_id
               count
-            }
-            ... on Game {
-              start_time
-              block_number
-              prize
-              status
-            }
-            ... on GameEntityCounter {
-              revenant_count
-              outpost_count
-              event_count
-            }
-            ... on Reinforcement {
-              balance
             }
           }
         }
       }
     }
   }
+}
+
+query getReinforcementNew($game_id: u32!, $owner: ContractAddress!) {
+  playerinfoModels(where: { game_id: $game_id, owner: $owner }) {
+    edges {
+      node {
+        entity {
+          keys
+          models {
+            __typename
+            ... on PlayerInfo {
+              game_id
+              owner
+              revenant_count
+              outpost_count
+              reinforcement_count
+              inited
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+query getAllEvents($game_id: u32!, $eventsNumber: Int!) {
+  worldeventModels(first: $eventsNumber, where: { game_id: $game_id }) {
+    edges {
+      node {
+        entity {
+          keys
+          models {
+            __typename
+            ... on WorldEvent {
+              game_id
+              entity_id
+              x
+              y
+              radius
+              destroy_count
+              block_number
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+query getGameEntityCounter($game_id: u32!) {
+  gameentitycounterModels(where: { game_id: $game_id }) {
+    edges {
+      node {
+        entity {
+          keys
+          models {
+            __typename
+            ... on GameEntityCounter {
+              game_id
+              revenant_count
+              outpost_count
+              event_count
+              outpost_exists_count
+              remain_life_count
+              reinforcement_count
+              trade_count
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+
+query fetchEverythingNew($game_id: String!) {
+  entities(keys: [$game_id]) {
+    edges {
+      node {
+        keys
+        models {
+          __typename
+          ... on WorldEvent {
+            game_id
+            entity_id
+            x
+            y
+            radius
+            destroy_count
+            block_number
+          }
+          ... on Revenant {
+            game_id
+            entity_id
+            owner
+            name_revenant
+            outpost_count
+            status
+          }
+          ... on Outpost {
+            game_id
+            entity_id
+            owner
+            name_outpost
+            x
+            y
+            lifes
+            status
+            last_affect_event_id
+          }
+          ... on Game {
+            game_id
+            admin
+            start_block_number
+            prize
+            preparation_phase_interval
+            event_interval
+            erc_addr
+            status
+          }
+          ... on GameEntityCounter {
+            game_id
+            revenant_count
+            outpost_count
+            event_count
+            outpost_exists_count
+            remain_life_count
+            reinforcement_count
+            trade_count
+          }
+        }
+      }
+    }
+  }
+}

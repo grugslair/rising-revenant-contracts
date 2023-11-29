@@ -1,253 +1,207 @@
-// import { useEffect, useState, useRef } from "react";
-// import { tooltipEvent } from "../../phaser/systems/eventSystems/eventEmitter";
-// import "../styles/ToolTipDataStyles.css";
-// import { PhaserLayer } from "../../phaser";
+import React, { useState, useEffect } from "react";
 
-// import {
-//   EntityIndex,
-//   getComponentValue,
-//   getComponentValueStrict,
-// } from "@latticexyz/recs";
-// import { useDojo } from "../../hooks/useDojo";
+import "./ComponentsStyles/OutpostTooltipStyles.css";
 
-// import { ClickWrapper } from "../clickWrapper";
-// import { GAME_CONFIG } from "../../phaser/constants";
+import { ClickWrapper } from "../clickWrapper";
 
-// import { bigIntToHexAndAscii, bigIntToHexWithPrefix } from "../../utils";
-// import { getEntityIdFromKeys } from "../../dojo/createSystemCalls";
+import { useDojo } from "../../hooks/useDojo";
 
-// type Props = {
-//   layer: PhaserLayer;
-//   useDojoContents: ReturnType<typeof useDojo>;
-// };
+import { HasValue,  getComponentValueStrict, setComponent } from "@latticexyz/recs";
 
-// export const ToolTipData = ({ layer, useDojoContents }: Props) => {
-//   const [isVisible, setIsVisible] = useState(false); // visibility of the tooltip
-//   const [position, setPosition] = useState({ x: 0, y: 0 }); // initial screen position of the tooltip
+import { useEntityQuery } from "@latticexyz/react";
 
-//   const [nameText, setNameText] = useState<any>(null); // name of the outpost
-//   const [addressText, setAddressText] = useState<any>(null); // address of the player who owns the outpost
-//   const [reinforceText, setReinforceText] = useState<any>(null); // current life of the outpost
+import { ConfirmEventOutpost } from "../../dojo/types";
 
-//   const [outpostEntityVal, setOutpostEntityVal] = useState<any>(null); // specific entity id of the outpost
-//   const [isOwner, setIsOwner] = useState<boolean>(false); // bool to check if the owner is the user
-//   const [isEventEffected, setIsEventEffected] = useState<boolean>(false); // bool to check if the event has effected the outpost
-//   const [gameId, setGameId] = useState<any>(null); // game id of the current game
+import { setTooltipArray } from "../../phaser/systems/eventSystems/eventEmitter";
+import { truncateString } from "../../utils";
+import { GAME_CONFIG } from "../../phaser/constants";
+import { getEntityIdFromKeys } from "@dojoengine/utils";
 
-//   const tooltipContainerRef = useRef<HTMLDivElement>(null);
-//   const initialCameraCenterPos = useRef<any>(null);
-//   const currentTooltipPos = useRef<any>({ x: 0, y: 0 });
+interface OutpostTooltipProps { }
 
-//   const {
-//     networkLayer: {
-//       components: {
-//         Outpost,
-//         ClientCameraPosition,
-//         GameEntityCounter,
-//         ClientOutpostData,
-//         ClientGameData,
-//       },
-//     },
-//   } = layer;
+export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
+  const [selectedIndexFromArray, setSelectedIndexFromArray] = useState<any>(0);
+  const [entityIdSelected, setEntityIdSelected] = useState<any>(0);
+  const [selectedIndex, setSelectedIndex] = useState<any>(1);
 
-//   const {
-//     account: { account },
-//     networkLayer: {
-//       systemCalls: { destroy_outpost, reinforce_outpost },
-//     },
-//   } = useDojoContents;
+  const [arrayOfEntities, setArrayOfEntities] = useState<any>([]);
 
-//   let timer: NodeJS.Timeout | null = null;
+  const {
+    account: { account },
+    networkLayer: {
+      systemCalls: {
+        reinforce_outpost, confirm_event_outpost
+      },
+      network: { contractComponents, clientComponents },
+    },
+  } = useDojo();
 
-//   const closeTooltip = (
-//     shouldCheck: boolean,
-//     clickX?: number,
-//     clickY?: number
-//   ) => {
-//     if (!shouldCheck) {
-//       setIsVisible(false);
-//       return;
-//     }
+  let selectedOutposts = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { selected: true })]);
 
-//     const tooltipDiv = document.querySelector(".tooltip-container-in-game");
-//     if (!tooltipDiv) return;
+  const setArray = (array: any[]) => {
 
-//     const rect = tooltipDiv.getBoundingClientRect();
+    // this loop does not convince me
+    for (let index = 0; index < selectedOutposts.length; index++) {
 
-//     if (clickX !== undefined && clickY !== undefined) {
-//       if (
-//         clickX >= rect.left &&
-//         clickX <= rect.right &&
-//         clickY >= rect.top &&
-//         clickY <= rect.bottom
-//       ) {
-//         return;
-//       }
-//     }
+      const element = selectedOutposts[index];
+      const clientCompData = getComponentValueStrict(clientComponents.ClientOutpostData, element);
+      setComponent(clientComponents.ClientOutpostData, element, { id: clientCompData.id, event_effected: clientCompData.event_effected,visible : clientCompData.visible, selected: false, owned: clientCompData.owned })
+    }
 
-//     setIsVisible(false);
-//   };
+    if (array.length === 0) { setArrayOfEntities([]); return; }
+    console.log(array.length);
+    setSelectedIndexFromArray(0);
+    setArrayOfEntities(array);
 
-//   const spawnTooltip = (x: number, y: number, outpostNum: number) => {
-//     const currentGameId = getComponentValueStrict(
-//       ClientGameData,
-//       GAME_CONFIG
-//     ).current_game_id;
+    setEntityIdSelected(array[0]);
+  }
 
-//     setGameId(currentGameId);
+  useEffect(() => {
+    setTooltipArray.on("setToolTipArray", setArray);
 
-//     const entityId = getEntityIdFromKeys([
-//       BigInt(currentGameId),
-//       BigInt(outpostNum),
-//     ]);
+    return () => {
+      setTooltipArray.off("setToolTipArray", setArray);
+    };
+  }, []);
 
-//     const _outpostEntityData = getComponentValueStrict(Outpost, entityId);
-//     const _outpostOwnershipData = getComponentValueStrict(
-//       ClientOutpostData,
-//       entityId
-//     );
+  useEffect(() => {
 
-//     // set the data
-//     // setNameText(bigIntToHexAndAscii(BigInt(_outpostEntityData.name)));
-//     setNameText(_outpostEntityData.x + " " + _outpostEntityData.y)
-//     setAddressText(bigIntToHexWithPrefix(BigInt(_outpostEntityData.owner)));
-//     setReinforceText(Number(_outpostEntityData.lifes)); // why does this need to be a number to work
+    for (let index = 0; index < selectedOutposts.length; index++) {
+      const element = selectedOutposts[index];
+      
+      const clientCompData = getComponentValueStrict(clientComponents.ClientOutpostData, element);
+      setComponent(clientComponents.ClientOutpostData, element, { id: clientCompData.id, event_effected: clientCompData.event_effected, visible : clientCompData.visible,selected: false, owned: clientCompData.owned })
+    }
 
-//     setOutpostEntityVal(_outpostOwnershipData.id);
-//     setIsOwner(_outpostOwnershipData.owned);
-//     setIsEventEffected(_outpostOwnershipData.event_effected);
-   
+    if (arrayOfEntities.length === 0) { return; }
 
-//     // this should not be like this, will need to be changed
-//     if (_outpostEntityData.lifes <= 0) 
-//     {
-//       setIsOwner(false);
-//     }
+    const outpostClientData = getComponentValueStrict(clientComponents.ClientOutpostData, entityIdSelected);
 
-//     initialCameraCenterPos.current = getComponentValue(
-//       ClientCameraPosition,
-//       GAME_CONFIG as EntityIndex
-//     );
-//     currentTooltipPos.current = { x, y };
+    setComponent(clientComponents.ClientOutpostData, entityIdSelected, { id: outpostClientData.id, event_effected: outpostClientData.event_effected, visible: outpostClientData.visible,selected: true, owned: outpostClientData.owned })
 
-//     setPosition({ x, y });
-//     setIsVisible(true);
-
-//     // restart timer
-//     if (timer) {
-//       clearTimeout(timer);
-//     }
-
-//     timer = setTimeout(() => {
-//       setIsVisible(false);
-//     }, 8000);
-//   };
-
-//   useEffect(() => {
-//     tooltipEvent.on("spawnTooltip", spawnTooltip);
-//     tooltipEvent.on("closeTooltip", closeTooltip);
-
-//     const updateTooltipPosition = () => {
-//         if (!isVisible)
-//         {return;}
-          
-//         const newCameraCenterPos = getComponentValue(
-//           ClientCameraPosition,
-//           GAME_CONFIG as EntityIndex
-//         );
-
-//         if (newCameraCenterPos && initialCameraCenterPos.current) {
-//           const dx = newCameraCenterPos.x - initialCameraCenterPos.current.x;
-//           const dy = newCameraCenterPos.y - initialCameraCenterPos.current.y;
-
-//           setPosition({
-//             x: currentTooltipPos.current.x - dx,
-//             y: currentTooltipPos.current.y - dy,
-//           });
-
-//           currentTooltipPos.current = {
-//             x: currentTooltipPos.current.x - dx,
-//             y: currentTooltipPos.current.y - dy,
-//           };
-
-//           initialCameraCenterPos.current = newCameraCenterPos;
-//         }
-//     };
-
-//     const intervalID = setInterval(updateTooltipPosition, 1000 / 60);
-
-//     return () => {
-//       tooltipEvent.off("spawnTooltip", spawnTooltip);
-//       tooltipEvent.off("closeTooltip", closeTooltip);
-//       clearInterval(intervalID);
-//       if (timer) {
-//         clearTimeout(timer);
-//       }
-//     };
-//   }, [isVisible]);
-
-//   if (!isVisible) return null;
-
-//   const style = {
-//     left: `${position.x}px`,
-//     top: `${position.y}px`,
-//   };
-
-//   return (
-//     <div
-//       ref={tooltipContainerRef}
-//       className="tooltip-container-in-game"
-//       style={style}
-//     >
-//       <div className="tooltip-text-box-in-game">Name: {nameText} </div>
-//       <div className="tooltip-text-box-in-game">
-//         Owner address: {addressText}
-//       </div>
-//       <div className="tooltip-text-box-in-game">
-//         Reinforcement: {reinforceText}
-//       </div>
-
-//       {isOwner && (
-//         <ClickWrapper>
-//           {isEventEffected && (
-//             <button
-//               className="tooltip-button-in-game"
-//               onClick={() => {
-//                 destroy_outpost(
-//                   account,
-//                   getComponentValueStrict(GameEntityCounter, gameId).event_count,
-//                   outpostEntityVal
-//                 );
-//               }}
-//             >
-//               Confirm Event
-//             </button>
-//           )}
+  }, [entityIdSelected])
 
 
-//   <button
-//               className="tooltip-button-in-game"
-//               onClick={() => {
-//                 destroy_outpost(
-//                   account,
-//                   getComponentValueStrict(GameEntityCounter, gameId).event_count,
-//                   outpostEntityVal
-//                 );
-//               }}
-//             >
-//               Confirm Event
-//             </button>
+  if (arrayOfEntities.length === 0) { return <div></div>; }
 
-//           <button
-//             className="tooltip-button-in-game"
-//             onClick={() => {
-//               reinforce_outpost(account, outpostEntityVal);
-//             }}
-//           >
-//             Reinforces
-//           </button>
-//         </ClickWrapper>
-//       )}
-//     </div>
-//   );
-// };
+  // const revenantData = getComponentValueStrict(contractComponents.Revenant, entityIdSelected);
+  const outpostData = getComponentValueStrict(contractComponents.Outpost, entityIdSelected);
+
+  const outpostClientData = getComponentValueStrict(clientComponents.ClientOutpostData, entityIdSelected);
+
+  const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+  
+  const ChangeCounter = (number: number) => {
+
+    const outpostClientData = getComponentValueStrict(clientComponents.ClientOutpostData, entityIdSelected);
+
+    // just realised this works now for some reason setComponent is what should be use
+    setComponent(clientComponents.ClientOutpostData, entityIdSelected, { id: outpostClientData.id, event_effected: outpostClientData.event_effected,visible : outpostClientData.visible, selected: false, owned: outpostClientData.owned })
+
+    setSelectedIndex(1);
+
+    if (arrayOfEntities.length === 1) {
+      return;
+    }
+
+    if (selectedIndexFromArray + number >= arrayOfEntities.length) {
+      setSelectedIndexFromArray(0);
+      setEntityIdSelected(arrayOfEntities[0]);
+      setSelectedIndex(1);
+      return;
+    }
+    else if (selectedIndexFromArray + number < 0) {
+      setSelectedIndexFromArray(arrayOfEntities.length - 1);
+      setEntityIdSelected(arrayOfEntities[arrayOfEntities.length - 1]);
+      setSelectedIndex(arrayOfEntities.length);
+      return;
+    }
+    
+    else {
+      setSelectedIndexFromArray(selectedIndexFromArray + number);
+      setEntityIdSelected(arrayOfEntities[selectedIndexFromArray + number]);
+      setSelectedIndex(selectedIndexFromArray + number + 1);
+      return;
+    }
+  }
+
+  const confirmEvent = async () => {
+
+      const gameTrackerData = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+
+      const confirmEventProps: ConfirmEventOutpost = {
+        account: account,
+        game_id: clientGameData.current_game_id,
+        event_id: gameTrackerData.event_count,
+        outpost_id: outpostClientData.id,
+      };
+  
+      await confirm_event_outpost(confirmEventProps);
+  }
+
+  const GetOutpostStatus = () => {
+
+    if (outpostData.lifes === 0) {
+      return 3;
+    }
+    if (outpostClientData.event_effected) {
+      return 2;
+    }
+
+    return 1;
+  }
+
+  return (
+    <div className="outpost-tooltip-container">
+      <div className="outpost-data-container">
+        <ClickWrapper
+          className="top-right-button"
+          style={{ fontSize: "2rem", top: "8px", right: "8px" }}
+          onMouseDown={() => {setArray([]) }}
+        >
+          X
+        </ClickWrapper>
+        <h1>OUTPOST DATA</h1>
+        <h3>X:{outpostData.x}, Y:{outpostData.y}</h3>
+        <h3>Reinforcements: {outpostData.lifes}</h3>
+        <h3>State: {(() => {
+          const outpostStatus = GetOutpostStatus();
+
+          switch (outpostStatus) {
+            case 1:
+              return <span style={{ color: 'green' }}>Healthy</span>;
+            case 2:
+              return (
+                <div>
+                  <span style={{ color: 'orange' }}>In Event</span>
+                   {/* {revenantData.owner === account.address ?  <ClickWrapper className="outpost-data-event-button" onMouseDown={() => {confirmEvent()}}>Confirm Event</ClickWrapper> : <div></div>} */}
+                   <ClickWrapper className="outpost-data-event-button" onMouseDown={() => {confirmEvent()}}>Confirm Event</ClickWrapper>
+                </div>
+              );
+            case 3:
+              return <span style={{ color: 'red' }}>Destroyed</span>;
+            default:
+              return null;
+          }
+        })()}</h3>
+      </div>
+
+      <div className="revenant-data-container">
+        <h1>REVENANT DATA</h1>
+        {/* {revenantData.owner === account.address ?   <h3>Owner: You</h3> : <h3>Owner: {truncateString(revenantData.owner, 5)}</h3>} */}
+        <h3>Name: {`Revenant ${outpostClientData.id}`}</h3>
+        <h3>ID: {outpostClientData.id}</h3>
+      </div>
+
+      {arrayOfEntities.length > 1 && (
+        <ClickWrapper className="multi-out-container">
+          <button className="outpost-data-event-button " onMouseDown={() => {ChangeCounter(-1)}}>{"<"}</button>
+          <div>
+            <h3>Outposts: {selectedIndex}/{arrayOfEntities.length}</h3>
+          </div>
+          <button className="outpost-data-event-button " onMouseDown={() => {ChangeCounter(1)}}> {">"} </button>
+        </ClickWrapper>
+      )}
+    </div>
+  );
+};

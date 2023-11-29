@@ -1,44 +1,73 @@
 import React from "react";
-import "../../App.css";
-import "../styles/StatsPageStyles.css";
 
+import "./PagesStyles/StatsPageStyle.css";
+import "../../App.css"
+
+import { MenuState } from "./gamePhaseManager";
 import { ClickWrapper } from "../clickWrapper";
 
-export const StatsReactComp: React.FC = () => {
-  return (
-    // THIS NEEDS THE CLICKWRAPPER COMPONENT IMPLEMENTED FOR THE SCROLL AND THE TEXTFIELD
+interface StatsPageProps {
+    setMenuState: React.Dispatch<React.SetStateAction<MenuState>>;
+}
 
-    <div className="stats-page-container">
-      <ClickWrapper className="search-container">
-        <div className="search-box font-size-mid-titles">Search:</div>
-        <input
-          type="text"
-          className="text-field font-size-mid-titles"
-          placeholder="Type Revenant or outpost ID"
-        />
-      </ClickWrapper>
-      <div className="list-container">
-        <div className="individual-list">
-          <div className="list-title font-size-mid-titles">Strongest outpost</div>
-          <ul className="list-element-stats-page font-size-texts">
-            <li>null</li>
-          </ul>
-        </div>
+export const StatsPage: React.FC<StatsPageProps> = ({ setMenuState }) => {
+    const closePage = () => {
+        setMenuState(MenuState.NONE);
+    };
 
-        <div className="individual-list">
-          <div className="list-title font-size-mid-titles">Major lords</div>
-          <ul className="list-element-stats-page font-size-texts">
-            <li>null</li>
-          </ul>
-        </div>
+    const sortList = () => { };
 
-        <div className="individual-list">
-          <div className="list-title font-size-mid-titles">TBD</div>
-          <ul className="list-element-stats-page font-size-texts">
-            <li>null</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
+    const refreshList = () => { };
+
+    return (
+        <ClickWrapper className="stats-page-container">
+            <div className="title-section">
+                <h2>STATISTICS</h2>
+            </div>
+            <div className="content-section">
+                <div className="stats-section">
+                    <div className="list-container">
+                        <div className="list-title-section">
+
+                            <h2>NAME OF FIELD  
+                                <img className="icon" src="LOGO_WHITE.png" alt="add button" onMouseDown={() => { refreshList() }} /> 
+                                <img className="icon" src="LOGO_WHITE.png" alt="add button" onMouseDown={() => { sortList() }} />
+                            </h2>
+
+                        </div>
+                        <div className="item-container"></div>
+                    </div>
+                </div>
+                <div className="stats-section">
+                    <div className="list-container">
+                        <div className="list-title-section">
+
+                            <h2>NAME OF FIELD  
+                                <img className="icon" src="LOGO_WHITE.png" alt="Sort Data" onMouseDown={() => { refreshList() }} /> 
+                                <img className="icon" src="LOGO_WHITE.png" alt="Reload Data" onMouseDown={() => { sortList() }} />
+                            </h2>
+
+                        </div>
+                        <div className="item-container">
+                            <div className="item">NAME OF FIELD</div>
+                            <div className="item">NAME OF FIELD</div>
+                            <div className="item">NAME OF FIELD</div>
+                            <div className="item">NAME OF FIELD</div>
+                            <div className="item">NAME OF FIELD</div>
+                            <div className="item">NAME OF FIELD</div>
+                            <div className="item">NAME OF FIELD</div>
+                            <div className="item">NAME OF FIELD</div>
+                            <div className="item">NAME OF FIELD</div>
+                            <div className="item">NAME OF FIELD</div>
+                            <div className="item">NAME OF FIELD</div>
+                        </div>
+                    </div>
+                </div>
+                <div className="stats-section">
+
+                </div>
+            </div>
+            <div className="top-right-button" onMouseDown={() => {closePage()}}>X</div>
+        </ClickWrapper>
+    );
 };

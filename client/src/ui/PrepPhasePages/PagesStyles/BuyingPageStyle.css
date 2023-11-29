@@ -1,0 +1,109 @@
+.br-page-container,
+.summon-revenant-page-container {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  position: relative;
+
+  color: white;
+}
+
+/* .br-page-container {
+  background-image: url("Page_Bg/STATS_PAGE_BG.png");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+} */
+
+.br-page-container-img 
+{
+  width: 100%;
+  height: 100%;
+  
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  filter: brightness(var(--brightness)); /* Adjust the percentage to make it darker or lighter */
+}
+
+.main-content {
+  position: absolute;
+
+  left: 5%;
+
+  height: fit-content;
+  width: fit-content;
+
+  padding: 5px 10px;
+
+  gap: 10px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content-header {
+  font-family: Zelda;
+  font-weight: 100;
+
+  margin-bottom: 0px;
+  font-size: 2cqw;
+}
+
+.amount-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+
+  font-family: OL;
+
+  gap: 8%;
+}
+
+
+.amount-section h2 {
+  text-align: center;
+}
+
+.footer-text-section
+{
+  position: absolute;
+  width: 100%;
+
+  left: 0;
+  bottom: 0;
+
+  height: 10%;
+}
+
+.price-text {
+
+  position: absolute;
+  top: 50%;
+
+  transform: translateY(-50%);
+  left: 5%;
+
+  color: white;
+
+  font-size: 1.4rem;
+}
+
+.forward-button {
+
+  position: absolute;
+  top: 50%;
+
+  transform: translateY(-50%);
+  right: 5%;
+
+  color: white;
+
+  font-size: 1.4rem;
+}

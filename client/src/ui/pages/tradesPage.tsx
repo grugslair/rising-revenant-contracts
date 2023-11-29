@@ -1,7 +1,9 @@
-import React from 'react';
-import "../styles/TradesPageStyle.css";
+import "./PagesStyles/TradesPageStyles.css"
 
-export const TradesReactComp: React.FC = () => {
-  return <div></div>;
-};
-
+export const TradesPage = () => 
+{
+    return (
+        <div className="trades-page-container">
+        </div>
+    )
+}

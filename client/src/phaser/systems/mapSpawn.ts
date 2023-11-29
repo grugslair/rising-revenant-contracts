@@ -1,18 +1,10 @@
 import {
   Has,
-  defineEnterSystem,
-  defineSystem,
-  getComponentValueStrict,
-  setComponent,
+  defineEnterSystem
 } from "@latticexyz/recs";
 import { PhaserLayer } from "..";
 
-import {
-  Assets,
-  GAME_CONFIG,
-  PREPARATION_PHASE_BLOCK_COUNT as PREPARATION_PHASE_BLOCK_COUNT,
-} from "../constants";
-import { drawPhaserLayer } from "./eventSystems/eventEmitter";
+import { Assets} from "../constants";
 
 export const mapSpawn = (layer: PhaserLayer) => {
   const {
@@ -21,48 +13,44 @@ export const mapSpawn = (layer: PhaserLayer) => {
       Main: { objectPool, camera },
     },
     networkLayer: {
-      components: { Game, ClientGameData },
+      components: { Game },
     },
   } = layer;
 
   defineEnterSystem(world, [Has(Game)], ({ entity }) => {
     const mapObj = objectPool.get(entity, "Sprite");
-
+    
+    console.error("eoifhewwuirheuiqwhnqwfubqwufaebfdsbjk")
+      
     mapObj.setComponent({
       id: "animation",
-      once: (sprite) => {
+      once: (sprite:any) => {
         sprite.setTexture(Assets.MapPicture);
         sprite.depth = -2;
         camera.phaserCamera.setBounds(0, 0, sprite.width, sprite.height);
         camera.centerOn(sprite.width / 2, sprite.height / 2);
+
       },
     });
+
   });
 
-  defineSystem(world, [Has(ClientGameData)], ({ entity }) => {
-    const clientGameData = getComponentValueStrict(ClientGameData, entity);
+  // defineSystem(world, [Has(ClientGameData)], ({ entity }) => {
 
-    // if (
-    //   Number(gameComp.start_block_number) + PREPARATION_PHASE_BLOCK_COUNT >=
-    //     clientGameData.current_block_number + 1 &&
-    //   clientGameData.current_game_state === 1
-    // ) {
-    //   return;
-    // } else {
-    //   if (clientGameData.current_game_state === 1) {
-    //     drawPhaserLayer.emit("toggleVisibility", true);
-    //   } else {
-    //     return;
-    //   }
-    // }
+  //   const clientGameData = getComponentValueStrict(ClientGameData, decimalToHexadecimal(GAME_CONFIG));
 
-    if (clientGameData.current_game_state === 1)
-    {
-      drawPhaserLayer.emit("toggleVisibility", false);
-    }
-    else
-    {
-      drawPhaserLayer.emit("toggleVisibility", true);
-    }
-  });
+  //   console.error("THIS IS THE CURRENT GAME STATE", clientGameData);
+
+
+  //   drawPhaserLayer.emit("toggleVisibility", true);
+
+  //   // if (clientGameData.current_game_state === 1)
+  //   // {
+  //   //   drawPhaserLayer.emit("toggleVisibility", false);
+  //   // }
+  //   // else
+  //   // {
+  //   //   drawPhaserLayer.emit("toggleVisibility", true);
+  //   // }
+  // });
 };

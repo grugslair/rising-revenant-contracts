@@ -1,114 +1,86 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from "react";
+import { MenuState } from "../Pages/gamePhaseManager";
 
-import { ClickWrapper } from '../clickWrapper';
-import "../../App.css"
-import { PhaserLayer } from "../../phaser";
 
-import { menuEvents } from '../../phaser/systems/eventSystems/eventEmitter';
-import { getComponentValueStrict } from '@latticexyz/recs';
-import { GAME_CONFIG } from '../../phaser/constants';
+import "./ComponentsStyles/NavBarStyles.css";
 
-export enum MenuState {
-  MAIN,
-  RULES,
-  MAP,
-  STATS,
-  TRADES,
-  PROFILE,
-}
+import { ClickWrapper } from "../clickWrapper";
+import { PrepPhaseStages } from "../PrepPhasePages/prepPhaseManager";
 
+
+//look into why i need an onIconClick function? 
 interface NavbarProps {
   menuState: MenuState;
-  setMenuState: React.Dispatch<React.SetStateAction<MenuState>>;
-  layer: PhaserLayer;
-  passedTimer: boolean;
-  navbarOpacity: number;
+  setMenuState: (menuState: MenuState) => void;
+  onIconClick?: (menuState: MenuState) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ menuState, setMenuState, layer, passedTimer, navbarOpacity }) => {
+export const NavbarComponent: React.FC<NavbarProps> = ({ menuState, setMenuState, onIconClick }) => {
 
-  const toggleMenu = (newState: MenuState) => {
-    setMenuState((prevState) => (prevState === newState ? MenuState.MAIN : newState));
-  };
-
-  useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setMenuState(MenuState.MAIN);
+  const handleIconClick = (selectedState: MenuState) => {
+    if (menuState === selectedState) {
+      setMenuState(MenuState.NONE);
+    } else {
+      setMenuState(selectedState);
+      if (onIconClick) {
+        onIconClick(selectedState);
       }
-    };
-
-
-    window.addEventListener('keydown', handleEsc);
-
-    return () => {
-      window.removeEventListener('keydown', handleEsc);
-    };
-  }, []);
-
-  useEffect(() => {
-    menuEvents.emit('setMenuState', menuState);
-  }, [menuState]);
-
-  const {
-    networkLayer: {
-      components: { ClientGameData },
-    },
-  } = layer;
-
-  if (!passedTimer || navbarOpacity === 0) {
-    return (
-      <div className="main-menu-navbar-container">
-        <button className="navbar-button">RULES</button>
-        <div className="navbar-divider"></div>
-        <button className="navbar-button">MAP</button>
-        <div className="navbar-divider"></div>
-        <button className="navbar-button" >STATS</button>
-        <div className="navbar-divider"></div>
-        <button className="navbar-button " >TRADES</button>
-        <div className="navbar-divider"></div>
-        <button className="navbar-button" >PROFILE</button>
-      </div>
-    );
-  }
- 
-  else { 
-    const clientGameData = getComponentValueStrict(ClientGameData, GAME_CONFIG);
-
-    if (clientGameData.current_game_state === 1) {
-      return (
-        <ClickWrapper className="main-menu-navbar-container">
-        <button className={`navbar-button ${menuState === MenuState.RULES ? 'selected' : ''}`} onClick={() => toggleMenu(MenuState.RULES)}>RULES</button>
-        <div className="navbar-divider"></div>
-        <div className="navbar-button-disabled" >MAP</div>
-        <div className="navbar-divider"></div>
-        <div className="navbar-button-disabled" >STATS</div>
-        <div className="navbar-divider"></div>
-        <div className="navbar-button-disabled" >TRADES</div>
-        <div className="navbar-divider"></div>
-        <button className={`navbar-button ${menuState === MenuState.PROFILE ? 'selected' : ''}`} onClick={() => toggleMenu(MenuState.PROFILE)}>PROFILE</button>
-      </ClickWrapper>
-      );
-    }
-    else {
-      return (
-        <ClickWrapper className="main-menu-navbar-container">
-          <button className={`navbar-button ${menuState === MenuState.RULES ? 'selected' : ''}`} onClick={() => toggleMenu(MenuState.RULES)}>RULES</button>
-          <div className="navbar-divider"></div>
-          <button className={`navbar-button ${menuState === MenuState.MAP ? 'selected' : ''}`} onClick={() => toggleMenu(MenuState.MAP)}>MAP</button>
-          <div className="navbar-divider"></div>
-          <button className={`navbar-button ${menuState === MenuState.STATS ? 'selected' : ''}`} onClick={() => toggleMenu(MenuState.STATS)}>STATS</button>
-          <div className="navbar-divider"></div>
-          <button className={`navbar-button ${menuState === MenuState.TRADES ? 'selected' : ''}`} onClick={() => toggleMenu(MenuState.TRADES)}>TRADES</button>
-          <div className="navbar-divider"></div>
-          <button className={`navbar-button ${menuState === MenuState.PROFILE ? 'selected' : ''}`} onClick={() => toggleMenu(MenuState.PROFILE)}>PROFILE</button>
-        </ClickWrapper>
-      );
     }
   };
+
+  return (
+    <ClickWrapper className="navbar-container">
+      <div className={`navbar-icon ${menuState === MenuState.PROFILE ? "active" : "not-active"}`} onClick={() => handleIconClick(MenuState.PROFILE)}>
+        <img src="Icons/PROFILE.png" alt="" />
+      </div>
+      <div className={`navbar-icon ${menuState === MenuState.STATS ? "active" : "not-active"}`} onClick={() => handleIconClick(MenuState.STATS)}>
+        <img src="Icons/STATISTICS.png" alt="" />
+      </div>
+      <div onClick={() => handleIconClick(MenuState.SETTINGS)}  className={`navbar-icon ${menuState === MenuState.SETTINGS ? "active" : "not-active"}`}>
+        <img src="Icons/SETTINGS.png" alt="" />
+      </div>
+      <div onClick={() => handleIconClick(MenuState.TRADES)}  className={`navbar-icon ${menuState === MenuState.TRADES ? "active" : "not-active"}`}>   
+        <img src="Icons/TRADES.png" alt="" />
+      </div>
+      <div className={`navbar-icon ${menuState === MenuState.RULES ? "active" : "not-active"}`} onClick={() => handleIconClick(MenuState.RULES)}>
+        <img src="Icons/RULES.png" alt="" />
+      </div>
+    </ClickWrapper>
+  );
+};
+
+
+
+
+
+
+
+interface PrepPhaseNavbarProps {
+  currentMenuState: PrepPhaseStages;
+  lastSavedState: PrepPhaseStages;
+  setMenuState: (menuState: PrepPhaseStages) => void;
 }
 
+export const PrepPhaseNavbarComponent: React.FC<PrepPhaseNavbarProps> = ({ currentMenuState, lastSavedState,setMenuState }) => {
 
+  const handleIconClick = (selectedState: PrepPhaseStages) => {
+    if (currentMenuState === selectedState) {
+      setMenuState(lastSavedState);
+    } else {
+      setMenuState(selectedState);
+    }
+  };
 
+  // useEffect(() => { console.log(currentMenuState) }, [currentMenuState]);
 
-
+  return (
+    <ClickWrapper className="navbar-container" style={{height:"15%"}}>
+      <div className={`navbar-icon ${currentMenuState === PrepPhaseStages.PROFILE ? "active" : "not-active"}`} onClick={() => handleIconClick(PrepPhaseStages.PROFILE)}>
+        <img src="Icons/PROFILE.png" alt="" />
+      </div>
+      <div className={`navbar-icon ${currentMenuState === PrepPhaseStages.RULES ? "active" : "not-active"}`} onClick={() => handleIconClick(PrepPhaseStages.RULES)}>
+        <img src="Icons/RULES.png" alt="" />
+      </div>
+    </ClickWrapper>
+  );
+};

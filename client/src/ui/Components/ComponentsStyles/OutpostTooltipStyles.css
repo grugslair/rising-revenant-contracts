@@ -1,0 +1,92 @@
+.outpost-tooltip-container {
+  position: absolute;
+
+  top: 15%;
+  left: 5%;
+
+  height: 30%;
+  width: 15%;
+
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 3;
+
+  border: 5px solid var(--borderColour);
+  border-radius: 5px;
+  box-sizing: border-box;
+
+  color: white;
+
+  padding: 10px 10px;
+}
+
+.outpost-data-container {
+  position: relative;
+  margin-top: 0px;
+  height: 45%;
+}
+
+.outpost-data-container h1 {
+  margin-top: 0px;
+  margin-bottom: 10px;
+  font-family: Zelda;
+  font-weight: 100;
+}
+
+.outpost-data-container h3 {
+  margin: 5px 0px;
+  font-family: OL;
+}
+
+.outpost-data-event-button {
+  height: fit-content;
+  justify-self: center;
+
+  color: white;
+  box-shadow: none;
+  font-size: 1.2rem;
+
+  width: fit-content;
+
+  border: 2px solid var(--borderColour);
+  padding: 2px 5px;
+}
+
+.outpost-data-event-button:hover {
+  cursor: pointer;
+}
+
+.revenant-data-container {
+  margin-top: 5%;
+  height: 35%;
+}
+
+.revenant-data-container h1 {
+  margin-top: 0px;
+  margin-bottom: 10px;
+  font-family: Zelda;
+  font-weight: 100;
+}
+
+.revenant-data-container h3 {
+  margin: 5px 0px;
+  font-family: OL;
+}
+
+.multi-out-container {
+  margin-top: 5%;
+  height: 10%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-direction: row;
+
+  font-family: OL;
+}
+
+.multi-out-container button {
+  background-color: transparent;
+}
+
+.multi-out-container button:hover {
+  cursor: pointer;
+}

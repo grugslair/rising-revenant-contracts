@@ -4,23 +4,25 @@ import { SetupNetworkResult } from "./setupNetwork";
 
 export type ClientComponents = ReturnType<typeof createClientComponents>;
 
-export function createClientComponents({ contractComponents }: SetupNetworkResult) {
+export function createClientComponents({ contractComponents, clientComponents }: SetupNetworkResult) {
     return {
         ...contractComponents,
-        
 
-        Outpost: overridableComponent(contractComponents.Outpost),
-        Revenant: overridableComponent(contractComponents.Revenant),
         Game: overridableComponent(contractComponents.Game),
-        WorldEvent: overridableComponent(contractComponents.WorldEvent),
+        GameEntityCounter: overridableComponent(contractComponents.GameEntityCounter),
         GameTracker: overridableComponent(contractComponents.GameTracker),
-        GameEntityCounter : overridableComponent(contractComponents.GameEntityCounter),
-        Reinforcement : overridableComponent(contractComponents.Reinforcement),
+        Outpost: overridableComponent(contractComponents.Outpost),
+        OutpostPosition: overridableComponent(contractComponents.OutpostPosition),
+        Revenant: overridableComponent(contractComponents.Revenant),
+        PlayerInfo: overridableComponent(contractComponents.PlayerInfo),
+        WorldEvent: overridableComponent(contractComponents.WorldEvent),
+        WorldEventTracker: overridableComponent(contractComponents.WorldEventTracker),
 
-        //should not be here
-        ClientClickPosition : overridableComponent(contractComponents.ClientClickPosition),
-        ClientCameraPosition : overridableComponent(contractComponents.ClientCameraPosition),
-        ClientOutpostData : overridableComponent(contractComponents.ClientOutpostData),
-        ClientGameData : overridableComponent(contractComponents.ClientGameData),
+        ...clientComponents,
+
+        ClientCameraPosition: overridableComponent(clientComponents.ClientCameraPosition),
+        ClientClickPosition: overridableComponent(clientComponents.ClientClickPosition),
+        ClientOutpostData: overridableComponent(clientComponents.ClientOutpostData),
+        ClientGameData: overridableComponent(clientComponents.ClientGameData),
     };
 }

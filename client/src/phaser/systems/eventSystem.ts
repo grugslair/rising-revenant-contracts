@@ -1,31 +1,34 @@
+declare var Phaser: any
+
+
 import {
     Has,
     defineSystem,
-    getComponentValueStrict,
+    getComponentValueStrict, getComponentValue,
     getComponentEntities,
-    setComponent,
-    EntityIndex,
   } from "@latticexyz/recs";
   import { PhaserLayer } from "..";
   import { GAME_CONFIG } from "../constants";
+import {  setOutpostClientComponent } from "../../dojo/testCalls";
+import { getEntityIdFromKeys } from "@dojoengine/utils";
 
   export const eventManager = (layer: PhaserLayer) => {
     const {
       world,
-      scenes: {
-        Main: { objectPool },
-      },
       networkLayer: {
+        network: { clientComponents },
         components: { Outpost, WorldEvent, ClientOutpostData , GameEntityCounter, ClientGameData},
       },
     } = layer;
   
     defineSystem(world, [Has(WorldEvent)], ({ entity }) => {
 
-    
-      const dataEvent = getComponentValueStrict(WorldEvent, entity);
-  
-      if (!dataEvent) {  // this doesnt make sense
+        
+
+      const dataEvent = getComponentValue(WorldEvent, entity);
+      const clientGameData = getComponentValue(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+
+      if (!dataEvent || !clientGameData) {  // this doesnt make sense
         return;
       }
 
@@ -55,61 +58,31 @@ import {
       const outpostEntities = getComponentEntities(Outpost);
       const outpostArray = Array.from(outpostEntities);
 
-      const gameEntityCounter = getComponentValueStrict(GameEntityCounter, getComponentValueStrict(ClientGameData, GAME_CONFIG).current_game_id as EntityIndex);
+      const gameEntityCounter = getComponentValueStrict(GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
   
       for (const outpostEntityValue of outpostArray) {
-  
+
         const outpostClientData = getComponentValueStrict(ClientOutpostData, outpostEntityValue);
         const outpostEntityData = getComponentValueStrict(Outpost, outpostEntityValue);
-  
-        const playerObj = objectPool.get(outpostEntityValue, "Sprite");
-        
-        if (outpostEntityData.last_affect_event_id === gameEntityCounter.event_count)
-        {
-          // console.log("\n\nis this even hitting")
-          // console.log("if this is then this si the last effect ", outpostEntityData.last_affect_event_id)
-          // console.log("and this si the current last event ", gameEntityCounter.event_count)
 
-          setComponent(ClientOutpostData, outpostEntityValue, {
-            id: outpostClientData.id,
-            owned: outpostClientData.owned,
-            event_effected: false,
-            selected: outpostClientData.selected,
-          });
+        if (outpostEntityData.last_affect_event_id >= gameEntityCounter.event_count)
+        {
+          setOutpostClientComponent(outpostClientData.id, outpostClientData.owned, false, outpostClientData.selected, outpostClientData.visible, clientComponents ) 
         
           continue;
         }
 
-        playerObj.setComponent({
-          id: "texture",
-          once: (sprite) => {
+        const distance = Math.sqrt(
+          (Number(outpostEntityData.x) - positionX) ** 2 + (Number(outpostEntityData.y)- positionY) ** 2
+        );
 
-            const distance = Math.sqrt(
-              (Number(getComponentValueStrict(Outpost, outpostEntityValue).x) - positionX) ** 2 + (Number(getComponentValueStrict(Outpost, outpostEntityValue).y)- positionY) ** 2
-            );
-  
-            if (distance <= radius) {
-
-              setComponent(ClientOutpostData, outpostEntityValue, {
-                id: outpostClientData.id,
-                owned: outpostClientData.owned,
-                event_effected: true,
-                selected: outpostClientData.selected,
-              });
-
-            } 
-            else 
-            {
-              setComponent(ClientOutpostData, outpostEntityValue, {
-                id: outpostClientData.id,
-                owned: outpostClientData.owned,
-                event_effected: false,
-                selected: outpostClientData.selected,
-              });
-
-            }
-          },
-        });
+        if (distance <= radius) {
+          setOutpostClientComponent(outpostClientData.id, outpostClientData.owned, true, outpostClientData.selected, outpostClientData.visible, clientComponents ) 
+        }
+        else 
+        {
+          setOutpostClientComponent(outpostClientData.id, outpostClientData.owned, false, outpostClientData.selected, outpostClientData.visible, clientComponents ) 
+        }
       }
     });
   };

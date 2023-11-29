@@ -1,0 +1,170 @@
+.profile-page-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  color: white;
+}
+
+.page-img {
+  width: 100%;
+  height: 100%;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  filter: brightness(var(--brightness)); /* Adjust the percentage to make it darker or lighter */
+}
+
+
+
+.title-section {
+  width: 100%;
+  height: 15%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: relative;
+}
+
+.title-cart-section {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  position: absolute;
+  top: 50%;
+  right: 20px;
+
+  transform: translateY(-50%);
+
+  width: fit-content;
+  height: fit-content;
+
+  gap: 10px;
+  font-family: OL;
+}
+
+.title-cart-section h3 {
+  width: min-content;
+  color: white;
+
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+
+.title-cart-section h1 {
+  color: white;
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+
+.test-embed {
+  height: 1em;
+  width: 1em;
+  vertical-align: middle;
+  padding-bottom: 0.2em;
+
+  aspect-ratio: 1/1;
+
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+
+.info-section {
+  width: 100%;
+  height: 90%;
+}
+
+.table-section {
+  width: 100%;
+  height: 85%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-family: OL;
+}
+
+.buy-section {
+  width: 85%;
+  height: 15%;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+}
+
+.table-container {
+  width: 80%;
+  height: 90%;
+}
+
+.table-title-container {
+  width: 100%;
+  height: 10%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  scrollbar-gutter: stable both-edges;
+}
+
+.table-title-container h2 {
+  flex: 1;
+  text-align: center;
+}
+
+.table-items-container {
+  width: 100%;
+  height: 90%;
+
+  border: 5px solid var(--borderColour);
+  box-sizing: border-box;
+  scrollbar-gutter: stable both-edges;
+  overflow-y: auto;
+}
+
+.item-container-profile {
+  width: 100%;
+  height: fit-content;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.item-container-profile h2 {
+  flex: 1;
+  text-align: center;
+}
+
+.item-button {
+  flex: 1.5;
+}
+
+.button-style-profile {
+  height: fit-content;
+  justify-self: center;
+
+  color: white;
+  box-shadow: none;
+  font-size: 1.5rem;
+
+  margin-left: 10%;
+
+  width: fit-content;
+
+  border: 2px solid var(--borderColour);
+  padding: 2px 5px;
+}
+
+.button-style-profile:hover {
+  cursor: pointer;
+}
