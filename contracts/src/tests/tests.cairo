@@ -207,7 +207,6 @@ mod tests {
         revenant_action.reinforce_outpost(game_id, outpost_id);
     }
 
-
     #[test]
     #[available_gas(3000000000)]
     fn test_game_end() {
@@ -329,5 +328,74 @@ mod tests {
         assert(
             buyer_info.reinforcement_count == REINFORCEMENT_INIT_COUNT + 1, 'failed purchase trade'
         );
+    }
+
+    #[test]
+    #[available_gas(3000000000)]
+    fn test_claim_rewards() {
+        // how to test:
+        // 1. create 2 revenants
+        // 2. buy some reinforcement
+        // 3. start game play until game end
+        // 4. test claim
+
+        // step 1. create 2 revenants
+        let (
+            DefaultWorld{world, caller, revenant_action, world_event_action, test_erc, .. }, game_id
+        ) =
+            _init_game();
+        let (revenant_id, outpost_id) = _create_revenant(revenant_action, game_id);
+        let (_, _) = _create_revenant(
+            revenant_action, game_id
+        ); // need two outpost for checking game end
+
+        // step 2. buy some reinforcement
+        let purchase_count = 10_u32;
+        let price = revenant_action.get_current_price(game_id, purchase_count);
+        test_erc.approve(revenant_action.contract_address, price.into());
+        let purchase_result = revenant_action.purchase_reinforcement(game_id, purchase_count);
+        let game = get!(world, (game_id), (Game));
+        assert(game.prize > 0, 'wrong game prize');
+
+        // step 3. start game play until game end
+        _add_block_number(PREPARE_PHRASE_INTERVAL + 1);
+
+        // Loop world event
+        world_event_action.create(game_id);
+        loop {
+            _add_block_number(EVENT_BLOCK_INTERVAL + 1);
+            let game_counter = get!(world, (game_id), GameEntityCounter);
+            let world_event = get!(world, (game_id, game_counter.event_count), WorldEvent);
+            let destoryed = world_event_action
+                .destroy_outpost(game_id, world_event.entity_id, outpost_id);
+
+            let game_counter = get!(world, (game_id), GameEntityCounter);
+            if destoryed {
+                if game_counter.outpost_exists_count == 1 {
+                    break;
+                };
+
+                if (AUTO_CREATE_NEW_WORLD_EVENT == 0) {
+                    world_event_action.create(game_id);
+                } else {
+                    // If the event has an impact, a new event will be automatically generated.
+                    assert(
+                        game_counter.event_count.into() == world_event.entity_id + 1,
+                        'new event failed create'
+                    );
+                }
+            } else {
+                world_event_action.create(game_id);
+            };
+        };
+
+        // step 4. test claim
+        let erc_balance = test_erc.balance_of(caller);
+        let claimed_balance = revenant_action.claim_endgame_rewards(game_id);
+        let game = get!(world, (game_id), (Game));
+        assert(game.rewards_claim_status == 1, 'wrong game claim status');
+        assert(claimed_balance == game.prize, 'wrong claim prize balance');
+        let new_erc_balance = test_erc.balance_of(caller);
+        assert(new_erc_balance - erc_balance == claimed_balance, 'wrong receive balance');
     }
 }

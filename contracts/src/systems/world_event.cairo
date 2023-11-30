@@ -17,6 +17,7 @@ mod world_event_actions {
     use realmsrisingrevenant::components::outpost::{
         Outpost, OutpostPosition, OutpostStatus, OutpostImpl, OutpostTrait
     };
+    use realmsrisingrevenant::components::player::{PlayerInfo};
     use realmsrisingrevenant::components::world_event::{WorldEvent, WorldEventTracker};
     use realmsrisingrevenant::constants::{
         EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH, AUTO_CREATE_NEW_WORLD_EVENT
@@ -95,8 +96,11 @@ mod world_event_actions {
                 game_id, event_id: world_event.entity_id, outpost_id: outpost.entity_id
             };
 
+            let mut player_info = get!(world, (game_id, player), (PlayerInfo));
             if outpost.lifes == 0 {
                 game_data.outpost_exists_count -= 1;
+                player_info.revenant_count -= 1;
+                player_info.outpost_count -= 1;
                 if game_data.outpost_exists_count <= 1 {
                     game.status = GameStatus::ended;
                 }
@@ -117,7 +121,7 @@ mod world_event_actions {
                 }
             }
 
-            set!(world, (outpost, world_event, event_tracker, game_data, game));
+            set!(world, (outpost, world_event, event_tracker, game_data, game, player_info));
             // Emit World Event
             true
         }

@@ -48,7 +48,8 @@ mod game_actions {
                 event_interval,
                 erc_addr,
                 revenant_init_price,
-                status
+                status,
+                rewards_claim_status: 0,
             };
             let game_counter = GameEntityCounter {
                 game_id,

@@ -128,7 +128,7 @@ fn _init_game() -> (DefaultWorld, u32) {
 fn _create_revenant(revenant_action: IRevenantActionsDispatcher, game_id: u32) -> (u128, u128) {
     // 5937281861773520500 => 'Revenant'
     let (revenant_id, outpost_id) = revenant_action.create(game_id, 5937281861773520500);
-    revenant_action.claim(game_id);
+    revenant_action.claim_initial_rewards(game_id);
     (revenant_id, outpost_id)
 }
 

@@ -6,13 +6,15 @@ struct Game {
     #[key]
     game_id: u32, // increment
     start_block_number: u64,
-    prize: u32,
+    prize: u256,
     preparation_phase_interval: u64,
     event_interval: u64,
     // The ERC20 token address for increasing reinforcement
     erc_addr: ContractAddress,
     // The initial purchase price of Reinforcement.
     revenant_init_price: u256,
+    // if the rewards has been claimed.
+    rewards_claim_status: u32,
     status: u32
 }
 
