@@ -11,6 +11,8 @@ struct Game {
     event_interval: u64,
     // The ERC20 token address for increasing reinforcement
     erc_addr: ContractAddress,
+    // The initial purchase price of Reinforcement.
+    revenant_init_price: u256,
     status: u32
 }
 

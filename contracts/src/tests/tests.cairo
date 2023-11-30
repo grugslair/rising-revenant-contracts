@@ -41,8 +41,11 @@ mod tests {
     #[test]
     #[available_gas(3000000000)]
     fn test_create_game() {
-        let DefaultWorld{world, game_action, caller, .. } = _init_world();
-        let game_id = game_action.create(PREPARE_PHRASE_INTERVAL, EVENT_BLOCK_INTERVAL, caller);
+        let DefaultWorld{world, game_action, caller, test_erc, .. } = _init_world();
+        let game_id = game_action
+            .create(
+                PREPARE_PHRASE_INTERVAL, EVENT_BLOCK_INTERVAL, test_erc.contract_address, 0_u256
+            );
         assert(game_id == 1, 'game id incorrect');
 
         let game_tracker = get!(world, GAME_CONFIG, GameTracker);
@@ -66,9 +69,14 @@ mod tests {
     #[test]
     #[available_gas(3000000000)]
     fn test_create_revenant() {
-        let (DefaultWorld{world, caller, revenant_action, .. }, game_id) = _init_game();
+        let DefaultWorld{world, game_action, revenant_action, test_erc, caller, .. } =
+            _init_world();
+        let game_id = game_action
+            .create(
+                PREPARE_PHRASE_INTERVAL, EVENT_BLOCK_INTERVAL, test_erc.contract_address, 2_u256
+            );
+        test_erc.approve(revenant_action.contract_address, 2_u256);
         let (revenant_id, outpost_id) = _create_revenant(revenant_action, game_id);
-
         let (game, game_counter) = get!(world, (game_id), (Game, GameEntityCounter));
         assert(game_counter.revenant_count == 1, 'wrong revenant count');
         assert(game_counter.outpost_count == 1, 'wrong outpost count');

@@ -57,6 +57,17 @@ mod revenant_actions {
             assert(player_info.revenant_count < REVENANT_MAX_COUNT, 'reach revenant limit');
             game_data.revenant_count += 1;
 
+            if game.revenant_init_price > 0 {
+                let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+                let result = erc20
+                    .transfer_from(
+                        sender: player,
+                        recipient: get_contract_address(),
+                        amount: game.revenant_init_price,
+                    );
+                assert(result, 'need approve for erc20');
+            }
+
             let entity_id: u128 = game_data.revenant_count.into();
 
             let revenant = Revenant {
