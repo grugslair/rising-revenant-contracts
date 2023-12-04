@@ -14,6 +14,12 @@ import "./PagesStyles/BuyingPageStyle.css";
 
 //components
 
+//pages
+
+/*notes
+    this page is fine 
+*/
+
 interface PrepPhaseEndsPageProps {
     setMenuState: React.Dispatch<PrepPhaseStages>;
 }
@@ -55,7 +61,7 @@ export const PrepPhaseEndsPage: React.FC<PrepPhaseEndsPageProps> = ({ setMenuSta
             {/* <img src="./assets/Page_Bg/PREP_PHASE_WAIT_BG.png"  alt="testPic" /> */}
             <img src="./assets/Page_Bg/PREP_PHASE_WAIT_BG.png"  alt="testPic" />
             <ClickWrapper className="content-space">
-                <h1 style={{textAlign:"center", fontFamily:"Zelda", fontSize:"3cqw"}}>PREPARATION PHASE ENDS IN<br/>
+                <h1 style={{textAlign:"center", fontFamily:"Zelda", fontSize:"3cqw", fontWeight:"100"}}>PREPARATION PHASE ENDS IN<br/>
                     <span onMouseDown={()=> {setShowBlocks(!showBlocks)}}>{showBlocks ? `BLOCKS LEFT: ${blocksLeft}` : `DD:5 HH5 MM:3 SS:50`}</span>
                 </h1>
                 <div className="global-button-style" style={{fontSize:"1.8cqw", marginBottom:"2%" ,padding:"5px 10px"}} onMouseDown={() => {setMenuState(PrepPhaseStages.PROFILE)}}>Place your Reinforcements</div>
@@ -63,7 +69,6 @@ export const PrepPhaseEndsPage: React.FC<PrepPhaseEndsPageProps> = ({ setMenuSta
                     <div onMouseDown={() => {setMenuState(PrepPhaseStages.BUY_REVS)}} className="global-button-style" style={{padding:"5px 10px"}}>Summon more Revenants</div>
                     <div onMouseDown={() => {setMenuState(PrepPhaseStages.BUY_REIN)}} className="global-button-style" style={{padding:"5px 10px"}}>Buy more Reinforcements</div>
                 </div>
-
             </ClickWrapper>
         </div>
     );

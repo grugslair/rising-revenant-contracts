@@ -24,20 +24,23 @@ import { decimalToHexadecimal } from "../../utils";
 
 
 type JournalOutpostDataType =
-{
-  id: string,
-  x: number,
-  y: number,
-}
+  {
+    id: string,
+    x: number,
+    y: number,
+  }
 
 interface JuornalEventProps {
   setMenuState: React.Dispatch<React.SetStateAction<MenuState>>;
 }
 
 export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState }) => {
-  // return (<></>)
 
-  const [allOutpostEffected, setAllOutpostEffected] = useState<JournalOutpostDataType[]>([]);
+  const [eventData, setEventData] = useState({
+    radius: 0,
+    x: 0,
+    y: 0,
+  });
 
   const {
     networkLayer: {
@@ -45,85 +48,106 @@ export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState
     },
   } = useDojo();
 
-  // const openJurnal = () => {
-  //   setMenuState(MenuState.REV_JURNAL);
-  // };
+  const openJurnal = () => {
+    setMenuState(MenuState.REV_JURNAL);
+  };
 
-  const eventArray = useEntityQuery([Has(contractComponents.WorldEvent)]);
-  const currentlyHitOutposts = useEntityQuery([HasValue(clientComponents.ClientOutpostData, {event_effected: true})])
+  const allEvents = useEntityQuery([Has(contractComponents.WorldEvent)]);
+  const ownOutpost = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true, event_effected: true })]);
 
-  const gameClientData = getComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
-
+  //should update based on the query above
   useEffect(() => {
-    
-      if (eventArray.length === 0)
-      {
-        return;
-      }
+    if (allEvents.length > 0) {
 
-      // there prob is no need for the loop here and just do a simple  =  in the future
+      //get the last event
+      const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+      const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
 
-      let outpostDataArr: JournalOutpostDataType[] = []
+      const worldEventData = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(gameEntityCounter.event_count)]));
 
-      for (let index = 0; index < currentlyHitOutposts.length; index++) {
-        const element = currentlyHitOutposts[index];
-        
-        const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, element);
-        const outpostData = getComponentValueStrict(contractComponents.Outpost, element);
-
-        const dataToSave:JournalOutpostDataType = {id: clientOutpostData.id, x: outpostData.x, y: outpostData.y}
-        outpostDataArr.push(dataToSave);
-      }
-
-      setAllOutpostEffected(outpostDataArr);
-  
-    
-  }, [eventArray])
-  
-
-  if (eventArray.length === 0) { return (<></>) }
-
-  // console.log(eventArray.length)
-
-  const gameTrackerComp = getComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(gameClientData.current_game_id)]));
-  const eventData = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(decimalToHexadecimal(gameClientData.current_game_id)),BigInt(gameTrackerComp.event_count)]));
-
-  if (eventData === undefined) { return (<></>) }
+      setEventData({
+        radius: worldEventData.radius,
+        x: worldEventData.x,
+        y: worldEventData.y,
+      });
+    }
+  }, [allEvents]);
 
   return (
     <div className="jurnal-event-container">
+      {/* this is to check as i dont think it is standardisez */}
       <ClickWrapper className="title-div-container">
         <h2>
           REVENANT JOURNAL {" "}
-          {/* <img
-            src="LOGO_WHITE.png"
-            style={{ maxHeight: "1em", verticalAlign: "top", marginLeft: "auto" }}
-            alt="Logo"
-            onMouseDown={() => (openJurnal())}
-          ></img> */}
         </h2>
+
+        <h2 onMouseDown={() => (openJurnal())} className="close-button">
+          X
+        </h2>
+        {/* <img src="enlarge_icon.svg" className="test-embed" alt=""  onMouseDown={() => (openJurnal())}></img> */}
+
       </ClickWrapper>
 
       <div className="current-data-container">
-        <h3 className="sub-title">Current Event Data</h3>
-        <h4>Radius: {eventData.radius}</h4>
-        <h4>Type: Null</h4>
-        <h4>Position: X:{eventData.x} Y:{eventData.y}</h4>
+        {allEvents.length > 0 ? (
+          <>
+            <h3 className="sub-title">Current Event Data</h3>
+            <h4>Radius: {eventData.radius}</h4>
+            <h4>Type: Null</h4>
+            <h4>Position: X:{eventData.x} Y:{eventData.y}</h4>
+          </>
+        ) : (
+          <>
+            <h3 className="sub-title">No event Yet</h3>
+            <h4></h4>
+            <h4></h4>
+            <h4></h4>
+          </>
+        )}
       </div>
 
-      <div className="outpost-hit-data-container">
-        <h3 className="sub-title">Outposts Hit</h3>
-        <ClickWrapper className="outpost-hit-list-container">
-          {allOutpostEffected.map((outpostData: JournalOutpostDataType) => (
-            <h4>
-              Outpost ID:{" "}
-              {outpostData.id} || {" "}
-              X: {outpostData.x}, Y:{" "}
-              {outpostData.y}
-            </h4>
-          ))}
-        </ClickWrapper>
-      </div>
+      {allEvents.length > 0 && (
+        <div className="outpost-hit-data-container">
+          <h3 className="sub-title">Outposts Hit</h3>
+          <ClickWrapper className="outpost-hit-list-container">
+            {ownOutpost.map((outpostData: EntityIndex) => (
+              ListElement({ entityIndex: outpostData, clientComponents: clientComponents , contractComponents: contractComponents })
+            ))}
+          </ClickWrapper>
+        </div>
+      )}
+
     </div>
   );
 };
+
+const ListElement: React.FC<{ entityIndex: EntityIndex, clientComponents: any, contractComponents:any }> = ({ entityIndex, clientComponents, contractComponents }) => {
+
+  const [outpostData, setOutpostData] = useState<JournalOutpostDataType>({
+    id: "",
+    x: 0,
+    y: 0,
+  });
+
+  useEffect(() => {
+    const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entityIndex);
+    const contractOutpostData = getComponentValueStrict(contractComponents.Outpost, entityIndex);
+
+    setOutpostData({
+      id: decimalToHexadecimal(clientOutpostData.id),
+      x: contractOutpostData.x,
+      y: contractOutpostData.y,
+    });
+  }, []);
+
+  return (
+    <>
+      <h4>
+        Outpost ID:{" "}
+        {outpostData.id} || {" "}
+        X: {outpostData.x}, Y:{" "}
+        {outpostData.y}
+      </h4>
+    </>
+  )
+}

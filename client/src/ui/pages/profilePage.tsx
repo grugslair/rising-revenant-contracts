@@ -1,271 +1,209 @@
+//libs
 import React, { useEffect, useState } from "react";
-
-import "./PagesStyles/ProfilePageStyles.css";
-
 import { MenuState } from "./gamePhaseManager";
-
-import { HasValue, getComponentValueStrict,getComponentValue } from "@latticexyz/recs";
-
+import { HasValue, getComponentValueStrict, getComponentValue, EntityIndex } from "@latticexyz/recs";
 import { useEntityQuery } from "@latticexyz/react";
-
 import { useDojo } from "../../hooks/useDojo";
-
 import { ConfirmEventOutpost, ReinforceOutpostProps } from "../../dojo/types";
 import { setComponentQuick } from "../../dojo/testCalls";
 import { GAME_CONFIG } from "../../phaser/constants";
-import { ClickWrapper } from "../clickWrapper";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
+
+//styles
+import "./PagesStyles/ProfilePageStyles.css";
+
+
+//elements/components
+import { ClickWrapper } from "../clickWrapper";
+import PageTitleElement from "../Elements/pageTitleElement";
+import { namesArray, surnamesArray } from "../../utils";
+
+//pages
+
+
+/*notes
+this component should first query all the outposts that are owned from the player and then send each to the outpostElement type (that has yet to be made) like from the 
+examples
+
+needs functionality to move the camera to a certain location and ability to call reinforce dojo function and go to the trade page
+*/
 
 
 interface ProfilePageProps {
-  setMenuState?: React.Dispatch<React.SetStateAction<MenuState>>;
+    setUIState: () => void;
 }
 
-export const ProfilePage: React.FC<ProfilePageProps> = ({ setMenuState}) => {
-  // const closePage = () => {
-  //   setMenuState(MenuState.NONE);
-  // };
+export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
 
-  const [text, setText] = useState("");
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+    const [reinforcesAvailable, setReinforcesAvailable] = useState<number>(0);
 
-//   const {
-//     account: { account },
-//     networkLayer: {
-//       systemCalls: { reinforce_outpost, confirm_event_outpost },
-//       network: { clientComponents, contractComponents },
-//     },
-//   } = useDojo();
+    const {
+        account: { account },
+        networkLayer: {
+            network: { contractComponents, clientComponents },
+        },
+    } = useDojo();
 
-//   const selectedOutposts = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true })]);
-//   const allOutpostinEventAdminBot = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
-//   const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+    const ownedOutpost = useEntityQuery([HasValue(contractComponents.Outpost, { owner: account.address })]);
+    const playerInfo = useEntityQuery([HasValue(contractComponents.PlayerInfo, { owner: account.address })]);
 
-//   const moveCameraHere = (x: number, y: number) => {
-
-//     const clientCameraComp = getComponentValueStrict(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
-    
-//     setComponentQuick({"x": x, "y": y, "tile_index": clientCameraComp.tile_index},[getEntityIdFromKeys([BigInt(GAME_CONFIG)])], "ClientCameraPosition", clientComponents);
-//   }
-
-//   const reinforceOutpost = (outpost_id: any) => {
-
-//     const reinforceOutpostProps: ReinforceOutpostProps = {
-//       account: account,
-//       game_id: clientGameData.current_game_id,
-//       outpost_id: outpost_id,
-//     };
-
-//     reinforce_outpost(reinforceOutpostProps);
-//   }
-
-//   const confirmEvent = async (id : number) => {
-
-//     const gameTrackerData = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
-
-//     const confirmEventProps: ConfirmEventOutpost = {
-//       account: account,
-//       game_id: clientGameData.current_game_id,
-//       event_id: gameTrackerData.event_count,
-//       outpost_id: id,
-//     };
-
-//     await confirm_event_outpost(confirmEventProps);
-// }
-
-//   const confirmAll = async () => {
-//     for (let index = 0; index < selectedOutposts.length; index++) {
-//       const element = selectedOutposts[index];
-
-//       console.error(element)
-
-//       const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, element);
-//       const outpostData = getComponentValueStrict(contractComponents.Outpost, element);
-      
-//       console.log(clientOutpostData)
-      
-
-//       if (clientOutpostData.event_effected === true  && outpostData.lifes > 0)
-//       {
-        
-//         await confirmEvent(clientOutpostData.id);
-//       }
-    
-//     }
-//   }
-
-//   const adminKillAll = async () => {
-//     for (let index = 0; index < allOutpostinEventAdminBot.length; index++) {
-//       const element = selectedOutposts[index];
-
-//       console.error(element)
-
-//       const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, element);
-//       const outpostData = getComponentValueStrict(contractComponents.Outpost, element);
-      
-//       console.log(clientOutpostData)
-      
-
-//       if (clientOutpostData.event_effected === true  && outpostData.lifes > 0)
-//       {
-        
-//         await confirmEvent(clientOutpostData.id);
-//       }
-//     }
-
-//   }
-
-
-//   useEffect(() => {
-//     const handleKeyPress = (event: KeyboardEvent) => {
-//       if (event.key === 'l') {
-//         adminKillAll();
-//       }
-//     };
-
-//     window.addEventListener('keydown', handleKeyPress);
-
-//     return () => {
-//       window.removeEventListener('keydown', handleKeyPress);
-//     };
-//   }, []);
-
-//   const playerInfo = getComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account_add)]));
-
-  return (
-    <div className="profile-page-container">
-      <img className="page-img" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
-      <div className="title-section">
-        <h2>PROFILE</h2>
+    //test embed needs to be standardized 
+    const reinforcementsBalanceDiv = (
         <div className="title-cart-section">
-          <h1>
-            {" "}
-            {/* <img src="LOGO_WHITE.png" className="test-embed" alt=""></img> {playerInfo === undefined ? 0 : playerInfo.reinforcement_count} */}
-            <img src="LOGO_WHITE.png" className="test-embed" alt=""></img> {0}
-          </h1>
-          <h3>Reinforcement available</h3>
+            <h1>
+                <img src="reinforcements_logo.png" className="test-embed" alt="" />
+                {reinforcesAvailable}
+            </h1>
+            <h3>Reinforcement available</h3>
         </div>
-      </div>
-      <div className="info-section">
-        <div className="table-section">
-          <div className="table-container">
-            <div className="table-title-container">
-              <h2>Outpost ID</h2>
-              <h2>Position</h2>
-              <h2>Reinforcements</h2>
-              <div style={{ backgroundColor: "black", flex: "1.5" }}></div>
+    );
+
+    const dividingLine: JSX.Element = (
+        <div className="divider"></div>
+    )
+
+    return (
+        <ClickWrapper className="game-page-container">
+
+            <img className="page-img" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
+
+            <PageTitleElement name={"PROFILE"} rightPicture={"close_icon.svg"} closeFunction={setUIState} right_html_element={reinforcementsBalanceDiv} />
+
+            <div style={{ width: "100%", height: "90%", position: "relative", display: "flex", flexDirection: "row" }}>
+                <div style={{ width: "8%", height: "100%" }}></div>
+
+                <div style={{ width: "84%", height: "100%" }}>
+                    <div style={{ width: "100%", height: "90%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                        <div style={{ width: "100%", height: "90%", overflowY: "scroll", scrollbarGutter: "stable", paddingTop: "10px" }}>
+                            {ownedOutpost.map((ownedOut, index) => (
+                                <React.Fragment key={index}>
+                                    <ListElement entityId={ownedOut} contractComponents={contractComponents} clientComponents={clientComponents} />
+                                    {index < ownedOutpost.length - 1 && dividingLine}
+                                </React.Fragment>
+                            ))}
+                        </div>
+                    </div>
+                    <div style={{ width: "100%", height: "10%", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
+                        <div className="global-button-style" style={{ padding: "5px 5px" }}>Buy Reinforcements</div>
+                    </div>
+                </div>
+
+                <div style={{ width: "8%", height: "100%" }}></div>
             </div>
-            <ClickWrapper className="table-items-container">
-              {/*  this should be an element */}
-              {/* {selectedOutposts.map((outpost: any, index: number) => (
-                <div
-                  key={index}
-                  className="item-container-profile"
-                  onMouseEnter={() => setHoveredIndex(index)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                >
-                  <h2 onMouseEnter={() => setText("")}>{getComponentValueStrict(clientComponents.ClientOutpostData, outpost).id}</h2>
-                  <h2
-                    onMouseDown={() => {
-                      moveCameraHere(getComponentValueStrict(contractComponents.Outpost, outpost).x, getComponentValueStrict(contractComponents.Outpost, outpost).y);
-                      setHoveredIndex(null);
-                    }}
-                    onMouseEnter={() => setText("Go Here")}
-                  >
-                    X: {getComponentValueStrict(contractComponents.Outpost, outpost).x}, Y:{" "}
-                    {getComponentValueStrict(contractComponents.Outpost, outpost).y}
-                  </h2>
-                  <h2
-                    onMouseDown={() => {
-                      reinforceOutpost(getComponentValueStrict(clientComponents.ClientOutpostData, outpost).id);
-                      setHoveredIndex(null);
-                    }}
-                    onMouseEnter={() => setText("Reinforce")}
-                  >
-                    {getComponentValueStrict(contractComponents.Outpost, outpost).lifes}
-                  </h2>
-                  <div className="item-button" style={{ opacity: hoveredIndex === index ? 1 : 0 }}>
-                    {text}
-                  </div>
-                </div>
-              ))} */}
-               <div
-                  key={0}
-                  className="item-container-profile"
-                  onMouseEnter={() => setHoveredIndex(0)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                >
-                  <h2 onMouseEnter={() => setText("")}>{0}</h2>
-                  
-                  <h2 onMouseEnter={() => setText("Go Here")}>
-                    X: {1832}, Y:{5342}
-                  </h2>
-
-                  <h2
-                    onMouseDown={() => {}}
-                    onMouseEnter={() => setText("Reinforce")} >
-                      {2}
-                  </h2>
-
-                  <div className="item-button" style={{ opacity: hoveredIndex === 0 ? 1 : 0 }}>
-                    {text}
-                  </div>
-                </div>
-
-                <div
-                  key={1}
-                  className="item-container-profile"
-                  onMouseEnter={() => setHoveredIndex(1)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                >
-                  <h2 onMouseEnter={() => setText("")}>{1}</h2>
-                  
-                  <h2 onMouseEnter={() => setText("Go Here")}>
-                    X: {1832}, Y:{5342}
-                  </h2>
-
-                  <h2
-                    onMouseDown={() => {}}
-                    onMouseEnter={() => setText("Reinforce")} >
-                      {2}
-                  </h2>
-
-                  <div className="item-button" style={{ opacity: hoveredIndex === 1 ? 1 : 0 }}>
-                    {text}
-                  </div>
-                </div>
-
-                <div
-                  key={2}
-                  className="item-container-profile"
-                  onMouseEnter={() => setHoveredIndex(2)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                >
-                  <h2 onMouseEnter={() => setText("")}>{2}</h2>
-                  
-                  <h2 onMouseEnter={() => setText("Go Here")}>
-                    X: {1832}, Y:{5342}
-                  </h2>
-
-                  <h2
-                    onMouseDown={() => {}}
-                    onMouseEnter={() => setText("Reinforce")} >
-                      {2}
-                  </h2>
-
-                  <div className="item-button" style={{ opacity: hoveredIndex === 2 ? 1 : 0 }}>
-                    {text}
-                  </div>
-                </div>
-
-            </ClickWrapper>
-          </div>
-        </div>
-        <div className="buy-section">
-          <div className="button-style-profile">Buy Reinforcements (Disabled)</div>
-          <ClickWrapper className="button-style-profile" onMouseDown={() => {}}>Destory All</ClickWrapper>
-        </div>
-      </div>
-    </div>
-  );
+        </ClickWrapper>
+    );
 };
+
+
+interface ListElementProps {
+    entityId: EntityIndex
+    contractComponents: any
+    clientComponents: any
+}
+
+// the data section is probably to change as the click is only for the text but there is a gap between the texts also the code is duplicated should be one singular div
+export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComponents, clientComponents }) => {
+    const [buttonText, setButtonText] = useState<string>("")
+
+    const [name, setName] = useState<string>("Name")
+    const [surname, setSurname] = useState<string>("Surname")
+
+    const [id, setId] = useState<number>(5)
+    const [xCoord, setXCoord] = useState<number>(5)
+    const [yCoord, setYCoord] = useState<number>(5)
+
+    const [shieldNum, setShieldNum] = useState<number>(2)
+    const [reinforcements, setReinforcements] = useState<number>(20)
+
+    useEffect(() => {
+        const clientOutpostData = getComponentValue(clientComponents.ClientOutpostData, entityId);
+        const contractOutpostData = getComponentValue(contractComponents.Outpost, entityId);
+        const contractRevenantData = getComponentValue(contractComponents.Revenant, entityId);
+
+        //fetch the names and surname
+
+        setName(namesArray[1])
+        setSurname(surnamesArray[1])
+
+        setId(clientOutpostData.id);
+
+        setXCoord(contractOutpostData.x);
+        setYCoord(contractOutpostData.y);
+
+        const reinforcements = contractOutpostData.lifes;
+        setReinforcements(reinforcements);
+
+        if (reinforcements < 3) {
+            setShieldNum(0);
+        } else if (reinforcements <= 5) {
+            setShieldNum(1);
+        } else if (reinforcements <= 9) {
+            setShieldNum(2);
+        } else if (reinforcements <= 13) {
+            setShieldNum(3);
+        } else if (reinforcements <= 19) {
+            setShieldNum(4);
+        } else {
+            setShieldNum(5);
+        }
+    }, []);
+
+    return (
+        <ClickWrapper className="list-item-container">
+            {/* picture */}
+            <div className="profile-picture-container">
+                <div className="profile-picture-box">
+                    <div className="child-container2">
+                        <img src="test_rev_pp.png" className="img-full-style" />
+                    </div>
+                </div>
+                <div className="profile-picture-name-box">{name} {surname}</div>
+            </div>
+
+            {/* outpost pic */}
+            <div className="outpost-pic-container">
+                <div className="outpost-pic-box">
+                    <div className="outpost-pic">
+                        <img src="test_out_pp.png" className="child-img" />
+                    </div>
+                </div>
+                <div className="shields-container">
+                    <div className="shield-box">
+                        <div className="shields-grid-container">
+                            {Array.from({ length: shieldNum }).map((_, index) => (
+                                <img key={index} src="reinforcements_logo.png" className="img-full-style" />
+                            ))}
+                        </div>
+                    </div>
+                    <div style={{ width: "40%" }}></div>
+                </div>
+            </div>
+
+            {/* data */}
+            <div className="parent-container" onMouseLeave={() => setButtonText("")} style={{ fontWeight: "100" }}>
+                <div className="row-data-container" style={{ fontSize: "0.9cqw" }}>
+                    <h4 onMouseEnter={() => setButtonText("")}>Outpost ID:</h4>
+                    <h4 onMouseEnter={() => setButtonText("Go here")} className="pointer">Coordinates:</h4>
+                    <h4 onMouseEnter={() => setButtonText("Reinforce")} className="pointer">Reinforcements:</h4>
+                </div>
+                <div className="row-data-container" style={{ fontSize: "1cqw" }}>
+                    <h4 onMouseEnter={() => setButtonText("")}>{id}</h4>
+                    <h4 onMouseEnter={() => setButtonText("Go here")} className="pointer">X: {xCoord}, Y: {yCoord}</h4>
+                    <h4 onMouseEnter={() => setButtonText("Reinforce")} className="pointer">{reinforcements}</h4>
+                </div>
+                <div style={{ height: "34%" }}> </div>
+            </div>
+
+            {/* tooltip */}
+            <div style={{ height: "100%", width: "20%", display: "flex", justifyContent: "center", alignItems: "center", flex: "0.7" }}>
+                {buttonText !== "" && <div className="global-button-style" style={{ padding: "5px 5px" }}>{buttonText}</div>}
+            </div>
+
+        </ClickWrapper>
+    );
+};
+
+
+
+
+

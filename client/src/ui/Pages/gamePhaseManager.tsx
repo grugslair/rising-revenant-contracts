@@ -1,4 +1,3 @@
-
 //libs
 import  { useState, useEffect } from 'react';
 import {
@@ -8,16 +7,22 @@ import {
 } from "@latticexyz/recs";
 import { store } from '../../store/store';
 import { useEntityQuery } from "@latticexyz/react";
+import { useDojo } from '../../hooks/useDojo';
+
+import { getEntityIdFromKeys } from '@dojoengine/utils';
+import {   setComponentQuick } from '../../dojo/testCalls';
+import { GAME_CONFIG, MAP_HEIGHT, MAP_WIDTH } from '../../phaser/constants';
 
 // styles
 import "./PagesStyles/MainMenuContainerStyles.css"
 
-//components
+//elements/components
 import { TopBarComponent } from '../Components/mainTopBar';
 import { NavbarComponent } from '../Components/navbar';
 import { JurnalEventComponent } from '../Components/jurnalEvent';
 import { OutpostTooltipComponent } from '../Components/outpostTooltip';
 
+//pages
 import { ProfilePage } from './profilePage';
 import { RulesPage } from './rulesPage';
 import { SettingsPage } from './settingsPage';
@@ -28,11 +33,16 @@ import { WinnerPage } from './winnerPage';
 
 import { DebugPage } from './debugPage';
 
-import { useDojo } from '../../hooks/useDojo';
+/*notes
+component that manages the game phase, this should deal with the update of the UI state and then update of the camera movement and any other related inputs
+to phaser
 
-import { getEntityIdFromKeys } from '@dojoengine/utils';
-import {   setComponentQuick } from '../../dojo/testCalls';
-import { GAME_CONFIG, MAP_HEIGHT, MAP_WIDTH } from '../../phaser/constants';
+should also dictate the winning state
+do two simple queries one for the totla outpost and one for the totla outposts wiht 0 health and then if the total outposts - the total outposts with 0 health is less than 2
+then we have a winner
+
+*/
+
 import { useWASDKeys } from '../../phaser/systems/eventSystems/keyPressListener';
 
 export enum MenuState {
@@ -55,12 +65,12 @@ export const GamePhaseManager = () => {
 
   const keysDown = useWASDKeys();
 
-  const {
-    account: { account },
-    networkLayer: {
-      network: {  contractComponents, clientComponents },
-    },
-  } = useDojo();
+  // const {
+  //   account: { account },
+  //   networkLayer: {
+  //     network: {  contractComponents, clientComponents },
+  //   },
+  // } = useDojo();
 
   const CAMERA_SPEED = 10;
 
@@ -70,11 +80,11 @@ export const GamePhaseManager = () => {
     };
   });
 
-  const {
-    scenes: {
-      Main: { camera },
-    }
-  } = layers.phaserLayer;
+  // const {
+  //   scenes: {
+  //     Main: { camera },
+  //   }
+  // } = layers.phaserLayer;
 
   let prevX: number = 0;
   let prevY: number = 0;
@@ -83,117 +93,122 @@ export const GamePhaseManager = () => {
     setCurrentMenuState(newMenuState);
   };
 
-  const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
-  const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
+  // const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
+  // const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    if (totalOutposts.length - outpostDeadQuery.length <= 1 )
-    {
-      setCurrentMenuState(MenuState.WINNER);
-    }
+  //   if (totalOutposts.length - outpostDeadQuery.length <= 1 )
+  //   {
+  //     setCurrentMenuState(MenuState.WINNER);
+  //   }
 
-  }, [outpostDeadQuery]);
+  // }, [outpostDeadQuery]);
 
   // this only needs to be like this for the debug, once the game ships take out the dependency
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setCurrentMenuState(MenuState.NONE);
-      }
+  // useEffect(() => {
+  //   const handleKeyPress = (event: KeyboardEvent) => {
+  //     if (event.key === 'Escape') {
+  //       setCurrentMenuState(MenuState.NONE);
+  //     }
 
-      if (event.key === 'j') {
-        if (currentMenuState === MenuState.Debug) {
-          setCurrentMenuState(MenuState.NONE);
-        } else {
-          setCurrentMenuState(MenuState.Debug);
-        }
-      }
-    };
+  //     if (event.key === 'j') {
+  //       if (currentMenuState === MenuState.Debug) {
+  //         setCurrentMenuState(MenuState.NONE);
+  //       } else {
+  //         setCurrentMenuState(MenuState.Debug);
+  //       }
+  //     }
+  //   };
 
-    window.addEventListener('keydown', handleKeyPress);
+  //   window.addEventListener('keydown', handleKeyPress);
 
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [currentMenuState]);
+  //   return () => {
+  //     window.removeEventListener('keydown', handleKeyPress);
+  //   };
+  // }, [currentMenuState]);
 
-  useEffect(() => {
-    let animationFrameId: number;
+  // useEffect(() => {
+  //   let animationFrameId: number;
 
-    let currentZoomValue = 0;
+  //   let currentZoomValue = 0;
 
-    // Subscribe to zoom$ observable
-    const zoomSubscription = camera.zoom$.subscribe((currentZoom: any) => {
-      currentZoomValue = currentZoom; // Update the current zoom value
-    });
+  //   // Subscribe to zoom$ observable
+  //   const zoomSubscription = camera.zoom$.subscribe((currentZoom: any) => {
+  //     currentZoomValue = currentZoom; // Update the current zoom value
+  //   });
 
-    const update = () => {
-      const current_pos = getComponentValue(
-        clientComponents.ClientCameraPosition,
-        getEntityIdFromKeys([BigInt(GAME_CONFIG)])
-      );
+  //   const update = () => {
+  //     const current_pos = getComponentValue(
+  //       clientComponents.ClientCameraPosition,
+  //       getEntityIdFromKeys([BigInt(GAME_CONFIG)])
+  //     );
 
-      if (!current_pos) {
-        console.log("failed");
-        return;
-      }
+  //     if (!current_pos) {
+  //       console.log("failed");
+  //       return;
+  //     }
 
-      let newX = current_pos.x;
-      let newY = current_pos.y;
+  //     let newX = current_pos.x;
+  //     let newY = current_pos.y;
 
-      if (keysDown.W) {
-        newY = current_pos.y - CAMERA_SPEED;
-      }
-      if (keysDown.A) {
-        newX = current_pos.x - CAMERA_SPEED;
-      }
+  //     if (keysDown.W) {
+  //       newY = current_pos.y - CAMERA_SPEED;
+  //     }
+  //     if (keysDown.A) {
+  //       newX = current_pos.x - CAMERA_SPEED;
+  //     }
 
-      if (keysDown.S) {
-        newY = current_pos.y + CAMERA_SPEED;
-      }
-      if (keysDown.D) {
-        newX = current_pos.x + CAMERA_SPEED;
-      }
+  //     if (keysDown.S) {
+  //       newY = current_pos.y + CAMERA_SPEED;
+  //     }
+  //     if (keysDown.D) {
+  //       newX = current_pos.x + CAMERA_SPEED;
+  //     }
 
-      if (newX > MAP_WIDTH - camera.phaserCamera.width / currentZoomValue / 2) {
-        newX = MAP_WIDTH - camera.phaserCamera.width / currentZoomValue / 2;
-      }
-      if (newX < camera.phaserCamera.width / currentZoomValue / 2) {
-        newX = camera.phaserCamera.width / currentZoomValue / 2;
-      }
-      if (
-        newY >
-        MAP_HEIGHT - camera.phaserCamera.height / currentZoomValue / 2
-      ) {
-        newY = MAP_HEIGHT - camera.phaserCamera.height / currentZoomValue / 2;
-      }
-      if (newY < camera.phaserCamera.height / currentZoomValue / 2) {
-        newY = camera.phaserCamera.height / currentZoomValue / 2;
-      }
+  //     if (newX > MAP_WIDTH - camera.phaserCamera.width / currentZoomValue / 2) {
+  //       newX = MAP_WIDTH - camera.phaserCamera.width / currentZoomValue / 2;
+  //     }
+  //     if (newX < camera.phaserCamera.width / currentZoomValue / 2) {
+  //       newX = camera.phaserCamera.width / currentZoomValue / 2;
+  //     }
+  //     if (
+  //       newY >
+  //       MAP_HEIGHT - camera.phaserCamera.height / currentZoomValue / 2
+  //     ) {
+  //       newY = MAP_HEIGHT - camera.phaserCamera.height / currentZoomValue / 2;
+  //     }
+  //     if (newY < camera.phaserCamera.height / currentZoomValue / 2) {
+  //       newY = camera.phaserCamera.height / currentZoomValue / 2;
+  //     }
 
-      if (newX !== prevX || newY !== prevY) {
+  //     if (newX !== prevX || newY !== prevY) {
 
 
-        setComponentQuick({ "x": newX, "y": newY, "tile_index": current_pos.tile_index }, [getEntityIdFromKeys([BigInt(GAME_CONFIG)])], "ClientCameraPosition", clientComponents);
+  //       setComponentQuick({ "x": newX, "y": newY, "tile_index": current_pos.tile_index }, [getEntityIdFromKeys([BigInt(GAME_CONFIG)])], "ClientCameraPosition", clientComponents);
 
-        prevX = newX;
-        prevY = newY;
-      }
+  //       prevX = newX;
+  //       prevY = newY;
+  //     }
 
-      animationFrameId = requestAnimationFrame(update);
-    };
+  //     animationFrameId = requestAnimationFrame(update);
+  //   };
 
-    update();
+  //   update();
 
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      zoomSubscription.unsubscribe();
-    };
-  }, [keysDown]);
+  //   return () => {
+  //     cancelAnimationFrame(animationFrameId);
+  //     zoomSubscription.unsubscribe();
+  //   };
+  // }, [keysDown]);
+
+  const closePage = () => {
+    setCurrentMenuState(MenuState.NONE);
+  }
 
   return (
     <>
+    <img src="./map_Island.png" alt="" style={{position:'absolute', width:"100%", height:"100%", top:"0", left:"0"}}/>
       <div className="main-page-container-layout">
         <div className='main-page-topbar'>
           <TopBarComponent />
@@ -202,13 +217,13 @@ export const GamePhaseManager = () => {
         <div className='main-page-content'>
           {currentMenuState !== MenuState.NONE && (
             <div className='page-container'>
-              {currentMenuState === MenuState.PROFILE && <ProfilePage setMenuState={setCurrentMenuState} account_add={account.address}/>}
-              {currentMenuState === MenuState.RULES && <RulesPage setMenuState={setCurrentMenuState} />}
+              {currentMenuState === MenuState.PROFILE && <ProfilePage setUIState={closePage}/>}
+              {currentMenuState === MenuState.RULES && <RulesPage setUIState={closePage} />}
               {currentMenuState === MenuState.SETTINGS && <SettingsPage setMenuState={setCurrentMenuState} />}
               {currentMenuState === MenuState.TRADES && <TradesPage />}
               {currentMenuState === MenuState.STATS && <StatsPage setMenuState={setCurrentMenuState} />}
               {currentMenuState === MenuState.REV_JURNAL && <RevenantJurnalPage setMenuState={setCurrentMenuState} />}
-              {currentMenuState === MenuState.WINNER && <WinnerPage setMenuState={setCurrentMenuState} />}
+              {/* {currentMenuState === MenuState.WINNER && <WinnerPage setMenuState={setCurrentMenuState} />} */}
               {currentMenuState === MenuState.Debug && <DebugPage />}
             </div>
           )}
@@ -217,10 +232,9 @@ export const GamePhaseManager = () => {
         </div>
       </div>
       
-
       {/* pretty sure this is the wrong class as it doesnt make sense */}
       <div className='main-page-topbar'>
-        <NavbarComponent menuState={currentMenuState} setMenuState={setCurrentMenuState} onIconClick={handleIconClick} />
+        <NavbarComponent menuState={currentMenuState} setMenuState={setCurrentMenuState} />
       </div>
 
       {currentMenuState === MenuState.NONE && <JurnalEventComponent setMenuState={setCurrentMenuState} />}

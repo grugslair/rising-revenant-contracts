@@ -1,15 +1,27 @@
+//libs
 import React, { useEffect } from "react";
-
-import "./PagesStyles/WinnerPageStyles.css";
-
-import { MenuState } from "./gamePhaseManager";
-import { ClickWrapper } from "../clickWrapper";
-import { useDojo } from "../../hooks/useDojo";
-
 import { HasValue,  getComponentValueStrict, Has } from "@latticexyz/recs";
 import { useEntityQuery } from "@latticexyz/react";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
+import { MenuState } from "./gamePhaseManager";
+import { useDojo } from "../../hooks/useDojo";
 
+//styles
+import "./PagesStyles/WinnerPageStyles.css";
+
+//elements/components
+import { ClickWrapper } from "../clickWrapper";
+
+//pages
+
+
+/*notes
+    this page should either have a way to get the winning user or just calc but it self (for now prob just calc it)
+    and then depending on if the user is the winner or not it will display a different message
+
+
+    should call the jackpot function
+*/
 
 interface WinnerPageProps {
     setMenuState: React.Dispatch<React.SetStateAction<MenuState>>;
@@ -30,14 +42,15 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) =>
         },
     } = useDojo();
 
-
   const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
   const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
 
-  console.error("outpostDeadQuery", outpostDeadQuery);
-    console.error("totalOutposts", totalOutposts);
-
   useEffect(() => {
+
+    if (totalOutposts.length === 0) {
+        setWinningAddress("No winner");
+        return;
+    }
 
     const difference: string[] = totalOutposts.filter(item => !outpostDeadQuery.includes(item));
 
@@ -46,8 +59,6 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) =>
     setWinningAddress(outpostComp.owner);
 
   }, []);
-
-
 
   const shareOnTwitter = () => {
     const message = 'I just won!';
@@ -59,7 +70,7 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) =>
         <div className="winner-page-container">
                 <div className="content-container">
                     <h3>Address: {winningAddress}</h3>
-                    {winningAddress === account.address ?   <h1>YOU ARE THE RISING REVENANT</h1> : <h1>IS THE RISING REVENANT</h1>}
+                    {winningAddress === account.address ? <h1>YOU ARE THE RISING REVENANT</h1> : <h1>IS THE RISING REVENANT</h1>}
                     <ClickWrapper className="button-style">Claim your jackpot</ClickWrapper>
                 </div>
 

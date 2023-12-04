@@ -1,22 +1,22 @@
-.profile-page-container {
+/* .profile-page-container {
   width: 100%;
   height: 100%;
   position: relative;
   color: white;
-}
 
-.page-img {
+  background-color: black;
+  overflow-y:auto;
+} */
+
+/* .page-img {
   width: 100%;
   height: 100%;
-
-  position: absolute;
+  display: block;
   top: 0;
   left: 0;
 
-  filter: brightness(var(--brightness)); /* Adjust the percentage to make it darker or lighter */
-}
-
-
+  filter: brightness(var(--brightness)); 
+} */
 
 .title-section {
   width: 100%;
@@ -27,6 +27,7 @@
   align-items: center;
 
   position: relative;
+
 }
 
 .title-cart-section {
@@ -35,17 +36,13 @@
   justify-content: center;
   align-items: center;
 
-  position: absolute;
-  top: 50%;
-  right: 20px;
-
-  transform: translateY(-50%);
-
   width: fit-content;
   height: fit-content;
 
   gap: 10px;
   font-family: OL;
+
+  font-size: 0.7cqw;
 }
 
 .title-cart-section h3 {
@@ -63,108 +60,135 @@
 }
 
 .test-embed {
-  height: 1em;
-  width: 1em;
+  height: 1.5em;
+  width: 1.5em;
   vertical-align: middle;
   padding-bottom: 0.2em;
 
   aspect-ratio: 1/1;
-
+  margin-right: 5px;
   margin-bottom: 0px;
   margin-top: 0px;
 }
 
-.info-section {
-  width: 100%;
-  height: 90%;
+
+
+
+.divider {
+  width: 99%;
+  height: 3px;
+  background-color: white;
+  margin: 10px 0px;
 }
 
-.table-section {
-  width: 100%;
-  height: 85%;
+.list-item-container{
+  width: 99%;
+  height: 35%;
+
+  white-space: nowrap;
 
   display: flex;
-  justify-content: center;
-  align-items: center;
+  gap: 2%;
+  flex-direction: row;
+  justify-content: space-between;
+  color: white;
 
   font-family: OL;
 }
 
-.buy-section {
-  width: 85%;
-  height: 15%;
 
+/* profile picture stuff */
+.profile-picture-container {
+  height: 100%;
+  flex: 0.5;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
+  flex-direction: column;
+  
+  font-size: 1cqw;
+}
+
+.profile-picture-box {
+  height: 80%;
+}
+
+.child-container2 {
+  height: 100%;
+  aspect-ratio: 1/1;
+  border: solid 1px var(--borderColour);
+  box-sizing: border-box;
+}
+
+.img-full-style {
+  width: 100%;
+  height: 100%;
+}
+
+.profile-picture-name-box {
+  height: 20%;
+  display: flex;
+  justify-content: flex-start;
   align-items: center;
+}
+
+/* outpost pic and shields */
+.outpost-pic-container {
+  height: 100%;
+  flex: 1;
+}
+
+.outpost-pic-box {
+  height: 80%;
+  border: solid 1px var(--borderColour);
+  box-sizing: border-box;
+}
+
+.outpost-pic {
+  border-radius: 2px;
+  height: 100%;
+  width: 100%;
+}
+
+.child-img {
+  width: 100%;
+  height: 100%;
+}
+
+.shields-container {
+  height: 20%;
+  display: flex;
   flex-direction: row;
 }
 
-.table-container {
-  width: 80%;
-  height: 90%;
+.shield-box {
+  width: 60%;
 }
 
-.table-title-container {
-  width: 100%;
-  height: 10%;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  scrollbar-gutter: stable both-edges;
+.shields-grid-container {
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2%;
 }
 
-.table-title-container h2 {
-  flex: 1;
-  text-align: center;
-}
+/* data container */
 
-.table-items-container {
-  width: 100%;
-  height: 90%;
 
-  border: 5px solid var(--borderColour);
-  box-sizing: border-box;
-  scrollbar-gutter: stable both-edges;
-  overflow-y: auto;
-}
-
-.item-container-profile {
-  width: 100%;
-  height: fit-content;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.item-container-profile h2 {
-  flex: 1;
-  text-align: center;
-}
-
-.item-button {
+.parent-container {
+  height: 100%;
   flex: 1.5;
 }
 
-.button-style-profile {
-  height: fit-content;
-  justify-self: center;
-
-  color: white;
-  box-shadow: none;
-  font-size: 1.5rem;
-
-  margin-left: 10%;
-
-  width: fit-content;
-
-  border: 2px solid var(--borderColour);
-  padding: 2px 5px;
+.parent-container h4 {
+  flex: 1;
+  text-align: center;
 }
 
-.button-style-profile:hover {
-  cursor: pointer;
+.row-data-container {
+  height: 33%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-align: center;
 }

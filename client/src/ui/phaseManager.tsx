@@ -13,6 +13,7 @@ import { GamePhaseManager } from "./Pages/gamePhaseManager";
     It may involve loading screens for certain phases.
 
     // i think this should have a timer if in the prep pahse to see if it should go in the next phase
+    somehting along the lines of chekcing the block count anyway
 */
 
 export enum Phase {

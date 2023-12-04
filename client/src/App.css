@@ -58,16 +58,17 @@
 
 /* Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
-  width: 16px;
+  width: 12px;
 }
 
 *::-webkit-scrollbar-track {
   background: #1a1e23;
+  border-radius: 12px;
 }
 
 *::-webkit-scrollbar-thumb {
   background-color: #dddfdc;
-  border-radius: 16px;
+  border-radius: 12px;
   border: 0px solid #ffffff;
 }
 
@@ -106,11 +107,6 @@
 	background-color: #1a1e233f;
 	border: 2px solid var(--borderColour);
 
-	width: fit-content;
-	height: fit-content;
-
-  /* padding: 5px 10px; */
-
   font-weight: bold;
 }
 
@@ -119,5 +115,88 @@
 	cursor: pointer;
 }
 
+.game-page-container {
+  width: 100%;
+  height: 100%;
+
+  position: relative;
+}
+
+.page-img {
+  width: 100%;
+  height: 100%;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+}
+
+.brightness-down{
+  filter: brightness(var(--brightness)); 
+}
+
+.pages-upper-section
+{
+  position: relative;
+
+  display: flex;
+  flex-direction: row;
+
+  width: 100%;
+  height: 10%;
+  /* background-color:red; */
+  color: white;
+}
+
+.page-title-flex
+{
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.page-title-flex h1
+{
+  font-family: Zelda;
+  font-weight: 100;
+  font-size: 3cqw;
+}
+
+.page-left-flex
+{
+  padding-left: 10px;
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  /* background-color: grey; */
+  font-size: 2cqw;
+  font-family: Zelda;
+  font-weight: 100;
+}
+
+.page-left-flex h2:hover
+{
+  cursor: pointer;
+}
 
 
+.page-right-flex
+{
+  padding-right: 10px;
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  /* background-color: greenyellow; */
+}
+
+
+.pointer {}
+
+.pointer:hover
+{
+  cursor: pointer;
+}

@@ -12,13 +12,6 @@
   color: white;
 }
 
-/* .br-page-container {
-  background-image: url("Page_Bg/STATS_PAGE_BG.png");
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-} */
-
 .br-page-container-img 
 {
   width: 100%;
@@ -41,8 +34,6 @@
 
   padding: 5px 10px;
 
-  gap: 10px;
-
   display: flex;
   flex-direction: column;
 }
@@ -51,25 +42,10 @@
   font-family: Zelda;
   font-weight: 100;
 
+  font-size: 3cqw;
   margin-bottom: 0px;
-  font-size: 2cqw;
 }
 
-.amount-section {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-
-  font-family: OL;
-
-  gap: 8%;
-}
-
-
-.amount-section h2 {
-  text-align: center;
-}
 
 .footer-text-section
 {

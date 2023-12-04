@@ -43,6 +43,7 @@ export const PrepPhaseManager = () => {
 
     const [lastSavedState, setLastSavedState] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
 
+    // this is only here to call the debug menu
     useEffect(() => {
         const handleKeyPress = (event: KeyboardEvent) => {
 
@@ -76,17 +77,20 @@ export const PrepPhaseManager = () => {
 
     }, [prepPhaseStage]);
 
-
+    // video stuff
     const onVideoDone = () => {
         setPrepPhaseStage(PrepPhaseStages.BUY_REVS);
     }
-
     if (prepPhaseStage === PrepPhaseStages.VID) {
         return (<VideoComponent onVideoDone={onVideoDone} />)
     }
 
+    // menu state stuff
     const setMenuState = (state: PrepPhaseStages) => {
         setPrepPhaseStage(state);
+    }
+    const closePage = () => {
+        setPrepPhaseStage(lastSavedState);
     }
 
     return (<div className="main-page-container-layout">
@@ -101,8 +105,8 @@ export const PrepPhaseManager = () => {
                 {prepPhaseStage === PrepPhaseStages.BUY_REIN && <BuyReinforcementPage setMenuState={setMenuState} />}
                 {prepPhaseStage === PrepPhaseStages.WAIT_PHASE_OVER && <PrepPhaseEndsPage setMenuState={setMenuState} />}
                 {prepPhaseStage === PrepPhaseStages.DEBUG && <DebugPage />}
-                {prepPhaseStage === PrepPhaseStages.PROFILE && <ProfilePage/>}
-                {prepPhaseStage === PrepPhaseStages.RULES && <RulesPage/>}
+                {prepPhaseStage === PrepPhaseStages.PROFILE && <ProfilePage setUIState={closePage}/>}
+                {prepPhaseStage === PrepPhaseStages.RULES && <RulesPage setUIState={closePage} />}
             </div>
         </div>
 

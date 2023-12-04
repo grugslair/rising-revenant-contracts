@@ -16,6 +16,9 @@
 
   color: white;
 
+  width: fit-content;
+  height: fit-content;
+
   padding: 10px 10px;
 }
 
@@ -25,17 +28,22 @@
   height: 45%;
 }
 
-.outpost-data-container h1 {
+.outpost-tooltip-container h1 {
   margin-top: 0px;
   margin-bottom: 10px;
   font-family: Zelda;
   font-weight: 100;
+  
+  font-size: 1.7cqw;
 }
 
-.outpost-data-container h3 {
-  margin: 5px 0px;
+.outpost-tooltip-container h3 {
   font-family: OL;
+  font-weight: 100;
+  margin: 5px 0px;
+  font-size: 1cqw;
 }
+
 
 .outpost-data-event-button {
   height: fit-content;
@@ -60,18 +68,6 @@
   height: 35%;
 }
 
-.revenant-data-container h1 {
-  margin-top: 0px;
-  margin-bottom: 10px;
-  font-family: Zelda;
-  font-weight: 100;
-}
-
-.revenant-data-container h3 {
-  margin: 5px 0px;
-  font-family: OL;
-}
-
 .multi-out-container {
   margin-top: 5%;
   height: 10%;
@@ -90,3 +86,10 @@
 .multi-out-container button:hover {
   cursor: pointer;
 }
+
+.close-button{}
+
+.close-button:hover {
+  cursor: pointer;
+}
+

@@ -49,7 +49,10 @@ export function defineContractComponents(world: World) {
     GameTracker: (() => {
       return defineComponent(
         world,
-        { entity_id: RecsType.BigInt, count: RecsType.Number },
+        { 
+          entity_id: RecsType.BigInt, 
+          count: RecsType.Number 
+        },
         {
           metadata: {
             name: "GameTracker",

@@ -370,7 +370,7 @@ export const setClientGameComponent = async (phase: number,  game_id: number, cu
   setComponentFromGraphQLEntity(clientComponents, craftedEdgeGT);
 }
 
-export const setOutpostClientComponent = async (id: number, owned: boolean, event_effected: boolean, disabled: boolean, visible: boolean,clientComponents: any) => {
+export const setOutpostClientComponent = async (id: number, owned: boolean, event_effected: boolean, selected: boolean, visible: boolean,clientComponents: any) => {
 
   const game_id = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)])).current_game_id;
 
@@ -378,7 +378,7 @@ export const setOutpostClientComponent = async (id: number, owned: boolean, even
     "id": id,
     "owned": owned,
     "event_effected": event_effected,
-    "selected": disabled,
+    "selected": selected,
     "visible": visible
   };
 

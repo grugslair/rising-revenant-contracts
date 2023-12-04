@@ -7,24 +7,18 @@ import "./ComponentsStyles/NavBarStyles.css";
 import { ClickWrapper } from "../clickWrapper";
 import { PrepPhaseStages } from "../PrepPhasePages/prepPhaseManager";
 
-
-//look into why i need an onIconClick function? 
 interface NavbarProps {
   menuState: MenuState;
   setMenuState: (menuState: MenuState) => void;
-  onIconClick?: (menuState: MenuState) => void;
 }
 
-export const NavbarComponent: React.FC<NavbarProps> = ({ menuState, setMenuState, onIconClick }) => {
+export const NavbarComponent: React.FC<NavbarProps> = ({ menuState, setMenuState }) => {
 
   const handleIconClick = (selectedState: MenuState) => {
     if (menuState === selectedState) {
       setMenuState(MenuState.NONE);
     } else {
       setMenuState(selectedState);
-      if (onIconClick) {
-        onIconClick(selectedState);
-      }
     }
   };
 
@@ -61,7 +55,7 @@ interface PrepPhaseNavbarProps {
   setMenuState: (menuState: PrepPhaseStages) => void;
 }
 
-export const PrepPhaseNavbarComponent: React.FC<PrepPhaseNavbarProps> = ({ currentMenuState, lastSavedState,setMenuState }) => {
+export const PrepPhaseNavbarComponent: React.FC<PrepPhaseNavbarProps> = ({ currentMenuState, lastSavedState, setMenuState }) => {
 
   const handleIconClick = (selectedState: PrepPhaseStages) => {
     if (currentMenuState === selectedState) {
@@ -70,8 +64,6 @@ export const PrepPhaseNavbarComponent: React.FC<PrepPhaseNavbarProps> = ({ curre
       setMenuState(selectedState);
     }
   };
-
-  // useEffect(() => { console.log(currentMenuState) }, [currentMenuState]);
 
   return (
     <ClickWrapper className="navbar-container" style={{height:"15%"}}>
