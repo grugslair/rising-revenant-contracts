@@ -19,7 +19,7 @@ mod tests {
 
     use realmsrisingrevenant::constants::{
         EVENT_INIT_RADIUS, GAME_CONFIG, OUTPOST_INIT_LIFE, REINFORCEMENT_INIT_COUNT,
-        AUTO_CREATE_NEW_WORLD_EVENT
+        EVENT_CREATE_SCORE, DESTORY_OUTPOST_SCORE,
     };
 
     use realmsrisingrevenant::systems::game::{IGameActionsDispatcher, IGameActionsDispatcherTrait};
@@ -136,15 +136,27 @@ mod tests {
 
         _add_block_number(PREPARE_PHRASE_INTERVAL + 1);
 
+        let player_info = get!(world, (game_id, caller), PlayerInfo);
+        assert(player_info.score == 0, 'wrong init player score');
         let world_event = world_event_action.create(game_id);
         assert(world_event.radius == EVENT_INIT_RADIUS, 'event radius is wrong');
+
+        let expect_score = EVENT_CREATE_SCORE;
+        let player_info = get!(world, (game_id, caller), PlayerInfo);
+        assert(player_info.score == expect_score, 'wrong p score world event');
+        let game_info = get!(world, (game_id), GameEntityCounter);
+        assert(game_info.score_count == expect_score, 'wrong g score world event');
 
         _add_block_number(EVENT_BLOCK_INTERVAL + 1);
         let world_event_2 = world_event_action.create(game_id);
         assert(world_event_2.radius == EVENT_INIT_RADIUS + 1, 'event radius is wrong');
 
-        let game_counter = get!(world, (game_id), GameEntityCounter);
-        assert(game_counter.event_count == 2, 'wrong game counter');
+        let expect_score = expect_score + EVENT_CREATE_SCORE;
+        let player_info = get!(world, (game_id, caller), PlayerInfo);
+        assert(player_info.score == expect_score, 'wrong p2 score world event');
+        let game_info = get!(world, (game_id), GameEntityCounter);
+        assert(game_info.score_count == expect_score, 'wrong g2 score world event');
+        assert(game_info.event_count == 2, 'wrong game counter');
     }
 
     #[test]
@@ -156,6 +168,7 @@ mod tests {
 
         _add_block_number(PREPARE_PHRASE_INTERVAL + 1);
         let world_event = world_event_action.create(game_id);
+        let mut expect_score = EVENT_CREATE_SCORE;
         let destoryed = world_event_action
             .destroy_outpost(game_id, world_event.entity_id, outpost_id);
 
@@ -165,11 +178,17 @@ mod tests {
             assert(outpost.last_affect_event_id == world_event.entity_id, 'wrong affect id');
             let world_event2 = get!(world, (game_id, world_event.entity_id), WorldEvent);
             assert(world_event2.destroy_count == 1, 'wrong destory count');
+            expect_score += DESTORY_OUTPOST_SCORE;
         } else {
             assert(outpost.lifes == OUTPOST_INIT_LIFE, 'life value is wrong');
             let world_event2 = get!(world, (game_id, world_event.entity_id), WorldEvent);
             assert(world_event2.destroy_count == 0, 'wrong destory count');
         }
+
+        let player_info = get!(world, (game_id, caller), PlayerInfo);
+        assert(player_info.score == expect_score, 'wrong p score destory');
+        let game_info = get!(world, (game_id), GameEntityCounter);
+        assert(game_info.score_count == expect_score, 'wrong g score destory');
     }
 
     #[test]
@@ -236,19 +255,8 @@ mod tests {
                 if game_counter.outpost_exists_count == 1 {
                     break;
                 };
-
-                if (AUTO_CREATE_NEW_WORLD_EVENT == 0) {
-                    world_event_action.create(game_id);
-                } else {
-                    // If the event has an impact, a new event will be automatically generated.
-                    assert(
-                        game_counter.event_count.into() == world_event.entity_id + 1,
-                        'new event failed create'
-                    );
-                }
-            } else {
-                world_event_action.create(game_id);
             };
+            world_event_action.create(game_id);
         };
 
         let (game, game_counter) = get!(world, (game_id), (Game, GameEntityCounter));
@@ -374,19 +382,8 @@ mod tests {
                 if game_counter.outpost_exists_count == 1 {
                     break;
                 };
-
-                if (AUTO_CREATE_NEW_WORLD_EVENT == 0) {
-                    world_event_action.create(game_id);
-                } else {
-                    // If the event has an impact, a new event will be automatically generated.
-                    assert(
-                        game_counter.event_count.into() == world_event.entity_id + 1,
-                        'new event failed create'
-                    );
-                }
-            } else {
-                world_event_action.create(game_id);
             };
+            world_event_action.create(game_id);
         };
 
         // step 4. test claim

@@ -60,6 +60,7 @@ mod game_actions {
                 remain_life_count: 0,
                 reinforcement_count: 0,
                 trade_count: 0,
+                score_count: 0,
             };
             let game_tracker = GameTracker { entity_id: GAME_CONFIG, count: game_id };
             let reinforcement_balance = ReinforcementBalance {

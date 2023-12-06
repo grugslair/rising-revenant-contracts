@@ -2,7 +2,7 @@ use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
 #[starknet::interface]
 trait IRevenantActions<TContractState> {
-    fn create(self: @TContractState, game_id: u32, name: felt252) -> (u128, u128);
+    fn create(self: @TContractState, game_id: u32) -> (u128, u128);
 
     // Claim the initial game rewards.
     fn claim_initial_rewards(self: @TContractState, game_id: u32) -> bool;
@@ -49,9 +49,7 @@ mod revenant_actions {
 
     #[external(v0)]
     impl RevenantActionImpl of IRevenantActions<ContractState> {
-        fn create(self: @ContractState, game_id: u32, name: felt252) -> (u128, u128) {
-            assert(name != 0, 'name length must larger than 0');
-
+        fn create(self: @ContractState, game_id: u32) -> (u128, u128) {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
             let (mut game, mut game_data) = get!(world, game_id, (Game, GameEntityCounter));
@@ -75,11 +73,13 @@ mod revenant_actions {
 
             let entity_id: u128 = game_data.revenant_count.into();
 
+            let (first_name_idx, last_name_idx) = self._create_random_revenant_name();
             let revenant = Revenant {
                 game_id,
                 entity_id,
+                first_name_idx,
+                last_name_idx,
                 owner: player,
-                name_revenant: name,
                 outpost_count: 1,
                 status: RevenantStatus::started
             };
@@ -262,6 +262,14 @@ mod revenant_actions {
             let position = OutpostPosition { game_id, x, y, entity_id: new_outpost_id };
 
             (outpost, position)
+        }
+
+        fn _create_random_revenant_name(self: @ContractState) -> (u32, u32) {
+            let seed = starknet::get_tx_info().unbox().transaction_hash;
+            let mut random = RandomImpl::new(seed);
+            let first_name = random.next_u32(0, 1000);
+            let last_name = random.next_u32(0, 1000);
+            (first_name, last_name)
         }
     }
 }

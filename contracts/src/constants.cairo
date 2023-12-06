@@ -11,10 +11,12 @@ const REVENANT_MAX_COUNT: u32 = 2;
 // When we need to perform a demonstration, we can modify this value.
 const REINFORCEMENT_INIT_COUNT: u32 = 0;
 
-// Check whether to automatically create a new world event after destroying an outpost.
-const AUTO_CREATE_NEW_WORLD_EVENT: u32 = 0;
-
 const EVENT_INIT_RADIUS: u32 = 155;
+
+// The reward score offered for creating a world event
+const EVENT_CREATE_SCORE: u32 = 20;
+// The reward score offered for destory a outpost
+const DESTORY_OUTPOST_SCORE: u32 = 5;
 
 const MAP_WIDTH: u32 = 10240;
 const MAP_HEIGHT: u32 = 5164;
