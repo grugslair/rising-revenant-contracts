@@ -16,7 +16,6 @@ export const useDojo = () => {
     // todo: allow connection with wallet providers
     const masterAccount = new Account(provider, import.meta.env.VITE_PUBLIC_MASTER_ADDRESS!, import.meta.env.VITE_PUBLIC_MASTER_PRIVATE_KEY!)
     
-    
     const { create, list, get, account, select, isDeploying } = useBurner(
         {
             masterAccount: masterAccount,

@@ -4,296 +4,240 @@ import "./PagesStyles/DebugPageStyles.css";
 import { ClickWrapper } from "../clickWrapper";
 import { useDojo } from "../../hooks/useDojo";
 
-import { CreateRevenantProps, CreateEventProps } from "../../dojo/types";
+import { CreateEventProps } from "../../dojo/types";
 
 import {
   Has,
-  getComponentValueStrict
+  getComponentValueStrict,
+  getComponentValue
 } from "@latticexyz/recs";
 
 import { GAME_CONFIG } from "../../phaser/constants";
-import { getGameTrackerEntity } from "../../dojo/testQueries";
-import {  getFullOutpostGameData, getGameEntitiesSpecific } from "../../dojo/testCalls";
-import {  decimalToHexadecimal } from "../../utils";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
+
+enum TestResults
+{
+  NONE,
+  PASSED,
+  WARNING,
+  ERROR
+}
 
 export const DebugPage = () => {
 
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [revenantCheckOutcome, setRevenantCheckOutcome] = useState<TestResults>(TestResults.NONE);
+  const [eventCheckOutcome, setEventCheckOutcome] = useState<TestResults>(TestResults.NONE);
 
   const {
     account: { account },
     networkLayer: {
-      network: { contractComponents, clientComponents,graphSdk },
-      systemCalls: {  create_revenant, create_event },
-
+      network: { contractComponents, clientComponents },
+      systemCalls: { create_event }
     },
   } = useDojo();
 
 
-  //#region Outpost data stuff
+  //test queries
 
-  const summonRev = async () => {
-    const gameTrackerComp = getComponentValueStrict(
-      contractComponents.GameTracker,
-      getEntityIdFromKeys([BigInt(GAME_CONFIG)])
-    );
-    const game_id: number = gameTrackerComp.count;
+  const clientCameraEntityQuery = useEntityQuery([Has(clientComponents.ClientCameraPosition)]);
+  const clientGameEntityQuery = useEntityQuery([Has(clientComponents.ClientGameData)]);
+  const clientClickPosEntityQuery = useEntityQuery([Has(clientComponents.ClientClickPosition)]);
+  const clientOutpostEntityQuery = useEntityQuery([Has(clientComponents.ClientOutpostData)]);
+  const clientEntityIndexQuery = useEntityQuery([Has(clientComponents.EntityTileIndex)]);
 
-    const gameEntityCounter = getComponentValueStrict(
-      contractComponents.GameEntityCounter,
-      getEntityIdFromKeys([BigInt(game_id)])
-    );
-    const rev_counter: number = gameEntityCounter.outpost_count;
+  const outpostEntityQuery = useEntityQuery([Has(contractComponents.Outpost)]);
+  const revenantEntityQuery = useEntityQuery([Has(contractComponents.Revenant)]);
+  const worldEventEntityQuery = useEntityQuery([Has(contractComponents.WorldEvent)]);
+  const gameEntityQuery = useEntityQuery([Has(contractComponents.GameEntityCounter)]);
+  const gameTrackerEntityQuery = useEntityQuery([Has(contractComponents.GameTracker)]);
+  const gameEntityCounterEntityQuery = useEntityQuery([Has(contractComponents.GameEntityCounter)]);
 
-    const createRevProps: CreateRevenantProps = {
-      account: account,
-      game_id: game_id,
-      name: "Revenant " + rev_counter,
-    };
-
-    await create_revenant(createRevProps);
-  };
-
-  const queryAllRevenantData = async () => {
-    const gameTrackerComp = getComponentValueStrict(
-      contractComponents.GameTracker,
-      getEntityIdFromKeys([BigInt(GAME_CONFIG)])
-    );
-
-    const game_id: number = gameTrackerComp.count;
-
-    const gameEntityCounterComp = getComponentValueStrict(
-      contractComponents.GameEntityCounter,
-      getEntityIdFromKeys([BigInt(game_id)])
-    );
-
-    const data = await getFullOutpostGameData(graphSdk,decimalToHexadecimal(game_id),gameEntityCounterComp.revenant_count);
-
-    console.log(data);
-  }
-
-
-  const outpostArray = useEntityQuery([Has(contractComponents.Outpost)]);
-  const revenantArray = useEntityQuery([Has(contractComponents.Revenant)]);
-  const clientOutpostArray = useEntityQuery([Has(clientComponents.ClientOutpostData)]);
-
-  const printAllSavedDataRevenants = () => {
-    for (let index = 0; index < revenantArray.length; index++) {
-      const element = revenantArray[index];
-     
-      const revData = getComponentValueStrict(contractComponents.Revenant, element);
-      const outpostData = getComponentValueStrict(contractComponents.Outpost, element);
-      const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, element);
-      
-      console.log(revData);
-      console.log(outpostData);
-      console.log(clientOutpostData);
-    }
-  } 
-
-  //#endregion
-
-
-  //#region  Game Data Debug
-  const gameTrackerArray = useEntityQuery([Has(contractComponents.GameTracker)]);
-  const gameArray = useEntityQuery([Has(contractComponents.GameEntityCounter)]);
-  const gameEntityCounterArray = useEntityQuery([Has(contractComponents.Game)]);
-
-  const printEntitiesofGamedata = () => {
-    console.log(gameArray[0]);
-    console.log(gameEntityCounterArray[0]);
-    console.log(gameTrackerArray[0]);
-
-    const compG = getComponentValueStrict(contractComponents.Game, gameArray[0]);
-    console.log("game entity", compG);
-    
-    const compGEC = getComponentValueStrict(contractComponents.GameEntityCounter, gameEntityCounterArray[0]);
-    console.log("game entity counter", compGEC);
-
-    const compGT = getComponentValueStrict(contractComponents.GameTracker, gameTrackerArray[0]);
-    console.log("game tracker", compGT);
-  }
-
-  const queryCheckGameData = async () => {
-    const game_count:any = await getGameTrackerEntity();
-    console.log("game count", game_count);
-
-    const data = await getGameEntitiesSpecific(graphSdk, decimalToHexadecimal(game_count));
-    console.log("game entity data", data);
-    
-    console.log("\n\n");
-    printEntitiesofGamedata();
-  }  
-
-  const getReinfaorceValuesGameWide = () => 
-  {
-
-  }
-
-  //#endregion
-
-
-  //#region  Client Data Debug
-  const clientClickArray = useEntityQuery([Has(clientComponents.ClientClickPosition)]);
-  const clientGameArray = useEntityQuery([Has(clientComponents.ClientGameData)]);
-  const clientCameraArray = useEntityQuery([Has(clientComponents.ClientCameraPosition)]);
-
-  const printEntitiesOfClientdata = () => {
-    console.log(clientClickArray[0]);
-    console.log(clientGameArray[0]);
-    console.log(clientCameraArray[0]);
-
-    const compCGD = getComponentValueStrict(clientComponents.ClientGameData, clientGameArray[0]);
-    console.log("client game entity", compCGD);
-    const compCCL = getComponentValueStrict(clientComponents.ClientClickPosition, clientClickArray[0]);
-    console.log("click entity counter", compCCL);
-    const compCCP = getComponentValueStrict(clientComponents.ClientCameraPosition, clientCameraArray[0]);
-    console.log("camera tracker", compCCP);
-
-    console.log("\n\nstart of array of client outpost Data")
-    for (let index = 0; index < clientOutpostArray.length; index++) {
-      const element = clientOutpostArray[index];
-      getComponentValueStrict(clientComponents.ClientOutpostData, element);
-      console.log("outpost client data", element);
-    } 
-
-    console.log("\nend of array of client outpost Data\n\n")
-  }
-
-  useEffect(() => {
-
-    console.error("This si checking for the current amdin")
-    
-    if (clientGameArray.length === 0)
-    {
-      return;
-    }
-
-    const ff = getComponentValueStrict(clientComponents.ClientGameData, clientGameArray[0]).current_game_admin
-
-
-    if (ff)
-    {
-      setIsAdmin(true)
-    }
-    else
-    {
-      setIsAdmin(false);
-    }
-  
-    
-  }, [clientGameArray])
-  
-
-  //#endregion 
-
-
-  //#region event Data stuff
-
-  const eventArray = useEntityQuery([Has(contractComponents.WorldEvent)]);
-
-  const createEvent = async () => {
-    const gameTrackerComp = getComponentValueStrict(
-      contractComponents.GameTracker,
-      getEntityIdFromKeys([BigInt(GAME_CONFIG)])
-    );
-    const game_id: number = gameTrackerComp.count;
-
-    const createEventProps: CreateEventProps = {
-      account: account,
-      game_id: game_id,
-    };
-
-    await create_event(createEventProps);
-  };
-
-  const printAllSavedDataEvents = () => {
-    for (let index = 0; index < eventArray.length; index++) {
-      const element = eventArray[index];
-
-      const eventData = getComponentValueStrict(contractComponents.WorldEvent, element);
-      
-      console.log(eventData);
-    }
-  }
-
-
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === 'p') {
-        console.error("admin overrride enabled")
-        setIsAdmin(!isAdmin);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, []);
-
-
-  //#endregion
 
   const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
-  const gameEntityTracker = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+  const game_id = clientGameData.current_game_id;
+
+  const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
+
+  const revenantSanityCheck = () => {
+    let passed = TestResults.PASSED;
+    console.log("STARTING REVENANTS DATA SANITY CHECK")
+
+    if (outpostEntityQuery.length !== clientOutpostEntityQuery.length) {
+      passed = TestResults.ERROR;
+      console.error("There is a descrepency in outpost and revenant data");
+      console.error(`outpost array is ${outpostEntityQuery.length} vs ${revenantEntityQuery.length} revenants`);
+    } else {
+      console.log("%cLength check for outpost and revenant arrays has passed successfully", "color: green");
+    }
+
+    if (outpostEntityQuery.length !== clientEntityIndexQuery.length - 1) {
+      passed = TestResults.ERROR;
+      console.error("There is a descrepency in outpost and entity index comp");
+      console.error(`outpost array is ${outpostEntityQuery.length} vs ${clientEntityIndexQuery.length-1} revenants`);
+    } else {
+      console.log("%cLength check for outpost and revenant arrays has passed successfully", "color: green");
+    }
+
+    if (outpostEntityQuery.length !== clientOutpostEntityQuery.length || clientOutpostEntityQuery.length !== revenantEntityQuery.length) {
+      console.error("There is a descrepency in outpost and revenant data");
+      console.error(`outpost array is ${outpostEntityQuery.length} vs ${revenantEntityQuery.length} revenants vs ${clientOutpostEntityQuery.length} outpost data client`);
+      passed = TestResults.ERROR;
+    } else {
+      console.log("%cLength check for client outpost data arrays has passed successfully", "color: green");
+    }
+
+    const biggestArray = (outpostEntityQuery.length >= clientOutpostEntityQuery.length && outpostEntityQuery.length >= revenantEntityQuery.length) ? outpostEntityQuery :
+      (clientOutpostEntityQuery.length >= outpostEntityQuery.length && clientOutpostEntityQuery.length >= revenantEntityQuery.length) ? clientOutpostEntityQuery :
+        revenantEntityQuery;
+
+    if (biggestArray.length !== gameEntityCounter.outpost_count) {
+      passed = TestResults.ERROR;
+      console.error("The biggest possible array is not equal to the right outpost count, IGNORE IF IN PREP PHASE");
+    }
+    else {
+      console.log("%cLength matches the entity counter", "color: green");
+    }
+
+    for (let index = 0; index < biggestArray.length; index++) {
+      const entityId = biggestArray[index];
+
+      console.log("------------------")
+      const outpostData = getComponentValue(contractComponents.Outpost, entityId);
+      const revenantData = getComponentValue(contractComponents.Revenant, entityId);
+      const clientOutpostData = getComponentValue(clientComponents.ClientOutpostData, entityId);
+
+      console.log(`Data for entity ${entityId}`)
+      if (outpostData !== null || outpostData !== undefined) {
+        console.log(outpostData);
+      }
+      else {
+        console.error("outpostData is non existant for this entity");
+        passed = TestResults.ERROR;
+      }
+
+      if (revenantData !== null || revenantData !== undefined) {
+        console.log(revenantData);
+      }
+      else {
+        console.error("revenantData is non existant for this entity");
+        passed = TestResults.ERROR;
+      }
+
+      if (clientOutpostData !== null || clientOutpostData !== undefined) {
+        console.log(clientOutpostData);
+      }
+      else {
+        console.error("ClientOutpostData is non existant for this entity");
+        passed = TestResults.ERROR;
+      }
+    }
+
+    setRevenantCheckOutcome(passed);
+  }
+
+
+  const worldEventSanityCheck = () => {
+    let passed = TestResults.PASSED;
+
+    console.log("STARTING WORLD EVENT SANITY CHECK")
+
+    if (worldEventEntityQuery.length !== gameEntityCounter.event_count) {
+      console.log("%cThe world event array is not equal to the right event count, (shouldnt be a massive issue)", "color: orange");
+      passed = TestResults.WARNING;
+    }
+    else {
+      console.log("%cLength matches the entity counter", "color: green");
+    }
+
+    for (let index = 0; index < worldEventEntityQuery.length; index++) {
+      const entityId = worldEventEntityQuery[index];
+
+      console.log("------------------")
+      const worldEventData = getComponentValue(contractComponents.WorldEvent, entityId);
+
+      console.log(`Data for entity ${entityId}`)
+      if (worldEventData !== null || worldEventData !== undefined) {
+        console.log(worldEventData);
+      }
+      else {
+        passed = TestResults.ERROR;
+        console.error("worldEventData is non existant for this entity")
+      }
+    }
+
+    setEventCheckOutcome(passed);
+  }
+
+  const createEvent = () => 
+  {
+    const createEventProps: CreateEventProps = {
+      account: account,
+      game_id: game_id
+    }
+
+    create_event(createEventProps);
+  }
+
+  const gameId = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)])).current_game_id;
 
   return (
-    <ClickWrapper className="revenant-jurnal-page-container">
+    <ClickWrapper className="game-page-container">
 
-      {isAdmin ?   
-      <h1 style={{ color: "white" }}>Debug Menu Admin</h1>  :   
-      <h1 style={{ color: "white" }}>Debug Menu </h1>}
-      <div className="buttons-holder">
+    <img className="page-img" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
+
+      <h1 style={{ color: "white" , position:"relative"}}>Debug Menu (number inside brackets indicate the correct numbers for each comp type)</h1>
+      <div className="buttons-holder" style={{position:"relative"}}>
 
         <div className="data-container">
           <div className="button-style-debug">This is a button</div>
           <div className="content-holder">
             <h3>The current address is {account.address}</h3>
-            {/* <h3>The current balance is {getComponentValueStrict(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(getComponentValueStrict(clientComponents.ClientGameData, clientGameArray[0]).current_game_id), BigInt(account.address)]))}</h3> */}
-            <button onMouseDown={() => {getReinfaorceValuesGameWide()}}>Get All Reinforces Values in game</button>
+            <h3>The current balance is {getComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(game_id), BigInt(account.address)])).reinforcement_count || -1 }</h3>
           </div>
         </div>
 
         <div className="data-container">
-          <div className="button-style-debug" onMouseDown={() => {summonRev()}}>Create a new revenant</div>
+          <div className="button-style-debug" onMouseDown={() => { revenantSanityCheck() }}>Revenant Section, Click to check for missing data</div>
           <div className="content-holder">
-            <h3>There are currently {outpostArray.length} outposts and {revenantArray.length} revenants (~{gameEntityTracker.outpost_count})</h3>
-            <button onMouseDown={() => {queryAllRevenantData()}}>Fetch all Data</button>
-            <button onMouseDown={() => {printAllSavedDataRevenants()}}>Print Data saved</button>
+            <h3>There are currently {outpostEntityQuery.length} outposts and {revenantEntityQuery.length} revenants (~{gameEntityCounter.outpost_count})</h3>
+            {revenantCheckOutcome === TestResults.NONE && <h3>Run a sanity check...</h3>}
+            {revenantCheckOutcome === TestResults.PASSED && <h3 style={{ color: 'green' }}>Sanity check Passed</h3>}
+            {revenantCheckOutcome === TestResults.ERROR && <h3 style={{ color: 'red' }}>Sanity check Failed</h3>}
           </div>
         </div>
 
         <div className="data-container">
-          <div className="button-style-debug" onMouseDown={() => {queryCheckGameData()}}>Query Check everthing</div>
+          <div className="button-style-debug" onMouseDown={() => { }}>Query Check everthing</div>
           <div className="content-holder">
-            <h3>There are currently {gameArray.length} games (1)</h3>
-            <h3>There are currently {gameTrackerArray.length} game tracker (1)</h3>
-            <h3>There are currently {gameEntityCounterArray.length} game entity counter (1)</h3>
-            <h3>Current Game id is {getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)])).current_game_id} and should be {getComponentValueStrict(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG)])).count}</h3>
+            <h3>There are currently {gameEntityQuery.length} games (1)</h3>
+            <h3>There are currently {gameTrackerEntityQuery.length} game tracker (1)</h3>
+            <h3>There are currently {gameEntityCounterEntityQuery.length} game entity counter (1)</h3>
+            <h3>There are currently {clientEntityIndexQuery.length} game entity counter ({getComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(gameId)])).revenant_count + 1 || -1})</h3>
+            <h3>Current Game id is {gameId} and should be {getComponentValue(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG)])).count  || -1}</h3>
           </div>
         </div>
 
         <div className="data-container">
-          <div className="button-style-debug" onMouseDown={() => {printEntitiesOfClientdata()}}>Query Check everthing</div>
+          <div className="button-style-debug" onMouseDown={() => { }}>Client Side</div>
           <div className="content-holder">
-            <h3>There are currently {clientCameraArray.length} camera entity (1) </h3>
-            <h3>There are currently {clientClickArray.length} click entity (1) </h3>
-            <h3>There are currently {clientGameArray.length} client game (1) </h3>
-            <h3>There are currently {clientOutpostArray.length} client outpost data  (~{gameEntityTracker.outpost_count})</h3>
+            <h3>There are currently {clientCameraEntityQuery.length} camera entity (1) </h3>
+            <h3>There are currently {clientClickPosEntityQuery.length} click entity (1) </h3>
+            <h3>There are currently {clientGameEntityQuery.length} client game (1) </h3>
+            <h3>There are currently {clientOutpostEntityQuery.length} client outpost data  (~{gameEntityCounter.outpost_count})</h3>
           </div>
         </div>
 
         <div className="data-container">
-          {isAdmin ? <div className="button-style-debug" onMouseDown={() => {createEvent()}}>Start Event</div> : <div></div>}
-          {/* <div className="button-style-debug" onMouseDown={() => {createEvent()}}>Start Event</div> */}
+          <div className="button-style-debug" onMouseDown={() => { worldEventSanityCheck() }}>Event Section, Click to check for missing data</div>
           <div className="content-holder">
-            <h3>There are currently {eventArray.length} events ({gameEntityTracker.event_count}) </h3>
-            <button onMouseDown={() => {printAllSavedDataEvents()}}>Print Data saved</button>
+            <h3>There are currently {worldEventEntityQuery.length} events ({gameEntityCounter.event_count}) </h3>
+            <button onMouseDown={() => { createEvent() }}>Manually create Event</button>
+            {eventCheckOutcome === TestResults.NONE && <h3>Run a sanity check...</h3>}
+            {eventCheckOutcome === TestResults.PASSED && <h3 style={{ color: 'green' }}>Sanity check Passed</h3>}
+            {eventCheckOutcome === TestResults.ERROR && <h3 style={{ color: 'red' }}>Sanity check Failed</h3>}
+            {eventCheckOutcome === TestResults.WARNING && <h3 style={{ color: 'orange' }}>Minor possible issue detected</h3>}
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 //libs
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PrepPhaseStages } from "./prepPhaseManager";
 import { toast } from 'react-toastify';
 import { PurchaseReinforcementProps } from "../../dojo/types";
@@ -46,7 +46,7 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
         account: { account },
         networkLayer: {
             network: { clientComponents },
-            systemCalls : { purchase_reinforcement },
+            systemCalls : { purchase_reinforcement, get_current_reinforcement_price },
         },
         
     } = useDojo();
@@ -65,8 +65,22 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
             count: BigInt(num),
         };
 
-        const res = await purchase_reinforcement(props);
+        await purchase_reinforcement(props);
     }
+
+    useEffect(() => {
+        const intervalId = setInterval(call_price_update, 5000);
+    
+        // Cleanup the interval on component unmount
+        return () => clearInterval(intervalId);
+      }, []);
+    
+    const call_price_update = async () => {
+        const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+
+        // const current_price = await get_current_reinforcement_price(clientGameData.current_game_id);
+        // console.error(`CALLING THE PRICE FUNCTION, CURRENT PRICE ${current_price}`);
+    };
 
     return (
         <div className="br-page-container">
@@ -75,7 +89,7 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
             <ClickWrapper className="main-content">
                 <h2 className="main-content-header">BUY REINFORCEMENTS</h2>
                 <CounterElement value={reinforcementNumber} setValue={setReinforcementNumber} />
-                <div className="global-button-style" style={{ width: "fit-content", padding: "5px 10px", fontSize: "1.3cqw" }} onMouseDown={() => { buyReinforcements(reinforcementNumber) }}> Reinforce (Tot: {priceOfReinforcements * reinforcementNumber} $LORDS)</div>
+                <div className="global-button-style" style={{ width: "fit-content", padding: "5px 10px", fontSize: "1.3cqw" }} onMouseDown={() => { buyReinforcements(reinforcementNumber); }}> Reinforce (Tot: {priceOfReinforcements * reinforcementNumber} $LORDS)</div>
             </ClickWrapper>
 
             <div className="footer-text-section" >

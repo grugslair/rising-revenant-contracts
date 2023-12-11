@@ -22,6 +22,7 @@ import { DebugPage } from "../Pages/debugPage";
 import { PrepPhaseNavbarComponent } from "../Components/navbar";
 import { ProfilePage } from "../Pages/profilePage";
 import { RulesPage } from "../Pages/rulesPage";
+import { Phase } from "../phaseManager";
 
 export enum PrepPhaseStages {
     VID,
@@ -34,7 +35,11 @@ export enum PrepPhaseStages {
     DEBUG
 }
 
-export const PrepPhaseManager = () => {
+interface PrepPhasePageProps {
+    setUIState: React.Dispatch<Phase>;
+}
+
+export const PrepPhaseManager : React.FC<PrepPhasePageProps> = ({ setUIState }) => {
 
     const [prepPhaseStage, setPrepPhaseStage] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
 
@@ -43,6 +48,14 @@ export const PrepPhaseManager = () => {
 
     const [lastSavedState, setLastSavedState] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
 
+    const {
+        account: { account },
+        networkLayer: {
+          network: { clientComponents, contractComponents },
+          systemCalls: { view_block_count }
+        },
+      } = useDojo();
+    
     // this is only here to call the debug menu
     useEffect(() => {
         const handleKeyPress = (event: KeyboardEvent) => {
@@ -77,6 +90,22 @@ export const PrepPhaseManager = () => {
 
     }, [prepPhaseStage]);
 
+    useEffect(() => {
+        checkBlockCount();
+        const intervalId = setInterval(checkBlockCount, 5000);
+    
+        return () => clearInterval(intervalId);
+      }, []);
+    
+    const checkBlockCount = async () => {
+        const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([GAME_CONFIG]));
+        const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([clientGameData.current_game_id]));
+
+        const blocksLeft = (gameData.start_block_number + gameData. preparation_phase_interval) - clientGameData.current_block_number;
+
+        setBlocksLeft(blocksLeft);
+    };
+
     // video stuff
     const onVideoDone = () => {
         setPrepPhaseStage(PrepPhaseStages.BUY_REVS);
@@ -93,9 +122,14 @@ export const PrepPhaseManager = () => {
         setPrepPhaseStage(lastSavedState);
     }
 
+    const advanceToGamePhase = () => 
+    {
+        setUIState(Phase.GAME);
+    }
+
     return (<div className="main-page-container-layout">
         <div className='main-page-topbar'>
-            <TopBarComponent />
+            <TopBarComponent phaseNum={1} setGamePhase={advanceToGamePhase} />
         </div>
 
         <div className='main-page-content'>

@@ -12,8 +12,8 @@ import { GamePhaseManager } from "./Pages/gamePhaseManager";
     This component will render different pages based on the current phase.
     It may involve loading screens for certain phases.
 
-    // i think this should have a timer if in the prep pahse to see if it should go in the next phase
-    somehting along the lines of chekcing the block count anyway
+    // i think this should have a timer if in the prep phase to see if it should go in the next phase
+    something along the lines of checking the block count anyway
 */
 
 export enum Phase {
@@ -26,6 +26,9 @@ export enum Phase {
 export const PhaseManager = () => {
   const [phase, setPhase] = useState<Phase>(Phase.LOGIN);
 
+  //phase is right nwo dealt i think by the wrong component, i think after lloading should be the deciding factor
+
+  //to delete
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       switch (event.key) {
@@ -61,7 +64,7 @@ export const PhaseManager = () => {
     <>
       {phase === Phase.LOGIN && <LoginComponent setUIState={setUIState}/>}
       {phase === Phase.LOADING && <LoadingComponent setUIState={setUIState}/>}
-      {phase === Phase.PREP && <PrepPhaseManager />}
+      {phase === Phase.PREP && <PrepPhaseManager setUIState={setUIState}/>}
       {phase === Phase.GAME && <GamePhaseManager />}
     </>
   );

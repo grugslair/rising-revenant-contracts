@@ -32,29 +32,32 @@ export const PrepPhaseEndsPage: React.FC<PrepPhaseEndsPageProps> = ({ setMenuSta
         setShowBlocks((prevShowBlocks) => !prevShowBlocks);
     };
 
-    // const {
-    //     networkLayer: {
-    //       network: { contractComponents, clientComponents },
-    //       systemCalls: { view_block_count}
-    //     },
-    //   } = useDojo();
+    const {
+        networkLayer: {
+          network: { contractComponents, clientComponents }
+        },
+      } = useDojo();
 
-    // useEffect(() => {
-    //     const getBlocksLeft = async () => {
-    //         const clientGame = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
-    //         const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGame.current_game_id)]));
 
-    //         const current_block = await view_block_count();
-    //         const blocksLeft = gameData.start_block_number + gameData.preparation_phase_interval - current_block!;
-    //         setBlocksLeft(blocksLeft);
-    //     }
+    const getBlocksLeft = async () => {
+        const clientGame = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+        const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGame.current_game_id)]));
 
-    //     const intervalId = setInterval(() => { 
-    //         getBlocksLeft();
-    //     }, 5000);
-    //     getBlocksLeft();
-    //     return () => clearInterval(intervalId);
-    // }, []);
+        const blocksLeft = (gameData.start_block_number + gameData.preparation_phase_interval) - clientGame.current_block_number!;
+        setBlocksLeft(blocksLeft);
+    }
+
+    useEffect(() => {
+       
+
+        getBlocksLeft();
+
+        const intervalId = setInterval(() => { 
+            getBlocksLeft();
+        }, 5000);
+
+        return () => clearInterval(intervalId);
+    }, []);
 
     return (
         <div className="ppe-page-container">

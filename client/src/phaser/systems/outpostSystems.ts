@@ -1,11 +1,13 @@
 import {
   Has,
   defineSystem,
+  defineEnterSystem,
   getComponentValueStrict,
   getComponentValue
 } from "@latticexyz/recs";
 import { PhaserLayer } from "..";
-import { Assets, SCALE, addEntityAtIndex, getTileIndex, setWidthAndHeight } from "../constants";
+import { Assets, SCALE, getAdjacentIndices, setWidthAndHeight } from "../constants";
+import { getEntityIdFromKeys } from "@dojoengine/utils";
 
 export const spawnOutposts = (layer: PhaserLayer) => {
 
@@ -16,26 +18,19 @@ export const spawnOutposts = (layer: PhaserLayer) => {
     },
     
     networkLayer: {
-      components: { Outpost, ClientOutpostData },
+      components: { Outpost, ClientOutpostData, EntityTileIndex },
       
     },
   } = layer;
 
-  defineSystem(world, [Has(Outpost), Has(ClientOutpostData)], ({ entity }) => {
-
-
-      
-
+  defineSystem(world, [Has(ClientOutpostData)], ({ entity }) => {
+    
     const outpostDojoData = getComponentValueStrict(Outpost, entity);
     const outpostClientData = getComponentValue(ClientOutpostData, entity);
 
     if (outpostClientData === undefined) {return}
 
     const outpostObj = objectPool.get(entity, "Sprite");
-
-    addEntityAtIndex(getTileIndex(outpostDojoData.x, outpostDojoData.y), entity);
-
-    //can this be merged?
 
     outpostObj.setComponent({
       id: "position",
@@ -76,16 +71,41 @@ export const spawnOutposts = (layer: PhaserLayer) => {
         }
 
         if (outpostClientData.visible === false) 
-          {
+        {
               sprite.setVisible(false);
-          }
-
-        sprite.scale = SCALE;
+        }
 
         setWidthAndHeight(sprite.width * SCALE, sprite.height * SCALE);
-
       },
     });
 
   });
+
+
+  defineSystem(world, [Has(ClientOutpostData)], ({ entity }) => {
+    const outpostClientData = getComponentValue(ClientOutpostData, entity);
+    const entityTileIndex = getComponentValue(EntityTileIndex, entity);
+
+    if (outpostClientData === undefined || entityTileIndex === undefined) {return}
+
+    const cameraTileIndex = getComponentValueStrict(EntityTileIndex, getEntityIdFromKeys([BigInt(1)]));
+
+    const outpostObj = objectPool.get(entity, "Sprite");
+
+    outpostObj.setComponent({
+      id: "texture",
+      once: (sprite: any) => {
+
+        const adj = getAdjacentIndices(cameraTileIndex.tile_index)
+
+        console.log(adj);
+
+        if (!outpostClientData.selected && !adj.includes(entityTileIndex.tile_index))
+        {
+          sprite.setVisible(false);
+        }
+      },
+    });
+  });
+  
 };

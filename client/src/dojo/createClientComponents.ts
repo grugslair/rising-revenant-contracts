@@ -24,5 +24,8 @@ export function createClientComponents({ contractComponents, clientComponents }:
         ClientClickPosition: overridableComponent(clientComponents.ClientClickPosition),
         ClientOutpostData: overridableComponent(clientComponents.ClientOutpostData),
         ClientGameData: overridableComponent(clientComponents.ClientGameData),
+        EntityTileIndex: overridableComponent(clientComponents.EntityTileIndex),
     };
 }
+
+//pretty sure this is unnecessary

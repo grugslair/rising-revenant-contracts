@@ -9,16 +9,20 @@
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "codegen": "graphql-codegen",
-    "components": "npx @dojoengine/core ../contracts/target/dev/manifest.json src/dojo/contractComponents.ts https://api.cartridge.gg/x/risingrevenant/katana 0x592af97e4f312df28125de662c6fb2f0831fab10281ecc0ac2c5c707e86792 "
+    "components": "npx @dojoengine/core ../contracts/target/dev/manifest.json src/dojo/contractComponents.ts http://localhost:5050 0x6232fe23b5b1504525ab921d824fd1ec130d0ab6efc7cae92f2afab94758a3e "
   },
   "dependencies": {
     "@dojoengine/core": "^0.1.29",
     "@dojoengine/create-burner": "^0.1.29",
+    "@dojoengine/recs": "^0.1.29",
     "@dojoengine/utils": "^0.1.35",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@latticexyz/phaserx": "^2.0.0-next.11",
     "@latticexyz/react": "^2.0.0-next.11",
     "@latticexyz/recs": "^2.0.0-next.11",
     "@latticexyz/utils": "^2.0.0-next.1",
+    "@mui/material": "^5.14.20",
     "ethers": "^5.7.2",
     "events": "^3.3.0",
     "graphql": "^16.7.1",

@@ -1,6 +1,5 @@
 declare var Phaser: any
 
-
 import {
     Has,
     defineSystem,
@@ -9,31 +8,37 @@ import {
   } from "@latticexyz/recs";
   import { PhaserLayer } from "..";
   import { GAME_CONFIG } from "../constants";
-import {  setOutpostClientComponent } from "../../dojo/testCalls";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
+import { setClientGameComponent, setClientOutpostComponent } from "../../utils";
 
   export const eventManager = (layer: PhaserLayer) => {
     const {
       world,
       networkLayer: {
-        network: { clientComponents },
+        network: { clientComponents , contractComponents},
         components: { Outpost, WorldEvent, ClientOutpostData , GameEntityCounter, ClientGameData},
       },
     } = layer;
   
-    defineSystem(world, [Has(WorldEvent)], ({ entity }) => {
+    defineSystem(world, [Has(GameEntityCounter)], ({ entity }) => {
 
-        
+      const clientGameData = getComponentValueStrict(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+      const game_id = clientGameData.current_game_id;
 
-      const dataEvent = getComponentValue(WorldEvent, entity);
-      const clientGameData = getComponentValue(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+      const gameEntityCounter = getComponentValueStrict(GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
 
-      if (!dataEvent || !clientGameData) {  // this doesnt make sense
-        return;
-      }
+      if (gameEntityCounter.event_count === clientGameData.current_event_drawn) {return;}
+
+      if (gameEntityCounter.event_count <= 0 ) {return;}
+
+      // this should be the last event that is always fetched
+      const dataEvent = getComponentValue(WorldEvent, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.event_count)]))
+
+      if (dataEvent === null || dataEvent === undefined) {return;}
+
+      setClientGameComponent(clientGameData.current_game_state, clientGameData.current_game_id, clientGameData.current_block_number, clientGameData.guest , Number(dataEvent.entity_id),clientComponents);
 
       const phaserScene = layer.scenes.Main.phaserScene;
-
       // Destroy all graphics objects in the scene
       phaserScene.sys.displayList.each((child) => {
         if (child instanceof Phaser.GameObjects.Graphics) {
@@ -42,23 +47,17 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
       });
 
       const graphics = phaserScene.add.graphics();
-
       graphics.lineStyle(3, 0xff0000); // Set line style for the outline
       graphics.strokeCircle(dataEvent.x, dataEvent.y, dataEvent.radius); // Draw the outline of a circle with a radius of 50
 
       let radius = dataEvent.radius;
-  
-      if (radius === 0) {  // this also makes no sense
-        return;
-      }
-  
       let positionX = dataEvent.x;
       let positionY = dataEvent.y;
   
       const outpostEntities = getComponentEntities(Outpost);
       const outpostArray = Array.from(outpostEntities);
 
-      const gameEntityCounter = getComponentValueStrict(GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+      console.error(`RIGHT NOW QUERIING A TOTAL OF ${outpostArray.length}`);
   
       for (const outpostEntityValue of outpostArray) {
 
@@ -67,8 +66,7 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
 
         if (outpostEntityData.last_affect_event_id >= gameEntityCounter.event_count)
         {
-          setOutpostClientComponent(outpostClientData.id, outpostClientData.owned, false, outpostClientData.selected, outpostClientData.visible, clientComponents ) 
-        
+          setClientOutpostComponent(outpostClientData.id, outpostClientData.owned, false, outpostClientData.selected, outpostClientData.visible, clientComponents, contractComponents, game_id)
           continue;
         }
 
@@ -77,11 +75,11 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
         );
 
         if (distance <= radius) {
-          setOutpostClientComponent(outpostClientData.id, outpostClientData.owned, true, outpostClientData.selected, outpostClientData.visible, clientComponents ) 
+          setClientOutpostComponent(outpostClientData.id, outpostClientData.owned, true, outpostClientData.selected, outpostClientData.visible, clientComponents ,  contractComponents,game_id)
         }
         else 
         {
-          setOutpostClientComponent(outpostClientData.id, outpostClientData.owned, false, outpostClientData.selected, outpostClientData.visible, clientComponents ) 
+          setClientOutpostComponent(outpostClientData.id, outpostClientData.owned, false, outpostClientData.selected, outpostClientData.visible, clientComponents,  contractComponents,game_id)
         }
       }
     });

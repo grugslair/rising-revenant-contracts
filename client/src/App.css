@@ -108,6 +108,7 @@
 	border: 2px solid var(--borderColour);
 
   font-weight: bold;
+  box-sizing:"border-box"; 
 }
 
 .global-button-style:hover

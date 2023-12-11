@@ -1,9 +1,8 @@
 
 
 import { getEntityIdFromKeys, parseComponentValueFromGraphQLEntity, setComponentFromGraphQLEntity } from "@dojoengine/utils";
-import { setComponent, Components, ComponentValue } from "@latticexyz/recs";
-
-
+import { setComponent, Components, ComponentValue, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { GAME_CONFIG, getTileIndex } from "../phaser/constants";
 
 
 //region Names
@@ -218,14 +217,7 @@ export const surnamesArray: string[] = [
 
 
 
-
-
-
-
-
-
-
-//region Setting Components Easy
+//region Setting Components Easy   we can just get the schema instead of doing it manually)
 
 function createComponentStructure(componentSchema: any, keys: string[], componentName: string): any {
     return {
@@ -241,20 +233,23 @@ function createComponentStructure(componentSchema: any, keys: string[], componen
     };
 }
 
-export const setClientGameComponent = async (phase: number, game_id: number, current_block: number, guest: boolean, clientComponents: any) => {
+export const setClientGameComponent = async (phase: number, game_id: number, current_block: number, guest: boolean, event_drawn: number, clientComponents: any) => {
 
     const componentSchemaClientGameData = {
         "current_game_state": phase,
         "current_game_id": game_id,
         "current_block_number": current_block,
         "guest": guest,
+        "current_event_drawn": event_drawn
     };
 
     const craftedEdgeClientGameComp = createComponentStructure(componentSchemaClientGameData, ["0x1"], "ClientGameData");
     setComponentFromGraphQLEntity(clientComponents, craftedEdgeClientGameComp);
 }
 
-export const setClientOutpostComponent = async (id: number, owned: boolean, event_effected: boolean, selected: boolean, visible: boolean, clientComponents: any, game_id: number, entity_id, number) => {
+export const setClientOutpostComponent = async (id: number, owned: boolean, event_effected: boolean, selected: boolean, visible: boolean, clientComponents: any, contractComponents: any, game_id: number) => {
+
+    // EntityTileIndex
 
     const componentSchemaClientOutpostData = {
         "id": id,
@@ -264,8 +259,19 @@ export const setClientOutpostComponent = async (id: number, owned: boolean, even
         "visible": visible,
     };
 
-    const craftedEdgeClientOutpostComp = createComponentStructure(componentSchemaClientOutpostData, [decimalToHexadecimal(game_id), decimalToHexadecimal(entity_id)], "ClientOutpostData");
+    const craftedEdgeClientOutpostComp = createComponentStructure(componentSchemaClientOutpostData, [decimalToHexadecimal(game_id), decimalToHexadecimal(id)], "ClientOutpostData");
     setComponentFromGraphQLEntity(clientComponents, craftedEdgeClientOutpostComp);
+
+
+    const outpostData = getComponentValueStrict(contractComponents.Outpost, getEntityIdFromKeys([BigInt(game_id), BigInt(id)]));
+    const index = getTileIndex(outpostData.x, outpostData.y);
+
+    const componentSchemaEntityTileIndex = {
+        "tile_index": index,
+    };
+
+    const craftedEdgeEntityTileIndex = createComponentStructure(componentSchemaEntityTileIndex, [decimalToHexadecimal(game_id), decimalToHexadecimal(id)], "EntityTileIndex");
+    setComponentFromGraphQLEntity(clientComponents, craftedEdgeEntityTileIndex);
 }
 
 /**
@@ -289,16 +295,28 @@ export const setClientClickPositionComponent = async (xFromOrigin: number, yFrom
     setComponentFromGraphQLEntity(clientComponents, craftedEdgeClientClickPositionComp);
 }
 
-export const setClientCameraComponent = async (x: number, y: number, tile_index: number, clientComponents: any) => {
+export const setClientCameraComponent = async (x: number, y: number, clientComponents: any) => {
 
     const componentSchemaClientCamera = {
         "x": x,
         "y": y,
-        "tile_index": tile_index,
     };
 
     const craftedEdgeClientCameraComp = createComponentStructure(componentSchemaClientCamera, ["0x1"], "ClientCameraPosition");
     setComponentFromGraphQLEntity(clientComponents, craftedEdgeClientCameraComp);
+}
+
+export const setClientCameraEntityIndex = async (x: number, y: number, clientComponents: any) => {
+
+    const index = getTileIndex(x, y);
+
+    const componentSchemaEntityTileIndex = {
+        "tile_index": index,
+    };
+
+    const craftedEdgeEntityTileIndex = createComponentStructure(componentSchemaEntityTileIndex, ["0x1"], "EntityTileIndex");
+    setComponentFromGraphQLEntity(clientComponents, craftedEdgeEntityTileIndex);
+
 }
 
 //endregion
@@ -322,16 +340,16 @@ export function getFirstComponentByType(entities: any[] | null | undefined, type
 }
 
 export function extractAndCleanKey(entities?: any[] | null | undefined): string | null {
+
     if (!isValidArray(entities) || !entities[0]?.keys) return null;
 
     return entities[0].keys.replace(/,/g, '');
 }
 
-
-// export function addPrefix0x(input: string | number): string {
-//     // Add '0x' prefix to the input
-//     return `0x${input}`;
-// }
+export function addPrefix0x(input: string | number): string {
+    // Add '0x' prefix to the input
+    return `0x${input}`;
+}
 
 export function decimalToHexadecimal(number: number): string {
     if (isNaN(number) || !isFinite(number)) {
@@ -354,30 +372,155 @@ export function truncateString(inputString: string, prefixLength: number): strin
     return `${prefix}...${suffix}`;
 }
 
+export function setComponentsFromGraphQlEntitiesHM(data: any, components: Components, isModel: boolean): void {
 
+    if (data === null && data === undefined) {
+        console.error("something sent to the setComponent func was not correct")
+        return;
+    }
 
-export function setComponentFromGraphQLEntityTemp(components: Components, entity: any) {
-    const keys = entity.keys.map((key: string) => BigInt(key));
-    const entityIndex = getEntityIdFromKeys(keys);
+    for (const edge of data.edges) {
 
-    entity.models.forEach((model: any) => {
-        const componentName = model.__typename;
-        const component = components[componentName];
+        let node = edge.node;
 
-        if (!component) {
-            console.error(`Component ${componentName} not found`);
-            return;
+        if (isModel) {
+            node = edge.node.entity;
         }
 
-        const componentValues = Object.keys(component.schema).reduce((acc: ComponentValue, key) => {
-            const value = model[key];
-            const parsedValue = parseComponentValueFromGraphQLEntity(value, component.schema[key]);
-            acc[key] = parsedValue;
-            return acc;
-        }, {});
+        const keys = node.keys.map((key: string) => BigInt(key));
+        const entityIndex = getEntityIdFromKeys(keys);
 
-        console.log(componentValues)
-        setComponent(component, entityIndex, componentValues);
-    });
+        for (const model of node.models) {
+
+            const modelKeys = Object.keys(model);
+            if (modelKeys.length !== 1) {
+                const componentName = model.__typename;
+                const component = components[componentName];
+
+                const componentValues = Object.keys(component.schema).reduce((acc: ComponentValue, key) => {
+                    const value = model[key];
+                    const parsedValue = parseComponentValueFromGraphQLEntity(value, component.schema[key]);
+                    acc[key] = parsedValue;
+                    return acc;
+                }, {});
+
+                // console.log(componentValues)
+                setComponent(component, entityIndex, componentValues);
+            }
+        }
+    }
 }
 
+export function checkAndSetPhaseClientSide(game_id: number, currentBlockNumber: number, contractComp: any, clientComp: any): { phase: number; blockLeft: number } {
+    const gameData = getComponentValue(contractComp.Game, getEntityIdFromKeys([BigInt(game_id)]));
+
+    const gameClientData = getComponentValue(clientComp.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+
+    let phase = 1;
+    //30                           //10                         //39
+    const blockLeft = (gameData.start_block_number + gameData.preparation_phase_interval) - currentBlockNumber
+
+    if (blockLeft <= 0) {
+        phase = 2;
+    }
+
+    setClientGameComponent(phase, game_id, currentBlockNumber, gameClientData.guest, gameClientData.current_event_drawn, clientComp);
+
+    return { phase, blockLeft };
+}
+
+
+//there might be issues in the future where the graphql request gets too big i dont think the Models specifc request work correctly honeslty 
+// it better to do the entities one
+
+
+//region Fetch Requests
+
+export const fetchGameTracker = async (graphSDK_: any): Promise<any> => {
+    const {
+        data: { entities },
+    } = await graphSDK_().getGameTracker({ config: decimalToHexadecimal(GAME_CONFIG as number) });
+
+    return entities;
+}
+
+
+export const fetchGameData = async (graphSDK_: any, game_id: number): Promise<any> => {
+    const {
+        data: { entities },
+    } = await graphSDK_().getGameData({ game_id: decimalToHexadecimal(game_id) });
+
+    return entities;
+}
+
+
+export const fetchPlayerInfo = async (graphSDK_: any, game_id: number, owner: string): Promise<any> => {
+
+    const {
+        data: { entities },
+    } = await graphSDK_().getPlayerInfo({ game_id: decimalToHexadecimal(game_id), owner: owner });
+
+    return entities;
+}
+
+
+export const fetchAllEvents = async (graphSDK_: any, game_id: number, numOfEvents: number): Promise<any> => {
+
+    const {
+        data: { worldeventModels },
+    } = await graphSDK_().getAllEvents({ game_id: game_id, eventsNumber: numOfEvents });
+
+    return worldeventModels;
+}
+
+
+export const fetchSpecificEvent = async (graphSDK_: any, game_id: number, entity_id: number): Promise<any> => {
+
+    const {
+        data: { entities },
+    } = await graphSDK_().fetchSpecificEvent({ game_id: decimalToHexadecimal(game_id), entity_id: decimalToHexadecimal(entity_id) });
+
+    return entities;
+}
+
+
+export const fetchSortedPlayerReinforcementList = async (graphSDK_: any, game_id: number, numOfPlayers: number): Promise<any> => {
+
+    const {
+        data: { playerinfoModels },
+    } = await graphSDK_().getSortedPlayerReinforcements({ game_id: game_id, playersNum: numOfPlayers });
+
+    return playerinfoModels;
+}
+
+
+export const fetchAllOutRevData = async (graphSDK_: any, game_id: number, numOfObjects: number): Promise<any> => {
+
+    const {
+        data: { outpostModels },
+    } = await graphSDK_().getAllOutRev({ game_id: game_id, outpostCount: numOfObjects });
+
+    return outpostModels;
+}
+
+
+export const fetchAllTrades = async (graphSDK_: any, game_id: number, state: number): Promise<any> => {
+
+    const {
+        data: { tradeModels },
+    } = await graphSDK_().getTradesAvailable({ game_id: game_id, status: state });
+
+    return tradeModels;
+}
+
+
+export const fetchSpecificOutRevData = async (graphSDK_: any, game_id: number, entity_id: number): Promise<any> => {
+
+    const {
+        data: { entities },
+    } = await graphSDK_().fetchSpecificOutRev({ game_id: decimalToHexadecimal(game_id), entity_id: decimalToHexadecimal(entity_id) });
+
+    return entities;
+}
+
+//endregion

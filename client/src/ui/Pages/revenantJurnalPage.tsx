@@ -30,10 +30,18 @@ interface RevenantjurnalPageProps {
     setMenuState: React.Dispatch<React.SetStateAction<MenuState>>;
 }
 
+interface EventDataState {
+    x: number;
+    y: number;
+    radius:number;
+}
+
 export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuState }) => {
 
     const [outpostHitList, setOutpostHitList] = useState<EntityIndex[]>([]);
     const [selectedEventIndex, setSelectedEventIndex] = useState<number>(1);
+    const [currentlySelectedEventData, setCurrentlySelectedEventData] = useState<EventDataState>({x:0,y:0,radius:0});
+
 
     const {
         networkLayer: {
@@ -55,11 +63,19 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
         if (eventId === 0) return;
 
         const outpostHitList: EntityIndex[] = [];
-        const selectedEventData = getComponentValueStrict(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(eventId), BigInt(clientGameData.current_game_id)]));
+        const selectedEventData = getComponentValueStrict(contractComponents.WorldEvent, getEntityIdFromKeys([ BigInt(clientGameData.current_game_id), BigInt(eventId)]));
 
         const eventRadius = selectedEventData.radius;
         const eventX = selectedEventData.x;
         const eventY = selectedEventData.y;
+
+        const data:EventDataState ={
+            x: eventX,
+            y: eventY,
+            radius: eventRadius,
+        }
+
+        setCurrentlySelectedEventData(data);
 
         for (let index = 0; index < allOutposts.length; index++) {
             const element = allOutposts[index];
@@ -74,20 +90,41 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
                 outpostHitList.push(element);
             }
         }
+
+        setOutpostHitList(outpostHitList);
     }, []);
 
     //called on change of the index
     useEffect(() => {
+
+        if (selectedEventIndex < 1)
+        {
+            setSelectedEventIndex(allEvents.length);
+            return;
+        }
+        else if  (selectedEventIndex > allEvents.length)
+        {
+            setSelectedEventIndex(1);
+            return;
+        }   
+
         const newIndex = selectedEventIndex;
         if (newIndex === 0) return;
 
         const outpostHitList: EntityIndex[] = [];
-        const selectedEventData = getComponentValueStrict(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(newIndex), BigInt(clientGameData.current_game_id)]));
+        const selectedEventData = getComponentValueStrict(contractComponents.WorldEvent, getEntityIdFromKeys([ BigInt(clientGameData.current_game_id), BigInt(newIndex)]));
 
         const eventRadius = selectedEventData.radius;
         const eventX = selectedEventData.x;
         const eventY = selectedEventData.y;
-        
+
+        const data:EventDataState = {
+            x: eventX,
+            y: eventY,
+            radius: eventRadius,
+        }
+
+        setCurrentlySelectedEventData(data);
 
         for (let index = 0; index < allOutposts.length; index++) {
             const element = allOutposts[index];
@@ -103,21 +140,9 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
             }
         }
 
-    }, [selectedEventIndex]);
+        setOutpostHitList(outpostHitList);
 
-    const changeEventIndex = (changeBy: number) => {
-        if (changeBy < 0)  // therefore negative
-        {
-            if (selectedEventIndex + changeBy < 1) {
-                setSelectedEventIndex(gameData.event_count);
-            }
-        }
-        else {
-            if (changeBy + selectedEventIndex > gameData.event_count) {
-                setSelectedEventIndex(1);
-            }
-        }
-    }
+    }, [selectedEventIndex]);
 
     const closePage = () => {
         setMenuState(MenuState.NONE);
@@ -132,28 +157,27 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
             <div style={{ width: "100%", height: "80%", position: "relative", display: "flex", flexDirection: "row", color: "white", fontFamily: "OL" }}>
                 <div style={{ width: "4%", height: "100%", }}></div>
 
-                {gameData.event_count !== 0 ? 
+                {allEvents.length !== 0 ? 
                 (
                     <div style={{ width: "52%", height: "100%", }}>
                     <ClickWrapper style={{ width: "100%", height: "10%", display: "flex", flexDirection: "row", justifyContent: "space-around", alignItems: "center" }}>
                         <div style={{ height: "80%", aspectRatio: "1/1" }}>
-                            <img src="Icons/Symbols/left_arrow.svg" onMouseDown={() => changeEventIndex(-1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
+                            <img src="Icons/Symbols/left_arrow.svg" onMouseDown={() => setSelectedEventIndex(selectedEventIndex - 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
                         </div>
                         <div style={{ height: "100%", whiteSpace: "nowrap", display: "flex", justifyContent: "center", alignItems: "center" }}>Event {selectedEventIndex}/{allEvents.length}</div>
                         <div style={{ height: "80%", aspectRatio: "1/1" }}>
-                            <img src="Icons/Symbols/right_arrow.svg" onMouseDown={() => changeEventIndex(1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
+                            <img src="Icons/Symbols/right_arrow.svg" onMouseDown={() => setSelectedEventIndex(selectedEventIndex + 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
                         </div>
                     </ClickWrapper>
                     <div style={{ width: "100%", height: "13%", display: "flex", flexDirection: "row" }}>
-                        <div style={{ flex: "1", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}> Radius < br /> 947 </div>
+                        <div style={{ flex: "1", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}> Radius < br /> {currentlySelectedEventData.radius || 0} </div>
                         <div style={{ flex: "1", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}> Type < br /> Null </div>
-                        <div style={{ flex: "1", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}> Position < br /> X:7216 , Y:4721 </div>
+                        <div style={{ flex: "1", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}> Position < br /> X:{currentlySelectedEventData.x || 0} , Y:{currentlySelectedEventData.y || 0} </div>
                     </div>
                     <div style={{ width: "100%", height: "2%" }}></div>
                     <div style={{ width: "100%", height: "70%" }}>
                         <div style={{ width: "100%", height: "10%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}>OUTPOST HIT LIST</div>
                         <ClickWrapper style={{ width: "100%", height: "90%", overflowY: "auto", scrollbarGutter: "stable" }}>
-                            {/* <ListElement entityId="test" clientComponents={clientComponents} contractComponents={contractComponents}/> */}
                             {outpostHitList.map((outpostHit, index) => (
                                 <ListElement key={index} entityId={outpostHit} clientComponents={clientComponents} contractComponents={contractComponents} />
                             ))}
@@ -215,5 +239,5 @@ const ListElement: React.FC<{ entityId: EntityIndex, clientComponents: any, cont
             Outpost Id: {outpostId}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X: {outpostCoordinates.x}, Y: {outpostCoordinates.y}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Owner: {outpostOwner}
         </div>
     );
-    //what?
+    //what?, this should use css not what whatever this it 
 };

@@ -8,11 +8,11 @@ export interface CreateGameProps extends SystemSigner {
     preparation_phase_interval: num.BigNumberish;
     event_interval: num.BigNumberish;
     erc_addr: num.BigNumberish;
+    revenant_init_price: num.BigNumberish;
 }
 
 export interface CreateRevenantProps extends SystemSigner {
     game_id: num.BigNumberish;
-    name: num.BigNumberish;
 }
 
 export interface PurchaseReinforcementProps extends SystemSigner {
@@ -27,10 +27,42 @@ export interface ReinforceOutpostProps extends SystemSigner {
 
 export interface CreateEventProps extends SystemSigner {
     game_id: num.BigNumberish;
+    
 }
 
 export interface ConfirmEventOutpost extends SystemSigner {
     game_id: num.BigNumberish;
     event_id: num.BigNumberish;
     outpost_id: num.BigNumberish;
+}
+
+
+
+// this is all to test
+
+//for the trades only check the last one
+export interface CreateTradeFor1Reinf extends SystemSigner {
+    game_id: num.BigNumberish;
+    price: num.BigNumberish;
+}
+
+export interface RevokeTradeFor1Reinf extends SystemSigner {
+    game_id: num.BigNumberish;
+    trade_id: num.BigNumberish;
+}
+
+export interface PurchaseTradeFor1Reinf extends SystemSigner {
+    game_id: num.BigNumberish;
+    revenant_id: num.BigNumberish; 
+    trade_id: num.BigNumberish;
+}
+
+
+// for the game not to implement yet
+export interface ClaimInitialRewards extends SystemSigner {
+    game_id: num.BigNumberish;
+}
+
+export interface ClaimEndGameRewards extends SystemSigner {
+    game_id: num.BigNumberish;
 }

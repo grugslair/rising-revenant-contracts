@@ -12,105 +12,130 @@ import { useEntityQuery } from "@latticexyz/react";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG } from "../../phaser/constants";
-import {  truncateString } from "../../utils";
+import {  checkAndSetPhaseClientSide, fetchGameData, fetchSpecificEvent, setComponentsFromGraphQlEntitiesHM, truncateString } from "../../utils";
 import { ClickWrapper } from "../clickWrapper";
 
 
 // the main top bar will be used to load in every 10 seconds the game data and display it to the user
+// THE THING TO CHECK IS THE IF I GET A COMPONENT CAN I THEN PUT IT AS A VAR IN THE USEFFECT BECAUSE IF I CAN
+// I CAN JUST USE THE PAHSE MANAGER AS THE LOADER AND THEN PUT COMPS WITH USEFFECTS EVERYWHERE INSTEAD OF TIMERS
 
-export const TopBarComponent = () => {
+// HERE 
+
+interface TopBarPageProps {
+    phaseNum: number;
+    setGamePhase?: () => void;
+}
+
+export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phaseNum}) => {
+
     const [isloggedIn, setIsLoggedIn] = useState(true);
     const [inGame, setInGame] = useState(1);
 
-    const [numberOfRevenants, setNumberOfRevenants] = useState(0);
-    const [Jackpot, setJackpot] = useState(2000);
+    const [currentNumOfOutposts, setCurrentNumOfOutposts] = useState(0);
+    const [maxNumOfOutpost, setMaxNumOfOutpost] = useState(0);
 
-    const [playerReinforcementNumber, setPlayerReinforcementNumber] = useState(0);
-    const [userAddress, setUserAddress] = useState("0xet132876472387126367126737uqe877dy87e7t");
+    const [Jackpot, setJackpot] = useState(0);
 
     const [reinforcementsInGame, setReinforcementsInGame] = useState(0);
 
-    const [Number, setNumber] = useState(0);
+    const {
+        account: { account },
+        networkLayer: {
+            network: { contractComponents, clientComponents , graphSdk},
+            systemCalls: {view_block_count}
+        },
+    } = useDojo();
 
+    const outpostArray = useEntityQuery([Has(contractComponents.Outpost)]);
+    const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
 
-    // const {
-    //     account: { account },
-    //     networkLayer: {
-    //         network: { contractComponents, clientComponents },
-    //         systemCalls: {view_block_count}
-    //     },
-    // } = useDojo();
+    const clientGameDataQuery = useEntityQuery([Has(clientComponents.ClientGameData)]);
 
-    // const outpostArray = useEntityQuery([Has(contractComponents.Outpost)]);
-    // const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
-    // const clientGameData = useEntityQuery([Has(clientComponents.ClientGameData)]);
-
-    // const entityCounterArr = useEntityQuery([Has(contractComponents.GameEntityCounter)]);
-    
-
-    // useEffect(() => {
-
-    //     const gameClientData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
-
-    //     setInGame(gameClientData.current_game_state);
-
-    //     const gameData = getComponentValue(contractComponents.Game, getEntityIdFromKeys([BigInt(gameClientData.current_game_id)]));
-    //     const balance = getComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(gameClientData.current_game_id), BigInt(account.address)]));
-
-    //     if (gameData === undefined) {
-    //         return;
-    //     }
-    //     setJackpot(gameData.prize);
-    //     setInGame(gameClientData.current_game_state);
-
-    //     setNumberOfRevenants(outpostArray.length);
-
-    //     if (balance === undefined) {
-    //         setPlayerReinforcementNumber(0);
-    //     }
-    //     else {
-    //         setPlayerReinforcementNumber(balance.reinforcement_count);
-    //     }
-
-    //     setUserAddress(account.address);
-
-    //     if (inGame === 2) {
-    //         setNumberOfRevenants(outpostArray.length - outpostDeadQuery.length);
-    //     }
-    //     else
-    //     {
-    //         setNumberOfRevenants(outpostArray.length);
-    //     }
-
-    // }, [outpostArray, clientGameData, account]);
-
-    
-    // useEffect(() => {
+    useEffect(() => {
         
-    //     if (entityCounterArr.length !== 0)
-    //     {
-    //         const reinforcementInGame = getComponentValueStrict(contractComponents.GameEntityCounter, entityCounterArr[0])
+        if (phaseNum === 1 && setGamePhase !== undefined)
+        {
+            const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, clientGameDataQuery[0]);
+            
+            if (clientGameData.current_game_state === 2)
+            {
+                setGamePhase();
+            }
+        }
 
-    //         setReinforcementsInGame(reinforcementInGame.reinforcement_count + reinforcementInGame.remain_life_count);
-    //     }
+    }, [clientGameDataQuery]);
+    
+    useEffect(() => {
+
+        const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
         
-    // }, [entityCounterArr, account]);
+        if (clientGameData.current_game_state === 2)
+        {
+          setMaxNumOfOutpost(outpostArray.length);
+          setCurrentNumOfOutposts(outpostArray.length - outpostDeadQuery.length)
+        }
+
+    }, [outpostDeadQuery]);
+
+    useEffect(() => {
+        updateFunctions();
+        const intervalId = setInterval(updateFunctions, 5000);
     
-
-
-
-    // useEffect(() => {
-    //     const intervalId = setInterval(async () => {
-    //      const num =  await view_block_count();
-
-    //         setNumber(num!)
-
-    //     }, 5000);
+        return () => clearInterval(intervalId);
+    }, []);
     
-    //     return () => {
-    //       clearInterval(intervalId);
-    //     };
-    //   }, []);
+    const updateFunctions = () => 
+    {   
+        checkBlockCount();
+        getGameData();
+    }
+
+    const getGameData = async () => {
+        //this should query the game stuff dependong on the state
+        const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+        
+        const gameDataQuery = await fetchGameData(graphSdk,clientGameData.current_game_id);
+        setComponentsFromGraphQlEntitiesHM(gameDataQuery,contractComponents,false);
+
+        const newGameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+        setJackpot(newGameData.prize);
+
+        const entityCount  = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+
+        const latest_loaded_event = clientGameData.current_event_drawn;  
+        const latest_onchain_event = entityCount.event_count;    
+
+        const initial_event_index_to_load = latest_onchain_event - latest_loaded_event;
+
+        if (initial_event_index_to_load > 0 )
+        {
+            for (let i = latest_loaded_event; i <= latest_onchain_event; i++) {
+                const eventQuery= await fetchSpecificEvent(graphSdk,clientGameData.current_game_id, i);
+
+                setComponentsFromGraphQlEntitiesHM(eventQuery,contractComponents,false);
+            }
+        }
+
+        setReinforcementsInGame(entityCount.remain_life_count + entityCount.reinforcement_count);
+        //prep phase code only
+        if (clientGameData.current_game_state === 1)
+        {   
+            setMaxNumOfOutpost(2000);
+            setCurrentNumOfOutposts(entityCount.outpost_count);
+        }
+        else
+        {
+            setCurrentNumOfOutposts(outpostArray.length - outpostDeadQuery.length);
+            setMaxNumOfOutpost(outpostArray.length);
+        }
+    }
+
+    const checkBlockCount = async () => {
+        const blockCount = await view_block_count();
+        const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([GAME_CONFIG]));
+        checkAndSetPhaseClientSide(clientGameData.current_game_id, blockCount!, contractComponents, clientComponents);
+    };
   
     return (
         <div className="top-bar-container-layout">
@@ -129,12 +154,12 @@ export const TopBarComponent = () => {
                 </div>
                 <ClickWrapper className="right-section">
                     <div className="text-section">
-                        <h4>Revenants Alive: 200/2000</h4>
+                        <h4>Revenants Alive: {currentNumOfOutposts}/{maxNumOfOutpost}</h4>
                         <h4>Reinforcements in game: {reinforcementsInGame}</h4>
                     </div>
 
                     {isloggedIn ? 
-                        <h3 onMouseDown={() => {}} style={{fontSize:"1cqw"}}> <img src="argent_logo.png" className="chain-logo" style={{fontSize:"1cqw"}}></img>{truncateString(userAddress, 5)} 
+                        <h3 onMouseDown={() => {}} style={{fontSize:"1cqw"}}> <img src="argent_logo.png" className="chain-logo" style={{fontSize:"1cqw"}}></img>{truncateString(account.address, 5)} 
                     </h3> : <button>Log in now</button>}
                     
                 </ClickWrapper>

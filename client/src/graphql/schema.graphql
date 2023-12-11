@@ -1,5 +1,5 @@
 query fetchSpecificOutRev($game_id: String!, $entity_id: String!) {
- entities(keys: [$game_id, $entity_id]) {
+  entities(keys: [$game_id, $entity_id]) {
     edges {
       node {
         keys
@@ -9,7 +9,8 @@ query fetchSpecificOutRev($game_id: String!, $entity_id: String!) {
             game_id
             entity_id
             owner
-            name_revenant
+            first_name_idx
+            last_name_idx
             outpost_count
             status
           }
@@ -21,8 +22,32 @@ query fetchSpecificOutRev($game_id: String!, $entity_id: String!) {
             x
             y
             lifes
+            reinforcement_count
             status
             last_affect_event_id
+          }
+        }
+      }
+    }
+  }
+}
+
+query getTradesAvailable($game_id: u32!, $tradeStatus: u32!) {
+  tradeModels(where: { game_id: $game_id, status: $tradeStatus }) {
+    edges {
+      node {
+        entity {
+          keys
+          models {
+            __typename
+            ... on Trade {
+              game_id
+              entity_id
+              seller
+              price
+              buyer
+              status
+            }
           }
         }
       }
@@ -46,26 +71,16 @@ query getAllOutRev($game_id: u32!, $outpostCount: Int!) {
               x
               y
               lifes
+              reinforcement_count
               status
               last_affect_event_id
             }
-          }
-        }
-      }
-    }
-  }
-  revenantModels(first: $outpostCount, where: { game_id: $game_id }) {
-    edges {
-      node {
-        entity {
-          keys
-          models {
-            __typename
             ... on Revenant {
               game_id
               entity_id
               owner
-              name_revenant
+              first_name_idx
+              last_name_idx
               outpost_count
               status
             }
@@ -76,45 +91,11 @@ query getAllOutRev($game_id: u32!, $outpostCount: Int!) {
   }
 }
 
-query bettergetAllOutRev($game_id: u32!, $outpostCount: Int!)
-  outpostModels(first: $outpostCount, where: { game_id: $game_id }) {
-    edges {
-      node {
-        entity {
-          keys
-          models {
-            __typename
-            ... on Outpost {
-              game_id
-              entity_id
-              owner
-              name_outpost
-              x
-              y
-              lifes
-              status
-              last_affect_event_id
-            }
-            ... on Revenant {
-              game_id
-              entity_id
-              owner
-              name_revenant
-              outpost_count
-              status
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-query getSortedPlayerReinforcements($game_id: u32!, $eventsNumber: Int!)  {
+query getSortedPlayerReinforcements($game_id: u32!, $playersNum: Int!) {
   playerinfoModels(
     where: { game_id: $game_id }
-    first: $eventsNumber
-   	order: { direction:DESC, field:reinforcement_count}
+    first: $playersNum
+    order: { direction: DESC, field: REINFORCEMENT_COUNT }
   ) {
     edges {
       node {
@@ -125,6 +106,7 @@ query getSortedPlayerReinforcements($game_id: u32!, $eventsNumber: Int!)  {
             ... on PlayerInfo {
               game_id
               owner
+              score
               revenant_count
               outpost_count
               reinforcement_count
@@ -138,7 +120,7 @@ query getSortedPlayerReinforcements($game_id: u32!, $eventsNumber: Int!)  {
 }
 
 query fetchSpecificEvent($game_id: String!, $entity_id: String!) {
- entities(keys: [$game_id, $entity_id]) {
+  entities(keys: [$game_id, $entity_id]) {
     edges {
       node {
         keys
@@ -193,6 +175,7 @@ query getPlayerInfo($game_id: String!, $owner: String!) {
           ... on PlayerInfo {
             game_id
             owner
+            score
             revenant_count
             outpost_count
             reinforcement_count
@@ -211,10 +194,10 @@ query getGameTracker($config: String!) {
         keys
         models {
           __typename
-           ... on GameTracker {
-              entity_id
-              count
-            }
+          ... on GameTracker {
+            entity_id
+            count
+          }
         }
       }
     }
@@ -228,14 +211,15 @@ query getGameData($game_id: String!) {
         keys
         models {
           __typename
-           ... on Game {
+          ... on Game {
             game_id
-            admin
             start_block_number
             prize
             preparation_phase_interval
             event_interval
             erc_addr
+            revenant_init_price
+            rewards_claim_status
             status
           }
           ... on GameEntityCounter {
@@ -247,6 +231,7 @@ query getGameData($game_id: String!) {
             remain_life_count
             reinforcement_count
             trade_count
+            score_count
           }
         }
       }

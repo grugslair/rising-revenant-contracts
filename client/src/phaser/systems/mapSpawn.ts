@@ -1,10 +1,14 @@
 import {
   Has,
-  defineEnterSystem
+  defineEnterSystem,
+  defineSystem,
+  getComponentValueStrict
 } from "@latticexyz/recs";
 import { PhaserLayer } from "..";
 
-import { Assets} from "../constants";
+import { Assets, GAME_CONFIG} from "../constants";
+import { getEntityIdFromKeys } from "@dojoengine/utils";
+import { drawPhaserLayer } from "./eventSystems/eventEmitter";
 
 export const mapSpawn = (layer: PhaserLayer) => {
   const {
@@ -13,14 +17,12 @@ export const mapSpawn = (layer: PhaserLayer) => {
       Main: { objectPool, camera },
     },
     networkLayer: {
-      components: { Game },
+      components: { Game, ClientGameData },
     },
   } = layer;
 
   defineEnterSystem(world, [Has(Game)], ({ entity }) => {
     const mapObj = objectPool.get(entity, "Sprite");
-    
-    console.error("eoifhewwuirheuiqwhnqwfubqwufaebfdsbjk")
       
     mapObj.setComponent({
       id: "animation",
@@ -29,28 +31,24 @@ export const mapSpawn = (layer: PhaserLayer) => {
         sprite.depth = -2;
         camera.phaserCamera.setBounds(0, 0, sprite.width, sprite.height);
         camera.centerOn(sprite.width / 2, sprite.height / 2);
-
       },
     });
-
   });
 
-  // defineSystem(world, [Has(ClientGameData)], ({ entity }) => {
 
-  //   const clientGameData = getComponentValueStrict(ClientGameData, decimalToHexadecimal(GAME_CONFIG));
+  //HERE HIGH PRIO THE MAP DOES NOT SHOW ON FIREFOX BECAUSE OF A WEBGL THING BUT EVERYTHING ELSE DOES?
 
-  //   console.error("THIS IS THE CURRENT GAME STATE", clientGameData);
+  defineSystem(world, [Has(ClientGameData)], () => {
 
+    const clientGameData = getComponentValueStrict(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
 
-  //   drawPhaserLayer.emit("toggleVisibility", true);
-
-  //   // if (clientGameData.current_game_state === 1)
-  //   // {
-  //   //   drawPhaserLayer.emit("toggleVisibility", false);
-  //   // }
-  //   // else
-  //   // {
-  //   //   drawPhaserLayer.emit("toggleVisibility", true);
-  //   // }
-  // });
+    if (clientGameData.current_game_state === 1)
+    {
+      drawPhaserLayer.emit("toggleVisibility", false);
+    }
+    else
+    {
+      drawPhaserLayer.emit("toggleVisibility", true);
+    }
+  });
 };

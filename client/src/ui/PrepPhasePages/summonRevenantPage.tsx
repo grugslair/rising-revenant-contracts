@@ -48,17 +48,10 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
         );
         const game_id: number = clientGameData.current_game_id;
 
-        const gameEntityCounter = getComponentValueStrict(
-            contractComponents.GameEntityCounter,
-            getEntityIdFromKeys([BigInt(game_id)])
-        );
-        const rev_counter: number = gameEntityCounter.outpost_count;
-
         for (let index = 0; index < num; index++) {
             const createRevProps: CreateRevenantProps = {
                 account: account,
-                game_id: game_id,
-                name: "Revenant " + rev_counter,
+                game_id: game_id
             };
 
             await create_revenant(createRevProps);

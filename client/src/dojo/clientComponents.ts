@@ -12,7 +12,6 @@ export function defineClientComponents(world: World) {
 		  {
 			x: RecsType.Number,
 			y: RecsType.Number,
-			tile_index: RecsType.Number,
 		  },
 		  {
 			metadata: {
@@ -69,6 +68,22 @@ export function defineClientComponents(world: World) {
 			current_game_id : RecsType.Number,
 			current_block_number : RecsType.Number,
 			guest : RecsType.Boolean,
+			current_event_drawn: RecsType.Number,
+		  },
+		  {
+			metadata: {
+			  name: name,
+			},
+		  }
+		);
+	  })(),
+
+	  EntityTileIndex: (() => {
+		const name = "EntityTileIndex";
+		return defineComponent(
+		  world,
+		  {
+			tile_index: RecsType.Number,
 		  },
 		  {
 			metadata: {

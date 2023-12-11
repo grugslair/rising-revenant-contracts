@@ -1,11 +1,10 @@
 //libs
 import React, { useEffect, useState } from "react";
 import { MenuState } from "./gamePhaseManager";
-import { HasValue, getComponentValueStrict, getComponentValue, EntityIndex } from "@latticexyz/recs";
+import { HasValue, getComponentValueStrict, getComponentValue, EntityIndex,Has } from "@latticexyz/recs";
 import { useEntityQuery } from "@latticexyz/react";
 import { useDojo } from "../../hooks/useDojo";
 import { ConfirmEventOutpost, ReinforceOutpostProps } from "../../dojo/types";
-import { setComponentQuick } from "../../dojo/testCalls";
 import { GAME_CONFIG } from "../../phaser/constants";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 
@@ -16,7 +15,7 @@ import "./PagesStyles/ProfilePageStyles.css";
 //elements/components
 import { ClickWrapper } from "../clickWrapper";
 import PageTitleElement from "../Elements/pageTitleElement";
-import { namesArray, surnamesArray } from "../../utils";
+import { decimalToHexadecimal, namesArray, setClientCameraComponent, surnamesArray } from "../../utils";
 
 //pages
 
@@ -29,30 +28,33 @@ needs functionality to move the camera to a certain location and ability to call
 */
 
 
+// HERE this needs to be put into a grid system not flex
+
 interface ProfilePageProps {
     setUIState: () => void;
 }
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
 
-    const [reinforcesAvailable, setReinforcesAvailable] = useState<number>(0);
-
     const {
         account: { account },
         networkLayer: {
             network: { contractComponents, clientComponents },
+            systemCalls: {reinforce_outpost}
         },
     } = useDojo();
 
     const ownedOutpost = useEntityQuery([HasValue(contractComponents.Outpost, { owner: account.address })]);
-    const playerInfo = useEntityQuery([HasValue(contractComponents.PlayerInfo, { owner: account.address })]);
+
+    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+    const playerInfo = getComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]));
 
     //test embed needs to be standardized 
     const reinforcementsBalanceDiv = (
         <div className="title-cart-section">
             <h1>
                 <img src="reinforcements_logo.png" className="test-embed" alt="" />
-                {reinforcesAvailable}
+                {playerInfo.reinforcement_count || "NaN"}
             </h1>
             <h3>Reinforcement available</h3>
         </div>
@@ -61,6 +63,17 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
     const dividingLine: JSX.Element = (
         <div className="divider"></div>
     )
+
+    const reinforceOutpost = (outpost_id: any) => {
+
+        const reinforceOutpostProps: ReinforceOutpostProps = {
+          account: account,
+          game_id: clientGameData.current_game_id,
+          outpost_id: outpost_id,
+        };
+    
+        reinforce_outpost(reinforceOutpostProps);
+    }
 
     return (
         <ClickWrapper className="game-page-container">
@@ -75,9 +88,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
                 <div style={{ width: "84%", height: "100%" }}>
                     <div style={{ width: "100%", height: "90%", display: "flex", justifyContent: "center", alignItems: "center" }}>
                         <div style={{ width: "100%", height: "90%", overflowY: "scroll", scrollbarGutter: "stable", paddingTop: "10px" }}>
-                            {ownedOutpost.map((ownedOut, index) => (
+                            {ownedOutpost.map((ownedOutID, index) => (
                                 <React.Fragment key={index}>
-                                    <ListElement entityId={ownedOut} contractComponents={contractComponents} clientComponents={clientComponents} />
+                                    <ListElement entityId={getComponentValueStrict(contractComponents.Outpost, ownedOutID).entity_id} contractComponents={contractComponents} clientComponents={clientComponents} reinforce_outpost={reinforceOutpost}/>
                                     {index < ownedOutpost.length - 1 && dividingLine}
                                 </React.Fragment>
                             ))}
@@ -99,10 +112,11 @@ interface ListElementProps {
     entityId: EntityIndex
     contractComponents: any
     clientComponents: any
+    reinforce_outpost:any
 }
 
 // the data section is probably to change as the click is only for the text but there is a gap between the texts also the code is duplicated should be one singular div
-export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComponents, clientComponents }) => {
+export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComponents, clientComponents, reinforce_outpost }) => {
     const [buttonText, setButtonText] = useState<string>("")
 
     const [name, setName] = useState<string>("Name")
@@ -115,15 +129,16 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComp
     const [shieldNum, setShieldNum] = useState<number>(2)
     const [reinforcements, setReinforcements] = useState<number>(20)
 
+    // for future reference, this will trigger the useffect if the entity is changed
+    const outpostCompQuery = useEntityQuery([HasValue(contractComponents.Outpost, { entity_id: BigInt(entityId)})]);
+
     useEffect(() => {
-        const clientOutpostData = getComponentValue(clientComponents.ClientOutpostData, entityId);
-        const contractOutpostData = getComponentValue(contractComponents.Outpost, entityId);
-        const contractRevenantData = getComponentValue(contractComponents.Revenant, entityId);
-
-        //fetch the names and surname
-
-        setName(namesArray[1])
-        setSurname(surnamesArray[1])
+        const clientOutpostData = getComponentValue(clientComponents.ClientOutpostData, outpostCompQuery[0]);
+        const contractOutpostData = getComponentValue(contractComponents.Outpost, outpostCompQuery[0]);
+        const contractRevenantData = getComponentValue(contractComponents.Revenant, outpostCompQuery[0]);
+        
+        setName(namesArray[contractRevenantData.first_name_idx])
+        setSurname(surnamesArray[contractRevenantData.last_name_idx])
 
         setId(clientOutpostData.id);
 
@@ -146,7 +161,8 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComp
         } else {
             setShieldNum(5);
         }
-    }, []);
+    }, [outpostCompQuery])
+    
 
     return (
         <ClickWrapper className="list-item-container">
@@ -183,13 +199,13 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComp
             <div className="parent-container" onMouseLeave={() => setButtonText("")} style={{ fontWeight: "100" }}>
                 <div className="row-data-container" style={{ fontSize: "0.9cqw" }}>
                     <h4 onMouseEnter={() => setButtonText("")}>Outpost ID:</h4>
-                    <h4 onMouseEnter={() => setButtonText("Go here")} className="pointer">Coordinates:</h4>
-                    <h4 onMouseEnter={() => setButtonText("Reinforce")} className="pointer">Reinforcements:</h4>
+                    <h4 onMouseEnter={() => setButtonText("Go here")}  onClick={() => {setClientCameraComponent(xCoord, yCoord,clientComponents)}}   className="pointer">Coordinates:</h4>
+                    <h4 onMouseEnter={() => setButtonText("Reinforce")} className="pointer" onClick={() => {reinforce_outpost(id)}}>Reinforcements:</h4>
                 </div>
                 <div className="row-data-container" style={{ fontSize: "1cqw" }}>
                     <h4 onMouseEnter={() => setButtonText("")}>{id}</h4>
-                    <h4 onMouseEnter={() => setButtonText("Go here")} className="pointer">X: {xCoord}, Y: {yCoord}</h4>
-                    <h4 onMouseEnter={() => setButtonText("Reinforce")} className="pointer">{reinforcements}</h4>
+                    <h4 onMouseEnter={() => setButtonText("Go here")} className="pointer" onClick={() => {setClientCameraComponent(xCoord, yCoord,clientComponents)}} >X: {xCoord}, Y: {yCoord}</h4>
+                    <h4 onMouseEnter={() => setButtonText("Reinforce")} className="pointer" onClick={() => {reinforce_outpost(id)}}>{reinforcements}</h4>
                 </div>
                 <div style={{ height: "34%" }}> </div>
             </div>

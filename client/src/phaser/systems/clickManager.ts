@@ -6,15 +6,16 @@ import {
   defineSystem,
   Has,
   getComponentEntities,
-  getComponentValue
+  getComponentValue,
+  runQuery,
+  HasValue,
 } from "@latticexyz/recs";
 
 import { setTooltipArray } from "./eventSystems/eventEmitter";
 import { OUTPOST_HEIGHT, OUTPOST_WIDTH } from "../constants";
-import { setClientCameraComponent, setClientClickPositionComponent } from "../../utils";
-// import { setComponentQuick } from "../../dojo/testCalls";
+import { setClientClickPositionComponent } from "../../utils";
 
-// adding a the tile index to the actual outpost would save on performance
+// this can be threaded
 
 export const clickManager = (layer: PhaserLayer) => {
   const {
@@ -25,7 +26,7 @@ export const clickManager = (layer: PhaserLayer) => {
 
     networkLayer: {
       network: { clientComponents },
-      components: { Outpost, ClientClickPosition, ClientCameraPosition },
+      components: { Outpost, ClientClickPosition },
     },
   } = layer;
 
@@ -44,33 +45,30 @@ export const clickManager = (layer: PhaserLayer) => {
   // Click checks for the ui tooltip
   defineSystem(world, [Has(ClientClickPosition)], ({ entity }) => {
 
-    const positionClick = getComponentValueStrict(ClientClickPosition, entity);
+    const positionClick = getComponentValue(ClientClickPosition, entity);
+    const camPos = getComponentValue(clientComponents.ClientCameraPosition, entity);
 
-    const outpostEntities = getComponentEntities(Outpost);
-    const outpostArray = Array.from(outpostEntities);
+    if (camPos === undefined || positionClick === undefined)
+    {
+      return;
+    }
 
-    const positionCenterCam = getComponentValue(   // this errors out for some reason but doesnt break everything so this is low priority
-      ClientCameraPosition,
-      entity
-    );
+    const outpostArray = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { visible: true })]));
+    
 
     let zoomVal: number = 0;
 
     camera.zoom$.subscribe((zoom) => { zoomVal = zoom; });
-    console.log(zoomVal);
 
-    if (positionCenterCam === undefined) { return; }
+    let positionX = (positionClick.xFromMiddle / zoomVal) + camPos.x;
+    let positionY = (positionClick.yFromMiddle / zoomVal) + camPos.y;
 
-    let positionX = (positionClick.xFromMiddle / zoomVal) + positionCenterCam.x;
-    let positionY = (positionClick.yFromMiddle / zoomVal) + positionCenterCam.y;
+    let foundEntity: EntityIndex[] = []; 
 
-    let foundEntity: EntityIndex[] = []; // store the found entity
 
     for (const outpostEntityValue of outpostArray) {
 
       const outpostData = getComponentValueStrict(Outpost, outpostEntityValue);
-
-      //do this for now but need to find a solution
 
       const minX = outpostData.x - (OUTPOST_WIDTH / 2);
       const minY = outpostData.y - (OUTPOST_HEIGHT / 2);

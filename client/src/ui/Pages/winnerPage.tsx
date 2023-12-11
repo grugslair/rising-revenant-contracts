@@ -1,6 +1,6 @@
 //libs
 import React, { useEffect } from "react";
-import { HasValue,  getComponentValueStrict, Has } from "@latticexyz/recs";
+import { HasValue, getComponentValueStrict, Has } from "@latticexyz/recs";
 import { useEntityQuery } from "@latticexyz/react";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { MenuState } from "./gamePhaseManager";
@@ -27,8 +27,7 @@ interface WinnerPageProps {
     setMenuState: React.Dispatch<React.SetStateAction<MenuState>>;
 }
 
-export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => 
-{
+export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
     const [winningAddress, setWinningAddress] = React.useState<string>("");
 
     const closePage = () => {
@@ -36,48 +35,67 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) =>
     };
 
     const {
-        account : { account },
+        account: { account },
         networkLayer: {
             network: { contractComponents },
         },
     } = useDojo();
 
-  const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
-  const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
+    const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
+    const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
 
-  useEffect(() => {
+    useEffect(() => {
 
-    if (totalOutposts.length === 0) {
-        setWinningAddress("No winner");
-        return;
-    }
+        if (totalOutposts.length === 0) {
+            setWinningAddress("No winner");
+            return;
+        }
 
-    const difference: string[] = totalOutposts.filter(item => !outpostDeadQuery.includes(item));
+        const difference: string[] = totalOutposts.filter(item => !outpostDeadQuery.includes(item));
 
-    const outpostComp = getComponentValueStrict(contractComponents.Outpost, getEntityIdFromKeys([BigInt( difference[0])]));
+        const outpostComp = getComponentValueStrict(contractComponents.Outpost, getEntityIdFromKeys([BigInt(difference[0])]));
 
-    setWinningAddress(outpostComp.owner);
+        setWinningAddress(outpostComp.owner);
 
-  }, []);
+    }, []);
 
-  const shareOnTwitter = () => {
-    const message = 'I just won!';
-    const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`;
-    window.open(twitterShareUrl, '_blank');
-  };
+    const shareOnTwitter = () => {
+        const message = 'I just won!';
+        const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`;
+        window.open(twitterShareUrl, '_blank');
+    };
 
     return (
-        <div className="winner-page-container">
-                <div className="content-container">
-                    <h3>Address: {winningAddress}</h3>
-                    {winningAddress === account.address ? <h1>YOU ARE THE RISING REVENANT</h1> : <h1>IS THE RISING REVENANT</h1>}
-                    <ClickWrapper className="button-style">Claim your jackpot</ClickWrapper>
-                </div>
+        <div className="game-page-container">
+            <img className="page-img brightness-down" src="./revenant_vincitore_image.png" alt="testPic" />
+            <div className="content-container" style={{ position: "relative" }}>
+                <h3>Address: {winningAddress}</h3>
+                {winningAddress === account.address ? <h1>YOU ARE THE RISING REVENANT</h1> : <h1>IS THE RISING REVENANT</h1>}
+                <ClickWrapper className="button-style">Claim your jackpot</ClickWrapper>
+            </div>
 
-                {winningAddress === account.address && <div className="share-text" onMouseDown={() => {shareOnTwitter()}}>
-                    <h2>Share on</h2>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/X_logo_2023.svg"></img>
-                </div>}
+            {winningAddress === account.address && (
+                <ClickWrapper
+                    style={{
+                        position: "absolute",
+                        bottom: "0px",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        textAlign: "center",
+                        color: "white",
+                        fontFamily:"OL"
+                    }}
+                    onMouseDown={() => {
+                        shareOnTwitter();
+                    }}
+                    className="pointer"
+                >
+                    <h1>
+                        Share on
+                        <img src="X_logo_white.png"  style={{marginLeft:"10px"}}  className="test-embed" alt="" />
+                    </h1>
+                </ClickWrapper>
+            )}
         </div>
     )
 }
