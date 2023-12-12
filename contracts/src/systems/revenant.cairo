@@ -2,9 +2,13 @@ use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
 #[starknet::interface]
 trait IRevenantActions<TContractState> {
-    fn create(self: @TContractState, game_id: u32, name: felt252) -> (u128, u128);
+    fn create(self: @TContractState, game_id: u32) -> (u128, u128);
 
-    fn claim(self: @TContractState, game_id: u32) -> bool;
+    // Claim the initial game rewards.
+    fn claim_initial_rewards(self: @TContractState, game_id: u32) -> bool;
+
+    // Claim the endgame rewards.
+    fn claim_endgame_rewards(self: @TContractState, game_id: u32) -> u256;
 
     fn get_current_price(self: @TContractState, game_id: u32, count: u32) -> u128;
 
@@ -45,9 +49,7 @@ mod revenant_actions {
 
     #[external(v0)]
     impl RevenantActionImpl of IRevenantActions<ContractState> {
-        fn create(self: @ContractState, game_id: u32, name: felt252) -> (u128, u128) {
-            assert(name != 0, 'name length must larger than 0');
-
+        fn create(self: @ContractState, game_id: u32) -> (u128, u128) {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
             let (mut game, mut game_data) = get!(world, game_id, (Game, GameEntityCounter));
@@ -57,13 +59,27 @@ mod revenant_actions {
             assert(player_info.revenant_count < REVENANT_MAX_COUNT, 'reach revenant limit');
             game_data.revenant_count += 1;
 
+            if game.revenant_init_price > 0 {
+                let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+                let result = erc20
+                    .transfer_from(
+                        sender: player,
+                        recipient: get_contract_address(),
+                        amount: game.revenant_init_price,
+                    );
+                assert(result, 'need approve for erc20');
+                game.prize += game.revenant_init_price;
+            }
+
             let entity_id: u128 = game_data.revenant_count.into();
 
+            let (first_name_idx, last_name_idx) = self._create_random_revenant_name();
             let revenant = Revenant {
                 game_id,
                 entity_id,
+                first_name_idx,
+                last_name_idx,
                 owner: player,
-                name_revenant: name,
                 outpost_count: 1,
                 status: RevenantStatus::started
             };
@@ -79,11 +95,11 @@ mod revenant_actions {
             // create outpost
             let (outpost, position) = self._create_outpost(world, game_id, player, outpost_id);
 
-            set!(world, (revenant, game_data, player_info, outpost, position));
+            set!(world, (revenant, game, game_data, player_info, outpost, position));
             (entity_id, outpost_id)
         }
 
-        fn claim(self: @ContractState, game_id: u32) -> bool {
+        fn claim_initial_rewards(self: @ContractState, game_id: u32) -> bool {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
             let (mut game, mut game_data) = get!(world, game_id, (Game, GameEntityCounter));
@@ -100,6 +116,27 @@ mod revenant_actions {
             } else {
                 return false;
             }
+        }
+
+        fn claim_endgame_rewards(self: @ContractState, game_id: u32) -> u256 {
+            let world = self.world_dispatcher.read();
+            let player = get_caller_address();
+            let mut game = get!(world, game_id, (Game));
+            assert(game.status == GameStatus::ended, 'game not ended');
+            assert(game.rewards_claim_status == 0, 'rewards has been claimed');
+
+            let mut player_info = get!(world, (game_id, player), PlayerInfo);
+            assert(player_info.outpost_count > 0, 'not winner');
+
+            let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+            let result = erc20.transfer(recipient: player, amount: game.prize);
+            assert(result, 'failed to transfer');
+
+            game.rewards_claim_status = 1;
+
+            set!(world, (game));
+
+            game.prize
         }
 
         fn get_current_price(self: @ContractState, game_id: u32, count: u32) -> u128 {
@@ -127,13 +164,14 @@ mod revenant_actions {
                     sender: player, recipient: get_contract_address(), amount: current_price.into()
                 );
             assert(result, 'need approve for erc20');
+            game.prize += current_price.into();
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
             player_info.reinforcement_count += count;
             reinforcement_balance.count += count;
             game_counter.reinforcement_count += count;
 
-            set!(world, (player_info, reinforcement_balance, game_counter));
+            set!(world, (game, player_info, reinforcement_balance, game_counter));
 
             true
         }
@@ -224,6 +262,14 @@ mod revenant_actions {
             let position = OutpostPosition { game_id, x, y, entity_id: new_outpost_id };
 
             (outpost, position)
+        }
+
+        fn _create_random_revenant_name(self: @ContractState) -> (u32, u32) {
+            let seed = starknet::get_tx_info().unbox().transaction_hash;
+            let mut random = RandomImpl::new(seed);
+            let first_name = random.next_u32(0, 1000);
+            let last_name = random.next_u32(0, 1000);
+            (first_name, last_name)
         }
     }
 }

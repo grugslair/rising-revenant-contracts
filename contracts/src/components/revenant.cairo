@@ -8,7 +8,8 @@ struct Revenant {
     #[key]
     entity_id: u128,
     owner: ContractAddress,
-    name_revenant: felt252,
+    first_name_idx: u32,
+    last_name_idx: u32,
     outpost_count: u32,
     status: u32
 }

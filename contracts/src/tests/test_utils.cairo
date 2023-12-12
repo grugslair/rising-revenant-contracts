@@ -31,6 +31,7 @@ use starknet::{ContractAddress, syscalls::deploy_syscall};
 
 const EVENT_BLOCK_INTERVAL: u64 = 3;
 const PREPARE_PHRASE_INTERVAL: u64 = 10;
+const REVENENT_INIT_PRICE: u256 = 0;
 
 #[derive(Copy, Drop)]
 struct DefaultWorld {
@@ -114,15 +115,19 @@ fn _init_game() -> (DefaultWorld, u32) {
     let world = _init_world();
     let game_id = world
         .game_action
-        .create(PREPARE_PHRASE_INTERVAL, EVENT_BLOCK_INTERVAL, world.test_erc.contract_address);
+        .create(
+            PREPARE_PHRASE_INTERVAL,
+            EVENT_BLOCK_INTERVAL,
+            world.test_erc.contract_address,
+            REVENENT_INIT_PRICE,
+        );
 
     (world, game_id)
 }
 
 fn _create_revenant(revenant_action: IRevenantActionsDispatcher, game_id: u32) -> (u128, u128) {
-    // 5937281861773520500 => 'Revenant'
-    let (revenant_id, outpost_id) = revenant_action.create(game_id, 5937281861773520500);
-    revenant_action.claim(game_id);
+    let (revenant_id, outpost_id) = revenant_action.create(game_id);
+    revenant_action.claim_initial_rewards(game_id);
     (revenant_id, outpost_id)
 }
 

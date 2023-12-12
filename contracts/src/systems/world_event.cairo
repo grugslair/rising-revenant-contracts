@@ -17,9 +17,10 @@ mod world_event_actions {
     use realmsrisingrevenant::components::outpost::{
         Outpost, OutpostPosition, OutpostStatus, OutpostImpl, OutpostTrait
     };
+    use realmsrisingrevenant::components::player::{PlayerInfo};
     use realmsrisingrevenant::components::world_event::{WorldEvent, WorldEventTracker};
     use realmsrisingrevenant::constants::{
-        EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH, AUTO_CREATE_NEW_WORLD_EVENT
+        EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH, EVENT_CREATE_SCORE, DESTORY_OUTPOST_SCORE,
     };
     use realmsrisingrevenant::utils::MAX_U32;
     use realmsrisingrevenant::utils::random::{Random, RandomImpl};
@@ -50,8 +51,11 @@ mod world_event_actions {
                 );
             }
 
+            let mut caller_info = get!(world, (game_id, player), (PlayerInfo));
             let world_event = self._new_world_event(world, game_id, player, entity_id);
-            set!(world, (world_event, game_data));
+            caller_info.score += EVENT_CREATE_SCORE;
+            game_data.score_count += EVENT_CREATE_SCORE;
+            set!(world, (world_event, game_data, caller_info));
             world_event
         }
 
@@ -95,29 +99,24 @@ mod world_event_actions {
                 game_id, event_id: world_event.entity_id, outpost_id: outpost.entity_id
             };
 
+            let mut owner_info = get!(world, (game_id, outpost.owner), (PlayerInfo));
             if outpost.lifes == 0 {
                 game_data.outpost_exists_count -= 1;
+                owner_info.revenant_count -= 1;
+                owner_info.outpost_count -= 1;
                 if game_data.outpost_exists_count <= 1 {
                     game.status = GameStatus::ended;
                 }
             }
 
-            // Check if it's possible to also generate a new event. Only perform the check when 
-            // the event currently being processed is the latest to avoid creating duplicates.
-            // It's just to facilitate the player and to reduce one instance of calling the creation of a world event.
-            if (AUTO_CREATE_NEW_WORLD_EVENT == 1) {
-                if game.status != GameStatus::ended && game_data.event_count.into() == event_id {
-                    let block_number = starknet::get_block_info().unbox().block_number;
-                    if (block_number - world_event.block_number) > game.event_interval {
-                        let new_world_event = self
-                            ._new_world_event(world, game_id, player, event_id + 1);
-                        game_data.event_count += 1;
-                        set!(world, (new_world_event));
-                    }
-                }
-            }
+            game_data.score_count += DESTORY_OUTPOST_SCORE;
+            set!(world, (outpost, world_event, event_tracker, game_data, game, owner_info));
 
-            set!(world, (outpost, world_event, event_tracker, game_data, game));
+            // caller_info may be the same as owner_info. In this case, it is not possible to 
+            // perform a set operation on both at the same time. To be cautious, they should be set separately.
+            let mut caller_info = get!(world, (game_id, player), (PlayerInfo));
+            caller_info.score += DESTORY_OUTPOST_SCORE;
+            set!(world, (caller_info));
             // Emit World Event
             true
         }
