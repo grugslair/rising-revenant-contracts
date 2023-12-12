@@ -12,16 +12,16 @@ import { ClickWrapper } from "../clickWrapper";
 
 //components
 import { VideoComponent } from "./videoPage";
-import { TopBarComponent } from "../Components/mainTopBar";
+import { TopBarComponent } from "../Components/topBarComponent";
 import { BuyRevenantPage } from "./summonRevenantPage";
 import { BuyReinforcementPage } from "./buyReinforcementsPage";
 import { PrepPhaseEndsPage } from "./preparationPhaseEndsPage";
 import { WaitForTransactionPage } from "./waitForTransactionPage";
 import { DebugPage } from "../Pages/debugPage";
 
-import { PrepPhaseNavbarComponent } from "../Components/navbar";
-import { ProfilePage } from "../Pages/profilePage";
-import { RulesPage } from "../Pages/rulesPage";
+import { PrepPhaseNavbarComponent } from "../Components/nabarComponent";
+import { ProfilePage } from "../Pages/playerProfilePage";
+import { RulesPage } from "../Pages/rulePage";
 import { Phase } from "../phaseManager";
 
 export enum PrepPhaseStages {

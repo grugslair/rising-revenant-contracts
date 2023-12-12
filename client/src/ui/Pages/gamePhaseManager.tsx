@@ -16,17 +16,17 @@ import { GAME_CONFIG, MAP_HEIGHT, MAP_WIDTH, getTileIndex } from '../../phaser/c
 import "./PagesStyles/MainMenuContainerStyles.css"
 
 //elements/components
-import { TopBarComponent } from '../Components/mainTopBar';
-import { NavbarComponent } from '../Components/navbar';
-import { OutpostTooltipComponent } from '../Components/outpostToolTip';
+import { TopBarComponent } from '../Components/topBarComponent';
+import { NavbarComponent } from '../Components/nabarComponent';
+import { OutpostTooltipComponent } from '../Components/toolTipComponent';
 import { JurnalEventComponent } from '../Components/jurnalEventComponent';
 
 
 //pages
-import { ProfilePage } from './profilePage';
-import { RulesPage } from './rulesPage';
+import { ProfilePage } from './playerProfilePage';
+import { RulesPage } from './rulePage';
 import { SettingsPage } from './settingsPage';
-import { TradesPage } from './tradesPage';
+import { TradesPage } from './tradePage';
 import { RevenantJurnalPage } from './revenantJurnalPage';
 import { StatsPage } from './statsPage';
 import { WinnerPage } from './winnerPage';
