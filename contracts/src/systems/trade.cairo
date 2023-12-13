@@ -1,12 +1,10 @@
 #[starknet::interface]
 trait ITradeActions<TContractState> {
     // Create a new trade
-    fn create(self: @TContractState, game_id: u32, price: u128) -> u32;
-
+    fn create(self: @TContractState, game_id: u32, count: u32, price: u128) -> u32;
 
     // Revoke an initiated trade
     fn revoke(self: @TContractState, game_id: u32, entity_id: u32);
-
 
     // Purchase an existing trade
     fn purchase(self: @TContractState, game_id: u32, player_id: u128, trade_id: u32);
@@ -37,7 +35,7 @@ mod trade_actions {
 
     #[external(v0)]
     impl TradeActionImpl of ITradeActions<ContractState> {
-        fn create(self: @ContractState, game_id: u32, price: u128) -> u32 {
+        fn create(self: @ContractState, game_id: u32, count: u32, price: u128) -> u32 {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
 
@@ -45,16 +43,18 @@ mod trade_actions {
             game.assert_is_playing(world);
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            assert(player_info.reinforcement_count > 0, 'No reinforcement can sell');
+            assert(count > 0, 'count must larger than 0');
+            assert(player_info.reinforcement_count >= count, 'No reinforcement can sell');
 
-            player_info.reinforcement_count -= 1;
-            game_data.trade_count += 1;
+            player_info.reinforcement_count -= count;
+            game_data.trade_count += count;
 
             let entity_id = game_data.trade_count;
             let trade = Trade {
                 game_id,
                 entity_id,
                 price,
+                count,
                 seller: player,
                 buyer: starknet::contract_address_const::<0x0>(),
                 status: TradeStatus::selling,
@@ -69,7 +69,7 @@ mod trade_actions {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
 
-            let mut game = get!(world, game_id, Game);
+            let (mut game, mut game_data) = get!(world, game_id, (Game, GameEntityCounter));
             game.assert_is_playing(world);
 
             let mut trade = get!(world, (game_id, entity_id), Trade);
@@ -81,9 +81,10 @@ mod trade_actions {
             trade.status = TradeStatus::revoked;
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            player_info.reinforcement_count += 1;
+            player_info.reinforcement_count += trade.count;
+            game_data.trade_count -= trade.count;
 
-            set!(world, (player_info, trade));
+            set!(world, (player_info, trade, game_data));
         }
 
         fn purchase(self: @ContractState, game_id: u32, player_id: u128, trade_id: u32) {
@@ -117,7 +118,7 @@ mod trade_actions {
             assert(result, 'need approve for erc20');
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            player_info.reinforcement_count += 1;
+            player_info.reinforcement_count += trade.count;
             trade.status = TradeStatus::sold;
             trade.buyer = player;
 

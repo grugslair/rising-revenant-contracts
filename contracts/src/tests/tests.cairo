@@ -293,13 +293,15 @@ mod tests {
 
         // Test Create Trade. the seller's reinforcement should decrease by 1
         _add_block_number(PREPARE_PHRASE_INTERVAL + 1);
-        let trade_id = trade_action.create(game_id, price);
+        let trade_count = 5;
+        let trade_id = trade_action.create(game_id, trade_count, price);
         let trade = get!(world, (game_id, trade_id), Trade);
         assert(trade.status == TradeStatus::selling, 'wrong trade status');
         assert(trade.price == price, 'wrong trade price');
         let player_info = get!(world, (game_id, caller), PlayerInfo);
         assert(
-            player_info.reinforcement_count == expected_purchase_count - 1, 'failed create trade'
+            player_info.reinforcement_count == expected_purchase_count - trade_count,
+            'failed create trade'
         );
 
         // Test Revoke Trade
@@ -333,7 +335,8 @@ mod tests {
         _add_block_number(PREPARE_PHRASE_INTERVAL + 1);
 
         // Test Purchase. the buyer's reinforcement should increase from 0 to 1
-        let trade_id = trade_action.create(game_id, price); // create trade by seller
+        let trade_count = 5;
+        let trade_id = trade_action.create(game_id, trade_count, price); // create trade by seller
 
         starknet::testing::set_contract_address(buyer); // switch to buyer 
         let buyer_info = get!(world, (game_id, buyer), PlayerInfo);
@@ -352,7 +355,8 @@ mod tests {
 
         let buyer_info = get!(world, (game_id, buyer), PlayerInfo);
         assert(
-            buyer_info.reinforcement_count == REINFORCEMENT_INIT_COUNT + 1, 'failed purchase trade'
+            buyer_info.reinforcement_count == REINFORCEMENT_INIT_COUNT + trade_count,
+            'failed purchase trade'
         );
     }
 
