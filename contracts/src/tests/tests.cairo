@@ -41,10 +41,15 @@ mod tests {
     #[test]
     #[available_gas(3000000000)]
     fn test_create_game() {
-        let DefaultWorld{world, game_action, caller, test_erc, .. } = _init_world();
+        let DefaultWorld{world, game_action, caller, test_erc, revenant_action, .. } =
+            _init_world();
         let game_id = game_action
             .create(
-                PREPARE_PHRASE_INTERVAL, EVENT_BLOCK_INTERVAL, test_erc.contract_address, 0_u256
+                PREPARE_PHRASE_INTERVAL,
+                EVENT_BLOCK_INTERVAL,
+                test_erc.contract_address,
+                revenant_action.contract_address,
+                0_u256
             );
         assert(game_id == 1, 'game id incorrect');
 
@@ -73,7 +78,11 @@ mod tests {
             _init_world();
         let game_id = game_action
             .create(
-                PREPARE_PHRASE_INTERVAL, EVENT_BLOCK_INTERVAL, test_erc.contract_address, 2_u256
+                PREPARE_PHRASE_INTERVAL,
+                EVENT_BLOCK_INTERVAL,
+                test_erc.contract_address,
+                revenant_action.contract_address,
+                2_u256
             );
         test_erc.approve(revenant_action.contract_address, 2_u256);
         let (revenant_id, outpost_id) = _create_revenant(revenant_action, game_id);
@@ -325,13 +334,22 @@ mod tests {
 
         // Test Purchase. the buyer's reinforcement should increase from 0 to 1
         let trade_id = trade_action.create(game_id, price); // create trade by seller
+
+        starknet::testing::set_contract_address(buyer); // switch to buyer 
         let buyer_info = get!(world, (game_id, buyer), PlayerInfo);
         assert(
             buyer_info.reinforcement_count == REINFORCEMENT_INIT_COUNT, 'wrong buyer purchase count'
         );
-        starknet::testing::set_contract_address(buyer); // switch to buyer 
         test_erc.approve(trade_action.contract_address, price.into());
+
+        let seller_erc_before = test_erc.balance_of(caller);
         trade_action.purchase(game_id, buyer_revenant_id, trade_id);
+        let seller_erc_after = test_erc.balance_of(caller);
+        assert(
+            seller_erc_after - seller_erc_before == (price * 90 / 100).into(),
+            'wrong seller balance'
+        );
+
         let buyer_info = get!(world, (game_id, buyer), PlayerInfo);
         assert(
             buyer_info.reinforcement_count == REINFORCEMENT_INIT_COUNT + 1, 'failed purchase trade'
@@ -391,7 +409,7 @@ mod tests {
         let claimed_balance = revenant_action.claim_endgame_rewards(game_id);
         let game = get!(world, (game_id), (Game));
         assert(game.rewards_claim_status == 1, 'wrong game claim status');
-        assert(claimed_balance == game.prize, 'wrong claim prize balance');
+        assert(claimed_balance == game.prize * 75 / 100, 'wrong claim prize balance');
         let new_erc_balance = test_erc.balance_of(caller);
         assert(new_erc_balance - erc_balance == claimed_balance, 'wrong receive balance');
     }

@@ -7,6 +7,8 @@ struct PlayerInfo {
     #[key]
     owner: ContractAddress,
     score: u32,
+    score_claim_status: bool,
+    earned_prize: u256,
     revenant_count: u32,
     outpost_count: u32,
     reinforcement_count: u32,
