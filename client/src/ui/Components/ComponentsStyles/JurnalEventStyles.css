@@ -1,113 +1,53 @@
 .jurnal-event-container {
   position: absolute;
   top: 55%;
-  left: 80%;
+  left: 78%;
   height: 40%;
+  width: 20%;
+
   background-color: rgb(0, 0, 0);
   border: 5px solid var(--borderColour);
   border-radius: 5px;
   z-index: 2;
-  padding: 10px 10px;
+
+  box-sizing: border-box;
+
+  padding: 10px;
   color: white;
-  width: fit-content;
-  transform: translateX(-20%);
 }
 
+.jurnal-event-component-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows:  repeat(9, 1fr);
 
-.title-div-container {
-  height: 10%;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  gap: 30px;
+  height: 100%;
 }
 
-.title-div-container h2 {
-  margin-top: 2px;
-  margin-bottom: 2px;
-  font-family: Zelda;
-
-  font-size: 1.7cqw;
-  white-space: nowrap;
-
-  letter-spacing: 1px;
-
-  font-weight: 100;
+.jurnal-event-component-grid-title {
+  grid-column: 1 / 6;
+  grid-row: 1;
 }
 
-
-.jurnal-event-container h3
-{
-   font-size: 1.3cqw;
-   margin-top: 0px;
-   font-family: OL;
+.jurnal-event-component-grid-enlarge {
+  grid-column: 6 / 7;
+  grid-row: 1;
 }
 
-.jurnal-event-container h4
-{
-  font-size: 1cqw;
-  margin-bottom: 0px;
-  margin-top: 4px;
-  font-family: OL;
+.jurnal-event-component-grid-event-data {
+  grid-column: 1 / 7;
+  grid-row: 2/6;
 }
 
-/* .title-div-container img {
-  flex: 1;
-  height: 80%;
-  object-fit: fill;
-}*/
-
-.title-div-container img:hover {
-  cursor: pointer;
-} 
-
-.current-data-container {
-  height: auto;
-  margin: 10% 0px;
+.jurnal-event-component-grid-outpost-data {
+  grid-column: 1 / 7;
+  grid-row: 6 / 10;
 }
-/* 
-.current-data-container h3 {
-  margin-top: 0px;
-}
-
-.current-data-container h4 {
-  margin-bottom: 0px;
-  margin-top: 4px;
-} */
-
-.outpost-hit-data-container {
-  padding-right: 10px;
-  height: 60%;
-}
-/* 
-.outpost-hit-data-container h3 {
-  margin-top: 0px;
-} */
 
 .outpost-hit-list-container {
-  max-height: 85%;
+  height: 70%;
   scrollbar-gutter: stable;
   overflow-y: auto;
 }
 
-/* .outpost-hit-list-container::-webkit-scrollbar {
-  width: 12px;
-  background-color: white;
-  border-radius: 10px;
-}
 
-.outpost-hit-list-container::-webkit-scrollbar-thumb {
-  background-color: black;
-  border-radius: 10px;
-  scale: 0.9;
-}
-
-.outpost-hit-list-container::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
-} */
-
-.outpost-hit-list-container h4 {
-  margin-bottom: 0px;
-  margin-top: 3px;
-}

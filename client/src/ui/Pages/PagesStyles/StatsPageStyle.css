@@ -50,27 +50,27 @@
 }
 
 .list-title-section {
-  margin: 10px 0px;
-  color: white;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
   height: 10%;
-  gap: 5%;
+  padding: 2px 5px;
+  box-sizing: border-box;
 }
 
-.list-title-section h2 {
-  margin: 0px;
-  font-size: 1.2cqw;
-  /* white-space: nowrap; */
-}
+.list-title-text {
+  background-color: red;
+  grid-column: 1/5;
+} 
 
-.list-title-section img {
- width: 1rem;
- aspect-ratio: 1/1;
+.list-title-Icon-Ref {
+  background-color: blue;
+  grid-column: 6;
+} 
+
+.list-title-Icon-Sort {
+  background-color: green;
+  grid-column: 7;
 }
 
 .item-container {

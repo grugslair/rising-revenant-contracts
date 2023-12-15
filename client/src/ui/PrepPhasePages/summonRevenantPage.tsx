@@ -63,25 +63,31 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
     const ownReveants = useEntityQuery([HasValue(contractComponents.Outpost, { owner: account.address })]);
 
     return (
-        <div className="summon-revenant-page-container" >
-            <img className="br-page-container-img" src={`${backgroundImage}`} alt="testPic" />
-            <ClickWrapper className="main-content">
-                <h2 className="main-content-header">SUMMON A REVENANT</h2>
-                <CounterElement value={revenantNumber} setValue={setRevenantNumber} />
-                <div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px" }} onMouseDown={() => { summonRev(revenantNumber) }}>Summon (Tot: {revenantNumber * revenantCost} $Lords)</div>
-            </ClickWrapper>
-            <div className="footer-text-section" >
-                <div className="price-text"> 1 Revenant = {revenantCost} $LORDS</div>
+        <div className="game-page-container" style={{aspectRatio:"31/16", display: "flex", flexDirection: "row", color: "white" }}>
+            <img className="page-img" src={`${backgroundImage}`} alt="testPic" />
+            
+            <div style={{ height: "100%", margin:"0px 5%", width: "90%", position: "relative", display: "flex", flexDirection: "column" }}>
+                <div style={{ height: "20%", width: "100%", position: "relative" }}></div>
+                <ClickWrapper style={{ height: "50%", width: "100%", position: "relative" }}>
+                    <h2 className="main-content-header">SUMMON A REVENANT</h2>
+                    <CounterElement value={revenantNumber} setValue={setRevenantNumber} containerStyleAddition={{maxWidth:"30%"}} additionalButtonStyleAdd={{padding:"2px", boxSizing:"border-box"}} textAddtionalStyle={{fontSize:"2cqw"}}/>
+                    <div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { summonRev(revenantNumber) }}>Summon (Tot: {revenantNumber * revenantCost} $Lords)</div>
+                </ClickWrapper>
+                <div style={{ height: "20%", width: "100%", position: "relative" }}></div>
 
-                {ownReveants.length > 0 && (
-                    <ClickWrapper onMouseDown={() => { setMenuState(PrepPhaseStages.BUY_REIN); }} className="global-button-style forward-button"
-                        style={{ padding: "5px 10px", fontSize: "1.3cqw" }}
-                    > Buy Reinforcements
+                <div style={{ height: "10%", width: "100%", position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ fontWeight: "100", fontFamily: "OL", color: "white", fontSize:"1.4rem" }}> 1 Revenant = {revenantCost} $LORDS</div>
+                    {ownReveants.length > 0 ? (
+                        <ClickWrapper onMouseDown={() => { setMenuState(PrepPhaseStages.BUY_REIN); }} className="global-button-style"
+                            style={{ padding: "5px 10px", fontSize: "1.3cqw" }}
+                        > Buy Reinforcements
 
-                        <img className="embedded-text-icon" src="Icons/Symbols/right_arrow.svg" alt="Sort Data" onMouseDown={() => { }} />
-                    </ClickWrapper>
-                )}
-
+                            <img className="embedded-text-icon" src="Icons/Symbols/right_arrow.svg" alt="Sort Data" onMouseDown={() => { }} />
+                        </ClickWrapper>
+                    ) :
+                        (<> </>)
+                    }
+                </div>
             </div>
         </div>
     )

@@ -3,6 +3,10 @@
   user-select: none;
 }
 
+h4, h2, h3, h1 {
+  font-weight: 100;
+}
+
 @font-face {
   font-family: "OL";
   src: url("/Fonts/OrticaLinear-Light.woff2") format("woff2");
@@ -15,7 +19,7 @@
 
 :root {
   --borderColour: #a3a3a3;
-  --brightness: 40%;
+  --brightness: 30%;
 }
 
 .top-right-button
@@ -96,6 +100,12 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.center-via-flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .global-button-style

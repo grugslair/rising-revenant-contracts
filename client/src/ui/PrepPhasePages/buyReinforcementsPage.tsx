@@ -83,30 +83,35 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
     };
 
     return (
-        <div className="br-page-container">
-
-            <img className="br-page-container-img " src="./assets/Page_Bg/REINFORCEMENTS_PAGE_BG.png" alt="testPic" />
-            <ClickWrapper className="main-content">
-                <h2 className="main-content-header">BUY REINFORCEMENTS</h2>
-                <CounterElement value={reinforcementNumber} setValue={setReinforcementNumber} />
-                <div className="global-button-style" style={{ width: "fit-content", padding: "5px 10px", fontSize: "1.3cqw" }} onMouseDown={() => { buyReinforcements(reinforcementNumber); }}> Reinforce (Tot: {priceOfReinforcements * reinforcementNumber} $LORDS)</div>
-            </ClickWrapper>
-
-            <div className="footer-text-section" >
-
-                <div className="price-text"> 1 Reinforcement = {priceOfReinforcements} $LORDS</div>
-                <ClickWrapper onMouseDown={() => { setMenuState(PrepPhaseStages.WAIT_PHASE_OVER); }} className="global-button-style forward-button"
-                    style={{ padding: "5px 10px", fontSize: "1.3cqw" }} > Continue
-                    <img className="embedded-text-icon" src="Icons/Symbols/right_arrow.svg" alt="Sort Data" onMouseDown={() => { }} />
+        <div className="game-page-container" style={{ display: "flex", flexDirection: "row", color: "white" }}>
+        <img className="page-img brightness-down" src="./assets/Page_Bg/REINFORCEMENTS_PAGE_BG.png" alt="testPic" />
+        
+        <div style={{ height: "100%",margin:"0px 5%", width: "90%", position: "relative", display: "flex", flexDirection: "column" }}>
+            <div style={{ height: "20%", width: "100%", position: "relative",display:"flex", justifyContent:"flex-start", alignItems:"center" }}>
+                <ClickWrapper onMouseDown={() => { setMenuState(PrepPhaseStages.BUY_REIN); }} className="global-button-style"
+                        style={{ padding: "5px 10px", fontSize: "1.3cqw" }}>
+                    <img className="embedded-text-icon" src="Icons/Symbols/left_arrow.svg" alt="Sort Data" onMouseDown={() => {setMenuState(PrepPhaseStages.BUY_REVS) }} />
+                    Summon more Revenants
                 </ClickWrapper>
-
             </div>
-
-            <ClickWrapper onMouseDown={() => { setMenuState(PrepPhaseStages.BUY_REVS); }} className="global-button-style"
-                style={{ position: "absolute", left: "5%", top: "2%", display: "flex", padding: "5px 10px", fontSize: "1.3cqw" }}>
-                <img className="embedded-text-icon" src="Icons/Symbols/left_arrow.svg" alt="Sort Data" onMouseDown={() => { }} /> Summon more Revenants
+            <ClickWrapper style={{ height: "50%", width: "100%", position: "relative" }}>
+                <h2 className="main-content-header">BUY REINFORCEMENTS</h2>
+                <CounterElement value={reinforcementNumber} setValue={setReinforcementNumber} containerStyleAddition={{maxWidth:"30%"}}  additionalButtonStyleAdd={{padding:"2px", boxSizing:"border-box"}} textAddtionalStyle={{fontSize:"2cqw"}}/>
+                <div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { buyReinforcements(reinforcementNumber) }}>Summon (Tot: ~{reinforcementNumber * priceOfReinforcements} $Lords)</div>
             </ClickWrapper>
+            <div style={{ height: "20%", width: "100%", position: "relative" }}></div>
 
+            <div style={{ height: "10%", width: "100%", position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontWeight: "100", fontFamily: "OL", color: "white", fontSize:"1.4rem" }}> 1 Reinforcement ~= {priceOfReinforcements} $LORDS</div>
+                <ClickWrapper onMouseDown={() => { setMenuState(PrepPhaseStages.WAIT_PHASE_OVER); }} className="global-button-style"
+                        style={{ padding: "5px 10px", fontSize: "1.3cqw" }}
+                    > Continue
+
+                        <img className="embedded-text-icon" src="Icons/Symbols/right_arrow.svg" alt="Sort Data" onMouseDown={() => { }} />
+                </ClickWrapper>
+            </div>
         </div>
+
+    </div>
     )
 }

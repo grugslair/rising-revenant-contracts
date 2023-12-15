@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { GAME_CONFIG, MAP_HEIGHT, MAP_WIDTH } from "../phaser/constants";
+import { MAP_HEIGHT, MAP_WIDTH } from "../phaser/constants";
 
 import { ClickWrapper } from "./clickWrapper";
 import { Phase } from "./phaseManager";
@@ -54,12 +54,16 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
 
   return (
     <ClickWrapper className="centered-div" style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", gap: "20px" }}>
-      <div className="global-button-style" style={{ fontSize: "3rem" }} onClick={() => { createGameClient(false);  setUIState(Phase.LOADING);}}>
+      <div style={{fontFamily: "Zelda", fontWeight:"100", backgroundColor:"white", padding:"5px 10px", fontSize:"3.5cqw", borderRadius:"5px", textAlign:"center", marginBottom:"20px"}}>
+       Rising Revenant
+      </div>
+      <div className="global-button-style" style={{ fontSize: "2.4cqw"  , padding:"5px 10px", fontFamily:"OL", fontWeight:"100"}} onClick={() => { createGameClient(false);  setUIState(Phase.LOADING);}}>
         Wallet Login
       </div>
-      <div className="global-button-style" style={{ fontSize: "3rem" }} onClick={() => { createGameClient(true); setUIState(Phase.LOADING);}}>
+      <div className="global-button-style" style={{ fontSize: "2.4cqw" , padding:"5px 10px", fontFamily:"OL", fontWeight:"100"}} onClick={() => { createGameClient(true); setUIState(Phase.LOADING);}}>
         Guest Login
       </div>
+      <img src="LOGO_WHITE.png" style={{ width: "20%", height: "20%", marginTop:"20px"}} />
     </ClickWrapper>
   );
 };

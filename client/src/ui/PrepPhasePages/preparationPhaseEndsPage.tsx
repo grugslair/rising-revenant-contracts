@@ -61,7 +61,6 @@ export const PrepPhaseEndsPage: React.FC<PrepPhaseEndsPageProps> = ({ setMenuSta
 
     return (
         <div className="ppe-page-container">
-            {/* <img src="./assets/Page_Bg/PREP_PHASE_WAIT_BG.png"  alt="testPic" /> */}
             <img src="./assets/Page_Bg/PREP_PHASE_WAIT_BG.png"  alt="testPic" />
             <ClickWrapper className="content-space">
                 <h1 style={{textAlign:"center", fontFamily:"Zelda", fontSize:"3cqw", fontWeight:"100"}}>PREPARATION PHASE ENDS IN<br/>

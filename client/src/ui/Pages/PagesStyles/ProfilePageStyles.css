@@ -1,23 +1,3 @@
-/* .profile-page-container {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  color: white;
-
-  background-color: black;
-  overflow-y:auto;
-} */
-
-/* .page-img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  top: 0;
-  left: 0;
-
-  filter: brightness(var(--brightness)); 
-} */
-
 .title-section {
   width: 100%;
   height: 15%;
@@ -27,7 +7,6 @@
   align-items: center;
 
   position: relative;
-
 }
 
 .title-cart-section {
@@ -81,7 +60,7 @@
   margin: 10px 0px;
 }
 
-.list-item-container{
+.list-item-container {
   width: 99%;
   height: 35%;
 
@@ -104,7 +83,7 @@
   display: flex;
   justify-content: flex-start;
   flex-direction: column;
-  
+
   font-size: 1cqw;
 }
 
@@ -191,4 +170,81 @@
   flex-direction: row;
   align-items: center;
   text-align: center;
+}
+
+
+
+
+
+
+
+.test-query
+{
+  width:100%;
+  height:90%;
+
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
+  padding-top: 10px;
+}
+
+
+.grid-container {
+  width: 99%;
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  padding: 2px 2px;
+
+  box-sizing: border-box;
+}
+
+.pfp {
+  width: 100%;
+  height: 100%;
+  grid-row: 1/4;
+  grid-column: 1/4;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--borderColour);
+}
+
+.name {
+  width: 100%;
+  height: 100%;
+  grid-row: 4;
+  grid-column: 1/4;
+}
+
+.otp {
+  width: 100%;
+  height: 100%;
+  grid-row: 1/4;
+  grid-column: 5/11;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--borderColour);
+}
+
+.sh {
+  width: 100%;
+  height: 100%;
+  grid-row: 4;
+  grid-column: 5/10;
+}
+
+.info {
+  width: 100%;
+  height: 100%;
+  grid-column: 12/22;
+  grid-row: 1/5;
+}
+
+.sell {
+  width: 100%;
+  height: 100%;
+  grid-column: 22/25;
+  grid-row: 2/4;
 }

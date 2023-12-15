@@ -136,11 +136,13 @@ interface ListTitleProps {
 
 const ListTitleComponent: React.FC<ListTitleProps> = ({ name, sortFunction, refreshFunction }) => {
     return (
-        <div className="list-title-section">
-            <div style={{  width: "65%", height: "100" }}> <h2>{name}</h2></div>
-            <div style={{  width: "30%", height: "100", display:"flex", flexDirection:"row", gap:"5px" }}>
-                <img className="icon" src="LOGO_WHITE.png" alt="add button" onMouseDown={() => { sortFunction() }} />
-                <img className="icon" src="refreshIcons.png" alt="add button" onMouseDown={() => { refreshFunction() }} />
+        <div className="list-title-section" style={{backgroundColor:"red"}}>
+            <div className="list-title-text" > <h2 style={{margin:"0px",fontFamily:"OL", fontWeight:"100", fontSize:"0.9vw", color:"white"}}>{name}</h2></div>
+            <div className="list-title-Icon-ref center-via-flex">
+                <img style={{height:"100%", width:"100%"}}  src="refreshIcons.png" alt="add button" onMouseDown={() => { refreshFunction() }} />
+            </div>
+            <div className="list-title-Icon-sort center-via-flex">
+                <img style={{height:"100%", width:"100%"}} src="LOGO_WHITE.png" alt="add button" onMouseDown={() => { sortFunction() }} />
             </div>
         </div>
     )

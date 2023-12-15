@@ -43,12 +43,6 @@ export const NavbarComponent: React.FC<NavbarProps> = ({ menuState, setMenuState
   );
 };
 
-
-
-
-
-
-
 interface PrepPhaseNavbarProps {
   currentMenuState: PrepPhaseStages;
   lastSavedState: PrepPhaseStages;

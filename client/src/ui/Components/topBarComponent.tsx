@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
+import Tooltip from '@mui/material/Tooltip';
 
 import "./ComponentsStyles/TopBarStyles.css";
 
 import {
     Has,
-    getComponentValue,
     getComponentValueStrict,
     HasValue,
 } from "@latticexyz/recs";
@@ -14,7 +14,6 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG } from "../../phaser/constants";
 import {  checkAndSetPhaseClientSide, fetchGameData, fetchSpecificEvent, setComponentsFromGraphQlEntitiesHM, truncateString } from "../../utils";
 import { ClickWrapper } from "../clickWrapper";
-
 
 // the main top bar will be used to load in every 10 seconds the game data and display it to the user
 // THE THING TO CHECK IS THE IF I GET A COMPONENT CAN I THEN PUT IT AS A VAR IN THE USEFFECT BECAUSE IF I CAN
@@ -138,32 +137,45 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     };
   
     return (
-        <div className="top-bar-container-layout">
-            <div style={{ width: "100%", height: "30%" }}></div>
-            <div className="top-bar-content-section">
-                <div className="left-section">
-                    <div className="left-section-image-div">
-                        <div className="logo-img"></div>
-                    </div>
-                    <div className="text-section">
-                        <h4>Jackpot: {Jackpot} $LORDS</h4>
-                    </div>
-                </div>
-                <div className="name-section">
-                    <div className="game-title">Rising Revenant</div>
-                </div>
-                <ClickWrapper className="right-section">
-                    <div className="text-section">
-                        <h4>Revenants Alive: {currentNumOfOutposts}/{maxNumOfOutpost}</h4>
-                        <h4>Reinforcements in game: {reinforcementsInGame}</h4>
-                    </div>
-
-                    {isloggedIn ? 
-                        <h3 onMouseDown={() => {}} style={{fontSize:"1cqw"}}> <img src="argent_logo.png" className="chain-logo" style={{fontSize:"1cqw"}}></img>{truncateString(account.address, 5)} 
-                    </h3> : <button>Log in now</button>}
-                    
-                </ClickWrapper>
+        <ClickWrapper className="top-bar-grid-container ">
+            <div className="top-bar-grid-game-logo center-via-flex">
+                <img src="LOGO_WHITE.png" className="game-logo" style={{ height: "100%", aspectRatio: "1/1" }}></img>
             </div>
-        </div>
+            <Tooltip title="this is your overall cut so far...">
+                <div className="top-bar-grid-left-text-section center-via-flex">
+                    <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
+                        <div>Jackpot: {Jackpot} $LORDS </div>
+                    </div>
+                    <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
+                        <div>Contribution: 12%</div>
+                    </div>
+                </div>
+            </Tooltip>
+            <div className="top-bar-grid-right-text-section center-via-flex">
+                <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
+                    <div>Revenants Alive: {currentNumOfOutposts}/{maxNumOfOutpost}</div>
+                </div>
+                <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
+                    <div>Reinforcements in game: {reinforcementsInGame}</div>
+                </div>
+            </div>
+            <div className="top-bar-grid-game-written-logo">
+                <div className="center-via-flex" style={{ height: "100%", width: "100%", backgroundColor: "white", color: "black", borderRadius: "10px", padding: "2px 5px", boxSizing: "border-box" }}>
+                    <h2 style={{ fontFamily: "Zelda", fontWeight: "100", fontSize: "2.8vw", whiteSpace: "nowrap" }}>Rising Revenant</h2>
+                </div>
+            </div>
+            <div className="top-bar-grid-address center-via-flex">
+                <div style={{ width: "100%", height: "75%" }} className="center-via-flex">
+                    {isloggedIn ?
+                        <h2 >
+                            <img src="argent_logo.png" className="chain-logo"></img>
+                            {truncateString("0x7h387yeh78287he7ge2778d827e78gebd", 5)}
+                        </h2> :
+                        <h3>
+                            NOT LOGGED IN
+                        </h3>}
+                </div>
+            </div>
+        </ClickWrapper>
     );
 };

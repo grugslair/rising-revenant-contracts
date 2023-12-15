@@ -1,7 +1,7 @@
 //libs
 import React, { useEffect, useState } from "react";
 import { MenuState } from "./gamePhaseManager";
-import { Has, getComponentValueStrict, getComponentValue, EntityIndex } from "@latticexyz/recs";
+import { Has, getComponentValueStrict, EntityIndex } from "@latticexyz/recs";
 import { useEntityQuery } from "@latticexyz/react";
 
 //styles
@@ -152,43 +152,52 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
         <div className="game-page-container">
             <img className="page-img" src="./assets/Page_Bg/JOURNAL_PAGE_BG.png" alt="testPic" />
             <PageTitleElement name="REVENANT JURNAL" closeFunction={closePage} rightPicture="close_icon.svg" />
-            <div style={{ width: "100%", height: "10%" }}>
+            <div style={{ width: "100%", height: "10%", backgroundColor: "red" }}>
             </div>
             <div style={{ width: "100%", height: "80%", position: "relative", display: "flex", flexDirection: "row", color: "white", fontFamily: "OL" }}>
-                <div style={{ width: "4%", height: "100%", }}></div>
+                <div style={{ width: "4%", height: "100%" }}></div>
 
-                {allEvents.length !== 0 ? 
-                (
-                    <div style={{ width: "52%", height: "100%", }}>
-                    <ClickWrapper style={{ width: "100%", height: "10%", display: "flex", flexDirection: "row", justifyContent: "space-around", alignItems: "center" }}>
-                        <div style={{ height: "80%", aspectRatio: "1/1" }}>
-                            <img src="Icons/Symbols/left_arrow.svg" onMouseDown={() => setSelectedEventIndex(selectedEventIndex - 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
-                        </div>
-                        <div style={{ height: "100%", whiteSpace: "nowrap", display: "flex", justifyContent: "center", alignItems: "center" }}>Event {selectedEventIndex}/{allEvents.length}</div>
-                        <div style={{ height: "80%", aspectRatio: "1/1" }}>
-                            <img src="Icons/Symbols/right_arrow.svg" onMouseDown={() => setSelectedEventIndex(selectedEventIndex + 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
-                        </div>
-                    </ClickWrapper>
-                    <div style={{ width: "100%", height: "13%", display: "flex", flexDirection: "row" }}>
-                        <div style={{ flex: "1", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}> Radius < br /> {currentlySelectedEventData.radius || 0} </div>
-                        <div style={{ flex: "1", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}> Type < br /> Null </div>
-                        <div style={{ flex: "1", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}> Position < br /> X:{currentlySelectedEventData.x || 0} , Y:{currentlySelectedEventData.y || 0} </div>
-                    </div>
-                    <div style={{ width: "100%", height: "2%" }}></div>
-                    <div style={{ width: "100%", height: "70%" }}>
-                        <div style={{ width: "100%", height: "10%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}>OUTPOST HIT LIST</div>
-                        <ClickWrapper style={{ width: "100%", height: "90%", overflowY: "auto", scrollbarGutter: "stable" }}>
-                            {outpostHitList.map((outpostHit, index) => (
-                                <ListElement key={index} entityId={outpostHit} clientComponents={clientComponents} contractComponents={contractComponents} />
-                            ))}
+                {true === true ?
+                    (
+                        <ClickWrapper className="rev-jurn-page-grid-container">
+                            <div className="rev-jurn-page-grid-event-data-count center-via-flex">
+                                <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1.3vw", textAlign: "center" }}>Event {selectedEventIndex}/{100}</div>
+                            </div>
+                            <div className="rev-jurn-page-grid-left-arrow ">
+                                <img src="Icons/Symbols/left_arrow.svg" onMouseDown={() => setSelectedEventIndex(selectedEventIndex - 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
+                            </div>
+                            <div className="rev-jurn-page-grid-right-arrow">
+                                <img src="Icons/Symbols/right_arrow.svg" onMouseDown={() => setSelectedEventIndex(selectedEventIndex + 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
+                            </div>
+                            <div className="rev-jurn-page-grid-position-data center-via-flex">
+                                <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Position <br /> X: 2365 || Y: 2137</div>
+                            </div>
+                            <div className="rev-jurn-page-grid-radius-data center-via-flex">
+                                <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Radius: <br /> 723</div>
+                            </div>
+                            <div className="rev-jurn-page-grid-type-data center-via-flex">
+                                <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Type: <br /> Null</div>
+                            </div>
+                            <div className="rev-jurn-page-grid-outpost-hit-table">
+                                <div style={{ width: "100%", height: "100%", marginTop:"20px" }}>
+                                    <div style={{ width: "100%", height: "10%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center", fontSize:"1.7vw"}}>
+                                        OUTPOST HIT LIST
+                                    </div>
+                                    <ClickWrapper  style={{ width: "100%", height: "80%", overflowY: "auto", scrollbarGutter: "stable both-edges" }}>
+                                        {outpostHitList.map((outpostHit, index) => (
+                                            <ListElement key={index} entityId={outpostHit} clientComponents={clientComponents} contractComponents={contractComponents} />
+                                        ))}
+
+                                    </ClickWrapper>
+                                </div>
+                            </div>
+
                         </ClickWrapper>
-                    </div>
-                </div>
-                ) : (
-                    <div style={{ width: "52%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center", fontSize: "1.5cqw" }}>
-                        No events have happened yet
-                    </div>
-                )}
+                    ) : (
+                        <div className="center-via-flex" style={{ width: "52%", height: "100%" }}>
+                            No events have happened yet
+                        </div>
+                    )}
 
                 <div style={{ width: "4%", height: "100%" }}></div>
                 <div style={{ width: "40%", height: "100%", paddingRight: "10px" }}>
@@ -202,9 +211,9 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
 };
 
 const ListElement: React.FC<{ entityId: EntityIndex, clientComponents: any, contractComponents: any }> = ({ entityId, clientComponents, contractComponents }) => {
-    // Use effect and consts can be added here if needed
+  
     const [outpostId, setOutpostId] = useState<string>("404");
-    const [outpostOwner, setOutpostOwner] = useState<string>("Null");
+    const [outpostOwner, setOutpostOwner] = useState<string>("0x2347...23");
 
     const [outpostCoordinates, setOutpostCoordinates] = useState<{ x: number, y: number }>({ x: 404, y: 404 });
 
@@ -227,17 +236,12 @@ const ListElement: React.FC<{ entityId: EntityIndex, clientComponents: any, cont
     }, [entityId]);
 
     return (
-        <div style={{
-            width: "98%",
-            height: "50px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            textAlign: "center",
-            fontSize: "0.9cqw",
-        }}>
-            Outpost Id: {outpostId}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X: {outpostCoordinates.x}, Y: {outpostCoordinates.y}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Owner: {outpostOwner}
+        <div className="rev-jurn-outpost-element-grid-container">
+            <div style={{gridColumn:"1/3"}}>Outpost Id: {outpostId}</div>
+            <div>||</div>
+            <div>X: {outpostCoordinates.x}, Y: {outpostCoordinates.y}</div>
+            <div>||</div>
+            <div style={{gridColumn:"6/8"}}>Owner: {outpostOwner}</div>
         </div>
     );
-    //what?, this should use css not what whatever this it 
 };

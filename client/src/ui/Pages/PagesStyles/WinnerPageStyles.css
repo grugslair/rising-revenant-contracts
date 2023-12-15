@@ -3,15 +3,14 @@
   height: 100%;
 
   background-image: url("Page_Bg/STATS_PAGE_BG.png");
-  background-position:  center;
+  background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
 
   position: relative;
 }
 
-.content-container
-{
+.content-container {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -28,14 +27,12 @@
   flex-direction: column;
 }
 
-.content-container h3
-{
+.content-container h3 {
   font-family: OL;
   margin: 0px 0px;
 }
 
-.content-container h1
-{
+.content-container h1 {
   margin: 10px 0px;
   font-size: 4rem;
   white-space: nowrap;
@@ -43,16 +40,13 @@
   font-weight: 100;
 }
 
-
-.share-text
-{
+.share-text {
   position: absolute;
 
   top: 85%;
   left: 50%;
 
   transform: translate(-50%, -50%);
-
 
   color: white;
   text-align: center;
@@ -64,20 +58,16 @@
   align-items: center;
 }
 
-/*  this needs to be changed in the list too */
-.share-text img
-{
+.share-text img {
   height: 1em;
   width: 1em;
   vertical-align: middle;
-  padding-bottom:-0.2em;
+  padding-bottom: -0.2em;
   margin: 0px 20px;
   background-color: aliceblue;
 }
 
-
-.button-style
-{
+.button-style {
   height: fit-content;
   justify-self: center;
 
@@ -88,12 +78,11 @@
 
   width: fit-content;
 
-  border: 2px solid   var(--borderColour);
+  border: 2px solid var(--borderColour);
   padding: 2px 5px;
   font-family: OL;
 }
 
-.button-style:hover
-{
+.button-style:hover {
   cursor: pointer;
 }

@@ -31,7 +31,12 @@ interface TradesPageProps {
 export const TradesPage: React.FC<TradesPageProps> = ({ setMenuState }) => {
 
     const [shopState, setShopState] = useState<ShopState>(ShopState.OUTPOST);
+    const [inputValue, setInputValue] = useState<string>('');
 
+    const handleEnterPress = () => {
+        // Your function logic here with the inputValue
+        console.log(inputValue);
+    };
 
     const closePage = () => {
         setMenuState(MenuState.NONE);
@@ -43,12 +48,12 @@ export const TradesPage: React.FC<TradesPageProps> = ({ setMenuState }) => {
             <img className="page-img" src="./assets/Page_Bg/TRADES_PAGE_BG.png" alt="testPic" />
             <PageTitleElement name={"TRADES"} rightPicture={"close_icon.svg"} closeFunction={() => { closePage() }} ></PageTitleElement>
 
-            <ClickWrapper style={{ display: "flex", flexDirection: "row", gap: "20px", position: "relative", width: "100%", height: "10%", fontSize: "1.6cqw" }}>
+            <ClickWrapper style={{ display: "flex", flexDirection: "row", gap: "3%", position: "relative", width: "100%", height: "10%", fontSize: "1.6cqw" }}>
                 <div onClick={() => setShopState(ShopState.OUTPOST)} style={{ opacity: shopState !== ShopState.OUTPOST ? 0.5 : 1, display: "flex", justifyContent: "flex-end", flex: "1" }}>
-                    <div className="global-button-style" style={{ textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "2px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }} > OUTPOSTS</div>
+                    <div className="global-button-style" style={{ textAlign: "center",backgroundColor:"#2C2C2C", display: "flex", justifyContent: "center", alignItems: "center", padding: "2px 20px", width: "50%", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }} > OUTPOSTS</div>
                 </div>
                 <div onClick={() => setShopState(ShopState.REINFORCES)} style={{ opacity: shopState !== ShopState.REINFORCES ? 0.5 : 1, display: "flex", justifyContent: "flex-start", flex: "1" }}>
-                    <div className="global-button-style" style={{ textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "2px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }} > REINFORCEMENTS</div>
+                    <div className="global-button-style" style={{ textAlign: "center",backgroundColor:"#2C2C2C", display: "flex", justifyContent: "center", alignItems: "center", padding: "2px 20px", width: "50%", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }} > REINFORCEMENTS</div>
                 </div>
             </ClickWrapper>
 
@@ -58,17 +63,33 @@ export const TradesPage: React.FC<TradesPageProps> = ({ setMenuState }) => {
 
                     {shopState === ShopState.OUTPOST ? (<>
 
-                        <div style={{ height: "10%", width: "100%", display: "flex", flexDirection: "row" }}>
-                            <div style={{ flex: "1" }}>
-
+                        <div className="button-container-outpost-sale">
+                            <div className="button-container-outpost-grid-searchbox">
+                                <input
+                                    type="text"
+                                    className="grid-searchbox-custom-input"
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleEnterPress()}
+                                    placeholder="Search by Outpost Id"
+                                />
                             </div>
-                            <div style={{ flex: "1", display: "flex", justifyContent: "end", alignItems: "center" }}>
-                                <div className="global-button-style" style={{ height: "fit-content", display: "flex", justifyContent: "center", alignItems: "center", padding: "5px 10px", textAlign: "center" }}>test one</div>
+                            <div className="button-container-outpost-grid-sort">
+                                <div className="grid-sort-text center-via-flex">Price Low to High</div>
+                            </div>
+                            <div className="grid-change-view-box">
+                                <div className="center-via-flex">
+                                    <img src="LOGO_WHITE.png" alt="" style={{ width: "90%", height: "90%" }} />
+                                </div>
+                                <div className="center-via-flex">
+                                    <img src="LOGO_WHITE.png" alt="" style={{ width: "90%", height: "90%" }} />
+                                </div>
+
                             </div>
                         </div>
                         <div style={{
                             height: "90%", width: "100%", padding: "10px", overflowY: "auto", scrollbarGutter: "stable",
-                            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: "10px", fontFamily: "OL"
+                            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "10px", fontFamily: "OL", justifyItems: "center"
                         }}>
                             <OutpostListingElement />
                             <OutpostListingElement />
@@ -94,8 +115,20 @@ export const TradesPage: React.FC<TradesPageProps> = ({ setMenuState }) => {
                     </>
                     ) : (
                         <>
-                            <div style={{ height: "10%", width: "100%", display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center", scrollbarGutter: "stable" }}>
-                                <div className="global-button-style" style={{ padding: "5px 2px", fontFamily: "OL", boxSizing: "border-box" }}>Price low to high</div>
+                            <div className="button-container-outpost-sale">
+                                <div className="button-container-outpost-grid-searchbox">
+                                    <input
+                                        type="text"
+                                        className="grid-searchbox-custom-input"
+                                        value={inputValue}
+                                        onChange={(e) => setInputValue(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleEnterPress()}
+                                        placeholder="Search by Address"
+                                    />
+                                </div>
+                                <div style={{gridColumn:"8/10"}}>
+                                    <div className="grid-sort-text center-via-flex">Price Low to High</div>
+                                </div>
                             </div>
                             <div style={{
                                 height: "90%", width: "100%", padding: "10px", overflowY: "auto", scrollbarGutter: "stable"
@@ -127,48 +160,49 @@ export const TradesPage: React.FC<TradesPageProps> = ({ setMenuState }) => {
 // this should take the trade id 
 const OutpostListingElement: React.FC = () => {
 
+    const [shieldsAmount, setShieldsAmount] = useState<number>(5);
     //get the data of the outpost and trade
 
     return (
-        <div style={{ width: "230px", height: "250px", backgroundColor: "#202020", border: "4px #717171 solid", padding: "1px", display: "flex", flexDirection: "column", textAlign: "center", boxSizing: "border-box", color: "white" }}>
-            <div style={{ height: "45%", width: "100%" }}>
-                <img style={{ width: "100%", height: "100%" }} src="test_out_pp.png"></img>
+        <div className="outpost-sale-element-container">
+            <div className="outpost-grid-pic">
+                <img src="test_out_pp.png" className="test-embed" alt="" style={{ width: "100%", height: "100%" }} />
             </div>
-            <div style={{ height: "15%", width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ height: "100%", width: "70%", padding: "2px 2px", display: "flex", flexDirection: "row", justifyContent: "start", gap: "3px", boxSizing: "border-box" }}>
-                    <img style={{ height: "100%", flex: "1" }} src="SHIELD.png"></img>
-                    <img style={{ height: "100%", flex: "1" }} src="SHIELD.png"></img>
-                    <img style={{ height: "100%", flex: "1" }} src="SHIELD.png"></img>
-                    <div style={{ flex: "1" }}></div>
-                    <div style={{ flex: "1" }}></div>
+
+            <div className="outpost-grid-shield center-via-flex">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "2px", width: "100%", height: "50%" }}>
+                    {Array.from({ length: 5 }, (_, index) => (
+                        index < shieldsAmount ? (
+                            <img key={index} src="SHIELD.png" alt={`Shield ${index + 1}`} style={{ width: "100%", height: "100%" }} />
+                        ) : (
+                            <div key={index} style={{ width: "100%", height: "100%" }} />
+                        )
+                    ))}
                 </div>
-                <div style={{ height: "100%", width: "15%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}>#ID</div>
             </div>
-            <div style={{ height: "40%", width: "100%", display: "flex", justifyContent: "flex-start", flexDirection: "column", alignItems: "start", gap: "2px", padding: "5px 5px" }}>
-                <h4 style={{ margin: "0px", height: "25%" }}>Reinforcements: 35</h4>
-                <h4 style={{ margin: "0px", height: "25%" }}>Owner: You</h4>
-                <div style={{ padding: "2px 4px", height: "25%", backgroundColor: "#2F2F2F" }}>Show on map</div>
-                <div style={{ height: "25%", width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "center" }}>
-                    <div style={{ height: "100%", width: "fit-content" }}>$45 Lords</div>
-                    <div style={{ height: "100%", width: "fit-content", backgroundColor: "white", color: "black", fontFamily: "Zelda", padding: "2px 5px" }}>BUY NOW</div>
-                </div>
+
+            <div className="outpost-grid-id outpost-flex-layout "># 74</div>
+            <div className="outpost-grid-reinf-amount outpost-flex-layout ">Reinforcement: 54</div>
+            <div className="outpost-grid-owner outpost-flex-layout" >Owner: 0x636...13</div>
+            <div className="outpost-grid-show outpost-flex-layout ">
+                <h3 style={{ backgroundColor: "#2F2F2F", padding: "3px 5px" }}>Show on map</h3>
+            </div>
+            <div className="outpost-grid-cost outpost-flex-layout ">Price: $57 LORDS</div>
+            <div className="outpost-grid-buy-button center-via-flex">
+                <h3 style={{ fontWeight: "100", fontFamily: "Zelda", color: "black" }}>BUY NOW</h3>
             </div>
         </div>
     )
 }
 
-
-
 const ReinforcementListingElement: React.FC = () => {
 
     return (
-        <div style={{ width: "98%", height: "40px", backgroundColor: "#2F2F2F", display: "flex", flexDirection: "row", padding: "5px 5px", border: "3px #C0C0C0 solid", gap: "5px", textAlign: "center", color: "white", marginBottom: "15px" }}>
-            <div style={{ height: "100%", width: "15%", display: "flex", justifyContent: "center", alignItems: "center" }}>Walled Id</div>
-            <div style={{ height: "100%", width: "5%", display: "flex", justifyContent: "center", alignItems: "center" }}></div>
-            <div style={{ height: "100%", width: "25%", display: "flex", justifyContent: "center", alignItems: "center" }}>  <img src="reinforcements_logo.png" className="test-embed" alt="" /> Reinforcements: {56}</div>
-            <div style={{ height: "100%", width: "25%" }}></div>
-            <div style={{ height: "100%", width: "15%", display: "flex", justifyContent: "center", alignItems: "center" }}>Price: $57 LORDS</div>
-            <div style={{ height: "100%", width: "15%", backgroundColor: "#C0C0C0", color: "black", display: "flex", justifyContent: "center", alignItems: "center", fontFamily: "Zelda" }}>BUY NOW</div>
+        <div className="reinforcement-sale-element-container ">
+            <div className="reinf-grid-wallet center-via-flex">Wallet Id</div>
+            <div className="reinf-grid-reinf-amount center-via-flex"><img src="reinforcements_logo.png" className="test-embed" alt="" /> Reinforcements: {56}</div>
+            <div className="reinf-grid-cost center-via-flex">Price: $57 LORDS</div>
+            <div className="reinf-grid-buy-button center-via-flex">BUY NOW</div>
         </div>
     )
 }

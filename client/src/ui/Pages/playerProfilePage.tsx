@@ -1,5 +1,5 @@
 //libs
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MenuState } from "./gamePhaseManager";
 import { HasValue, getComponentValueStrict, getComponentValue, EntityIndex,Has } from "@latticexyz/recs";
 import { useEntityQuery } from "@latticexyz/react";
@@ -87,8 +87,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
 
                 <div style={{ width: "84%", height: "100%" }}>
                     <div style={{ width: "100%", height: "90%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                        <div style={{ width: "100%", height: "90%", overflowY: "scroll", scrollbarGutter: "stable", paddingTop: "10px" }}>
-                            {ownedOutpost.map((ownedOutID, index) => (
+                        <div className="test-query">
+                           {ownedOutpost.map((ownedOutID, index) => (
                                 <React.Fragment key={index}>
                                     <ListElement entityId={getComponentValueStrict(contractComponents.Outpost, ownedOutID).entity_id} contractComponents={contractComponents} clientComponents={clientComponents} reinforce_outpost={reinforceOutpost}/>
                                     {index < ownedOutpost.length - 1 && dividingLine}
@@ -115,9 +115,11 @@ interface ListElementProps {
     reinforce_outpost:any
 }
 
-// the data section is probably to change as the click is only for the text but there is a gap between the texts also the code is duplicated should be one singular div
 export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComponents, clientComponents, reinforce_outpost }) => {
-    const [buttonText, setButtonText] = useState<string>("")
+    const [buttonIndex, setButtonIndex] = useState<number>(0)
+    const [amountToReinforce, setAmountToReinforce] = useState<number>(1)
+    const [heightValue, setHeight] = useState<number>(0)
+
 
     const [name, setName] = useState<string>("Name")
     const [surname, setSurname] = useState<string>("Surname")
@@ -126,98 +128,90 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComp
     const [xCoord, setXCoord] = useState<number>(5)
     const [yCoord, setYCoord] = useState<number>(5)
 
-    const [shieldNum, setShieldNum] = useState<number>(2)
+    const [shieldNum, setShieldNum] = useState<number>(5)
     const [reinforcements, setReinforcements] = useState<number>(20)
 
-    // for future reference, this will trigger the useffect if the entity is changed
-    const outpostCompQuery = useEntityQuery([HasValue(contractComponents.Outpost, { entity_id: BigInt(entityId)})]);
+    const clickWrapperRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const clientOutpostData = getComponentValue(clientComponents.ClientOutpostData, outpostCompQuery[0]);
-        const contractOutpostData = getComponentValue(contractComponents.Outpost, outpostCompQuery[0]);
-        const contractRevenantData = getComponentValue(contractComponents.Revenant, outpostCompQuery[0]);
-        
-        setName(namesArray[contractRevenantData.first_name_idx])
-        setSurname(surnamesArray[contractRevenantData.last_name_idx])
+        // Update the height value based on the width of ClickWrapper
+        const updateHeight = () => {
+            if (clickWrapperRef.current) {
+                setHeight((clickWrapperRef.current.offsetWidth / 24) * 4);
 
-        setId(clientOutpostData.id);
+            }
+        };
 
-        setXCoord(contractOutpostData.x);
-        setYCoord(contractOutpostData.y);
+        // Attach the updateHeight function to the window resize event
+        window.addEventListener('resize', updateHeight);
 
-        const reinforcements = contractOutpostData.lifes;
-        setReinforcements(reinforcements);
+        // Initial update
+        updateHeight();
 
-        if (reinforcements < 3) {
-            setShieldNum(0);
-        } else if (reinforcements <= 5) {
-            setShieldNum(1);
-        } else if (reinforcements <= 9) {
-            setShieldNum(2);
-        } else if (reinforcements <= 13) {
-            setShieldNum(3);
-        } else if (reinforcements <= 19) {
-            setShieldNum(4);
-        } else {
-            setShieldNum(5);
-        }
-    }, [outpostCompQuery])
-    
+        // Cleanup the event listener on component unmount
+        return () => {
+            window.removeEventListener('resize', updateHeight);
+        };
+    }, []);
+
+    useEffect(() => {console.log(heightValue)}, [heightValue])
+
+
+    const clickWrapperStyle: React.CSSProperties = {
+        height: `${heightValue}px`, // Use pixels for height
+        width: '99%', // Set width to 100%
+    };
 
     return (
-        <ClickWrapper className="list-item-container">
-            {/* picture */}
-            <div className="profile-picture-container">
-                <div className="profile-picture-box">
-                    <div className="child-container2">
-                        <img src="test_rev_pp.png" className="img-full-style" />
-                    </div>
-                </div>
-                <div className="profile-picture-name-box">{name} {surname}</div>
+        <div ref={clickWrapperRef} className="grid-container" style={clickWrapperStyle} onMouseEnter={() => setButtonIndex(1)} onMouseLeave={() => setButtonIndex(0)}>
+            <div className="pfp">
+                <img src="Rev_PFP_11.png" className="child-img" />
             </div>
-
-            {/* outpost pic */}
-            <div className="outpost-pic-container">
-                <div className="outpost-pic-box">
-                    <div className="outpost-pic">
-                        <img src="test_out_pp.png" className="child-img" />
-                    </div>
-                </div>
-                <div className="shields-container">
-                    <div className="shield-box">
-                        <div className="shields-grid-container">
-                            {Array.from({ length: shieldNum }).map((_, index) => (
-                                <img key={index} src="reinforcements_logo.png" className="img-full-style" />
+            <div className="name" style={{display:"flex", justifyContent:"flex-start", alignItems:"center"}}> <h3 style={{ textAlign:"center", fontFamily:"OL", fontWeight:"100", color:"white", fontSize:"0.9cqw", whiteSpace:"nowrap"}}>{name} {surname}</h3></div>
+            <div className="otp">
+                <img src="test_out_pp.png" className="child-img" />
+            </div>
+            <div className="sh shields-grid-container" style={{padding:"px", boxSizing:"border-box"}}>
+                             {Array.from({ length: shieldNum }).map((_, index) => (
+                                <img key={index} src="SHIELD.png" className="img-full-style" />
                             ))}
-                        </div>
+            </div>
+            <div className="info" style={{display:"flex"}}>
+                <div  style={{flex:"1", height:"100%", boxSizing:"border-box"}}>
+                    <div  style={{width:"100%", height:"50%", }}> <h3 style={{textAlign:"center", fontFamily:"OL", fontWeight:"100", color:"white", fontSize:"0.9cqw"}}>Outpost ID: <br/><br/> 4</h3>   </div>
+                    <div  style={{width:"100%", height:"50%",}}></div>
+                </div>
+                <div onMouseEnter={() => {setButtonIndex(3)}} onMouseLeave={() => {setButtonIndex(1)}} style={{flex:"1", height:"100%",  boxSizing:"border-box"}}>
+                    <div  style={{width:"100%", height:"50%", }}> <h3 style={{ textAlign:"center", fontFamily:"OL", fontWeight:"100", color:"white", fontSize:"0.9cqw"}}>Coordinates: <br/><br/>X: 5312, Y: 5736</h3>    </div>
+                    <div  style={{width:"100%", height:"50%",  display:"flex", justifyContent:"center", alignItems:"center"}}> 
+                        {buttonIndex === 3 && <div className="global-button-style" style={{height:"50%", padding:"5px 10px", boxSizing:"border-box",fontSize:"0.6cqw", display:"flex", justifyContent:"center", alignItems:"center"}}> <h2>Go here</h2></div> }
                     </div>
-                    <div style={{ width: "40%" }}></div>
+                </div>
+                <div onMouseEnter={() => {setButtonIndex(4)}} onMouseLeave={() => {setButtonIndex(1)}} style={{flex:"1", height:"100%", boxSizing:"border-box"}}>
+                    <div  style={{width:"100%", height:"50%",}}><h3 style={{ textAlign:"center", fontFamily:"OL", fontWeight:"100", color:"white", fontSize:"0.9cqw"}}>Reinforcements: <br/><br/>20</h3> </div>
+                    <div  style={{width:"100%", height:"50%", display:"flex", justifyContent:"center", alignItems:"center",flexDirection:"column"}}>
+                        {buttonIndex === 4 && ( <>
+                               <div style={{height:"50%", width:"100%",padding:"5%" , display:"flex", justifyContent:"space-around", alignItems:"center"}}>
+                               <div className="global-button-style" style={{height:"100%", textAlign:"center",  boxSizing:"border-box"}}>
+                                   <img src="/minus.png" alt="minus" style={{width: "100%", height: "100%"}}/>
+                               </div>
+                               <h2 style={{color:"white", fontSize:"2cqw"}}>{amountToReinforce}</h2>
+                               <div className="global-button-style" style={{height:"100%", textAlign:"center",  boxSizing:"border-box"}}>
+                                   <img src="/plus.png" alt="plus" style={{width: "100%", height: "100%"}}/>
+                               </div>
+                           </div>
+                           <div className="global-button-style" style={{height:"50%", textAlign:"center", padding:"5px 10px", boxSizing:"border-box", fontSize:"0.6cqw", display:"flex", justifyContent:"center", alignItems:"center"}}>  <h2>Reinforce</h2></div>
+                           </>)}
+                      </div>
                 </div>
             </div>
-
-            {/* data */}
-            <div className="parent-container" onMouseLeave={() => setButtonText("")} style={{ fontWeight: "100" }}>
-                <div className="row-data-container" style={{ fontSize: "0.9cqw" }}>
-                    <h4 onMouseEnter={() => setButtonText("")}>Outpost ID:</h4>
-                    <h4 onMouseEnter={() => setButtonText("Go here")}  onClick={() => {setClientCameraComponent(xCoord, yCoord,clientComponents)}}   className="pointer">Coordinates:</h4>
-                    <h4 onMouseEnter={() => setButtonText("Reinforce")} className="pointer" onClick={() => {reinforce_outpost(id)}}>Reinforcements:</h4>
-                </div>
-                <div className="row-data-container" style={{ fontSize: "1cqw" }}>
-                    <h4 onMouseEnter={() => setButtonText("")}>{id}</h4>
-                    <h4 onMouseEnter={() => setButtonText("Go here")} className="pointer" onClick={() => {setClientCameraComponent(xCoord, yCoord,clientComponents)}} >X: {xCoord}, Y: {yCoord}</h4>
-                    <h4 onMouseEnter={() => setButtonText("Reinforce")} className="pointer" onClick={() => {reinforce_outpost(id)}}>{reinforcements}</h4>
-                </div>
-                <div style={{ height: "34%" }}> </div>
+            <div className="sell" style={{display:"flex", justifyContent:"center", alignItems:"center"}}>
+                {buttonIndex !== 0 && <div className="global-button-style" style={{padding:"5px 10px", fontSize:"0.9cqw"}}>SELL</div>}
             </div>
-
-            {/* tooltip */}
-            <div style={{ height: "100%", width: "20%", display: "flex", justifyContent: "center", alignItems: "center", flex: "0.7" }}>
-                {buttonText !== "" && <div className="global-button-style" style={{ padding: "5px 5px" }}>{buttonText}</div>}
-            </div>
-
-        </ClickWrapper>
+        </div>
     );
 };
+
 
 
 

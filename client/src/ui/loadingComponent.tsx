@@ -132,13 +132,6 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
   }
 
   useEffect(() => {
-    
-    //on change of game phase we can load stuff in?
-    // or maybe just ask the user to reload page idk
-
-  }, [gamePhase]);
-
-  useEffect(() => {
     loadingFunction();
   }, []);
 
@@ -152,7 +145,6 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
   //     clearTimeout(timer);
   //   };
   // }, []);
-
 
   return (
     <div className="centered-div" style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
