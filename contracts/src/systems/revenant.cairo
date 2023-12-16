@@ -8,7 +8,9 @@ trait IRevenantActions<TContractState> {
     fn claim_initial_rewards(self: @TContractState, game_id: u32) -> bool;
 
     // Claim the endgame rewards.
-    fn claim_endgame_rewards(self: @TContractState, game_id: u32) -> u256;
+    fn claim_endgame_rewards(self: @TContractState, game_id: u32) -> u256;、
+
+    fn claim_score_rewards(self: @TContractState, game_id: u32) -> u256;
 
     fn get_current_price(self: @TContractState, game_id: u32, count: u32) -> u128;
 
@@ -96,6 +98,8 @@ mod revenant_actions {
             let (outpost, position) = self._create_outpost(world, game_id, player, outpost_id);
 
             set!(world, (revenant, game, game_data, player_info, outpost, position));
+
+
             (entity_id, outpost_id)
         }
 
@@ -129,14 +133,44 @@ mod revenant_actions {
             assert(player_info.outpost_count > 0, 'not winner');
 
             let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
-            let result = erc20.transfer(recipient: player, amount: game.prize);
+
+            let prize = game.prize * 75 / 100;
+            let result = erc20.transfer(recipient: player, amount: prize);
+
             assert(result, 'failed to transfer');
 
             game.rewards_claim_status = 1;
 
             set!(world, (game));
 
-            game.prize
+
+            prize
+        }
+
+        fn claim_score_rewards(self: @ContractState, game_id: u32) -> u256 {
+            let world = self.world_dispatcher.read();
+            let player = get_caller_address();
+
+            let (mut game, game_info) = get!(world, game_id, (Game, GameEntityCounter));
+            assert(game.status == GameStatus::ended, 'game not ended');
+            let mut player_info = get!(world, (game_id, player), PlayerInfo);
+            assert(player_info.score_claim_status == false, 'rewards has been claimed');
+            assert(player_info.score > 0, 'you have no score');
+
+            let prize = game.prize
+                * 10
+                / 100
+                * player_info.score.into()
+                / game_info.score_count.into();
+            let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+            let result = erc20.transfer(recipient: player, amount: prize);
+            assert(result, 'failed to transfer');
+
+            player_info.score_claim_status = true;
+            player_info.earned_prize = prize;
+
+            prize
+
         }
 
         fn get_current_price(self: @ContractState, game_id: u32, count: u32) -> u128 {

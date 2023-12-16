@@ -7,6 +7,8 @@ trait IGameActions<TContractState> {
         preparation_phase_interval: u64,
         event_interval: u64,
         erc_addr: ContractAddress,
+
+        reward_pool_addr: ContractAddress,
         revenant_init_price: u256,
     ) -> u32;
     fn get_current_block(self: @TContractState) -> u64;
@@ -29,7 +31,9 @@ mod game_actions {
             self: @ContractState,
             preparation_phase_interval: u64,
             event_interval: u64,
-            erc_addr: ContractAddress,
+            erc_addr: ContractAddress,、
+            reward_pool_addr: ContractAddress,
+、
             revenant_init_price: u256,
         ) -> u32 {
             let world = self.world_dispatcher.read();
@@ -47,6 +51,7 @@ mod game_actions {
                 preparation_phase_interval,
                 event_interval,
                 erc_addr,
+                reward_pool_addr,
                 revenant_init_price,
                 status,
                 rewards_claim_status: 0,

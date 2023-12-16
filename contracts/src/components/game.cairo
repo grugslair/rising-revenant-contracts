@@ -11,6 +11,9 @@ struct Game {
     event_interval: u64,
     // The ERC20 token address for increasing reinforcement
     erc_addr: ContractAddress,
+    // The contract that houses the prize pool can, by default, use the contract where 
+    // the revenant_action is located.
+    reward_pool_addr: ContractAddress,
     // The initial purchase price of Reinforcement.
     revenant_init_price: u256,
     // if the rewards has been claimed.
@@ -25,7 +28,7 @@ struct Game {
 struct GameTracker {
     #[key]
     entity_id: u128,
-    count: u32
+    count: u32,
 }
 
 // Components to check ---------------------------------------------------------------------
