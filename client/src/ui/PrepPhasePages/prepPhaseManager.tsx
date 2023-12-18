@@ -23,6 +23,7 @@ import { PrepPhaseNavbarComponent } from "../Components/nabarComponent";
 import { ProfilePage } from "../Pages/playerProfilePage";
 import { RulesPage } from "../Pages/rulePage";
 import { Phase } from "../phaseManager";
+import { SettingsPage } from "../Pages/settingsPage";
 
 export enum PrepPhaseStages {
     VID,
@@ -32,7 +33,8 @@ export enum PrepPhaseStages {
     WAIT_PHASE_OVER,
     RULES,
     PROFILE,
-    DEBUG
+    DEBUG,
+    SETTINGS,
 }
 
 interface PrepPhasePageProps {
@@ -49,10 +51,8 @@ export const PrepPhaseManager : React.FC<PrepPhasePageProps> = ({ setUIState }) 
     const [lastSavedState, setLastSavedState] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
 
     const {
-        account: { account },
         networkLayer: {
-          network: { clientComponents, contractComponents },
-          systemCalls: { view_block_count }
+          network: { clientComponents, contractComponents }
         },
       } = useDojo();
     
@@ -79,7 +79,7 @@ export const PrepPhaseManager : React.FC<PrepPhasePageProps> = ({ setUIState }) 
     // this useeffect is used so we can save the last state for the navbar retreat
     useEffect(() => {
 
-        if (prepPhaseStage === PrepPhaseStages.PROFILE || prepPhaseStage === PrepPhaseStages.RULES)
+        if (prepPhaseStage === PrepPhaseStages.PROFILE || prepPhaseStage === PrepPhaseStages.RULES || prepPhaseStage === PrepPhaseStages.SETTINGS)
         {
             return;
         }
@@ -118,6 +118,7 @@ export const PrepPhaseManager : React.FC<PrepPhasePageProps> = ({ setUIState }) 
     const setMenuState = (state: PrepPhaseStages) => {
         setPrepPhaseStage(state);
     }
+
     const closePage = () => {
         setPrepPhaseStage(lastSavedState);
     }
@@ -141,6 +142,7 @@ export const PrepPhaseManager : React.FC<PrepPhasePageProps> = ({ setUIState }) 
                 {prepPhaseStage === PrepPhaseStages.DEBUG && <DebugPage />}
                 {prepPhaseStage === PrepPhaseStages.PROFILE && <ProfilePage setUIState={closePage}/>}
                 {prepPhaseStage === PrepPhaseStages.RULES && <RulesPage setUIState={closePage} />}
+                {prepPhaseStage === PrepPhaseStages.SETTINGS && <SettingsPage setUIState={closePage}/>}
             </div>
         </div>
 

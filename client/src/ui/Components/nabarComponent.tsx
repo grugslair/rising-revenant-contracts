@@ -67,6 +67,9 @@ export const PrepPhaseNavbarComponent: React.FC<PrepPhaseNavbarProps> = ({ curre
       <div className={`navbar-icon ${currentMenuState === PrepPhaseStages.RULES ? "active" : "not-active"}`} onClick={() => handleIconClick(PrepPhaseStages.RULES)}>
         <img src="Icons/RULES.png" alt="" />
       </div>
+      <div className={`navbar-icon ${currentMenuState === PrepPhaseStages.SETTINGS ? "active" : "not-active"}`} onClick={() => handleIconClick(PrepPhaseStages.SETTINGS)}>
+        <img src="Icons/SETTINGS.png" alt="" />
+      </div>
     </ClickWrapper>
   );
 };

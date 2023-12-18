@@ -29,7 +29,7 @@ interface TopBarPageProps {
 export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phaseNum}) => {
 
     const [isloggedIn, setIsLoggedIn] = useState(true);
-    const [inGame, setInGame] = useState(1);
+    const [gameState, setGameState] = useState(1);
 
     const [currentNumOfOutposts, setCurrentNumOfOutposts] = useState(0);
     const [maxNumOfOutpost, setMaxNumOfOutpost] = useState(0);
@@ -46,36 +46,25 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
         },
     } = useDojo();
 
-    const outpostArray = useEntityQuery([Has(contractComponents.Outpost)]);
+    const outpostQuery = useEntityQuery([Has(contractComponents.Outpost)]);
     const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
 
-    const clientGameDataQuery = useEntityQuery([Has(clientComponents.ClientGameData)]);
+    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+    const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter,  getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]))
 
     useEffect(() => {
         
         if (phaseNum === 1 && setGamePhase !== undefined)
         {
-            const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, clientGameDataQuery[0]);
-            
             if (clientGameData.current_game_state === 2)
             {
                 setGamePhase();
             }
         }
 
-    }, [clientGameDataQuery]);
+    }, [clientGameData]);
     
-    useEffect(() => {
-
-        const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
-        
-        if (clientGameData.current_game_state === 2)
-        {
-          setMaxNumOfOutpost(outpostArray.length);
-          setCurrentNumOfOutposts(outpostArray.length - outpostDeadQuery.length)
-        }
-
-    }, [outpostDeadQuery]);
+   
 
     useEffect(() => {
         updateFunctions();
@@ -91,14 +80,14 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     }
 
     const getGameData = async () => {
-        //this should query the game stuff dependong on the state
-        const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+        // //this should query the game stuff dependong on the state
         
-        const gameDataQuery = await fetchGameData(graphSdk,clientGameData.current_game_id);
+        const gameDataQuery = await fetchGameData(graphSdk, clientGameData.current_game_id);
         setComponentsFromGraphQlEntitiesHM(gameDataQuery,contractComponents,false);
 
         const newGameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
         setJackpot(newGameData.prize);
+        setMaxNumOfOutpost(newGameData.max_amount_of_revenants);
 
         const entityCount  = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
 
@@ -115,24 +104,10 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                 setComponentsFromGraphQlEntitiesHM(eventQuery,contractComponents,false);
             }
         }
-
-        setReinforcementsInGame(entityCount.remain_life_count + entityCount.reinforcement_count);
-        //prep phase code only
-        if (clientGameData.current_game_state === 1)
-        {   
-            setMaxNumOfOutpost(2000);
-            setCurrentNumOfOutposts(entityCount.outpost_count);
-        }
-        else
-        {
-            setCurrentNumOfOutposts(outpostArray.length - outpostDeadQuery.length);
-            setMaxNumOfOutpost(outpostArray.length);
-        }
     }
 
     const checkBlockCount = async () => {
         const blockCount = await view_block_count();
-        const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([GAME_CONFIG]));
         checkAndSetPhaseClientSide(clientGameData.current_game_id, blockCount!, contractComponents, clientComponents);
     };
   
@@ -144,19 +119,24 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
             <Tooltip title="this is your overall cut so far...">
                 <div className="top-bar-grid-left-text-section center-via-flex">
                     <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                        <div>Jackpot: {Jackpot} $LORDS </div>
+                        <div style={{fontSize:"1.2vw"}}>Jackpot: {Jackpot} $LORDS </div>
                     </div>
                     <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                        <div>Contribution: 12%</div>
+                        <div style={{fontSize:"1.2vw"}}>Contribution: 12%</div>
                     </div>
                 </div>
             </Tooltip>
             <div className="top-bar-grid-right-text-section center-via-flex">
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                    <div>Revenants Alive: {currentNumOfOutposts}/{maxNumOfOutpost}</div>
+                    {clientGameData.current_game_id === 1 ? 
+                    <div style={{fontSize:"1.2vw"}}>Revenants Summoned: {gameEntityCounter.revenant_count}/{maxNumOfOutpost}</div>
+                    :
+                    <div style={{fontSize:"1.2vw"}}>Revenants Alive: {outpostDeadQuery.length}/{outpostQuery.length}</div>
+                    }
+                    
                 </div>
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                    <div>Reinforcements in game: {reinforcementsInGame}</div>
+                    <div style={{fontSize:"1.2vw"}}>Reinforcements in game: {gameEntityCounter.remain_life_count + gameEntityCounter.reinforcement_count }</div>
                 </div>
             </div>
             <div className="top-bar-grid-game-written-logo">

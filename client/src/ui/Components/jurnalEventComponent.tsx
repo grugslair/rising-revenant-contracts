@@ -53,26 +53,40 @@ export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState
         <div className="jurnal-event-container">
             <div className="jurnal-event-component-grid">
                 <div className="jurnal-event-component-grid-title">
-                    <div style={{height:"100%", width:"100%", display:"flex", justifyContent:"flex-start", alignItems:"center"}}>
-                        <h2 style={{fontFamily:"Zelda", fontWeight:"100", fontSize:"1.8vw"}}>REVENANT JOURNAL</h2>
+                    <div style={{ height: "100%", width: "100%", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
+                        <h2 style={{ fontFamily: "Zelda", fontWeight: "100", fontSize: "1.8vw" }}>REVENANT JOURNAL</h2>
                     </div>
                 </div>
                 <ClickWrapper className="jurnal-event-component-grid-enlarge center-via-flex">
-                    <img className="pointer" onClick={() => openJurnal()} src="LOGO_WHITE.png" alt="Enlarge" style={{height:"80%", width:"80%"}}/>
+                    <img className="pointer" onClick={() => openJurnal()} src="LOGO_WHITE.png" alt="Enlarge" style={{ height: "80%", width: "80%" }} />
                 </ClickWrapper>
                 <div className="jurnal-event-component-grid-event-data">
-                    <h2 style={{fontSize:"1.7vw", marginBottom:"3%"}}>Outpost Event</h2>
-                    <h4 style={{margin:"0px", fontSize:"1.1vw"}}>Radius</h4>
-                    <h4 style={{margin:"0px", fontSize:"1.1vw"}}>Type</h4>
-                    <h4 style={{margin:"0px", fontSize:"1.1vw"}}>Coords</h4>
+                    {lastEvent !== undefined ?
+                        (<>
+                            <h2 style={{ fontSize: "1.7vw", marginBottom: "3%" }}>Outpost Event #{clientGameData.current_event_drawn}</h2>
+                            <h4 style={{ margin: "0px", fontSize: "1.1vw" }}>Radius: {lastEvent.radius}</h4>
+                            <h4 style={{ margin: "0px", fontSize: "1.1vw" }}>Type: {"null"}</h4>
+                            <h4 style={{ margin: "0px", fontSize: "1.1vw" }}>Position: X: {lastEvent.x}  || Y: {lastEvent.y}</h4>
+                        </>)
+                        :
+                        (<>
+                            <h2 style={{ fontSize: "1.7vw", marginBottom: "3%" }}>No event yet</h2>
+                            <h4 style={{ margin: "0px", fontSize: "1.1vw" }}></h4>
+                            <h4 style={{ margin: "0px", fontSize: "1.1vw" }}></h4>
+                            <h4 style={{ margin: "0px", fontSize: "1.1vw" }}></h4>
+                        </>)}
+
                 </div>
                 <div className="jurnal-event-component-grid-outpost-data">
-                    <h2 style={{margin:"0px", marginBottom:"2%", fontSize:"1.7vw"}}>Your Outposts Hit</h2>
+                    <h2 style={{ margin: "0px", marginBottom: "2%", fontSize: "1.7vw" }}>Your Outposts Hit</h2>
                     <ClickWrapper className="outpost-hit-list-container" >
-                        <ListElement
-                            entityIndex={3 as EntityIndex}
-                            contractComponents={5}
-                        />
+                        {ownOutpost.map((outpostId: EntityIndex) => (
+                            <ListElement
+                                key={outpostId}
+                                entityIndex={outpostId}
+                                contractComponents={contractComponents}
+                            />
+                        ))}
                     </ClickWrapper>
                 </div>
             </div>
@@ -88,11 +102,9 @@ const ListElement: React.FC<{ entityIndex: EntityIndex, contractComponents: any 
     });
     const [lifes, setLifes] = useState(0);
 
-    const contractOutpostDataQuery = useEntityQuery([HasValue(contractComponents.Outpost, { entity_id: BigInt(entityIndex) })]);
+    const contractOutpostData = getComponentValueStrict(contractComponents.Outpost, entityIndex);
 
     useEffect(() => {
-
-        const contractOutpostData = getComponentValueStrict(contractComponents.Outpost, contractOutpostDataQuery[0]);
 
         setOutpostData({
             id: Number(contractOutpostData.entity_id),
@@ -101,11 +113,11 @@ const ListElement: React.FC<{ entityIndex: EntityIndex, contractComponents: any 
         });
 
         setLifes(contractOutpostData.lifes); // Assuming the correct property is 'lifes'
-    }, [contractOutpostDataQuery]);
+    }, []);
 
     return (
         <>
-            <h3 style={{ textDecoration: lifes === 0 ? 'line-through' : 'none' , margin:"0px", fontSize:"1.2vw"}}>
+            <h3 style={{ textDecoration: lifes === 0 ? 'line-through' : 'none', margin: "0px", fontSize: "1.2vw" }}>
                 Outpost ID: {outpostData.id} || X: {outpostData.x}, Y: {outpostData.y}
             </h3>
         </>

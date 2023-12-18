@@ -40,13 +40,16 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
         account: { account },
         networkLayer: {
             network: { contractComponents, clientComponents },
-            systemCalls: {reinforce_outpost}
+            systemCalls: {reinforce_outpost, confirm_event_outpost}
         },
     } = useDojo();
 
     const ownedOutpost = useEntityQuery([HasValue(contractComponents.Outpost, { owner: account.address })]);
+    const ownedAndInEvent = useEntityQuery([HasValue(clientComponents.ClientGameData, { owned: true, event_effected: true })]);
 
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+
+    console.error(account.address);
     const playerInfo = getComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]));
 
     //test embed needs to be standardized 
@@ -54,7 +57,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
         <div className="title-cart-section">
             <h1>
                 <img src="reinforcements_logo.png" className="test-embed" alt="" />
-                {playerInfo.reinforcement_count || "NaN"}
+                {playerInfo.reinforcement_count || "0"}
             </h1>
             <h3>Reinforcement available</h3>
         </div>
@@ -64,15 +67,36 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
         <div className="divider"></div>
     )
 
-    const reinforceOutpost = (outpost_id: any) => {
+    const reinforceOutpost = (outpost_id: any, count:number) => {
 
         const reinforceOutpostProps: ReinforceOutpostProps = {
           account: account,
           game_id: clientGameData.current_game_id,
+          count: count,
           outpost_id: outpost_id,
         };
     
         reinforce_outpost(reinforceOutpostProps);
+    }
+
+    const setCameraPos = (x: number, y: number) => {
+        setClientCameraComponent(x,y,clientComponents);
+    }
+
+    const confirmAllAttackedOutposts = () => 
+    {
+        for (let index = 0; index < ownedAndInEvent.length; index++) {
+            const element = ownedAndInEvent[index];
+
+            const confirmEventOutpost: ConfirmEventOutpost = {
+                account:account,
+                game_id: clientGameData.current_game_id,
+                outpost_id: getComponentValueStrict(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(element)])),
+                event_id: clientGameData.current_drawn_event,
+            }
+
+            confirm_event_outpost(confirmEventOutpost);
+        }
     }
 
     return (
@@ -90,14 +114,21 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
                         <div className="test-query">
                            {ownedOutpost.map((ownedOutID, index) => (
                                 <React.Fragment key={index}>
-                                    <ListElement entityId={getComponentValueStrict(contractComponents.Outpost, ownedOutID).entity_id} contractComponents={contractComponents} clientComponents={clientComponents} reinforce_outpost={reinforceOutpost}/>
+                                    <ListElement entityId={ownedOutID} contractComponents={contractComponents} clientComponents={clientComponents} reinforce_outpost={reinforceOutpost} currentBalance={playerInfo.reinforcement_count} goHereFunc={setCameraPos}/>
                                     {index < ownedOutpost.length - 1 && dividingLine}
                                 </React.Fragment>
                             ))}
                         </div>
                     </div>
-                    <div style={{ width: "100%", height: "10%", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-                        <div className="global-button-style" style={{ padding: "5px 5px" }}>Buy Reinforcements</div>
+                    <div style={{ width: "100%", height: "10%", display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+                        {clientGameData.current_game_state === 1? (<></>)  :   
+                        (
+                            <>
+                                <div className="global-button-style" style={{ padding: "5px 5px" }} onClick={() => {setUIState}}>Go To Trade Section</div>
+                                {ownedAndInEvent.length > 0 ? (
+                                <div className="global-button-style" style={{ padding: "5px 5px" }} onClick={() => {confirmAllAttackedOutposts()}}>Confirm All</div>) : (<></>)}
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -107,24 +138,24 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
     );
 };
 
-
 interface ListElementProps {
     entityId: EntityIndex
     contractComponents: any
     clientComponents: any
     reinforce_outpost:any
+    currentBalance:number
+    goHereFunc: any
 }
 
-export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComponents, clientComponents, reinforce_outpost }) => {
+export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComponents, clientComponents, reinforce_outpost, currentBalance,goHereFunc }) => {
     const [buttonIndex, setButtonIndex] = useState<number>(0)
     const [amountToReinforce, setAmountToReinforce] = useState<number>(1)
     const [heightValue, setHeight] = useState<number>(0)
 
-
     const [name, setName] = useState<string>("Name")
     const [surname, setSurname] = useState<string>("Surname")
 
-    const [id, setId] = useState<number>(5)
+    const [id, setId] = useState<string>("5")
     const [xCoord, setXCoord] = useState<number>(5)
     const [yCoord, setYCoord] = useState<number>(5)
 
@@ -133,8 +164,42 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComp
 
     const clickWrapperRef = useRef<HTMLDivElement>(null);
 
+    const outpostData = getComponentValueStrict(contractComponents.Outpost, entityId);
+    const revenantData = getComponentValueStrict(contractComponents.Revenant, entityId);
+    const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entityId);
+
     useEffect(() => {
-        // Update the height value based on the width of ClickWrapper
+
+        setShieldNum(outpostData.shield);
+        setXCoord(outpostData.x);
+        setYCoord(outpostData.y);
+        setReinforcements(outpostData.lifes);
+        setId(outpostData.entity_id.toString());
+
+        setName(namesArray[revenantData.first_name_idx]);
+        setSurname(surnamesArray[revenantData.last_name_idx]);
+
+    }, [outpostData]);
+
+    useEffect(() => {
+        if (currentBalance === 0)
+        {
+            setAmountToReinforce(0);
+            return;
+        }
+
+        if (amountToReinforce > currentBalance)
+        {
+            setAmountToReinforce(currentBalance);
+        }
+        else if (amountToReinforce < 1)
+        {
+            setAmountToReinforce(1);
+        }
+
+    }, [amountToReinforce]);
+
+    useEffect(() => {
         const updateHeight = () => {
             if (clickWrapperRef.current) {
                 setHeight((clickWrapperRef.current.offsetWidth / 24) * 4);
@@ -142,24 +207,18 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComp
             }
         };
 
-        // Attach the updateHeight function to the window resize event
         window.addEventListener('resize', updateHeight);
 
-        // Initial update
         updateHeight();
 
-        // Cleanup the event listener on component unmount
         return () => {
             window.removeEventListener('resize', updateHeight);
         };
     }, []);
 
-    useEffect(() => {console.log(heightValue)}, [heightValue])
-
-
     const clickWrapperStyle: React.CSSProperties = {
-        height: `${heightValue}px`, // Use pixels for height
-        width: '99%', // Set width to 100%
+        height: `${heightValue}px`, 
+        width: '99%', 
     };
 
     return (
@@ -178,29 +237,29 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComp
             </div>
             <div className="info" style={{display:"flex"}}>
                 <div  style={{flex:"1", height:"100%", boxSizing:"border-box"}}>
-                    <div  style={{width:"100%", height:"50%", }}> <h3 style={{textAlign:"center", fontFamily:"OL", fontWeight:"100", color:"white", fontSize:"0.9cqw"}}>Outpost ID: <br/><br/> 4</h3>   </div>
+                    <div  style={{width:"100%", height:"50%", }}> <h3 style={{textAlign:"center", fontFamily:"OL", fontWeight:"100", color:"white", fontSize:"0.9cqw"}}>Outpost ID: <br/><br/>{id}</h3>   </div>
                     <div  style={{width:"100%", height:"50%",}}></div>
                 </div>
                 <div onMouseEnter={() => {setButtonIndex(3)}} onMouseLeave={() => {setButtonIndex(1)}} style={{flex:"1", height:"100%",  boxSizing:"border-box"}}>
-                    <div  style={{width:"100%", height:"50%", }}> <h3 style={{ textAlign:"center", fontFamily:"OL", fontWeight:"100", color:"white", fontSize:"0.9cqw"}}>Coordinates: <br/><br/>X: 5312, Y: 5736</h3>    </div>
+                    <div  style={{width:"100%", height:"50%", }}> <h3 style={{ textAlign:"center", fontFamily:"OL", fontWeight:"100", color:"white", fontSize:"0.9cqw"}}>Coordinates: <br/><br/>X: {xCoord}, Y: {yCoord}</h3>    </div>
                     <div  style={{width:"100%", height:"50%",  display:"flex", justifyContent:"center", alignItems:"center"}}> 
-                        {buttonIndex === 3 && <div className="global-button-style" style={{height:"50%", padding:"5px 10px", boxSizing:"border-box",fontSize:"0.6cqw", display:"flex", justifyContent:"center", alignItems:"center"}}> <h2>Go here</h2></div> }
+                        {buttonIndex === 3 && <div className="global-button-style" style={{height:"50%", padding:"5px 10px", boxSizing:"border-box",fontSize:"0.6cqw", display:"flex", justifyContent:"center", alignItems:"center"}} onClick={() => goHereFunc(xCoord,yCoord)}> <h2>Go here</h2></div> }
                     </div>
                 </div>
                 <div onMouseEnter={() => {setButtonIndex(4)}} onMouseLeave={() => {setButtonIndex(1)}} style={{flex:"1", height:"100%", boxSizing:"border-box"}}>
-                    <div  style={{width:"100%", height:"50%",}}><h3 style={{ textAlign:"center", fontFamily:"OL", fontWeight:"100", color:"white", fontSize:"0.9cqw"}}>Reinforcements: <br/><br/>20</h3> </div>
+                    <div  style={{width:"100%", height:"50%",}}><h3 style={{ textAlign:"center", fontFamily:"OL", fontWeight:"100", color:"white", fontSize:"0.9cqw"}}>Reinforcements: <br/><br/>{reinforcements}</h3> </div>
                     <div  style={{width:"100%", height:"50%", display:"flex", justifyContent:"center", alignItems:"center",flexDirection:"column"}}>
                         {buttonIndex === 4 && ( <>
                                <div style={{height:"50%", width:"100%",padding:"5%" , display:"flex", justifyContent:"space-around", alignItems:"center"}}>
                                <div className="global-button-style" style={{height:"100%", textAlign:"center",  boxSizing:"border-box"}}>
-                                   <img src="/minus.png" alt="minus" style={{width: "100%", height: "100%"}}/>
+                                   <img src="/minus.png" alt="minus" style={{width: "100%", height: "100%"}} onClick={() => setAmountToReinforce(amountToReinforce - 1)}/>
                                </div>
                                <h2 style={{color:"white", fontSize:"2cqw"}}>{amountToReinforce}</h2>
                                <div className="global-button-style" style={{height:"100%", textAlign:"center",  boxSizing:"border-box"}}>
-                                   <img src="/plus.png" alt="plus" style={{width: "100%", height: "100%"}}/>
+                                   <img src="/plus.png" alt="plus" style={{width: "100%", height: "100%"}} onClick={() => setAmountToReinforce(amountToReinforce + 1)}/>
                                </div>
                            </div>
-                           <div className="global-button-style" style={{height:"50%", textAlign:"center", padding:"5px 10px", boxSizing:"border-box", fontSize:"0.6cqw", display:"flex", justifyContent:"center", alignItems:"center"}}>  <h2>Reinforce</h2></div>
+                           <div className="global-button-style" style={{height:"50%", textAlign:"center", padding:"5px 10px", boxSizing:"border-box", fontSize:"0.6cqw", display:"flex", justifyContent:"center", alignItems:"center"}} onClick={() => reinforce_outpost(clientOutpostData.id, amountToReinforce)}>  <h2>Reinforce</h2></div>
                            </>)}
                       </div>
                 </div>

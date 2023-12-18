@@ -27,23 +27,19 @@ import { Switch } from "@mui/material";
 
 
 interface SettingPageProps {
-    setMenuState: React.Dispatch<React.SetStateAction<MenuState>>;
+    setUIState: () => void;
 }
 
-export const SettingsPage: React.FC<SettingPageProps> = ({ setMenuState }) => {
+export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
 
     const [checkboxChecked, setCheckboxChecked] = useState(true);
     const [switchChecked, setSwitchChecked] = useState(true);
     const [sliderValue, setSliderValue] = useState(50);
 
-    const closePage = () => {
-        setMenuState(MenuState.NONE);
-    };
-
     return (
         <div className="game-page-container">
             <img className="page-img" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
-            <PageTitleElement name={"SETTINGS"} rightPicture={"close_icon.svg"} closeFunction={closePage} />
+            <PageTitleElement name={"SETTINGS"} rightPicture={"close_icon.svg"} closeFunction={setUIState} />
 
             <ClickWrapper style={{ position: "relative", width: "100%", height: "90%", display: "flex", flexDirection: "row", padding: "5% 3%", boxSizing: "border-box", color:"white"}}>
                 <ClickWrapper style={{ height: "100%", width: "60%", display: "flex", flexDirection: "column", justifyContent: "center", paddingRight:"4%", boxSizing:"border-box" }}>
@@ -75,7 +71,6 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setMenuState }) => {
         </div>
     );
 };
-
 
 
 

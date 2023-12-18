@@ -1,7 +1,6 @@
 import {
   Has,
   defineSystem,
-  defineEnterSystem,
   getComponentValueStrict,
   getComponentValue
 } from "@latticexyz/recs";
@@ -19,7 +18,6 @@ export const spawnOutposts = (layer: PhaserLayer) => {
     
     networkLayer: {
       components: { Outpost, ClientOutpostData, EntityTileIndex },
-      
     },
   } = layer;
 
@@ -81,7 +79,6 @@ export const spawnOutposts = (layer: PhaserLayer) => {
 
   });
 
-
   defineSystem(world, [Has(ClientOutpostData)], ({ entity }) => {
     const outpostClientData = getComponentValue(ClientOutpostData, entity);
     const entityTileIndex = getComponentValue(EntityTileIndex, entity);
@@ -98,14 +95,11 @@ export const spawnOutposts = (layer: PhaserLayer) => {
 
         const adj = getAdjacentIndices(cameraTileIndex.tile_index)
 
-        console.log(adj);
-
         if (!outpostClientData.selected && !adj.includes(entityTileIndex.tile_index))
         {
           sprite.setVisible(false);
         }
       },
     });
-  });
-  
+  });  
 };

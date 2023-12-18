@@ -56,8 +56,6 @@ import { setClientGameComponent, setClientOutpostComponent } from "../../utils";
   
       const outpostEntities = getComponentEntities(Outpost);
       const outpostArray = Array.from(outpostEntities);
-
-      console.error(`RIGHT NOW QUERIING A TOTAL OF ${outpostArray.length}`);
   
       for (const outpostEntityValue of outpostArray) {
 

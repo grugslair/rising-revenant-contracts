@@ -346,8 +346,9 @@ export function extractAndCleanKey(entities?: any[] | null | undefined): string 
     return entities[0].keys.replace(/,/g, '');
 }
 
+
+//what?
 export function addPrefix0x(input: string | number): string {
-    // Add '0x' prefix to the input
     return `0x${input}`;
 }
 
@@ -356,10 +357,15 @@ export function decimalToHexadecimal(number: number): string {
         throw new Error("Input must be a valid number");
     }
 
-    // Using toString with base 16 to convert the number to hexadecimal
     const hexadecimalString = number.toString(16).toUpperCase();
     return `0x${hexadecimalString}`;
 }
+
+export function hexToNumber(hexString: string): number {
+    return parseInt(hexString, 16);
+}
+
+
 
 export function truncateString(inputString: string, prefixLength: number): string {
     if (inputString.length <= prefixLength) {

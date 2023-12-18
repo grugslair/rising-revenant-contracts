@@ -18,7 +18,8 @@ struct Game {
     revenant_init_price: u256,
     // if the rewards has been claimed.
     rewards_claim_status: u32,
-    status: u32
+    status: u32,
+    max_amount_of_revenants: u32,
 }
 
 // Config Components ---------------------------------------------------------------------

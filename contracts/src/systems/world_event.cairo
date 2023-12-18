@@ -91,6 +91,12 @@ mod world_event_actions {
 
             // update lifes
             outpost.lifes -= 1;
+
+            // Alex
+            let shields_amount = outpost.get_shields_amount();
+
+            outpost.shield = shields_amount;
+
             outpost.last_affect_event_id = world_event.entity_id;
             world_event.destroy_count += 1;
             game_data.remain_life_count -= 1;

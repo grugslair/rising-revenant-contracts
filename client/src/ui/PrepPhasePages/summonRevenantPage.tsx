@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDojo } from "../../hooks/useDojo";
-import { CreateGameProps, CreateRevenantProps } from "../../dojo/types";
+import { CreateRevenantProps } from "../../dojo/types";
 import { PrepPhaseStages } from "./prepPhaseManager";
 
 import { HasValue, EntityIndex, getComponentValueStrict, setComponent } from "@latticexyz/recs";
@@ -13,6 +13,7 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG } from "../../phaser/constants";
 
 import CounterElement from "../Elements/counterElement";
+import { setClientGameComponent } from "../../utils";
 
 interface BuyRevenantPageProps {
     setMenuState: React.Dispatch<PrepPhaseStages>;
@@ -25,6 +26,8 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
     const [revenantNumber, setRevenantNumber] = useState(5);
     const [revenantCost, setRevenantCost] = useState(10);
 
+    const [freeRevs, setFreeRevs] = useState<number>(10);
+
     const [backgroundImage, setBackgroundImage] = useState("");
 
     const {
@@ -35,13 +38,26 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
         },
     } = useDojo();
 
+    const ownReveants = useEntityQuery([HasValue(contractComponents.Outpost, { owner: account.address })]);
+
+    const clientGameComp = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+
+    const gameComponent = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameComp.current_game_id)]));
+    const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameComp.current_game_id)]));
+
+
+    console.error(account.address);
+
     // at the start choose from the random images to load in 
     useEffect(() => {
+        setRevenantCost(Number(gameComponent.revenant_init_price));
+
         const randomImage = IMAGES[Math.floor(Math.random() * IMAGES.length)];
         setBackgroundImage(`${randomImage}`);
     }, []);
 
     const summonRev = async (num: number) => {
+
         const clientGameData = getComponentValueStrict(
             clientComponents.ClientGameData,
             getEntityIdFromKeys([BigInt(GAME_CONFIG)])
@@ -56,11 +72,17 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
 
             await create_revenant(createRevProps);
         }
-
-        setMenuState(PrepPhaseStages.WAIT_TRANSACTION);
     };
 
-    const ownReveants = useEntityQuery([HasValue(contractComponents.Outpost, { owner: account.address })]);
+    const switchToGuest = async () => {
+        setClientGameComponent(clientGameComp.current_game_state, clientGameComp.current_game_id, clientGameComp.current_block_number, true, clientGameComp.current_event_drawn, clientComponents);
+    };
+
+    useEffect(() => {
+        setFreeRevs(Number(gameComponent.max_amount_of_revenants) - Number(gameEntityCounter.revenant_count));
+
+    }, [gameEntityCounter, gameComponent]);
+
 
     return (
         <div className="game-page-container" style={{aspectRatio:"31/16", display: "flex", flexDirection: "row", color: "white" }}>
@@ -68,10 +90,27 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
             
             <div style={{ height: "100%", margin:"0px 5%", width: "90%", position: "relative", display: "flex", flexDirection: "column" }}>
                 <div style={{ height: "20%", width: "100%", position: "relative" }}></div>
-                <ClickWrapper style={{ height: "50%", width: "100%", position: "relative" }}>
-                    <h2 className="main-content-header">SUMMON A REVENANT</h2>
-                    <CounterElement value={revenantNumber} setValue={setRevenantNumber} containerStyleAddition={{maxWidth:"30%"}} additionalButtonStyleAdd={{padding:"2px", boxSizing:"border-box"}} textAddtionalStyle={{fontSize:"2cqw"}}/>
-                    <div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { summonRev(revenantNumber) }}>Summon (Tot: {revenantNumber * revenantCost} $Lords)</div>
+                <ClickWrapper style={{ height: "50%", width: "100%", position: "relative", display:"flex", justifyContent:"center", flexDirection:"column" }}>
+
+                <h2 className="main-content-header">SUMMON A REVENANT</h2>
+                    {freeRevs > 0 ? (
+                    <>
+                        <CounterElement value={revenantNumber} setValue={setRevenantNumber} containerStyleAddition={{maxWidth:"30%"}} additionalButtonStyleAdd={{padding:"2px", boxSizing:"border-box"}} textAddtionalStyle={{fontSize:"2cqw"}}/>
+                        <div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { summonRev(revenantNumber) }}>Summon (Tot: {revenantNumber * revenantCost} $Lords)</div>
+                    </>)
+                    :
+                        (<>
+                            {ownReveants.length === 0 ? 
+                            (<>
+                                <div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { switchToGuest()}}>No Revenants left to summon and you own none, Join as a guest</div>
+                            </>) 
+                            : 
+                            (<>
+                                <div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { setMenuState(PrepPhaseStages.BUY_REIN);}}>No Revenants left to summon, continue to reinforcement page</div>
+                            </>)}
+                        </>)
+                    }
+
                 </ClickWrapper>
                 <div style={{ height: "20%", width: "100%", position: "relative" }}></div>
 

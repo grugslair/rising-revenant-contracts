@@ -217,7 +217,7 @@ export const GamePhaseManager = () => {
             <div className='page-container'>
               {currentMenuState === MenuState.PROFILE && <ProfilePage setUIState={closePage}/>}
               {currentMenuState === MenuState.RULES && <RulesPage setUIState={closePage} />}
-              {currentMenuState === MenuState.SETTINGS && <SettingsPage setMenuState={setCurrentMenuState} />}
+              {currentMenuState === MenuState.SETTINGS && <SettingsPage setUIState={closePage} />}
               {currentMenuState === MenuState.TRADES && <TradesPage setMenuState={setCurrentMenuState}/>}
               {currentMenuState === MenuState.STATS && <StatsPage setMenuState={setCurrentMenuState} />}
               {currentMenuState === MenuState.REV_JURNAL && <RevenantJurnalPage setMenuState={setCurrentMenuState} />}

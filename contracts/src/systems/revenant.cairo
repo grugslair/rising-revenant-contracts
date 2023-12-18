@@ -8,7 +8,7 @@ trait IRevenantActions<TContractState> {
     fn claim_initial_rewards(self: @TContractState, game_id: u32) -> bool;
 
     // Claim the endgame rewards.
-    fn claim_endgame_rewards(self: @TContractState, game_id: u32) -> u256;、
+    fn claim_endgame_rewards(self: @TContractState, game_id: u32) -> u256;
 
     fn claim_score_rewards(self: @TContractState, game_id: u32) -> u256;
 
@@ -16,7 +16,7 @@ trait IRevenantActions<TContractState> {
 
     fn purchase_reinforcement(self: @TContractState, game_id: u32, count: u32) -> bool;
 
-    fn reinforce_outpost(self: @TContractState, game_id: u32, outpost_id: u128);
+    fn reinforce_outpost(self: @TContractState, game_id: u32,count: u32, outpost_id: u128);
 }
 
 
@@ -57,21 +57,23 @@ mod revenant_actions {
             let (mut game, mut game_data) = get!(world, game_id, (Game, GameEntityCounter));
             game.assert_can_create_outpost(world);
 
+            assert(game_data.revenant_count + 1 <=  game.max_amount_of_revenants, 'max revenants reached');  //Alex
+
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            assert(player_info.revenant_count < REVENANT_MAX_COUNT, 'reach revenant limit');
+            // assert(player_info.revenant_count < REVENANT_MAX_COUNT, 'reach revenant limit');
             game_data.revenant_count += 1;
 
             if game.revenant_init_price > 0 {
-                let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
-                let result = erc20
-                    .transfer_from(
-                        sender: player,
-                        recipient: get_contract_address(),
-                        amount: game.revenant_init_price,
-                    );
-                assert(result, 'need approve for erc20');
-                game.prize += game.revenant_init_price;
-            }
+                 let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+                 let result = erc20
+                     .transfer_from(
+                         sender: player,
+                         recipient: get_contract_address(),
+                         amount: game.revenant_init_price,
+                     );
+                 assert(result, 'need approve for erc20');
+                 game.prize += game.revenant_init_price;
+             }
 
             let entity_id: u128 = game_data.revenant_count.into();
 
@@ -132,12 +134,12 @@ mod revenant_actions {
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
             assert(player_info.outpost_count > 0, 'not winner');
 
-            let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+            // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
 
             let prize = game.prize * 75 / 100;
-            let result = erc20.transfer(recipient: player, amount: prize);
+            // let result = erc20.transfer(recipient: player, amount: prize);
 
-            assert(result, 'failed to transfer');
+            // assert(result, 'failed to transfer');
 
             game.rewards_claim_status = 1;
 
@@ -195,10 +197,10 @@ mod revenant_actions {
             let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
             let result = erc20
                 .transfer_from(
-                    sender: player, recipient: get_contract_address(), amount: current_price.into()
-                );
-            assert(result, 'need approve for erc20');
-            game.prize += current_price.into();
+                     sender: player, recipient: get_contract_address(), amount: current_price.into()
+                 );
+             assert(result, 'need approve for erc20');
+             game.prize += current_price.into();
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
             player_info.reinforcement_count += count;
@@ -210,19 +212,22 @@ mod revenant_actions {
             true
         }
 
-        fn reinforce_outpost(self: @ContractState, game_id: u32, outpost_id: u128) {
+        fn reinforce_outpost(self: @ContractState, game_id: u32, count: u32, outpost_id: u128) {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
             let (mut game, mut game_counter) = get!(world, game_id, (Game, GameEntityCounter));
-            game.assert_is_playing(world);
+            // game.assert_is_playing(world);   // Alex
 
-            let mut outpost = get!(world, (game_id, outpost_id), (Outpost));
+            let mut outpost = get!(world, (game_id, outpost_id), (Outpost));  // get reinforcement obj
             outpost.assert_can_reinforcement();
 
+            assert(outpost.lifes != 0, 'outpost is dead');  //added line, Alex
             assert(player == outpost.owner, 'not owner');
 
-            let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            assert(player_info.reinforcement_count > 0, 'no reinforcement');
+            let mut player_info = get!(world, (game_id, player), PlayerInfo);  // get player data
+            assert(player_info.reinforcement_count >= count, 'no reinforcement');  //Alex
+
+            assert((count + outpost.reinforcement_count <= 20), 'cant add more' ); //Alex
 
             // Fortifying Outposts: Outposts, can be bolstered up to 20 times in their lifetime. 
             // The extent of reinforcements directly influences the Outpost’s defense, manifested in the number of shields it wields:
@@ -233,18 +238,16 @@ mod revenant_actions {
             // 14-19 reinforcements: 4 Shields
             // 20 reinforcements: 5 Shields
 
-            outpost.reinforcement_count += 1;
-            if (outpost.reinforcement_count == 3
-                || outpost.reinforcement_count == 6
-                || outpost.reinforcement_count == 9
-                || outpost.reinforcement_count == 14
-                || outpost.reinforcement_count == 20) {
-                outpost.lifes += 1;
-                game_counter.remain_life_count += 1;
-            }
+            outpost.reinforcement_count += count;
+            outpost.lifes += count;
 
-            player_info.reinforcement_count -= 1;
-            game_counter.reinforcement_count -= 1;
+            let shield_amount = outpost.get_shields_amount();  // Alex
+            outpost.shield = shield_amount;
+
+            game_counter.remain_life_count += count;
+
+            player_info.reinforcement_count -= count;
+            game_counter.reinforcement_count -= count;
 
             set!(world, (outpost, player_info, game_counter));
 
@@ -271,8 +274,8 @@ mod revenant_actions {
             // avoid multiple outpost appearing in the same position
             if prev_outpost.entity_id > 0 {
                 loop {
-                    x = (MAP_WIDTH / 2) - random.next_u32(0, 2000);
-                    y = (MAP_HEIGHT / 2) - random.next_u32(0, 2000);
+                    x = (MAP_WIDTH / 2) - random.next_u32(0, 400);
+                    y = (MAP_HEIGHT / 2) - random.next_u32(0, 400);
                     prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
                     if prev_outpost.entity_id == 0 {
                         break;
@@ -288,6 +291,7 @@ mod revenant_actions {
                 owner: player,
                 name_outpost: 'Outpost',
                 lifes: OUTPOST_INIT_LIFE,
+                shield: 0,
                 reinforcement_count: 0,
                 status: OutpostStatus::created,
                 last_affect_event_id: 0
@@ -301,8 +305,8 @@ mod revenant_actions {
         fn _create_random_revenant_name(self: @ContractState) -> (u32, u32) {
             let seed = starknet::get_tx_info().unbox().transaction_hash;
             let mut random = RandomImpl::new(seed);
-            let first_name = random.next_u32(0, 1000);
-            let last_name = random.next_u32(0, 1000);
+            let first_name = random.next_u32(0, 100);
+            let last_name = random.next_u32(0, 100);
             (first_name, last_name)
         }
     }
