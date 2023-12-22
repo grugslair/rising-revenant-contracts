@@ -1,7 +1,7 @@
 //libs
 import React, { useEffect, useRef, useState } from "react";
 import { HasValue, getComponentValueStrict, getComponentValue, EntityIndex, Has } from "@latticexyz/recs";
-import { useEntityQuery } from "@latticexyz/react";
+import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 import { useDojo } from "../../hooks/useDojo";
 import { ConfirmEventOutpost, ReinforceOutpostProps } from "../../dojo/types";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
@@ -46,26 +46,27 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
 
     const ownedOutpost = useEntityQuery([HasValue(contractComponents.Outpost, { owner: account.address })]);
     const ownedAndInEvent = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true, event_effected: true })]);
-    const ownPlayerInfo = useEntityQuery([HasValue(contractComponents.PlayerInfo, { owner: account.address })]);
 
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+
+
+    const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]));
 
     useEffect(() => {
         const fetchData = async () => {
             
-            if (ownPlayerInfo.length === 0) {
+            if (playerInfo === null || playerInfo === undefined) {
                 const playerSpecificData = await fetchPlayerInfo(graphSdk, clientGameData.current_game_id, account.address);
                 setComponentsFromGraphQlEntitiesHM(playerSpecificData, contractComponents, false);
                 return;
             }
     
-            const data = getComponentValueStrict(contractComponents.PlayerInfo, ownPlayerInfo[0]);
-            setReinforcementCount(data.reinforcement_count);
+            setReinforcementCount(playerInfo.reinforcement_count);
         };
     
         fetchData();
     
-    }, [ownPlayerInfo, graphSdk, clientGameData.current_game_id, account.address, contractComponents]);
+    }, [playerInfo]);
     
     //test embed needs to be standardized 
     const reinforcementsBalanceDiv = (
@@ -201,7 +202,6 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComp
 
         setName(namesArray[revenantData.first_name_idx]);
         setSurname(surnamesArray[revenantData.last_name_idx]);
-
     }, [outpostData]);
 
     useEffect(() => {
@@ -242,7 +242,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComp
     };
 
     return (
-        <div ref={clickWrapperRef} className={`grid-container ${clientOutpostData.event_effected ? ' profile-page-attacked-style' : ''}`}    style={clickWrapperStyle}    onMouseEnter={() => setButtonIndex(1)} onMouseLeave={() => setButtonIndex(0)}>
+        <div ref={clickWrapperRef} className={`grid-container ${clientOutpostData.event_effected && outpostData.lifes > 0 ? ' profile-page-attacked-style' : ''}`}    style={clickWrapperStyle}    onMouseEnter={() => setButtonIndex(1)} onMouseLeave={() => setButtonIndex(0)}>
             <div className="pfp">
                 <img src="Rev_PFP_11.png" className="child-img" />
             </div>
@@ -263,7 +263,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComp
                 <div onMouseEnter={() => { setButtonIndex(3) }} onMouseLeave={() => { setButtonIndex(1) }} style={{ flex: "1", height: "100%", boxSizing: "border-box" }}>
                     <div style={{ width: "100%", height: "50%", }}> <h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw" }}>Coordinates: <br /><br />X: {xCoord}, Y: {yCoord}</h3>    </div>
                     <div style={{ width: "100%", height: "50%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                        {buttonIndex === 3 && <div className="global-button-style" style={{ height: "50%", padding: "5px 10px", boxSizing: "border-box", fontSize: "0.6cqw", display: "flex", justifyContent: "center", alignItems: "center" }} onClick={() => goHereFunc(xCoord, yCoord)}> <h2>Go here</h2></div>}
+                        {buttonIndex === 3 && phase === 2  && <div className="global-button-style" style={{ height: "50%", padding: "5px 10px", boxSizing: "border-box", fontSize: "0.6cqw", display: "flex", justifyContent: "center", alignItems: "center" }} onClick={() => goHereFunc(xCoord, yCoord)}> <h2>Go here</h2></div>}
                     </div>
                 </div>
                 <div onMouseEnter={() => { setButtonIndex(4) }} onMouseLeave={() => { setButtonIndex(1) }} style={{ flex: "1", height: "100%", boxSizing: "border-box" }}>
@@ -285,7 +285,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComp
                 </div>
             </div>
 
-            {clientOutpostData.event_effected &&
+            {clientOutpostData.event_effected && outpostData.lifes > 0 &&
                 <div className="sell" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                     {buttonIndex !== 0 && phase === 2 && <div className="global-button-style" style={{ padding: "5px 10px", fontSize: "0.9cqw" }} onClick={() => { confirmEvent(entityId) }}>Confirm Event</div>}
                 </div>

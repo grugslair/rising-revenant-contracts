@@ -66,7 +66,7 @@ export const GuestPagePrepPhase: React.FC= () => {
                         <h2 style={{textAlign:"center"}}>Blocks Left <br/> {blocksLeft}</h2>
                     </div>
                     <div style={{gridColumn:"1/3", gridRow:"3/4"}} className="center-via-flex">
-                        <div className="global-button-style" onClick={() => window.location.reload()} style={{textAlign:"center"}}>Log in</div>
+                        <div className="global-button-style" onClick={() => window.location.reload()} style={{textAlign:"center", padding:"5px 10px"}}>Log in</div>
                     </div>
                 </div>
 

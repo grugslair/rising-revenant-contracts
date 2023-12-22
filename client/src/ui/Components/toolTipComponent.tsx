@@ -7,7 +7,7 @@ import { ClickWrapper } from "../clickWrapper";
 import { useDojo } from "../../hooks/useDojo";
 
 import { getComponentValueStrict, EntityIndex, HasValue, getComponentValue } from "@latticexyz/recs";
-import { useEntityQuery } from "@latticexyz/react";
+import { useEntityQuery , useComponentValue} from "@latticexyz/react";
 
 import { ConfirmEventOutpost } from "../../dojo/types";
 
@@ -101,14 +101,13 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
     }
   }
 
-
+  // this is the issue that makes the tooltip go away 
   useEffect(() => {
 
     return () => {
       desmountComponentAction()
-
     };
-  }, [selectedOutpost]);
+  }, []);
 
 
   useEffect(() => {
@@ -171,7 +170,7 @@ const RevenantDataElement: React.FC<{ entityId: EntityIndex, contractComponents:
   const [owner, setOwner] = useState<string>("");
   const [name, setName] = useState<string>("");
 
-  const revenantData = getComponentValueStrict(contractComponents.Revenant, entityId);
+  const revenantData = useComponentValue(contractComponents.Revenant, entityId);
  
   useEffect(() => {
 
@@ -185,7 +184,7 @@ const RevenantDataElement: React.FC<{ entityId: EntityIndex, contractComponents:
     const name = namesArray[revenantData.first_name_idx] + " " + surnamesArray[revenantData.last_name_idx];
 
     setName(name);
-  }, [entityId]);
+  }, [revenantData]);
 
   return (
     <div className="revenant-data-container">
@@ -208,8 +207,8 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, contractComponents: 
 
   const clickWrapperRef = useRef<HTMLDivElement>(null);
 
-  const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entityId);
-  const contractOutpostData = getComponentValueStrict(contractComponents.Outpost, entityId);
+  const clientOutpostData = useComponentValue(clientComponents.ClientOutpostData, entityId);
+  const contractOutpostData = useComponentValue(contractComponents.Outpost, entityId);
 
   useEffect(() => {
     const updateHeight = () => {
@@ -245,7 +244,7 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, contractComponents: 
     else {
       setState("Healthy");
     }
-  }, [entityId]);
+  }, [contractOutpostData]);
 
   const clickWrapperStyle: React.CSSProperties = {
     height: `${heightValue}px`,

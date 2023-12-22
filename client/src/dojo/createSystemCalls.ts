@@ -3,7 +3,7 @@ import { ClientComponents } from "./createClientComponents";
 import { getEntityIdFromKeys, getEvents,  setComponentsFromEvents} from "@dojoengine/utils";
 import {  getComponentValueStrict } from "@latticexyz/recs";
 
-import { CreateGameProps, CreateRevenantProps, ConfirmEventOutpost, CreateEventProps, PurchaseReinforcementProps, ReinforceOutpostProps, CreateTradeFor1Reinf, RevokeTradeReinf, PurchaseTradeReinf } from "./types/index"
+import { CreateGameProps, CreateRevenantProps, ConfirmEventOutpost, CreateEventProps, PurchaseReinforcementProps, ReinforceOutpostProps, CreateTradeFor1Reinf, RevokeTradeReinf, PurchaseTradeReinf, ClaimScoreRewards } from "./types/index"
 
 import { toast } from 'react-toastify';
 import { setClientOutpostComponent } from "../utils";
@@ -53,6 +53,7 @@ export function createSystemCalls(
             });
         }
     }
+
 
     //TO DELETE
     const create_game = async ({ account, preparation_phase_interval, event_interval, erc_addr, reward_pool_addr,revenant_init_price , max_amount_of_revenants}: CreateGameProps) => {
@@ -237,7 +238,6 @@ export function createSystemCalls(
         }
     };
 
-    //TO DELETE OR NOT?!?!?
     const create_event = async ({ account, game_id }: CreateEventProps) => {
         
         try {
@@ -284,6 +284,46 @@ export function createSystemCalls(
         }
     };
 
+    const claim_endgame_rewards = async ({ account, game_id }: ClaimScoreRewards) => {
+
+        try {
+            const tx = await execute(account, "revenant_actions", "claim_endgame_rewards", [game_id]);
+            const receipt = await account.waitForTransaction(
+                tx.transaction_hash,
+                { retryInterval: 100 }
+            )
+
+            setComponentsFromEvents(contractComponents,
+                getEvents(receipt)
+            );
+
+            notify(`claiming jackpot welldone!!!`, true)
+        } catch (e) {
+            console.log(e)
+            notify(`Failed to create trade`, false)
+        }
+    };
+
+    const claim_score_rewards = async ({ account, game_id }: ClaimScoreRewards) => {
+
+        try {
+            const tx = await execute(account, "revenant_actions", "claim_score_rewards", [game_id]);
+            const receipt = await account.waitForTransaction(
+                tx.transaction_hash,
+                { retryInterval: 100 }
+            )
+
+            setComponentsFromEvents(contractComponents,
+                getEvents(receipt)
+            );
+
+            notify(`claiming score contribution!!!`, true)
+        } catch (e) {
+            console.log(e)
+            notify(`Failed to create trade`, false)
+        }
+    };
+
     return {
         create_game,
         create_revenant,
@@ -295,6 +335,9 @@ export function createSystemCalls(
         create_trade_reinf,
         revoke_trade_reinf,
         purchase_trade_reinf,
+
+        claim_score_rewards,
+        claim_endgame_rewards,
 
         view_block_count,
         get_current_reinforcement_price

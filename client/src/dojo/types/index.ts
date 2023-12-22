@@ -63,7 +63,7 @@ export interface PurchaseTradeReinf extends SystemSigner {
 
 
 // for the game not to implement yet
-export interface ClaimInitialRewards extends SystemSigner {
+export interface ClaimScoreRewards extends SystemSigner {
     game_id: num.BigNumberish;
 }
 

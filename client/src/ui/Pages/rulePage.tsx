@@ -83,7 +83,7 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
 
 
                     </>)}
-                    {rulesState === RulesState.PREP && (<>
+                    {rulesState === RulesState.FINAL && (<>
                         <h2 style={{ marginBottom: "0px" }}>Final Rewards:</h2>
                         <h2 style={{ marginBottom: "0px" }}>The Ultimate Prize:</h2>
                         <h3 style={{ marginTop: "0px" }}> The game’s transactions feed into a colossal final jackpot, destined for the sole Revenant who outlasts all others.</h3>

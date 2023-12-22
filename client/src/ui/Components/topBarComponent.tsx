@@ -10,7 +10,7 @@ import {
 import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
-import { checkAndSetPhaseClientSide, fetchAllOutRevData, fetchAllOwnOutRevData, fetchGameData, fetchPlayerInfo, fetchSpecificEvent, fetchSpecificOutRevData, loadInClientOutpostData, setComponentsFromGraphQlEntitiesHM, truncateString } from "../../utils";
+import { checkAndSetPhaseClientSide, fetchAllOutRevData, fetchAllOwnOutRevData, fetchGameData, fetchPlayerInfo, fetchSpecificEvent, fetchSpecificOutRevData, loadInClientOutpostData, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM, truncateString } from "../../utils";
 import { ClickWrapper } from "../clickWrapper";
 import { GAME_CONFIG_ID, getRefreshOwnOutpostDataTimer } from "../../utils/settingsConstants";
 
@@ -51,7 +51,8 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     const outpostQuery = useEntityQuery([Has(contractComponents.Outpost)]);
     const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
     const ownOutposts = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true })]);
-    const playerInfo = useEntityQuery([HasValue(contractComponents.PlayerInfo, { owner: account.address })]);
+    // const playerInfo = useEntityQuery([HasValue(contractComponents.PlayerInfo, { owner: account.address })]);
+
 
     const clientQuery = useEntityQuery([Has(clientComponents.ClientGameData)]);
     const entityQuery = useEntityQuery([Has(contractComponents.GameEntityCounter)]);
@@ -60,8 +61,9 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
     const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
 
+    const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]));
+
     useTopBardataLoader();
-    // useTopBarOwnDaraLoader();
 
     useEffect(() => {
 
@@ -80,31 +82,52 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
             }
         }
 
-    }, [clientQuery,entityQuery]);
+    }, [clientQuery, entityQuery]);
 
     useEffect(() => {
 
-        if (playerInfo.length === 0){ return;}
+        if (playerInfo === null || playerInfo === undefined) { return; }
 
-        const playerInfoEnt = getComponentValue(contractComponents.PlayerInfo, playerInfo[0]);
+        setPlayerContribScore(playerInfo.score);
+        setPlayerContribScorePerc(Number.isNaN((playerInfo.score / gameEntityCounter.score_count) * 100) ? 0 : (playerInfo.score / gameEntityCounter.score_count) * 100);
 
-        setPlayerContribScore(playerInfoEnt.score);
-        setPlayerContribScorePerc(Number.isNaN((gameEntityCounter.score_count / playerInfoEnt.score) * 100) ? 0 : (gameEntityCounter.score_count / playerInfoEnt.score) * 100);
-        
     }, [playerInfo]);
 
-    useEffect(() => {  
+    useEffect(() => {
 
-        const updateOwnData = async () => 
-        {   
-            if (clientGameData === 1) {return;}
+        const updateOwnData = async () => {
+            if (clientGameData === 1) { return; }
 
             for (let index = 0; index < ownOutposts.length; index++) {
                 const entity_id = ownOutposts[index];
-                
+
                 const outpostData = getComponentValueStrict(contractComponents.Outpost, entity_id);
                 const outpostModelQuery = await fetchSpecificOutRevData(graphSdk, clientGameData.current_game_id, Number(outpostData.entity_id));
                 setComponentsFromGraphQlEntitiesHM(outpostModelQuery, contractComponents, false);
+
+                if (clientGameData.current_event_drawn !== 0) {
+                    const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
+
+                    if (outpostData.last_affect_event_id === clientGameData.current_event_drawn) 
+                    {
+                        setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, false, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
+                    }
+                    else 
+                    {
+                        const lastEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]));
+
+                        const outpostX = outpostData.x;
+                        const outpostY = outpostData.y;
+
+                        const eventX = lastEvent.x;
+                        const eventY = lastEvent.y;
+                        const eventRadius = lastEvent.radius;
+
+                        const inRadius = Math.sqrt(Math.pow(outpostX - eventX, 2) + Math.pow(outpostY - eventY, 2)) <= eventRadius;
+
+                        setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, inRadius, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
+                    }
+                }
             }
         }
 
@@ -234,7 +257,7 @@ const useTopBardataLoader = (updateInterval = 5000) => {
         return () => clearInterval(intervalId);
     }, []);
 
-  };
+};
 
 
 const useTopBarOwnDaraLoader = (updateIntervalSeconds = 15) => {
@@ -249,24 +272,23 @@ const useTopBarOwnDaraLoader = (updateIntervalSeconds = 15) => {
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])).current_game_state
 
 
-    useEffect(() => {  
+    useEffect(() => {
 
         console.error("this is a call fromt he client gameoutpotand th top bar thing ")
-        
 
-        const updateOwnData = async () => 
-        {   
-            
-            if (clientGameData === 1) {return;}
+
+        const updateOwnData = async () => {
+
+            if (clientGameData === 1) { return; }
 
             const visibleOutposts = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { owned: true })]));
 
             for (let index = 0; index < visibleOutposts.length; index++) {
                 const entity_id = visibleOutposts[index];
-                
+
                 const outpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
                 const outpostDatadd = getComponentValueStrict(contractComponents.Outpost, entity_id);
-                
+
                 console.error(outpostData);
 
                 console.error(outpostData.entity_id);

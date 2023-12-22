@@ -69,9 +69,21 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
         <div className="game-page-container">
             <img className="page-img brightness-down" src="./revenant_vincitore_image.png" alt="testPic" />
             <div className="content-container" style={{ position: "relative" }}>
-                <h3>Address: {winningAddress}</h3>
-                {winningAddress === account.address ? <h1>YOU ARE THE RISING REVENANT</h1> : <h1>IS THE RISING REVENANT</h1>}
-                <ClickWrapper className="button-style">Claim your jackpot</ClickWrapper>
+
+                {winningAddress === account.address ?
+                    (<>
+                        <h3>Address: {winningAddress}</h3>
+                        <h1>YOU ARE THE RISING REVENANT</h1>
+                        <ClickWrapper className="global-button-style" style={{padding:"5px 10px"}}>Claim your jackpot</ClickWrapper>
+                        <ClickWrapper className="global-button-style" style={{padding:"5px 10px"}}>Claim your contribution award</ClickWrapper>
+                    </>)
+                    :
+                    (<>
+                        <h3>Address: {winningAddress}</h3>
+                        <h1>IS THE RISING REVENANT</h1>
+                        <ClickWrapper className="global-button-style" style={{padding:"5px 10px"}}>Claim your contribution award</ClickWrapper>
+                    </>)}
+
             </div>
 
             {winningAddress === account.address && (
@@ -83,7 +95,7 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
                         transform: "translate(-50%, -50%)",
                         textAlign: "center",
                         color: "white",
-                        fontFamily:"OL"
+                        fontFamily: "OL"
                     }}
                     onMouseDown={() => {
                         shareOnTwitter();
@@ -92,7 +104,7 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
                 >
                     <h1>
                         Share on
-                        <img src="X_logo_white.png"  style={{marginLeft:"10px"}}  className="test-embed" alt="" />
+                        <img src="X_logo_white.png" style={{ marginLeft: "10px" }} className="test-embed" alt="" />
                     </h1>
                 </ClickWrapper>
             )}
