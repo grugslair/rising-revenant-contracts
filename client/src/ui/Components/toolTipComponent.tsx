@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import "./ComponentsStyles/OutpostTooltipStyles.css";
 
@@ -13,9 +13,9 @@ import { ConfirmEventOutpost } from "../../dojo/types";
 
 import { setTooltipArray } from "../../phaser/systems/eventSystems/eventEmitter";
 import { decimalToHexadecimal, fetchSpecificOutRevData, namesArray, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM, surnamesArray, truncateString } from "../../utils";
-import { GAME_CONFIG } from "../../phaser/constants";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useNetworkLayer } from "../../hooks/useNetworkLayer";
+import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 interface OutpostTooltipProps { }
 
@@ -38,7 +38,7 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
     },
   } = useDojo();
 
-  const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+  const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
   const selectedOutpost = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { selected: true })]);
 
   const changeSelectedIndex = (value: number) => {
@@ -55,11 +55,11 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
 
     const oldSelectedOutpost = getComponentValueStrict(clientComponents.ClientOutpostData, clickedOnOutposts[selectedIndex]);
     oldSelectedOutpost.selected = false;
-    setClientOutpostComponent(oldSelectedOutpost.id, oldSelectedOutpost.owned, oldSelectedOutpost.event_effected, oldSelectedOutpost.selected, oldSelectedOutpost.visible, clientComponents,  contractComponents,clientGameData.current_game_id)
+    setClientOutpostComponent(oldSelectedOutpost.id, oldSelectedOutpost.owned, oldSelectedOutpost.event_effected, oldSelectedOutpost.selected, oldSelectedOutpost.visible, clientComponents, contractComponents, clientGameData.current_game_id)
 
     const newSelectedOutpost = getComponentValueStrict(clientComponents.ClientOutpostData, clickedOnOutposts[newIndex]);
     newSelectedOutpost.selected = true;
-    setClientOutpostComponent(newSelectedOutpost.id, newSelectedOutpost.owned, newSelectedOutpost.event_effected, true, newSelectedOutpost.visible, clientComponents,  contractComponents,clientGameData.current_game_id)
+    setClientOutpostComponent(newSelectedOutpost.id, newSelectedOutpost.owned, newSelectedOutpost.event_effected, true, newSelectedOutpost.visible, clientComponents, contractComponents, clientGameData.current_game_id)
 
     setSelectedIndex(newIndex);
   }
@@ -69,7 +69,7 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
     for (let index = 0; index < clickedOnOutposts.length; index++) {
       const entity_id = clickedOnOutposts[index];
       const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
-      setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, clientOutpostData.event_effected, false, clientOutpostData.visible, clientComponents,  contractComponents,clientGameData.current_game_id)
+      setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, clientOutpostData.event_effected, false, clientOutpostData.visible, clientComponents, contractComponents, clientGameData.current_game_id)
     }
 
     if (selectedOutposts.length === 0) {
@@ -89,15 +89,15 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
     setSelectedIndex(0);
 
     const clientCompData = getComponentValueStrict(clientComponents.ClientOutpostData, selectedOutposts[0]);
-    setClientOutpostComponent(clientCompData.id, clientCompData.owned, clientCompData.event_effected, true, clientCompData.visible, clientComponents,  contractComponents,clientGameData.current_game_id)
+    setClientOutpostComponent(clientCompData.id, clientCompData.owned, clientCompData.event_effected, true, clientCompData.visible, clientComponents, contractComponents, clientGameData.current_game_id)
   }
 
   const desmountComponentAction = () => {
     if (selectedOutpost[0] !== undefined && selectedOutpost[0] !== null) {
-      console.log(selectedOutpost[0] );
+      console.log(selectedOutpost[0]);
       const clientCompData = getComponentValueStrict(clientComponents.ClientOutpostData, selectedOutpost[0]);
 
-      setClientOutpostComponent(clientCompData.id, clientCompData.owned, clientCompData.event_effected, false, clientCompData.visible, clientComponents,  contractComponents,clientGameData.current_game_id);
+      setClientOutpostComponent(clientCompData.id, clientCompData.owned, clientCompData.event_effected, false, clientCompData.visible, clientComponents, contractComponents, clientGameData.current_game_id);
     }
   }
 
@@ -125,19 +125,16 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
 
   return (
     <div className="outpost-tooltip-container" >
-      <div className="outpost-data-container" style={{position:"relative"}}>
 
-        {selectedOutpost[0] !== undefined && (
-          <OutpostDataElement
-            entityId={selectedOutpost[0]}
-            contractComponents={contractComponents}
-            clientComponents={clientComponents}
-            account={account}
-            functionEvent={confirm_event_outpost}
-            functionClose={setArray} />
-        )}
-
-      </div>
+      {selectedOutpost[0] !== undefined && (
+        <OutpostDataElement
+          entityId={selectedOutpost[0]}
+          contractComponents={contractComponents}
+          clientComponents={clientComponents}
+          account={account}
+          functionEvent={confirm_event_outpost}
+          functionClose={setArray} />
+      )}
 
       {selectedOutpost[0] !== undefined && (
         <RevenantDataElement
@@ -149,12 +146,20 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
 
       {clickedOnOutposts.length > 1 && (
         <ClickWrapper className="multi-out-container">
-          <button className="outpost-data-event-button " onMouseDown={() => { changeSelectedIndex(-1) }}>{"<"}</button>
-          <div>
-            <h3>Outposts: {selectedIndex + 1}/{clickedOnOutposts.length}</h3>
+          
+          <div className="pointer" style={{gridColumn:"1/2" , display:"flex", justifyContent:"flex-end", alignItems:"center"}} onClick={() =>  changeSelectedIndex(-1) }>
+            {"<"}
           </div>
-          <button className="outpost-data-event-button " onMouseDown={() => { changeSelectedIndex(1) }}> {">"} </button>
-        </ClickWrapper>
+
+          <div className="pointer" style={{gridColumn:"2/4" , display:"flex", justifyContent:"center", alignItems:"center"}}>
+            Outposts: {selectedIndex + 1}/{clickedOnOutposts.length}
+          </div>
+
+          <div className="pointer" style={{gridColumn:"4/5" , display:"flex", justifyContent:"flex-start", alignItems:"center"}} onClick={() =>  changeSelectedIndex(1) }>
+            {">"}
+          </div>
+
+         </ClickWrapper>
       )}
 
     </div>
@@ -165,11 +170,9 @@ const RevenantDataElement: React.FC<{ entityId: EntityIndex, contractComponents:
 
   const [owner, setOwner] = useState<string>("");
   const [name, setName] = useState<string>("");
-  const [id, setId] = useState<number>(0);
 
   const revenantData = getComponentValueStrict(contractComponents.Revenant, entityId);
-  const outpostClientData = getComponentValueStrict(clientComponents.ClientOutpostData, entityId);
-
+ 
   useEffect(() => {
 
     if (revenantData.owner === account.address) {
@@ -181,62 +184,76 @@ const RevenantDataElement: React.FC<{ entityId: EntityIndex, contractComponents:
 
     const name = namesArray[revenantData.first_name_idx] + " " + surnamesArray[revenantData.last_name_idx];
 
-    setOwner(revenantData.owner);
     setName(name);
-    setId(outpostClientData.id);
   }, [entityId]);
 
   return (
     <div className="revenant-data-container">
       <h1>REVENANT DATA</h1>
-      {owner === "You" ? (<h3>You</h3>) : (<h3>{truncateString(owner, 5)}</h3>)}
-      <h3>Name: {name}</h3>
-      <h3>ID: {id}</h3>
+      <h2>Owner: {owner === "You" ? "You" : truncateString(owner,5)}</h2>
+      <h2>Name: {name}</h2>
     </div>
   );
 };
 
-
 const OutpostDataElement: React.FC<{ entityId: EntityIndex, contractComponents: any, clientComponents: any, account: any, functionEvent, functionClose }> = ({ entityId, contractComponents, clientComponents, account, functionEvent, functionClose }) => {
-
-  enum OutpostStatus {
-    DEAD,
-    HEALTHY,
-    IN_EVENT,
-  }
 
   const [position, setPosition] = useState<any>({ x: 0, y: 0 });
   const [reinforcements, setReinforcements] = useState<number>(0);
-  const [state, setState] = useState<OutpostStatus>(0);
+  const [state, setState] = useState<string>("");
   const [id, setId] = useState<number>(0);
+  const [shields, setShield] = useState<number>(0);
+
+  const [heightValue, setHeight] = useState<number>(0)
+
+  const clickWrapperRef = useRef<HTMLDivElement>(null);
 
   const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entityId);
-  const contractOutpostData = useEntityQuery([HasValue(contractComponents.Outpost, { entity_id: BigInt(clientOutpostData.id) })]);
+  const contractOutpostData = getComponentValueStrict(contractComponents.Outpost, entityId);
 
   useEffect(() => {
+    const updateHeight = () => {
+      if (clickWrapperRef.current) {
+        setHeight((clickWrapperRef.current.offsetWidth / 6) * 9);
+        console.error((clickWrapperRef.current.offsetWidth / 6) * 9)
+      }
+    };
 
-    if (contractOutpostData[0] === null || contractOutpostData[0] === undefined) { return; }
+    window.addEventListener('resize', updateHeight);
 
-    const contractOutpostDataElement = getComponentValueStrict(contractComponents.Outpost, contractOutpostData[0]);
+    updateHeight();
 
-    setPosition({ x: contractOutpostDataElement.x, y: contractOutpostDataElement.y });
-    setReinforcements(contractOutpostDataElement.lifes);
+    return () => {
+      window.removeEventListener('resize', updateHeight);
+    };
+  }, []);
+ 
+  useEffect(() => {
 
-    setId(Number(contractOutpostDataElement.entity_id));
+    setPosition({ x: contractOutpostData.x, y: contractOutpostData.y });
+    setReinforcements(contractOutpostData.lifes);
 
-    if (contractOutpostDataElement.lifes === 0) {
-      setState(OutpostStatus.DEAD);
+    setId(Number(contractOutpostData.entity_id));
+    setShield(contractOutpostData.shield);
+
+    if (contractOutpostData.lifes === 0) {
+      setState("Dead");
     }
     else if (clientOutpostData.event_effected) {
-      setState(OutpostStatus.IN_EVENT);
+      setState("In Event");
     }
     else {
-      setState(OutpostStatus.HEALTHY);
+      setState("Healthy");
     }
-  }, [contractOutpostData]);
+  }, [entityId]);
+
+  const clickWrapperStyle: React.CSSProperties = {
+    height: `${heightValue}px`,
+    width: '100%',
+  };
 
   const confirmEvent = async () => {
-    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     const gameTrackerData = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
 
     const confirmEventProps: ConfirmEventOutpost = {
@@ -250,43 +267,38 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, contractComponents: 
   }
 
   return (
-    <>
-      <ClickWrapper style={{ height: "fit-content", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", textAlign: "center" }}>
-        <h1>OUTPOST DATA</h1>
-        <h1 onClick={() => functionClose([])} className="pointer">X</h1>
+    <div className="outpost-data-container-grid" ref={clickWrapperRef} style={clickWrapperStyle}>
+      <div className="outpost-data-title-grid-element outpost-grid-container-text-style">
+        <h1>OUTPOST HIT</h1>
+      </div>
+      <ClickWrapper className="outpost-data-x-grid-element center-via-flex">
+        <h1 className="pointer" onClick={() => {functionClose([])}}>X</h1>
       </ClickWrapper>
-      {/* <img src="test_out_pp.png" style={{height:"30%", width:"100%", margin:"5px 5px"}}></img> */}
-      {/* <div style={{width:"100%", display:"flex", justifyContent:"flex-start", alignItems:"center", height:"10%", flexDirection:"row"}}> */}
-        {/* <div style={{height:"100%", width:"60%", backgroundColor:"red"}}>
-          <img style={{flex:"1", height:"100%"}} src="SHIELD.png"></img>
-          <img style={{flex:"1", height:"100%"}} src="SHIELD.png"></img>
-          <div style={{flex:"1"}}></div>
-          <div style={{flex:"1"}}></div>
-          <div style={{flex:"1"}}></div>
-        </div>
-      </div> */}
-      <h3>X:{position.x}, Y:{position.y}</h3>
-      <h3>Reinforcements: {reinforcements}</h3>
-      <h3>State: {(() => {
-
-        switch (state) {
-          case OutpostStatus.HEALTHY:
-            return <span style={{ color: 'green' }}>Healthy</span>;
-          case OutpostStatus.IN_EVENT:
-            return (
-              <div>
-                <span style={{ color: 'orange' }}>In Event</span>
-                {/* {revenantData.owner === account.address ?  <ClickWrapper className="outpost-data-event-button" onMouseDown={() => {confirmEvent()}}>Confirm Event</ClickWrapper> : <div></div>} */}
-                <ClickWrapper className="outpost-data-event-button" onMouseDown={() => { confirmEvent() }}>Confirm Event</ClickWrapper>
-              </div>
-            );
-          case OutpostStatus.DEAD:
-            return <span style={{ color: 'red' }}>Destroyed</span>;
-          default:
-            return null;
-        }
-      })()}</h3>
-    </>
+      <div className="outpost-data-out-pic-grid-element">
+        <img src="test_out_pp.png" alt="" style={{ width: "100%", height: "100%" }} />
+      </div>
+      <div className="outpost-data-shield-grid-element shields-grid-container" style={{ boxSizing: "border-box" }}>
+        {Array.from({ length: shields }).map((_, index) => (
+          <img key={index} src="SHIELD.png" className="img-full-style" />
+        ))}
+      </div>
+      <div className="outpost-data-id-pos-grid-element outpost-grid-container-text-style">
+        <h2>{id} ID - X:{position.x} || Y:{position.y}</h2>
+      </div>
+      <div className="outpost-data-reinf-grid-element outpost-grid-container-text-style">
+        <h2>Reinforcements: {reinforcements}</h2>
+      </div>
+      <div className="outpost-data-state-grid-element outpost-grid-container-text-style">
+        <h2>State: 
+          {state === "Dead" && <span style={{color:"red"}}> {state}</span>}
+          {state === "In Event" && <span style={{color:"blue"}}> {state}</span>}
+          {state === "Healthy" && <span style={{color:"green"}}> {state}</span>}
+        </h2>
+      </div>
+      <ClickWrapper className="outpost-data-conf-button-grid-element outpost-grid-container-text-style">
+        {state === "In Event" &&  <div className="global-button-style pointer" style={{padding:"5px 10px"}} onClick={confirmEvent}>Confirm Event</div>}
+      </ClickWrapper>
+    </div>
   );
 };
 

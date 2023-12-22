@@ -1,5 +1,5 @@
 
-import { GAME_CONFIG, SCALE, getAdjacentIndices } from "../constants";
+import {SCALE, getAdjacentIndices } from "../constants";
 
 import { PhaserLayer } from "..";
 
@@ -15,6 +15,7 @@ import {
 } from "@latticexyz/recs";
 import { setClientOutpostComponent } from "../../utils";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
+import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 //too many for loops in this place this all needs to be rewritten
 // HERE
@@ -109,7 +110,7 @@ export const cameraManager = (layer: PhaserLayer) => {
   //this can be threaded
   defineSystem(world, [Has(EntityTileIndex)], ({ entity }) => {
     const camIndex = getComponentValue(EntityTileIndex, entity);
-    const clientGameData = getComponentValue(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+    const clientGameData = getComponentValue(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
     if (entity !== "0x1") {
       return;

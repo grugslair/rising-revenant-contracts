@@ -13,8 +13,8 @@ import { ClickWrapper } from "../clickWrapper";
 import CounterElement from "../Elements/counterElement";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
-import { GAME_CONFIG } from "../../phaser/constants";
 import { hexToNumber } from "../../utils";
+import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 //pages
 
@@ -57,7 +57,7 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
     } = useDojo();
 
     // need here a useffect for the price of the reinforcements
-    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
     const gameComponent = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));

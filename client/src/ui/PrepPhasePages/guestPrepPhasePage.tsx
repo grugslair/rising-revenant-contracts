@@ -20,11 +20,7 @@ import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
     this page is fine 
 */
 
-interface PrepPhaseEndsPageProps {
-    setMenuState: React.Dispatch<PrepPhaseStages>;
-}
-
-export const PrepPhaseEndsPage: React.FC<PrepPhaseEndsPageProps> = ({ setMenuState }) => {
+export const GuestPagePrepPhase: React.FC= () => {
     const [showBlocks, setShowBlocks] = useState(true);
     const [blocksLeft, setBlocksLeft] = useState(0);
 
@@ -38,46 +34,42 @@ export const PrepPhaseEndsPage: React.FC<PrepPhaseEndsPageProps> = ({ setMenuSta
         networkLayer: {
           network: { contractComponents, clientComponents }
         },
-      } = useDojo();
-
+    } = useDojo();
 
     const clientGame = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     
     const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGame.current_game_id)]));
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGame.current_game_id)]));
 
-
     useEffect(() => {
         const blocksLeft = (gameData.start_block_number + gameData.preparation_phase_interval) - clientGame.current_block_number!;
         setBlocksLeft(blocksLeft);
     }, [clientGame]);
 
-
     useEffect(() => {
         setFreeRevs(Number(gameData.max_amount_of_revenants) - Number(gameEntityCounter.revenant_count));
     }, [gameEntityCounter, gameData]);
 
- 
     return (
         <div className="ppe-page-container">
-            <img src="./assets/Page_Bg/PREP_PHASE_WAIT_BG.png"  alt="testPic" />
-            <ClickWrapper className="content-space">
-                <h1 style={{textAlign:"center", fontFamily:"Zelda", fontSize:"3cqw", fontWeight:"100"}}>PREPARATION PHASE ENDS IN<br/>
-                    <span onMouseDown={()=> {setShowBlocks(!showBlocks)}}>{showBlocks ? `BLOCKS LEFT: ${blocksLeft}` : `DD:5 HH5 MM:3 SS:50`}</span>
-                </h1>
-                <div className="global-button-style" style={{fontSize:"1.8cqw", marginBottom:"2%" ,padding:"5px 10px"}} onMouseDown={() => {setMenuState(PrepPhaseStages.PROFILE)}}>Place your Reinforcements</div>
-                <div style={{fontSize:"1.2cqw",height:"fit-content", display:"flex",gap:"20px" ,flexDirection:"row", justifyContent:"center", alignItems:"center"}}>
+            <img src="./assets/Page_Bg/CALL_TO_JOIN_BG.png"  alt="testPic " className="brightness-down" />
+            <ClickWrapper className="content-space center-via-flex">
 
-                {freeRevs > 0 ? (
-                        <div onMouseDown={() => {setMenuState(PrepPhaseStages.BUY_REVS)}} className="global-button-style" style={{padding:"5px 10px"}}>Summon more Revenants</div>
-                    ) : (
-
-                        <div  className="global-button-style" style={{padding:"5px 10px", opacity:"0.5"}}>Summon more Revenants</div>
-                    )}
-                    
-                        
-                    <div onMouseDown={() => {setMenuState(PrepPhaseStages.BUY_REIN)}} className="global-button-style" style={{padding:"5px 10px"}}>Buy more Reinforcements</div>
+                <div style={{height:"70%", width:"65%", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gridTemplateRows:"repeat(3, 1fr)", position:"relative"}}>
+                    <div style={{gridColumn:"1/3", gridRow:"1/2"}} className="center-via-flex">
+                        <h2 style={{textAlign:"center"}}>Current Jackpot <br/> {gameData.prize.toString()}</h2>
+                    </div>
+                    <div style={{gridColumn:"1/2", gridRow:"2/3"}} className="center-via-flex">
+                        <h2 style={{textAlign:"center"}}>Revenants Left to be summoned<br/> { gameData.max_amount_of_revenants - gameEntityCounter.revenant_count}</h2>
+                    </div>
+                    <div style={{gridColumn:"2/3", gridRow:"2/3"}} className="center-via-flex">
+                        <h2 style={{textAlign:"center"}}>Blocks Left <br/> {blocksLeft}</h2>
+                    </div>
+                    <div style={{gridColumn:"1/3", gridRow:"3/4"}} className="center-via-flex">
+                        <div className="global-button-style" onClick={() => window.location.reload()} style={{textAlign:"center"}}>Log in</div>
+                    </div>
                 </div>
+
             </ClickWrapper>
         </div>
     );

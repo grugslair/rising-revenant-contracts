@@ -15,18 +15,15 @@ import { MenuState } from "../Pages/gamePhaseManager";
 import { ClickWrapper } from "../clickWrapper";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
-import { GAME_CONFIG } from "../../phaser/constants";
+import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 
 interface JuornalEventProps {
     setMenuState: React.Dispatch<React.SetStateAction<MenuState>>;
 }
 
-//HERE THIS IS VERY BROKEN AND NEEDS THE BACKGROUND MAYBE TAKEN CARE OFF I AM NOT TOO SURE
 
 export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState }) => {
-
-    const [effectedOutposts, setEffectecOutposts] = useState([getEntityIdFromKeys([BigInt(1), BigInt(1)])]);
 
     const {
         networkLayer: {
@@ -41,12 +38,7 @@ export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState
     //do we want the ones that have their event already confirmed to go?
     const ownOutpost = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true, event_effected: true })]);
 
-    // useEffect(() => {
-    //     console.error(effectedOutposts);
-    //     setEffectecOutposts(ownOutpost);
-    // }, [ownOutpost])
-
-    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     const lastEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]))
 
     return (
@@ -75,19 +67,21 @@ export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState
                             <h4 style={{ margin: "0px", fontSize: "1.1vw" }}></h4>
                             <h4 style={{ margin: "0px", fontSize: "1.1vw" }}></h4>
                         </>)}
-
                 </div>
                 <div className="jurnal-event-component-grid-outpost-data">
                     <h2 style={{ margin: "0px", marginBottom: "2%", fontSize: "1.7vw" }}>Your Outposts Hit</h2>
-                    <ClickWrapper className="outpost-hit-list-container" >
-                        {ownOutpost.map((outpostId: EntityIndex) => (
-                            <ListElement
-                                key={outpostId}
-                                entityIndex={outpostId}
-                                contractComponents={contractComponents}
-                            />
-                        ))}
-                    </ClickWrapper>
+                    {clientGameData.guest ? <h2>Log in to see your outpost that have been hit</h2> :
+
+                        <ClickWrapper className="outpost-hit-list-container" >
+                            {ownOutpost.map((outpostId: EntityIndex) => (
+                                <ListElement
+                                    key={outpostId}
+                                    entityIndex={outpostId}
+                                    contractComponents={contractComponents}
+                                />
+                            ))}
+                        </ClickWrapper>
+                    }
                 </div>
             </div>
         </div>
@@ -112,7 +106,7 @@ const ListElement: React.FC<{ entityIndex: EntityIndex, contractComponents: any 
             y: contractOutpostData.y,
         });
 
-        setLifes(contractOutpostData.lifes); // Assuming the correct property is 'lifes'
+        setLifes(contractOutpostData.lifes);
     }, []);
 
     return (

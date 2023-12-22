@@ -12,9 +12,9 @@ import {
   getComponentValue
 } from "@latticexyz/recs";
 
-import { GAME_CONFIG } from "../../phaser/constants";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useState } from "react";
+import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 
 enum TestResults
@@ -55,7 +55,7 @@ export const DebugPage = () => {
   const gameEntityCounterEntityQuery = useEntityQuery([Has(contractComponents.GameEntityCounter)]);
 
 
-  const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+  const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
   const game_id = clientGameData.current_game_id;
 
   const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
@@ -180,7 +180,7 @@ export const DebugPage = () => {
     create_event(createEventProps);
   }
 
-  const gameId = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)])).current_game_id;
+  const gameId = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])).current_game_id;
 
   return (
     <ClickWrapper className="game-page-container">
@@ -194,7 +194,7 @@ export const DebugPage = () => {
           <div className="button-style-debug">This is a button</div>
           <div className="content-holder">
             <h3>The current address is {account.address}</h3>
-            <h3>The current balance is {getComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(game_id), BigInt(account.address)])).reinforcement_count || -1 }</h3>
+            <h3>The current balance is {getComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(game_id), BigInt(account.address)]))?.reinforcement_count || -1 }</h3>
           </div>
         </div>
 
@@ -214,8 +214,8 @@ export const DebugPage = () => {
             <h3>There are currently {gameEntityQuery.length} games (1)</h3>
             <h3>There are currently {gameTrackerEntityQuery.length} game tracker (1)</h3>
             <h3>There are currently {gameEntityCounterEntityQuery.length} game entity counter (1)</h3>
-            <h3>There are currently {clientEntityIndexQuery.length} game entity counter ({getComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(gameId)])).revenant_count + 1 || -1})</h3>
-            <h3>Current Game id is {gameId} and should be {getComponentValue(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG)])).count  || -1}</h3>
+            <h3>There are currently {clientEntityIndexQuery.length} client outpost data ({getComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(gameId)])).revenant_count|| -1})</h3>
+            <h3>Current Game id is {gameId} and should be {getComponentValue(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])).count  || -1}</h3>
           </div>
         </div>
 

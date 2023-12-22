@@ -10,7 +10,7 @@ import PageTitleElement from "../Elements/pageTitleElement";
 import { ClickWrapper } from "../clickWrapper";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
-import { GAME_CONFIG } from "../../phaser/constants";
+import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 //elements/components
 
@@ -48,7 +48,7 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
         },
     } = useDojo();
 
-    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));  //get the client game data
+    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));  //get the client game data
     const gameData = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]))  //fetch the entity counter
 
     const allOutposts = useEntityQuery([Has(contractComponents.Outpost)]); //get all the outpost saved

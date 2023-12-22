@@ -3,14 +3,14 @@ import  { useState, useEffect } from 'react';
 import {
   Has,
   getComponentValue,
-  HasValue
+  HasValue,
+  getComponentValueStrict
 } from "@latticexyz/recs";
 import { store } from '../../store/store';
 import { useEntityQuery } from "@latticexyz/react";
 import { useDojo } from '../../hooks/useDojo';
-
 import { getEntityIdFromKeys } from '@dojoengine/utils';
-import { GAME_CONFIG, MAP_HEIGHT, MAP_WIDTH, getTileIndex } from '../../phaser/constants';
+import { getTileIndex } from '../../phaser/constants';
 
 // styles
 import "./PagesStyles/MainMenuContainerStyles.css"
@@ -44,6 +44,9 @@ then we have a winner
 
 import { useWASDKeys } from '../../phaser/systems/eventSystems/keyPressListener';
 import { setClientCameraComponent, setClientCameraEntityIndex } from '../../utils';
+import { ClickWrapper } from '../clickWrapper';
+import { CreateEventProps } from '../../dojo/types';
+import { GAME_CONFIG_ID, MAP_HEIGHT, MAP_WIDTH } from '../../utils/settingsConstants';
 
 export enum MenuState {
   NONE,
@@ -66,8 +69,10 @@ export const GamePhaseManager = () => {
   const keysDown = useWASDKeys();
 
   const {
+    account:{account},
     networkLayer: {
       network: {  contractComponents, clientComponents },
+      systemCalls: {create_event}
     },
     phaserLayer:{
       scenes: {
@@ -81,6 +86,9 @@ export const GamePhaseManager = () => {
   let prevX: number = 0;
   let prevY: number = 0;
 
+  const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+
+  const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
   const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
   const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
 
@@ -129,7 +137,7 @@ export const GamePhaseManager = () => {
     const update = () => {
       const camPos = getComponentValue(
         clientComponents.ClientCameraPosition,
-        getEntityIdFromKeys([BigInt(GAME_CONFIG)])
+        getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])
       );
 
       if (!camPos) {
@@ -179,7 +187,7 @@ export const GamePhaseManager = () => {
 
         const camTileIndex = getComponentValue(
           clientComponents.EntityTileIndex,
-          getEntityIdFromKeys([BigInt(GAME_CONFIG)])
+          getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])
         );
 
         const newIndex = getTileIndex(newX,newY);
@@ -200,6 +208,41 @@ export const GamePhaseManager = () => {
       zoomSubscription.unsubscribe();
     };
   }, [keysDown]);
+
+  useEffect(() => {
+
+    const current_block = clientGameData.current_block_number;
+    const interval_for_new_event = gameData.event_interval;
+
+    const currentLoadedEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]));
+
+    if (currentLoadedEvent=== null || currentLoadedEvent === undefined)
+    {
+      setShowEventButton(true);
+    }
+    else
+    {           //20                                //5
+        if (currentLoadedEvent.block_number + interval_for_new_event < current_block)
+        {
+          setShowEventButton(true);
+        }
+        else
+        {
+          setShowEventButton(false)
+        }
+    }
+
+  }, [clientGameData]);
+
+  const createEvent = () => 
+  {
+    const createEventProps: CreateEventProps = {
+      account: account,
+      game_id: clientGameData.current_game_id
+    }
+
+    create_event(createEventProps);
+  }
 
   const closePage = () => {
     setCurrentMenuState(MenuState.NONE);
@@ -225,8 +268,7 @@ export const GamePhaseManager = () => {
               {currentMenuState === MenuState.Debug && <DebugPage />}
             </div>
           )}
-
-        {showEventButton && <div className='confirm-event-button'>Event</div>}
+          
         </div>
       </div>
       
@@ -237,6 +279,9 @@ export const GamePhaseManager = () => {
 
       {currentMenuState === MenuState.NONE && <JurnalEventComponent setMenuState={setCurrentMenuState} />}
       {currentMenuState === MenuState.NONE && <OutpostTooltipComponent />}
+            
+      {showEventButton && <ClickWrapper className='fire-button pointer' onClick={() => createEvent()}>Summon Event</ClickWrapper>}
     </>
   );
 }
+

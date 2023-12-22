@@ -7,9 +7,9 @@ import {
     getComponentEntities,
   } from "@latticexyz/recs";
   import { PhaserLayer } from "..";
-  import { GAME_CONFIG } from "../constants";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { setClientGameComponent, setClientOutpostComponent } from "../../utils";
+import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
   export const eventManager = (layer: PhaserLayer) => {
     const {
@@ -22,7 +22,7 @@ import { setClientGameComponent, setClientOutpostComponent } from "../../utils";
   
     defineSystem(world, [Has(GameEntityCounter)], ({ entity }) => {
 
-      const clientGameData = getComponentValueStrict(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+      const clientGameData = getComponentValueStrict(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
       const game_id = clientGameData.current_game_id;
 
       const gameEntityCounter = getComponentValueStrict(GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));

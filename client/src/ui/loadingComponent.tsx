@@ -3,12 +3,11 @@ import { CreateGameProps } from "../dojo/types";
 
 import { Phase } from "./phaseManager";
 import { useDojo } from "../hooks/useDojo";
-import { checkAndSetPhaseClientSide,  fetchAllEvents,  fetchAllOutRevData,  fetchGameData,  fetchGameTracker,  fetchPlayerInfo,  fetchSpecificOutRevData,  setClientOutpostComponent,  setComponentsFromGraphQlEntitiesHM } from "../utils";
+import { checkAndSetPhaseClientSide,  fetchAllEvents,  fetchAllOutRevData,  fetchGameData,  fetchGameTracker,  fetchPlayerInfo,  fetchSpecificOutRevData,  loadInClientOutpostData,  setClientOutpostComponent,  setComponentsFromGraphQlEntitiesHM } from "../utils";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 
-import { useEntityQuery } from "@latticexyz/react";
 import { getComponentValueStrict, getComponentValue } from "@latticexyz/recs";
-import { GAME_CONFIG } from "../phaser/constants";
+import { GAME_CONFIG_ID } from "../utils/settingsConstants";
 
 //HERE SHOULD BE DONE  ADD TRADES AND FETCH THE EVENTS 
 
@@ -44,10 +43,12 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
 
     setComponentsFromGraphQlEntitiesHM(gameTrackerData, contractComponents, false);
 
-    let gameTracker = getComponentValue(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+    let gameTracker = getComponentValue(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
+    console.error(`LOADING DATA FOR ${account.address}`);
     if (gameTracker === null || gameTracker === undefined)  // if there is nothing that means the game hasnt started this is for debug reasons
     {
+
       console.error("creating a game");
 
       const create_game_prop: CreateGameProps =
@@ -66,7 +67,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
       const gameTrackerData = await fetchGameTracker(graphSdk);
       setComponentsFromGraphQlEntitiesHM(gameTrackerData, contractComponents, false);
 
-      gameTracker = getComponentValue(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+      gameTracker = getComponentValue(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     }
 
     const game_id = gameTracker.count;
@@ -88,7 +89,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     const allOutpostsModels = await fetchAllOutRevData(graphSdk, game_id, gameEntityCounter.outpost_count);
     setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
 
-    loadInClientOutpostData(game_id);
+    loadInClientOutpostData(game_id, contractComponents,clientComponents,account);
 
     switch (data.phase) {
   
@@ -99,8 +100,8 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
         const allEventsModels = await fetchAllEvents(graphSdk, game_id, gameEntityCounter.event_count);
         setComponentsFromGraphQlEntitiesHM(allEventsModels, contractComponents, true);
 
-        // const allTradesModels = await fetchAllOutRevData(graphSdk, game_id, 1);
-        // setComponentsFromGraphQlEntitiesHM(allTradesModels, contractComponents, true);
+        const allTradesModels = await fetchAllOutRevData(graphSdk, game_id, 1);
+        setComponentsFromGraphQlEntitiesHM(allTradesModels, contractComponents, true);
         
        break;
     }
@@ -115,27 +116,17 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     }
   }
 
-  const loadInClientOutpostData = (game_id: number) =>
-  {
-    const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
-    const outpostCount = gameEntityCounter.outpost_count;
 
-    for (let index = 1; index <= outpostCount; index++) {
-      const entityId = getEntityIdFromKeys([BigInt(game_id), BigInt(index)]);
-      
-      const outpostData = getComponentValueStrict(contractComponents.Outpost, entityId);
-
-      let owned = false;
-
-      if (outpostData.owner === account.address) {owned = true;}
-      
-      setClientOutpostComponent(Number(outpostData.entity_id), owned, false, false,false,clientComponents,  contractComponents,game_id);
-    }
-  }
 
   useEffect(() => {
+
+    if (account.address === "0x517ececd29116499f4a1b64b094da79ba08dfd54a3edaa316134c41f8160973")
+    {
+      return;
+    }
+
     loadingFunction();
-  }, []);
+  }, [account]);
 
   // // this is just a test do delete when in actual build
   // useEffect(() => {

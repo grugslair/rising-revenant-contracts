@@ -8,9 +8,9 @@ trait IRevenantActions<TContractState> {
     fn claim_initial_rewards(self: @TContractState, game_id: u32) -> bool;
 
     // Claim the endgame rewards.
-    fn claim_endgame_rewards(self: @TContractState, game_id: u32) -> u256;
+    fn claim_endgame_rewards(self: @TContractState, game_id: u32) -> u128;
 
-    fn claim_score_rewards(self: @TContractState, game_id: u32) -> u256;
+    fn claim_score_rewards(self: @TContractState, game_id: u32) -> u128;
 
     fn get_current_price(self: @TContractState, game_id: u32, count: u32) -> u128;
 
@@ -63,17 +63,17 @@ mod revenant_actions {
             // assert(player_info.revenant_count < REVENANT_MAX_COUNT, 'reach revenant limit');
             game_data.revenant_count += 1;
 
-            if game.revenant_init_price > 0 {
-                 let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
-                 let result = erc20
-                     .transfer_from(
-                         sender: player,
-                         recipient: get_contract_address(),
-                         amount: game.revenant_init_price,
-                     );
-                 assert(result, 'need approve for erc20');
-                 game.prize += game.revenant_init_price;
-             }
+            // if game.revenant_init_price > 0 {
+            //     let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+            //     let result = erc20
+            //         .transfer_from(
+            //             sender: player,
+            //             recipient: get_contract_address(),
+            //             amount: game.revenant_init_price,
+            //         );
+            //     assert(result, 'need approve for erc20');
+            //     game.prize += game.revenant_init_price;
+            // }
 
             let entity_id: u128 = game_data.revenant_count.into();
 
@@ -124,7 +124,7 @@ mod revenant_actions {
             }
         }
 
-        fn claim_endgame_rewards(self: @ContractState, game_id: u32) -> u256 {
+        fn claim_endgame_rewards(self: @ContractState, game_id: u32) -> u128 {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
             let mut game = get!(world, game_id, (Game));
@@ -149,7 +149,7 @@ mod revenant_actions {
             prize
         }
 
-        fn claim_score_rewards(self: @ContractState, game_id: u32) -> u256 {
+        fn claim_score_rewards(self: @ContractState, game_id: u32) -> u128 {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
 
@@ -164,9 +164,9 @@ mod revenant_actions {
                 / 100
                 * player_info.score.into()
                 / game_info.score_count.into();
-            let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
-            let result = erc20.transfer(recipient: player, amount: prize);
-            assert(result, 'failed to transfer');
+            // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+            // let result = erc20.transfer(recipient: player, amount: prize);
+            // assert(result, 'failed to transfer');
 
             player_info.score_claim_status = true;
             player_info.earned_prize = prize;
@@ -194,13 +194,13 @@ mod revenant_actions {
             let current_price = reinforcement_balance
                 .get_reinforcement_price(world, game_id, count);
 
-            let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
-            let result = erc20
-                .transfer_from(
-                     sender: player, recipient: get_contract_address(), amount: current_price.into()
-                 );
-             assert(result, 'need approve for erc20');
-             game.prize += current_price.into();
+            // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+            // let result = erc20
+            //     .transfer_from(
+            //         sender: player, recipient: get_contract_address(), amount: current_price.into()
+            //     );
+            // assert(result, 'need approve for erc20');
+            // game.prize += current_price.into();
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
             player_info.reinforcement_count += count;

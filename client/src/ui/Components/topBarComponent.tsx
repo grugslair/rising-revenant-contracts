@@ -1,142 +1,153 @@
+//Libs
 import { useEffect, useState } from "react";
-import Tooltip from '@mui/material/Tooltip';
-
-import "./ComponentsStyles/TopBarStyles.css";
-
 import {
     Has,
     getComponentValueStrict,
     HasValue,
+    getComponentValue,
+    runQuery,
 } from "@latticexyz/recs";
-import { useEntityQuery } from "@latticexyz/react";
+import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
-import { GAME_CONFIG } from "../../phaser/constants";
-import {  checkAndSetPhaseClientSide, fetchGameData, fetchSpecificEvent, setComponentsFromGraphQlEntitiesHM, truncateString } from "../../utils";
+import { checkAndSetPhaseClientSide, fetchAllOutRevData, fetchAllOwnOutRevData, fetchGameData, fetchPlayerInfo, fetchSpecificEvent, fetchSpecificOutRevData, loadInClientOutpostData, setComponentsFromGraphQlEntitiesHM, truncateString } from "../../utils";
 import { ClickWrapper } from "../clickWrapper";
+import { GAME_CONFIG_ID, getRefreshOwnOutpostDataTimer } from "../../utils/settingsConstants";
 
-// the main top bar will be used to load in every 10 seconds the game data and display it to the user
-// THE THING TO CHECK IS THE IF I GET A COMPONENT CAN I THEN PUT IT AS A VAR IN THE USEFFECT BECAUSE IF I CAN
-// I CAN JUST USE THE PAHSE MANAGER AS THE LOADER AND THEN PUT COMPS WITH USEFFECTS EVERYWHERE INSTEAD OF TIMERS
+//styles
+import "./ComponentsStyles/TopBarStyles.css";
 
-// HERE 
+
+//Comps
+import Tooltip from '@mui/material/Tooltip';
+
+
+
+//Pages
+
+
+
+// this is all to redo
+
 
 interface TopBarPageProps {
     phaseNum: number;
     setGamePhase?: () => void;
 }
 
-export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phaseNum}) => {
-
-    const [isloggedIn, setIsLoggedIn] = useState(true);
-    const [gameState, setGameState] = useState(1);
-
-    const [currentNumOfOutposts, setCurrentNumOfOutposts] = useState(0);
-    const [maxNumOfOutpost, setMaxNumOfOutpost] = useState(0);
+export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phaseNum }) => {
 
     const [Jackpot, setJackpot] = useState(0);
-
-    const [reinforcementsInGame, setReinforcementsInGame] = useState(0);
+    const [playerContribScore, setPlayerContribScore] = useState(0);
+    const [playerContribScorePerc, setPlayerContribScorePerc] = useState(0);
 
     const {
         account: { account },
         networkLayer: {
-            network: { contractComponents, clientComponents , graphSdk},
-            systemCalls: {view_block_count}
+            network: { contractComponents, clientComponents, graphSdk },
         },
     } = useDojo();
 
     const outpostQuery = useEntityQuery([Has(contractComponents.Outpost)]);
     const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
+    const ownOutposts = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true })]);
+    const playerInfo = useEntityQuery([HasValue(contractComponents.PlayerInfo, { owner: account.address })]);
 
-    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
-    const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter,  getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]))
+    const clientQuery = useEntityQuery([Has(clientComponents.ClientGameData)]);
+    const entityQuery = useEntityQuery([Has(contractComponents.GameEntityCounter)]);
+
+    const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+    const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+    const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+
+    useTopBardataLoader();
+    // useTopBarOwnDaraLoader();
 
     useEffect(() => {
-        
-        if (phaseNum === 1 && setGamePhase !== undefined)
-        {
-            if (clientGameData.current_game_state === 2)
-            {
+
+        const loadInAllOutpostsPhaseChange = async () => {
+            const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData.current_game_id, gameEntityCounter.outpost_count);
+            setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
+
+            loadInClientOutpostData(clientGameData.current_game_id, contractComponents, clientComponents, account)
+        }
+
+        if (phaseNum === 1 && setGamePhase !== undefined) {   // this should only be getting called when the phase goes from prep to game
+            if (clientGameData.current_game_state === 2) {
                 setGamePhase();
+
+                loadInAllOutpostsPhaseChange()
             }
         }
 
-    }, [clientGameData]);
-    
-   
+    }, [clientQuery,entityQuery]);
 
     useEffect(() => {
-        updateFunctions();
-        const intervalId = setInterval(updateFunctions, 5000);
-    
-        return () => clearInterval(intervalId);
-    }, []);
-    
-    const updateFunctions = () => 
-    {   
-        checkBlockCount();
-        getGameData();
-    }
 
-    const getGameData = async () => {
-        // //this should query the game stuff dependong on the state
+        if (playerInfo.length === 0){ return;}
+
+        const playerInfoEnt = getComponentValue(contractComponents.PlayerInfo, playerInfo[0]);
+
+        setPlayerContribScore(playerInfoEnt.score);
+        setPlayerContribScorePerc(Number.isNaN((gameEntityCounter.score_count / playerInfoEnt.score) * 100) ? 0 : (gameEntityCounter.score_count / playerInfoEnt.score) * 100);
         
-        const gameDataQuery = await fetchGameData(graphSdk, clientGameData.current_game_id);
-        setComponentsFromGraphQlEntitiesHM(gameDataQuery,contractComponents,false);
+    }, [playerInfo]);
 
-        const newGameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
-        setJackpot(newGameData.prize);
-        setMaxNumOfOutpost(newGameData.max_amount_of_revenants);
+    useEffect(() => {  
 
-        const entityCount  = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+        const updateOwnData = async () => 
+        {   
+            if (clientGameData === 1) {return;}
 
-        const latest_loaded_event = clientGameData.current_event_drawn;  
-        const latest_onchain_event = entityCount.event_count;    
-
-        const initial_event_index_to_load = latest_onchain_event - latest_loaded_event;
-
-        if (initial_event_index_to_load > 0 )
-        {
-            for (let i = latest_loaded_event; i <= latest_onchain_event; i++) {
-                const eventQuery= await fetchSpecificEvent(graphSdk,clientGameData.current_game_id, i);
-
-                setComponentsFromGraphQlEntitiesHM(eventQuery,contractComponents,false);
+            for (let index = 0; index < ownOutposts.length; index++) {
+                const entity_id = ownOutposts[index];
+                
+                const outpostData = getComponentValueStrict(contractComponents.Outpost, entity_id);
+                const outpostModelQuery = await fetchSpecificOutRevData(graphSdk, clientGameData.current_game_id, Number(outpostData.entity_id));
+                setComponentsFromGraphQlEntitiesHM(outpostModelQuery, contractComponents, false);
             }
         }
-    }
 
-    const checkBlockCount = async () => {
-        const blockCount = await view_block_count();
-        checkAndSetPhaseClientSide(clientGameData.current_game_id, blockCount!, contractComponents, clientComponents);
-    };
-  
+        updateOwnData();
+        const intervalId = setInterval(updateOwnData, getRefreshOwnOutpostDataTimer() * 1000);
+
+        return () => clearInterval(intervalId);
+    }, [clientGameData]);
+
     return (
         <ClickWrapper className="top-bar-grid-container ">
             <div className="top-bar-grid-game-logo center-via-flex">
                 <img src="LOGO_WHITE.png" className="game-logo" style={{ height: "100%", aspectRatio: "1/1" }}></img>
             </div>
-            <Tooltip title="this is your overall cut so far...">
+            <Tooltip title={`Tot score game ${gameEntityCounter.score_count} \n Your score count ${playerContribScore}`}>
                 <div className="top-bar-grid-left-text-section center-via-flex">
                     <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                        <div style={{fontSize:"1.2vw"}}>Jackpot: {Jackpot} $LORDS </div>
+                        <div style={{ fontSize: "1.2vw" }}>Jackpot: {Jackpot} $LORDS </div>
                     </div>
                     <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                        <div style={{fontSize:"1.2vw"}}>Contribution: 12%</div>
+
+                        {clientGameData.current_game_state === 2 && (<>
+                            {clientGameData.guest ? (
+                                <div style={{ fontSize: "1.2vw", filter: "brightness(70%) grayscale(70%)" }}>Contribution: Log in</div>
+                            ) : (
+                                <div style={{ fontSize: "1.2vw" }}>Contribution: {playerContribScorePerc}%</div>
+                            )}
+                        </>
+                        )}
+
                     </div>
                 </div>
             </Tooltip>
             <div className="top-bar-grid-right-text-section center-via-flex">
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                    {clientGameData.current_game_id === 1 ? 
-                    <div style={{fontSize:"1.2vw"}}>Revenants Summoned: {gameEntityCounter.revenant_count}/{maxNumOfOutpost}</div>
-                    :
-                    <div style={{fontSize:"1.2vw"}}>Revenants Alive: {outpostDeadQuery.length}/{outpostQuery.length}</div>
+                    {clientGameData.current_game_id === 1 ?
+                        <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {gameEntityCounter.revenant_count}/{gameData.max_amount_of_revenants}</div>
+                        :
+                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostDeadQuery.length}/{outpostQuery.length}</div>
                     }
-                    
                 </div>
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                    <div style={{fontSize:"1.2vw"}}>Reinforcements in game: {gameEntityCounter.remain_life_count + gameEntityCounter.reinforcement_count }</div>
+                    <div style={{ fontSize: "1.2vw" }}>Reinforcements in game: {gameEntityCounter.remain_life_count + gameEntityCounter.reinforcement_count}</div>
                 </div>
             </div>
             <div className="top-bar-grid-game-written-logo">
@@ -146,16 +157,132 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
             </div>
             <div className="top-bar-grid-address center-via-flex">
                 <div style={{ width: "100%", height: "75%" }} className="center-via-flex">
-                    {isloggedIn ?
+                    {!clientGameData.guest ?
                         <h2 >
                             <img src="argent_logo.png" className="chain-logo"></img>
-                            {truncateString("0x7h387yeh78287he7ge2778d827e78gebd", 5)}
+                            {truncateString(account.address, 5)}
                         </h2> :
-                        <h3>
-                            NOT LOGGED IN
-                        </h3>}
+                        <div className="global-button-style" style={{ padding: "5px 10px", fontSize: "1.2vw", cursor: "pointer" }} onClick={() => window.location.reload()}>
+                            LOG IN
+                        </div>
+                    }
                 </div>
             </div>
         </ClickWrapper>
     );
+};
+
+
+
+
+
+
+
+
+const useTopBardataLoader = (updateInterval = 5000) => {
+
+    const {
+        account: { account },
+        networkLayer: {
+            network: { contractComponents, clientComponents, graphSdk },
+            systemCalls: { view_block_count }
+        },
+    } = useDojo();
+
+    useEffect(() => {
+
+        const updateFunctions = () => {
+            checkBlockCount();
+            getGameData();
+        }
+
+        const getGameData = async () => {
+
+            const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+
+            const gameDataQuery = await fetchGameData(graphSdk, clientGameData.current_game_id);
+            setComponentsFromGraphQlEntitiesHM(gameDataQuery, contractComponents, false);
+
+            const playerInfoQuery = await fetchPlayerInfo(graphSdk, clientGameData.current_game_id, account.address);
+            setComponentsFromGraphQlEntitiesHM(playerInfoQuery, contractComponents, false);
+
+            const entityCount = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+
+            const latest_loaded_event = clientGameData.current_event_drawn;
+            const latest_onchain_event = entityCount.event_count;
+
+            const initial_event_index_to_load = latest_onchain_event - latest_loaded_event;
+
+            if (initial_event_index_to_load > 0) {
+                for (let i = latest_loaded_event; i <= latest_onchain_event; i++) {
+                    const eventQuery = await fetchSpecificEvent(graphSdk, clientGameData.current_game_id, i);
+
+                    setComponentsFromGraphQlEntitiesHM(eventQuery, contractComponents, false);
+                }
+            }
+        }
+
+        const checkBlockCount = async () => {
+            const blockCount = await view_block_count();
+            const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+            checkAndSetPhaseClientSide(clientGameData.current_game_id, blockCount!, contractComponents, clientComponents);
+        };
+
+        updateFunctions();
+        const intervalId = setInterval(updateFunctions, updateInterval);
+
+        return () => clearInterval(intervalId);
+    }, []);
+
+  };
+
+
+const useTopBarOwnDaraLoader = (updateIntervalSeconds = 15) => {
+
+    const {
+        account: { account },
+        networkLayer: {
+            network: { contractComponents, clientComponents, graphSdk }
+        },
+    } = useDojo();
+
+    const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])).current_game_state
+
+
+    useEffect(() => {  
+
+        console.error("this is a call fromt he client gameoutpotand th top bar thing ")
+        
+
+        const updateOwnData = async () => 
+        {   
+            
+            if (clientGameData === 1) {return;}
+
+            const visibleOutposts = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { owned: true })]));
+
+            for (let index = 0; index < visibleOutposts.length; index++) {
+                const entity_id = visibleOutposts[index];
+                
+                const outpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
+                const outpostDatadd = getComponentValueStrict(contractComponents.Outpost, entity_id);
+                
+                console.error(outpostData);
+
+                console.error(outpostData.entity_id);
+                console.error(outpostDatadd.id);
+
+                const outpostModelQuery = await fetchSpecificOutRevData(graphSdk, clientGameData.current_game_id, outpostData.id);
+                setComponentsFromGraphQlEntitiesHM(outpostModelQuery, contractComponents, false);
+
+                console.error(`calling the new data ${visibleOutposts.length}`)
+                console.error(outpostModelQuery);
+            }
+        }
+
+        updateOwnData();
+        const intervalId = setInterval(updateOwnData, updateIntervalSeconds * 1000);
+
+        return () => clearInterval(intervalId);
+    }, [clientGameData]);
 };

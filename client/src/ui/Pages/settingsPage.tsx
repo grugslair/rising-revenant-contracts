@@ -10,6 +10,7 @@ import "./PagesStyles/SettingPageStyle.css";
 import PageTitleElement from "../Elements/pageTitleElement";
 import { ClickWrapper } from "../clickWrapper";
 import { Switch } from "@mui/material";
+import { setRefreshOwnOutpostDataTimer } from "../../utils/settingsConstants";
 
 //elements/components
 
@@ -34,7 +35,12 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
 
     const [checkboxChecked, setCheckboxChecked] = useState(true);
     const [switchChecked, setSwitchChecked] = useState(true);
-    const [sliderValue, setSliderValue] = useState(50);
+    const [sliderValue, setSliderValue] = useState(20);
+
+    useEffect(() => {
+        setRefreshOwnOutpostDataTimer(sliderValue);
+    }, [sliderValue])
+    
 
     return (
         <div className="game-page-container">
@@ -49,7 +55,7 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
 
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <span style={{ color: 'grey', marginRight: '10px' }}>Slider Value: {sliderValue}</span>
-                        <Slider style={{ color: 'grey' }} value={sliderValue} onChange={(event, newValue) => setSliderValue(newValue as number)} defaultValue={50} aria-label="Default" valueLabelDisplay="auto" max={100} min={20} />
+                        <Slider style={{ color: 'grey' }} value={sliderValue} onChange={(event, newValue) => setSliderValue(newValue as number)} defaultValue={20} aria-label="Default" valueLabelDisplay="auto" max={1000} min={20} />
                     </div>
                 </ClickWrapper>
 

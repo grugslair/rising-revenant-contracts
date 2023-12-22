@@ -1,9 +1,9 @@
 //libs
 import { useEffect, useState } from "react";
 import { getComponentValueStrict } from "@latticexyz/recs";
+import {useComponentValue} from "@latticexyz/react";
 
 import { getEntityIdFromKeys } from "@dojoengine/utils";
-import { GAME_CONFIG } from "../../phaser/constants";
 import { useDojo } from "../../hooks/useDojo";
 
 import { ClickWrapper } from "../clickWrapper";
@@ -24,6 +24,8 @@ import { ProfilePage } from "../Pages/playerProfilePage";
 import { RulesPage } from "../Pages/rulePage";
 import { Phase } from "../phaseManager";
 import { SettingsPage } from "../Pages/settingsPage";
+import { GuestPagePrepPhase } from "./guestPrepPhasePage";
+import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 export enum PrepPhaseStages {
     VID,
@@ -35,13 +37,14 @@ export enum PrepPhaseStages {
     PROFILE,
     DEBUG,
     SETTINGS,
+    GUEST,
 }
 
 interface PrepPhasePageProps {
     setUIState: React.Dispatch<Phase>;
 }
 
-export const PrepPhaseManager : React.FC<PrepPhasePageProps> = ({ setUIState }) => {
+export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) => {
 
     const [prepPhaseStage, setPrepPhaseStage] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
 
@@ -52,10 +55,14 @@ export const PrepPhaseManager : React.FC<PrepPhasePageProps> = ({ setUIState }) 
 
     const {
         networkLayer: {
-          network: { clientComponents, contractComponents }
+            network: { clientComponents, contractComponents }
         },
-      } = useDojo();
-    
+    } = useDojo();
+
+    const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])); 
+
+    const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+
     // this is only here to call the debug menu
     useEffect(() => {
         const handleKeyPress = (event: KeyboardEvent) => {
@@ -79,36 +86,30 @@ export const PrepPhaseManager : React.FC<PrepPhasePageProps> = ({ setUIState }) 
     // this useeffect is used so we can save the last state for the navbar retreat
     useEffect(() => {
 
-        if (prepPhaseStage === PrepPhaseStages.PROFILE || prepPhaseStage === PrepPhaseStages.RULES || prepPhaseStage === PrepPhaseStages.SETTINGS)
-        {
+        if (prepPhaseStage === PrepPhaseStages.PROFILE || prepPhaseStage === PrepPhaseStages.RULES || prepPhaseStage === PrepPhaseStages.SETTINGS) {
             return;
         }
-        else
-        {
+        else {
             setLastSavedState(prepPhaseStage);
         }
 
     }, [prepPhaseStage]);
 
     useEffect(() => {
-        checkBlockCount();
-        const intervalId = setInterval(checkBlockCount, 5000);
-    
-        return () => clearInterval(intervalId);
-      }, []);
-    
-    const checkBlockCount = async () => {
-        const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([GAME_CONFIG]));
-        const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([clientGameData.current_game_id]));
-
-        const blocksLeft = (gameData.start_block_number + gameData. preparation_phase_interval) - clientGameData.current_block_number;
-
+        const blocksLeft = (gameData.start_block_number + gameData.preparation_phase_interval) - clientGameData.current_block_number;
         setBlocksLeft(blocksLeft);
-    };
+    }, [clientGameData]);
 
     // video stuff
     const onVideoDone = () => {
-        setPrepPhaseStage(PrepPhaseStages.BUY_REVS);
+        if (clientGameData.guest)
+        {
+            setPrepPhaseStage(PrepPhaseStages.GUEST);
+        }
+        else
+        {
+            setPrepPhaseStage(PrepPhaseStages.BUY_REVS);
+        }
     }
     if (prepPhaseStage === PrepPhaseStages.VID) {
         return (<VideoComponent onVideoDone={onVideoDone} />)
@@ -118,14 +119,27 @@ export const PrepPhaseManager : React.FC<PrepPhasePageProps> = ({ setUIState }) 
     const setMenuState = (state: PrepPhaseStages) => {
         setPrepPhaseStage(state);
     }
-
     const closePage = () => {
         setPrepPhaseStage(lastSavedState);
     }
-
-    const advanceToGamePhase = () => 
-    {
+    const advanceToGamePhase = () => {
         setUIState(Phase.GAME);
+    }
+
+    if (clientGameData.guest) {
+        return (
+        <div className="main-page-container-layout">
+          
+            <div className='main-page-content'>
+                <div className='page-container' style={{ backgroundColor: "black" }}>
+                {prepPhaseStage === PrepPhaseStages.GUEST && <GuestPagePrepPhase/>}
+                {prepPhaseStage === PrepPhaseStages.RULES && <RulesPage setUIState={closePage} />}
+                {prepPhaseStage === PrepPhaseStages.SETTINGS && <SettingsPage setUIState={closePage} />}
+                </div>
+            </div>
+
+            <PrepPhaseNavbarComponent currentMenuState={prepPhaseStage} lastSavedState={lastSavedState} setMenuState={setMenuState} />
+        </div>);
     }
 
     return (<div className="main-page-container-layout">
@@ -134,19 +148,19 @@ export const PrepPhaseManager : React.FC<PrepPhasePageProps> = ({ setUIState }) 
         </div>
 
         <div className='main-page-content'>
-            <div className='page-container' style={{ backgroundColor: "white" }}>
+            <div className='page-container' style={{ backgroundColor: "black" }}>
                 {prepPhaseStage === PrepPhaseStages.BUY_REVS && <BuyRevenantPage setMenuState={setMenuState} />}
                 {prepPhaseStage === PrepPhaseStages.WAIT_TRANSACTION && <WaitForTransactionPage setMenuState={setMenuState} />}
                 {prepPhaseStage === PrepPhaseStages.BUY_REIN && <BuyReinforcementPage setMenuState={setMenuState} />}
                 {prepPhaseStage === PrepPhaseStages.WAIT_PHASE_OVER && <PrepPhaseEndsPage setMenuState={setMenuState} />}
                 {prepPhaseStage === PrepPhaseStages.DEBUG && <DebugPage />}
-                {prepPhaseStage === PrepPhaseStages.PROFILE && <ProfilePage setUIState={closePage}/>}
+                {prepPhaseStage === PrepPhaseStages.PROFILE && <ProfilePage setUIState={closePage} />}
                 {prepPhaseStage === PrepPhaseStages.RULES && <RulesPage setUIState={closePage} />}
-                {prepPhaseStage === PrepPhaseStages.SETTINGS && <SettingsPage setUIState={closePage}/>}
+                {prepPhaseStage === PrepPhaseStages.SETTINGS && <SettingsPage setUIState={closePage} />}
             </div>
         </div>
 
-        <ClickWrapper className='prep-phase-text' style={{fontSize:"0.7cqw"}}  onMouseDown={() => { setShowBlocks(!showBlocks) }}> <h2> Preparation phase ends in <br /> {showBlocks ? "DD: 5 HH: 5 MM: 5 SS: 5" : `${blocksLeft} Blocks`}</h2></ClickWrapper>
-        <PrepPhaseNavbarComponent currentMenuState={prepPhaseStage} lastSavedState={lastSavedState} setMenuState={setMenuState}/>
+        {prepPhaseStage !== PrepPhaseStages.WAIT_PHASE_OVER && <ClickWrapper className='prep-phase-text' style={{ fontSize: "0.7cqw" }} onMouseDown={() => { setShowBlocks(!showBlocks) }}> <h2> Preparation phase ends in <br /> {showBlocks ? "DD: 5 HH: 5 MM: 5 SS: 5" : `${blocksLeft} Blocks`}</h2></ClickWrapper>}
+        <PrepPhaseNavbarComponent currentMenuState={prepPhaseStage} lastSavedState={lastSavedState} setMenuState={setMenuState} />
     </div>);
 };

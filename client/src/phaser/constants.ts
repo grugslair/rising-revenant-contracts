@@ -1,4 +1,4 @@
-import { EntityIndex } from "@latticexyz/recs";
+import { COLOUMNS_NUMBER, MAP_HEIGHT, MAP_WIDTH, ROWS_NUMBER } from "../utils/settingsConstants";
 
 export enum Scenes {
     Main = "Main",
@@ -22,10 +22,6 @@ export enum Assets {
     CaslteSelectedAsset = "CaslteSelectedAsset",
 }
 
-export const MAP_WIDTH = 10240;
-export const MAP_HEIGHT = 5164;
-
-export const GAME_CONFIG : EntityIndex = 1 as EntityIndex;
 export const SCALE = 0.15;
 
 export let OUTPOST_WIDTH = 0;
@@ -34,11 +30,6 @@ export function setWidthAndHeight(widht:number, height: number): void {
     OUTPOST_WIDTH = widht;
     OUTPOST_HEIGHT = height;
 }
-
-
-
-export const COLOUMNS_NUMBER = 50;
-export const ROWS_NUMBER = 25;
 
 export const TILE_WIDTH = MAP_WIDTH / COLOUMNS_NUMBER;
 export const TILE_HEIGHT = MAP_HEIGHT / ROWS_NUMBER;

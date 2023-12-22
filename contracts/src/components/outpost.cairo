@@ -44,8 +44,8 @@ impl OutpostImpl of OutpostTrait {
     }
 
     fn assert_can_reinforcement(self: Outpost) {
-        self.assert_existed();
-        assert(self.reinforcement_count < OUTPOST_MAX_REINFORCEMENT, 'reach reinforce limit');
+        self.assert_existed();             //Alex
+        assert(self.reinforcement_count <= OUTPOST_MAX_REINFORCEMENT, 'reach reinforce limit');
     }
 
     //Alex
@@ -85,5 +85,5 @@ impl OutpostImpl of OutpostTrait {
         }
 
         return 7;  //error 
-    }  
+    }   
 }

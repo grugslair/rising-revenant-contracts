@@ -2,7 +2,8 @@
 
 import { getEntityIdFromKeys, parseComponentValueFromGraphQLEntity, setComponentFromGraphQLEntity } from "@dojoengine/utils";
 import { setComponent, Components, ComponentValue, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
-import { GAME_CONFIG, getTileIndex } from "../phaser/constants";
+import { getTileIndex } from "../phaser/constants";
+import { GAME_CONFIG_ID } from "./settingsConstants";
 
 
 //region Names
@@ -274,6 +275,28 @@ export const setClientOutpostComponent = async (id: number, owned: boolean, even
     setComponentFromGraphQLEntity(clientComponents, craftedEdgeEntityTileIndex);
 }
 
+export const loadInClientOutpostData = (game_id: number,contractComponents:any, clientComponents:any, account:any) =>
+{
+  const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
+  const outpostCount = gameEntityCounter.outpost_count;
+
+  for (let index = 1; index <= outpostCount; index++) {
+    const entityId = getEntityIdFromKeys([BigInt(game_id), BigInt(index)]);
+    
+    const outpostData = getComponentValueStrict(contractComponents.Outpost, entityId);
+
+    let owned = false;
+
+    if (outpostData.owner === account.address) {owned = true;}
+    
+    setClientOutpostComponent(Number(outpostData.entity_id), owned, false, false,false,clientComponents,  contractComponents,game_id);
+  }
+}
+
+
+
+
+
 /**
  * Sets the client click position component based on provided coordinates.
  * 
@@ -354,7 +377,7 @@ export function addPrefix0x(input: string | number): string {
 
 export function decimalToHexadecimal(number: number): string {
     if (isNaN(number) || !isFinite(number)) {
-        throw new Error("Input must be a valid number");
+        throw new Error(`Input must be a valid number ${number}`);
     }
 
     const hexadecimalString = number.toString(16).toUpperCase();
@@ -410,7 +433,7 @@ export function setComponentsFromGraphQlEntitiesHM(data: any, components: Compon
                     return acc;
                 }, {});
 
-                // console.log(componentValues)
+                console.log(componentValues)
                 setComponent(component, entityIndex, componentValues);
             }
         }
@@ -420,7 +443,7 @@ export function setComponentsFromGraphQlEntitiesHM(data: any, components: Compon
 export function checkAndSetPhaseClientSide(game_id: number, currentBlockNumber: number, contractComp: any, clientComp: any): { phase: number; blockLeft: number } {
     const gameData = getComponentValue(contractComp.Game, getEntityIdFromKeys([BigInt(game_id)]));
 
-    const gameClientData = getComponentValue(clientComp.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG)]));
+    const gameClientData = getComponentValue(clientComp.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
     let phase = 1;
     //30                           //10                         //39
@@ -445,7 +468,7 @@ export function checkAndSetPhaseClientSide(game_id: number, currentBlockNumber: 
 export const fetchGameTracker = async (graphSDK_: any): Promise<any> => {
     const {
         data: { entities },
-    } = await graphSDK_().getGameTracker({ config: decimalToHexadecimal(GAME_CONFIG as number) });
+    } = await graphSDK_().getGameTracker({ config: decimalToHexadecimal(GAME_CONFIG_ID as number) });
 
     return entities;
 }
@@ -479,7 +502,6 @@ export const fetchAllEvents = async (graphSDK_: any, game_id: number, numOfEvent
     return worldeventModels;
 }
 
-
 export const fetchSpecificEvent = async (graphSDK_: any, game_id: number, entity_id: number): Promise<any> => {
 
     const {
@@ -489,7 +511,6 @@ export const fetchSpecificEvent = async (graphSDK_: any, game_id: number, entity
     return entities;
 }
 
-
 export const fetchSortedPlayerReinforcementList = async (graphSDK_: any, game_id: number, numOfPlayers: number): Promise<any> => {
 
     const {
@@ -498,7 +519,6 @@ export const fetchSortedPlayerReinforcementList = async (graphSDK_: any, game_id
 
     return playerinfoModels;
 }
-
 
 export const fetchAllOutRevData = async (graphSDK_: any, game_id: number, numOfObjects: number): Promise<any> => {
 
@@ -514,7 +534,7 @@ export const fetchAllTrades = async (graphSDK_: any, game_id: number, state: num
 
     const {
         data: { tradeModels },
-    } = await graphSDK_().getTradesAvailable({ game_id: game_id, status: state });
+    } = await graphSDK_().getTradesAvailable({ game_id: game_id, tradeStatus: state });
 
     return tradeModels;
 }
@@ -528,5 +548,17 @@ export const fetchSpecificOutRevData = async (graphSDK_: any, game_id: number, e
 
     return entities;
 }
+
+
+export const fetchAllOwnOutRevData = async (graphSDK_: any, game_id: number, numOfObjects: number, account: any): Promise<any> => {
+
+    const {
+        data: { outpostModels },
+    } = await graphSDK_().getAllOwnRevOut({ game_id: game_id, outpostCount: numOfObjects, owner: account.address });
+
+    return outpostModels;
+}
+
+
 
 //endregion

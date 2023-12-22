@@ -22,32 +22,10 @@ query fetchSpecificOutRev($game_id: String!, $entity_id: String!) {
             x
             y
             lifes
+            shield
             reinforcement_count
             status
             last_affect_event_id
-          }
-        }
-      }
-    }
-  }
-}
-
-query getTradesAvailable($game_id: u32!, $tradeStatus: u32!) {
-  tradeModels(where: { game_id: $game_id, status: $tradeStatus }) {
-    edges {
-      node {
-        entity {
-          keys
-          models {
-            __typename
-            ... on Trade {
-              game_id
-              entity_id
-              seller
-              price
-              buyer
-              status
-            }
           }
         }
       }
@@ -71,6 +49,7 @@ query getAllOutRev($game_id: u32!, $outpostCount: Int!) {
               x
               y
               lifes
+              shield
               reinforcement_count
               status
               last_affect_event_id
@@ -91,6 +70,81 @@ query getAllOutRev($game_id: u32!, $outpostCount: Int!) {
   }
 }
 
+query getAllOwnRevOut($game_id: u32!, $outpostCount: Int!, $owner: ContractAddress!) {
+  outpostModels(first: $outpostCount, where: { game_id: $game_id, owner: $owner}) {
+    edges {
+      node {
+        entity {
+          keys
+          models {
+            __typename
+            ... on Outpost {
+              game_id
+              entity_id
+              owner
+              name_outpost
+              x
+              y
+              lifes
+              shield
+              reinforcement_count
+              status
+              last_affect_event_id
+            }
+            ... on Revenant {
+              game_id
+              entity_id
+              owner
+              first_name_idx
+              last_name_idx
+              outpost_count
+              status
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+query getTradesAvailable($game_id: u32!, $tradeStatus: u32!) {
+  tradeModels(where: { game_id: $game_id, status: $tradeStatus }) {
+    edges {
+      node {
+        entity {
+          keys
+          models {
+            __typename
+            ... on Trade {
+              game_id
+              entity_id
+              seller
+              price
+              count
+              buyer
+              status
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
 query getSortedPlayerReinforcements($game_id: u32!, $playersNum: Int!) {
   playerinfoModels(
     where: { game_id: $game_id }
@@ -107,6 +161,8 @@ query getSortedPlayerReinforcements($game_id: u32!, $playersNum: Int!) {
               game_id
               owner
               score
+              score_claim_status
+              earned_prize
               revenant_count
               outpost_count
               reinforcement_count
@@ -176,6 +232,8 @@ query getPlayerInfo($game_id: String!, $owner: String!) {
             game_id
             owner
             score
+            score_claim_status
+            earned_prize
             revenant_count
             outpost_count
             reinforcement_count
@@ -218,9 +276,11 @@ query getGameData($game_id: String!) {
             preparation_phase_interval
             event_interval
             erc_addr
+            reward_pool_addr
             revenant_init_price
             rewards_claim_status
             status
+            max_amount_of_revenants
           }
           ... on GameEntityCounter {
             game_id

@@ -20,7 +20,7 @@ export function defineClientComponents(world: World) {
 		  }
 		);
 	  })(),
-  
+
 	  ClientClickPosition: (() => {
 		const name = "ClientClickPosition";
 		return defineComponent(
@@ -39,13 +39,13 @@ export function defineClientComponents(world: World) {
 		  }
 		);
 	  })(),
-  
+
 	  ClientOutpostData: (() => {
 		const name = "ClientOutpostData";
 		return defineComponent(
 		  world,
 		  {
-			id : RecsType.Number,
+			id: RecsType.Number,
 			owned: RecsType.Boolean,
 			event_effected: RecsType.Boolean,
 			selected: RecsType.Boolean,
@@ -58,7 +58,7 @@ export function defineClientComponents(world: World) {
 		  }
 		);
 	  })(),
-  
+
 	  ClientGameData: (() => {
 		const name = "ClientGameData";
 		return defineComponent(

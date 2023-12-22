@@ -77,8 +77,28 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
 
                         <h2 style={{ marginBottom: "0px" }}>Diverse Attacks:</h2>
                         <h3 style={{ marginTop: "0px" }}>Players must confront challenges ranging from cataclysmic natural disasters to the fiery wrath of dragons and the cunning onslaught of goblins.</h3>
+
+                        <h2 style={{ marginBottom: "0px" }}>Endurance of Outposts:</h2>
+                        <h3 style={{ marginTop: "0px" }}> The resilience of an Outpost is key, with its survival odds escalating with every reinforcement. The ultimate ambition? To stand as the last Rising Revenant.</h3>
+
+
                     </>)}
-                    {rulesState === RulesState.PREP && (<></>)}
+                    {rulesState === RulesState.PREP && (<>
+                        <h2 style={{ marginBottom: "0px" }}>Final Rewards:</h2>
+                        <h2 style={{ marginBottom: "0px" }}>The Ultimate Prize:</h2>
+                        <h3 style={{ marginTop: "0px" }}> The game’s transactions feed into a colossal final jackpot, destined for the sole Revenant who outlasts all others.</h3>
+
+                        <h2 style={{ marginBottom: "0px" }}>Economic Dynamics of "Rising Revenant":</h2>
+                        <h2 style={{ marginBottom: "0px" }}>Preparation Phase::</h2>
+                        <h3 style={{ marginTop: "0px" }}>75% of $LORDS channeled into the final jackpot <br/> 10% allocated to transaction confirmation <br/> 15% as a creator tribute</h3>
+
+                        <h2 style={{ marginBottom: "0px" }}>Main Phase:</h2>
+                        <h3 style={{ marginTop: "0px" }}> 90% of $LORDS flows to the trader <br/> 5% augments the final jackpot <br/> 5% reserved as a lasting reward for the enduring players</h3>
+
+                        <h2 style={{ marginBottom: "0px" }}></h2>
+                        <h3 style={{ marginTop: "0px" }}>These rules are your compass in the world of "Rising Revenant," guiding you through a labyrinth of summoning, defense, and cunning trade to claim the crown of the ultimate survivor.</h3>
+                        
+                    </>)}
 
                 </div>
             </ClickWrapper>
