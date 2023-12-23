@@ -1,7 +1,7 @@
 {
   "world": {
     "name": "world",
-    "address": "0x6232fe23b5b1504525ab921d824fd1ec130d0ab6efc7cae92f2afab94758a3e",
+    "address": "0x4093d0743e76913eb1a6458662c34971e5edfc95aa93b307eaf1b12ffbac397",
     "class_hash": "0x99b08b2ff33750916e36b5e241b5d4a63e8d48862bf90a68fec2ff58a8de6",
     "abi": [
       {
@@ -948,8 +948,8 @@
   "contracts": [
     {
       "name": "game_actions",
-      "address": "0x1a25d0ac9bba57d3053b98a29a3a5794579ad2925587480c3009a7608732b5a",
-      "class_hash": "0x42757ef931596f5117bbe370bbe385a33bb18b3cf267cab8f90ccc576c44e43",
+      "address": "0x2132a307d596353b54320a39df7df977d3d8f48daf4859ccba36cfad7b7aa89",
+      "class_hash": "0x6af430e1b91e83a50bddae6ffd0809d613905d1fe85e59e0aafb85af297dcb6",
       "abi": [
         {
           "type": "impl",
@@ -989,20 +989,6 @@
           "interface_name": "realmsrisingrevenant::systems::game::IGameActions"
         },
         {
-          "type": "struct",
-          "name": "core::integer::u256",
-          "members": [
-            {
-              "name": "low",
-              "type": "core::integer::u128"
-            },
-            {
-              "name": "high",
-              "type": "core::integer::u128"
-            }
-          ]
-        },
-        {
           "type": "interface",
           "name": "realmsrisingrevenant::systems::game::IGameActions",
           "items": [
@@ -1023,8 +1009,16 @@
                   "type": "core::starknet::contract_address::ContractAddress"
                 },
                 {
+                  "name": "reward_pool_addr",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
                   "name": "revenant_init_price",
-                  "type": "core::integer::u256"
+                  "type": "core::integer::u128"
+                },
+                {
+                  "name": "max_amount_of_revenants",
+                  "type": "core::integer::u32"
                 }
               ],
               "outputs": [
@@ -1144,8 +1138,8 @@
     },
     {
       "name": "revenant_actions",
-      "address": "0x6a52748df270bba595b115c471f4a963a918a24d8b5312f035a5d0dc2c5bc81",
-      "class_hash": "0x1bd8b7e60f7189662112c7b6c5afb222d3087602d2bcf0b9caa7c5bb6d373c8",
+      "address": "0xe004dc4db6f5837abbd5122f9d5f129c39a67a1bbbcd47ca0a4a8259485846",
+      "class_hash": "0x62ff2f726b9fd3886d23a41c9b78b1243d3efc812af966371447154d6f84295",
       "abi": [
         {
           "type": "impl",
@@ -1199,20 +1193,6 @@
           ]
         },
         {
-          "type": "struct",
-          "name": "core::integer::u256",
-          "members": [
-            {
-              "name": "low",
-              "type": "core::integer::u128"
-            },
-            {
-              "name": "high",
-              "type": "core::integer::u128"
-            }
-          ]
-        },
-        {
           "type": "interface",
           "name": "realmsrisingrevenant::systems::revenant::IRevenantActions",
           "items": [
@@ -1259,7 +1239,23 @@
               ],
               "outputs": [
                 {
-                  "type": "core::integer::u256"
+                  "type": "core::integer::u128"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "claim_score_rewards",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::integer::u128"
                 }
               ],
               "state_mutability": "view"
@@ -1310,6 +1306,10 @@
               "inputs": [
                 {
                   "name": "game_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "count",
                   "type": "core::integer::u32"
                 },
                 {
@@ -1414,8 +1414,8 @@
     },
     {
       "name": "trade_actions",
-      "address": "0x592793f25122e1056a1d0d4bd2c9bd593819ef1c9bc1495930e299e966d1df4",
-      "class_hash": "0x29c8ca1ecb714ec9ca87ee90af8b617eaef48ff8d54288d693de8b96508a2e4",
+      "address": "0x608f1ac3a00b01a8721f872d9cbe88a0c60c069d9616ce11e49527708388c85",
+      "class_hash": "0x7ce4a7fc1d2cf61f5552ff93651d70b08aadcb2f6370f7f1dfdadc1c51c2c45",
       "abi": [
         {
           "type": "impl",
@@ -1464,6 +1464,10 @@
               "inputs": [
                 {
                   "name": "game_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "count",
                   "type": "core::integer::u32"
                 },
                 {
@@ -1591,7 +1595,6 @@
         "Game",
         "GameEntityCounter",
         "PlayerInfo",
-        "Revenant",
         "Trade"
       ],
       "writes": [
@@ -1603,8 +1606,8 @@
     },
     {
       "name": "world_event_actions",
-      "address": "0x74474c815d0ef32b59d3d9b43911e27885eb8def34b6d3164f43488e7fb48cc",
-      "class_hash": "0x7c9edded45e9561b475e0fe065032bb7d6b43741a8c15f79ca40f0a0b4f6922",
+      "address": "0xc4bf8a155f0cc61367790347ee38465b2105fcdb782e8b932ff6feee1603dd",
+      "class_hash": "0x5e32c01d6bae28861fa29bf5cb9ad73d1883fb7616bdec149bfea391a4d073c",
       "abi": [
         {
           "type": "impl",
@@ -1842,7 +1845,7 @@
         },
         {
           "name": "prize",
-          "type": "u256",
+          "type": "u128",
           "key": false
         },
         {
@@ -1861,8 +1864,13 @@
           "key": false
         },
         {
+          "name": "reward_pool_addr",
+          "type": "ContractAddress",
+          "key": false
+        },
+        {
           "name": "revenant_init_price",
-          "type": "u256",
+          "type": "u128",
           "key": false
         },
         {
@@ -1874,9 +1882,14 @@
           "name": "status",
           "type": "u32",
           "key": false
+        },
+        {
+          "name": "max_amount_of_revenants",
+          "type": "u32",
+          "key": false
         }
       ],
-      "class_hash": "0xde68aea38abf1a1470567045f01ec75fd29b6e1eb13da6b5200884da4933e2",
+      "class_hash": "0x64bf9b66689c7255099cd4ab808c8484bc21fbc230b951c43dc2ff1025134e3",
       "abi": [
         {
           "type": "function",
@@ -2467,6 +2480,11 @@
           "key": false
         },
         {
+          "name": "shield",
+          "type": "u8",
+          "key": false
+        },
+        {
           "name": "reinforcement_count",
           "type": "u32",
           "key": false
@@ -2482,7 +2500,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x358d81564eefdf3a21676aa4bd94b3a800b1dafab8c33a36ca23d96ed1ba8",
+      "class_hash": "0x9bbe0b1b7ab317d9ce6528c82b46364ef6f2714abffeb7da0e23c7cad39b68",
       "abi": [
         {
           "type": "function",
@@ -2851,6 +2869,16 @@
           "key": false
         },
         {
+          "name": "score_claim_status",
+          "type": "bool",
+          "key": false
+        },
+        {
+          "name": "earned_prize",
+          "type": "u128",
+          "key": false
+        },
+        {
           "name": "revenant_count",
           "type": "u32",
           "key": false
@@ -2871,7 +2899,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x60e38b2eca89f5060e146d8f37a0a6f7f449e44701099539b3f9074105a837",
+      "class_hash": "0x70d4ecec18100d8222657b4c0faa58464678097b2aedceb4acd18ea63581b8a",
       "abi": [
         {
           "type": "function",
@@ -3447,6 +3475,11 @@
           "key": false
         },
         {
+          "name": "count",
+          "type": "u32",
+          "key": false
+        },
+        {
           "name": "buyer",
           "type": "ContractAddress",
           "key": false
@@ -3457,7 +3490,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x2859ae3954191fa8561af091ab564b40a6d68e980234a44cf5c50a1a2b176f1",
+      "class_hash": "0x4c6d2f0982f4fded14582e1b65fd65b591dfb0f8122f74c4e22619f07ea2ecb",
       "abi": [
         {
           "type": "function",
