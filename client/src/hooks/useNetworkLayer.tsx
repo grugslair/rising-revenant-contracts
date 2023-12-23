@@ -3,15 +3,15 @@ import { createNetworkLayer } from "../dojo/createNetworkLayer";
 import { usePromiseValue } from "./usePromiseValue";
 
 export const useNetworkLayer = () => {
-  const networkLayerPromise = useMemo(() => {
-    return createNetworkLayer();
-  }, []);
+    const networkLayerPromise = useMemo(() => {
+        return createNetworkLayer();
+    }, []);
 
-  useEffect(() => {
-    return () => {
-      networkLayerPromise.then((networkLayer) => networkLayer.world.dispose());
-    };
-  }, [networkLayerPromise]);
+    useEffect(() => {
+        return () => {
+            networkLayerPromise.then((networkLayer) => networkLayer.world.dispose());
+        };
+    }, [networkLayerPromise]);
 
-  return usePromiseValue(networkLayerPromise);
+    return usePromiseValue(networkLayerPromise);
 };

@@ -89,14 +89,14 @@ mod trade_actions {
 
         fn purchase(self: @ContractState, game_id: u32, player_id: u128, trade_id: u32) {
             let world = self.world_dispatcher.read();
-            let player = get_caller_address();
+            let player = get_caller_address();  //get the address of the person calling the api
 
-            let mut game = get!(world, game_id, Game);
-            game.assert_is_playing(world);
+            let mut game = get!(world, game_id, Game);   // get the game struct
+            game.assert_is_playing(world);  // check if the game is on going
 
-            let revenant = get!(world, (game_id, player_id), Revenant);
-            assert(revenant.owner == player, 'unable purchase for others');
-            assert(revenant.status == RevenantStatus::started, 'not valid player');
+            // let revenant = get!(world, (game_id, player_id), Revenant);    //fetch the revenants given a player_id? but probably you mean an entity_id
+            // assert(revenant.owner == player, 'unable purchase for others');   // check if the revenant is owend by the player why? is it to check the user has ever bought into the game?
+            // assert(revenant.status == RevenantStatus::started, 'not valid player');
 
             let mut trade = get!(world, (game_id, trade_id), Trade);
             assert(trade.status != TradeStatus::not_created, 'trade not exist');
@@ -104,18 +104,18 @@ mod trade_actions {
             assert(trade.status != TradeStatus::revoked, 'trade had been revoked');
             assert(trade.seller != player, 'unable purchase your own trade');
 
-            let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
-            let seller_amount: u256 = trade.price.into() * 90 / 100;
-            let contract_amount: u256 = trade.price.into() - seller_amount.into();
+            // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+            // let seller_amount: u256 = trade.price.into() * 90 / 100;
+            // let contract_amount: u256 = trade.price.into() - seller_amount.into();
 
-            let result = erc20
-                .transfer_from(sender: player, recipient: trade.seller, amount: seller_amount);
-            assert(result, 'need approve for erc20');
-            let result = erc20
-                .transfer_from(
-                    sender: player, recipient: game.reward_pool_addr, amount: contract_amount
-                );
-            assert(result, 'need approve for erc20');
+            // let result = erc20
+            //     .transfer_from(sender: player, recipient: trade.seller, amount: seller_amount);
+            // assert(result, 'need approve for erc20');
+            // let result = erc20
+            //     .transfer_from(
+            //         sender: player, recipient: game.reward_pool_addr, amount: contract_amount
+            //     );
+            // assert(result, 'need approve for erc20');
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
             player_info.reinforcement_count += trade.count;

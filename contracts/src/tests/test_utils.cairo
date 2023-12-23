@@ -119,6 +119,7 @@ fn _init_game() -> (DefaultWorld, u32) {
             PREPARE_PHRASE_INTERVAL,
             EVENT_BLOCK_INTERVAL,
             world.test_erc.contract_address,
+
             world.revenant_action.contract_address,
             REVENENT_INIT_PRICE,
         );

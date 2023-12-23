@@ -12,40 +12,41 @@ type Props = {
 // TODO: this is where we need to set the burner account from local storage.
 
 export const PhaserLayer = ({ networkLayer }: Props) => {
-  const { phaserLayer, ref } = usePhaserLayer({ networkLayer });
-  const [isVisible, setIsVisible] = useState(false);  // visibility of the tooltip
-
-
-  useEffect(() => {
-    if (phaserLayer) {
-      store.setState({ phaserLayer });
-
-      console.log("Setting phaser layer");
+ 
+    const { phaserLayer, ref } = usePhaserLayer({ networkLayer });
+    const [isVisible, setIsVisible] = useState(false);  // visibility of the tooltip
+  
+  
+    useEffect(() => {
+      if (phaserLayer) {
+        store.setState({ phaserLayer });
+  
+        console.log("Setting phaser layer");
+      }
+    }, [phaserLayer]);
+  
+  
+    const visibilitySet = (visibility: boolean) => 
+    {
+      setIsVisible(visibility);
     }
-  }, [phaserLayer]);
+  
+    useEffect(() => {
+      drawPhaserLayer.on("toggleVisibility", visibilitySet);
+  
+      return () => {
+        drawPhaserLayer.off("toggleVisibility", visibilitySet);
+      };
+    }, []);
 
-
-  const visibilitySet = (visibility: boolean) => 
-  {
-    setIsVisible(visibility);
-  }
-
-  useEffect(() => {
-    drawPhaserLayer.on("toggleVisibility", visibilitySet);
-
-    return () => {
-      drawPhaserLayer.off("toggleVisibility", visibilitySet);
-    };
-  }, []);
-
-
-  return (
-    <div>
-      {isVisible ? (
-        <div ref={ref} className="phaser-layer-original" />
-      ) : (
-        <div className="phaser-layer-substitute" />
-      )}
-    </div>
-  );
+    
+    return (
+        <div>
+          {isVisible ? (
+            <div ref={ref} className="phaser-layer-original" />
+          ) : (
+            <div className="phaser-layer-substitute" />
+          )}
+        </div>
+        );
 };

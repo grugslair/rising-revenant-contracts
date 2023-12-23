@@ -40,7 +40,7 @@ mod tests {
 
     #[test]
     #[available_gas(3000000000)]
-    fn test_create_game() {
+    fn test_create_game() {、
         let DefaultWorld{world, game_action, caller, test_erc, revenant_action, .. } =
             _init_world();
         let game_id = game_action
@@ -78,6 +78,7 @@ mod tests {
             _init_world();
         let game_id = game_action
             .create(
+
                 PREPARE_PHRASE_INTERVAL,
                 EVENT_BLOCK_INTERVAL,
                 test_erc.contract_address,
@@ -414,6 +415,7 @@ mod tests {
         let game = get!(world, (game_id), (Game));
         assert(game.rewards_claim_status == 1, 'wrong game claim status');
         assert(claimed_balance == game.prize * 75 / 100, 'wrong claim prize balance');
+
         let new_erc_balance = test_erc.balance_of(caller);
         assert(new_erc_balance - erc_balance == claimed_balance, 'wrong receive balance');
     }

@@ -2,17 +2,14 @@ import {
   Has,
   defineEnterSystem,
   defineSystem,
-  getComponentValueStrict,
-  setComponent,
+  getComponentValueStrict
 } from "@latticexyz/recs";
 import { PhaserLayer } from "..";
 
-import {
-  Assets,
-  GAME_CONFIG,
-  PREPARATION_PHASE_BLOCK_COUNT as PREPARATION_PHASE_BLOCK_COUNT,
-} from "../constants";
+import { Assets} from "../constants";
+import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { drawPhaserLayer } from "./eventSystems/eventEmitter";
+import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 export const mapSpawn = (layer: PhaserLayer) => {
   const {
@@ -27,10 +24,10 @@ export const mapSpawn = (layer: PhaserLayer) => {
 
   defineEnterSystem(world, [Has(Game)], ({ entity }) => {
     const mapObj = objectPool.get(entity, "Sprite");
-
+      
     mapObj.setComponent({
       id: "animation",
-      once: (sprite) => {
+      once: (sprite:any) => {
         sprite.setTexture(Assets.MapPicture);
         sprite.depth = -2;
         camera.phaserCamera.setBounds(0, 0, sprite.width, sprite.height);
@@ -39,22 +36,12 @@ export const mapSpawn = (layer: PhaserLayer) => {
     });
   });
 
-  defineSystem(world, [Has(ClientGameData)], ({ entity }) => {
-    const clientGameData = getComponentValueStrict(ClientGameData, entity);
 
-    // if (
-    //   Number(gameComp.start_block_number) + PREPARATION_PHASE_BLOCK_COUNT >=
-    //     clientGameData.current_block_number + 1 &&
-    //   clientGameData.current_game_state === 1
-    // ) {
-    //   return;
-    // } else {
-    //   if (clientGameData.current_game_state === 1) {
-    //     drawPhaserLayer.emit("toggleVisibility", true);
-    //   } else {
-    //     return;
-    //   }
-    // }
+  //HERE HIGH PRIO THE MAP DOES NOT SHOW ON FIREFOX BECAUSE OF A WEBGL THING BUT EVERYTHING ELSE DOES?
+
+  defineSystem(world, [Has(ClientGameData)], () => {
+
+    const clientGameData = getComponentValueStrict(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
     if (clientGameData.current_game_state === 1)
     {

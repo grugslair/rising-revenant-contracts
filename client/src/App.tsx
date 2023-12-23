@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const networkLayer = useNetworkLayer();
-  
+
   useEffect(() => {
     if (!networkLayer) return;
 
@@ -24,9 +24,10 @@ function App() {
 
   return (
     <div>
-      
       <PhaserLayer networkLayer={networkLayer} />
+
       <UI />
+
       <ToastContainer />
     </div>
   );

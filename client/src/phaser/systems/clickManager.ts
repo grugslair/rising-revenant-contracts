@@ -7,110 +7,89 @@ import {
   Has,
   getComponentEntities,
   getComponentValue,
-  setComponent
+  runQuery,
+  HasValue,
 } from "@latticexyz/recs";
 
+import { setTooltipArray } from "./eventSystems/eventEmitter";
+import { OUTPOST_HEIGHT, OUTPOST_WIDTH } from "../constants";
+import { setClientClickPositionComponent } from "../../utils";
 
-import { tooltipEvent,setTooltipArray } from "./eventSystems/eventEmitter";
-import { GAME_CONFIG } from "../constants";
+// this can be threaded
 
 export const clickManager = (layer: PhaserLayer) => {
   const {
     world,
     scenes: {
-      Main: { camera, input, objectPool },
+      Main: { camera, input },
     },
 
     networkLayer: {
-      components: { Outpost, ClientClickPosition, ClientCameraPosition, ClientOutpostData },
+      network: { clientComponents },
+      components: { Outpost, ClientClickPosition },
     },
   } = layer;
 
-  input.pointerdown$.subscribe(({ pointer, event }) => {
+  input.pointerdown$.subscribe(({ pointer }) => {
     if (!pointer) {
-
       return;
     }
 
-    let clickRelativeToMiddlePointX = pointer.x - camera.phaserCamera.width / 2;
-    let clickRelativeToMiddlePointY = pointer.y - camera.phaserCamera.height / 2;
+    const clickRelativeToMiddlePointX = pointer.x - camera.phaserCamera.width / 2;
+    const clickRelativeToMiddlePointY = pointer.y - camera.phaserCamera.height / 2;
 
-    setComponent(ClientClickPosition, GAME_CONFIG, {
-      xFromMiddle: clickRelativeToMiddlePointX,
-      yFromMiddle: clickRelativeToMiddlePointY,
-      xFromOrigin: pointer.x,
-      yFromOrigin: pointer.y,
-    });
+    setClientClickPositionComponent(pointer.x, pointer.y, clickRelativeToMiddlePointX, clickRelativeToMiddlePointY, clientComponents);
 
   });
 
   // Click checks for the ui tooltip
   defineSystem(world, [Has(ClientClickPosition)], ({ entity }) => {
 
-    const positionClick = getComponentValueStrict(ClientClickPosition, entity);
+    const positionClick = getComponentValue(ClientClickPosition, entity);
+    const camPos = getComponentValue(clientComponents.ClientCameraPosition, entity);
 
-    const outpostEntities = getComponentEntities(Outpost);
-    const outpostArray = Array.from(outpostEntities);
+    if (camPos === undefined || positionClick === undefined)
+    {
+      return;
+    }
 
-    const positionCenterCam = getComponentValue(   // this errors out for some reason but doesnt break everything so this is low priority
-      ClientCameraPosition,
-      entity
-    );
+    const outpostArray = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { visible: true })]));
+    
 
-    if (positionCenterCam === undefined) { return; }
+    let zoomVal: number = 0;
 
-    let positionX = positionClick.xFromMiddle + positionCenterCam.x;
-    let positionY = positionClick.yFromMiddle + positionCenterCam.y;
+    camera.zoom$.subscribe((zoom) => { zoomVal = zoom; });
 
-    let foundEntity: EntityIndex[] =[]; // store the found entity
+    let positionX = (positionClick.xFromMiddle / zoomVal) + camPos.x;
+    let positionY = (positionClick.yFromMiddle / zoomVal) + camPos.y;
+
+    let foundEntity: EntityIndex[] = []; 
+
 
     for (const outpostEntityValue of outpostArray) {
-      const playerObj = objectPool.get(outpostEntityValue, "Sprite");
 
-      playerObj.setComponent({
-        id: "texture",
-        once: (sprite) => {
-          const minX = sprite.x;
-          const minY = sprite.y;
+      const outpostData = getComponentValueStrict(Outpost, outpostEntityValue);
 
-          const maxX = minX + sprite.width * sprite.scale;
-          const maxY = minY + sprite.height * sprite.scale;
-          if (
-            positionX >= minX &&
-            positionX <= maxX &&
-            positionY >= minY &&
-            positionY <= maxY
-          ) {
-            foundEntity.push(outpostEntityValue);
-          }
-        },
-      });
+      const minX = outpostData.x - (OUTPOST_WIDTH / 2);
+      const minY = outpostData.y - (OUTPOST_HEIGHT / 2);
 
+      const maxX = minX + OUTPOST_WIDTH;
+      const maxY = minY + OUTPOST_HEIGHT;
+
+      if (
+        positionX >= minX &&
+        positionX <= maxX &&
+        positionY >= minY &&
+        positionY <= maxY
+      ) {
+        foundEntity.push(outpostEntityValue);
+      }
     }
 
-    // setTooltipArray.emit("setToolTipArray",foundEntity);
-    if (foundEntity.length > 0)
-    {
-      setTooltipArray.emit("setToolTipArray",foundEntity);
+    if (foundEntity.length > 0) {
+      setTooltipArray.emit("setToolTipArray", foundEntity);
     }
 
-    // if (foundEntity) {
-
-    //   tooltipEvent.emit(
-    //     "spawnTooltip",
-    //     positionClick.xFromOrigin,
-    //     positionClick.yFromOrigin,
-    //     foundEntity
-    //   );
-    // } else {
-
-    //   tooltipEvent.emit(
-    //     "closeTooltip",
-    //     true,
-    //     positionClick.xFromOrigin,
-    //     positionClick.yFromOrigin
-    //   );
-    // }
   });
 
 };

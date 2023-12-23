@@ -109,11 +109,11 @@ After cloning the project:
 
 1. **Terminal 1 - Katana:**
 
-``` cd client && katana --disable-fee ```
+``` cd contract && katana --disable-fee ```
 
 2. **Terminal 2 - Contract build:**
 
-``` cd client && sozo build && sozo migrate && torii --world  0x592af97e4f312df28125de662c6fb2f0831fab10281ecc0ac2c5c707e86792 ```
+``` cd contract && sozo build && sozo migrate && torii --world  0x6c0ee063cd0fcc64c8faec57c3f29563f374eccbee76e25aafc9cdc86d7dffc ```
 
 3. **Terminal 3 - Burner accounts:**
 
