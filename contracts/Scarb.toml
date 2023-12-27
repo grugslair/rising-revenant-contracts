@@ -18,11 +18,12 @@ initializer_class_hash = "0xbeef"
 
 [tool.dojo.env]
 rpc_url = "https://api.cartridge.gg/x/rr-demo/katana"
+# rpc_url = "http://localhost:5050"
 # Default account for katana with seed = 0
-account_address = "0x524ce1b1c076971ccc28d9210f3e04c793b3048c4bd80824c9eaed06b23a5a4"
-private_key = "0x54dce4ece524ed0f9570825d505d2a7b816dead8b731d5419dee9bc75bfb8f9"
+account_address = "0x6bbcc84085a9e7a585735a7566cb05fd3ea80f715d198764aad2fff10a0856d"
+private_key = "0x1ced04fcecbccd07a25a0240e2c00e6a9e21bd3c3fd9deca1bcf80bf3a44a4b"
 
-world_address = "0x4093d0743e76913eb1a6458662c34971e5edfc95aa93b307eaf1b12ffbac397"
+world_address = "0x6232fe23b5b1504525ab921d824fd1ec130d0ab6efc7cae92f2afab94758a3e"
 # keystore_password = "password"
 # keystore_path = "../keystore.json"
 

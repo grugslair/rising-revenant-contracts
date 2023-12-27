@@ -22,14 +22,12 @@ interface OutpostTooltipProps { }
 //HERE the X on the side is not correct also the size is not correct
 // ALSO on the selected update data THIS SHOULD BE DONE
 // THHERE IS ALSO THE ISSUE THAT THE TOOLTIP DOES NOT GET UPDATE 
-// there is a new style :|
 
 export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
   const [clickedOnOutposts, setClickedOnOutposts] = useState<any>([]);
   const [selectedIndex, setSelectedIndex] = useState<any>(0);
 
   const {
-    account: { account },
     networkLayer: {
       systemCalls: {
         confirm_event_outpost
@@ -128,19 +126,13 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
       {selectedOutpost[0] !== undefined && (
         <OutpostDataElement
           entityId={selectedOutpost[0]}
-          contractComponents={contractComponents}
-          clientComponents={clientComponents}
-          account={account}
           functionEvent={confirm_event_outpost}
           functionClose={setArray} />
       )}
 
       {selectedOutpost[0] !== undefined && (
         <RevenantDataElement
-          entityId={selectedOutpost[0]}
-          contractComponents={contractComponents}
-          clientComponents={clientComponents}
-          account={account} />
+          entityId={selectedOutpost[0]} />
       )}
 
       {clickedOnOutposts.length > 1 && (
@@ -165,10 +157,17 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
   );
 };
 
-const RevenantDataElement: React.FC<{ entityId: EntityIndex, contractComponents: any, clientComponents: any, account: any }> = ({ entityId, contractComponents, clientComponents, account }) => {
+const RevenantDataElement: React.FC<{ entityId: EntityIndex }> = ({ entityId }) => {
 
   const [owner, setOwner] = useState<string>("");
   const [name, setName] = useState<string>("");
+
+  const {
+    account: { account },
+    networkLayer: {
+      network: { contractComponents },
+    },
+  } = useDojo();
 
   const revenantData = useComponentValue(contractComponents.Revenant, entityId);
  
@@ -195,7 +194,7 @@ const RevenantDataElement: React.FC<{ entityId: EntityIndex, contractComponents:
   );
 };
 
-const OutpostDataElement: React.FC<{ entityId: EntityIndex, contractComponents: any, clientComponents: any, account: any, functionEvent, functionClose }> = ({ entityId, contractComponents, clientComponents, account, functionEvent, functionClose }) => {
+const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, functionClose }> = ({ entityId, functionEvent, functionClose }) => {
 
   const [position, setPosition] = useState<any>({ x: 0, y: 0 });
   const [reinforcements, setReinforcements] = useState<number>(0);
@@ -207,14 +206,23 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, contractComponents: 
 
   const clickWrapperRef = useRef<HTMLDivElement>(null);
 
+  const {
+    account: { account },
+    networkLayer: {
+      network: { contractComponents, clientComponents },
+    },
+  } = useDojo();
+
   const clientOutpostData = useComponentValue(clientComponents.ClientOutpostData, entityId);
   const contractOutpostData = useComponentValue(contractComponents.Outpost, entityId);
+  
+  const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
   useEffect(() => {
     const updateHeight = () => {
       if (clickWrapperRef.current) {
         setHeight((clickWrapperRef.current.offsetWidth / 6) * 9);
-        console.error((clickWrapperRef.current.offsetWidth / 6) * 9)
+        // console.error((clickWrapperRef.current.offsetWidth / 6) * 9)
       }
     };
 
@@ -252,7 +260,6 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, contractComponents: 
   };
 
   const confirmEvent = async () => {
-    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     const gameTrackerData = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
 
     const confirmEventProps: ConfirmEventOutpost = {
@@ -295,7 +302,7 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, contractComponents: 
         </h2>
       </div>
       <ClickWrapper className="outpost-data-conf-button-grid-element outpost-grid-container-text-style">
-        {state === "In Event" &&  <div className="global-button-style pointer" style={{padding:"5px 10px"}} onClick={confirmEvent}>Confirm Event</div>}
+        {state === "In Event" && !clientGameData.guest && <div className="global-button-style pointer" style={{padding:"5px 10px"}} onClick={confirmEvent}>Confirm Event</div>}
       </ClickWrapper>
     </div>
   );

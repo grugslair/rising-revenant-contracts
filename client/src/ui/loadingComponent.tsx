@@ -54,12 +54,12 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
       const create_game_prop: CreateGameProps =
       {
         account: account,
-        preparation_phase_interval: 20,
-        event_interval: 5,
+        preparation_phase_interval: 30,
+        event_interval: 3,
         erc_addr: account.address,
         reward_pool_addr: account.address,
         revenant_init_price: 10,
-        max_amount_of_revenants: 10,
+        max_amount_of_revenants: 50,
       }
   
       await create_game(create_game_prop)
@@ -92,16 +92,11 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     loadInClientOutpostData(game_id, contractComponents,clientComponents,account);
 
     switch (data.phase) {
-  
-      case 2:
 
-        // console.error("THIS SHOULD BE FETCHING ALL THE EVENTS ALREADY")
+      case 2:
 
         const allEventsModels = await fetchAllEvents(graphSdk, game_id, gameEntityCounter.event_count);
         setComponentsFromGraphQlEntitiesHM(allEventsModels, contractComponents, true);
-
-        const allTradesModels = await fetchAllOutRevData(graphSdk, game_id, 1);
-        setComponentsFromGraphQlEntitiesHM(allTradesModels, contractComponents, true);
         
        break;
     }
@@ -120,7 +115,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
 
   useEffect(() => {
 
-    if (account.address === "0x524ce1b1c076971ccc28d9210f3e04c793b3048c4bd80824c9eaed06b23a5a4")
+    if (account.address === "0x6bbcc84085a9e7a585735a7566cb05fd3ea80f715d198764aad2fff10a0856d")
     {
       return;
     }

@@ -126,9 +126,8 @@ export function createSystemCalls(
 
     const get_current_reinforcement_price = async (game_id:number, count:number) => {
         try {
-
             const tx: any = await call("revenant_actions", "get_current_price", [game_id,count]);
-                console.error(`THIS IS FOR THE CURRENT PRICE OF THE REINFORCEMENTS ${tx.result[0]}`)
+                // console.error(`THIS IS FOR THE CURRENT PRICE OF THE REINFORCEMENTS ${tx.result[0]}`)
             return tx.result[0]
         } catch (e) {
             console.log(e)
@@ -155,6 +154,8 @@ export function createSystemCalls(
     };
 
     const reinforce_outpost = async ({ account, game_id, count, outpost_id }: ReinforceOutpostProps) => {
+
+        console.error("for the reinforce ", outpost_id, " ", count, " ", game_id);
 
         try {
             const tx = await execute(account, "revenant_actions", "reinforce_outpost", [game_id,count, outpost_id]);

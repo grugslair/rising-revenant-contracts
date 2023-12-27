@@ -266,16 +266,16 @@ mod revenant_actions {
         ) -> (Outpost, OutpostPosition) {
             let seed = starknet::get_tx_info().unbox().transaction_hash;
             let mut random = RandomImpl::new(seed);
-            let mut x = (MAP_WIDTH / 2) - random.next_u32(0, 400);
-            let mut y = (MAP_HEIGHT / 2) - random.next_u32(0, 400);
+            let mut x = (MAP_WIDTH / 2) - random.next_u32(0, 800);
+            let mut y = (MAP_HEIGHT / 2) - random.next_u32(0, 800);
 
             let mut prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
 
             // avoid multiple outpost appearing in the same position
             if prev_outpost.entity_id > 0 {
                 loop {
-                    x = (MAP_WIDTH / 2) - random.next_u32(0, 400);
-                    y = (MAP_HEIGHT / 2) - random.next_u32(0, 400);
+                    x = (MAP_WIDTH / 2) - random.next_u32(0, 800);
+                    y = (MAP_HEIGHT / 2) - random.next_u32(0, 800);
                     prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
                     if prev_outpost.entity_id == 0 {
                         break;

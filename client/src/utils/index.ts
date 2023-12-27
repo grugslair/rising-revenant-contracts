@@ -294,9 +294,6 @@ export const loadInClientOutpostData = (game_id: number,contractComponents:any, 
 }
 
 
-
-
-
 /**
  * Sets the client click position component based on provided coordinates.
  * 

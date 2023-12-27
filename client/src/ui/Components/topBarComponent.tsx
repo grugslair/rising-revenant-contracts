@@ -17,11 +17,8 @@ import { GAME_CONFIG_ID, getRefreshOwnOutpostDataTimer } from "../../utils/setti
 //styles
 import "./ComponentsStyles/TopBarStyles.css";
 
-
 //Comps
 import Tooltip from '@mui/material/Tooltip';
-
-
 
 //Pages
 
@@ -37,10 +34,9 @@ interface TopBarPageProps {
 
 export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phaseNum }) => {
 
-    const [Jackpot, setJackpot] = useState(0);
     const [playerContribScore, setPlayerContribScore] = useState(0);
     const [playerContribScorePerc, setPlayerContribScorePerc] = useState(0);
-
+    
     const {
         account: { account },
         networkLayer: {
@@ -50,23 +46,20 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
     const outpostQuery = useEntityQuery([Has(contractComponents.Outpost)]);
     const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
-    const ownOutposts = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true })]);
-    // const playerInfo = useEntityQuery([HasValue(contractComponents.PlayerInfo, { owner: account.address })]);
-
-
-    const clientQuery = useEntityQuery([Has(clientComponents.ClientGameData)]);
-    const entityQuery = useEntityQuery([Has(contractComponents.GameEntityCounter)]);
+    const ownOutposts = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
 
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
-    const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+
+    const gameEntityCounter = useComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+    const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]))
     const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
 
-    const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]));
+    useEventAndUserDataLoader();
+    // console.error("complete reload of the top bar")
 
-    useTopBardataLoader();
-
+    // this should only be getting called when the user is active the moment the game switches from prep to game phase as the other oupost from other people are not loaded in 
+    // in the prep phase
     useEffect(() => {
-
         const loadInAllOutpostsPhaseChange = async () => {
             const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData.current_game_id, gameEntityCounter.outpost_count);
             setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
@@ -81,9 +74,9 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                 loadInAllOutpostsPhaseChange()
             }
         }
+    }, [clientGameData, gameEntityCounter]);
 
-    }, [clientQuery, entityQuery]);
-
+    // on change this should deal with the contribution value change draw
     useEffect(() => {
 
         if (playerInfo === null || playerInfo === undefined) { return; }
@@ -93,27 +86,36 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
     }, [playerInfo]);
 
+    // this should update all the outpost that have been hit by the current event, as those are the ones with the most likely change of data
     useEffect(() => {
 
         const updateOwnData = async () => {
+            // console.error("complete reload of the entities call")
+
             if (clientGameData === 1) { return; }
 
             for (let index = 0; index < ownOutposts.length; index++) {
                 const entity_id = ownOutposts[index];
 
                 const outpostData = getComponentValueStrict(contractComponents.Outpost, entity_id);
+
+                if (outpostData.lifes === 0) 
+                {
+                    continue;
+                }
+
                 const outpostModelQuery = await fetchSpecificOutRevData(graphSdk, clientGameData.current_game_id, Number(outpostData.entity_id));
                 setComponentsFromGraphQlEntitiesHM(outpostModelQuery, contractComponents, false);
 
                 if (clientGameData.current_event_drawn !== 0) {
                     const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
 
-                    if (outpostData.last_affect_event_id === clientGameData.current_event_drawn) 
-                    {
-                        setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, false, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
-                    }
-                    else 
-                    {
+                    // if (outpostData.last_affect_event_id === clientGameData.current_event_drawn) 
+                    // {
+                    //     setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, false, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
+                    // }
+                    // else 
+                    // {
                         const lastEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]));
 
                         const outpostX = outpostData.x;
@@ -126,7 +128,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                         const inRadius = Math.sqrt(Math.pow(outpostX - eventX, 2) + Math.pow(outpostY - eventY, 2)) <= eventRadius;
 
                         setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, inRadius, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
-                    }
+                    // }
                 }
             }
         }
@@ -145,7 +147,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
             <Tooltip title={`Tot score game ${gameEntityCounter.score_count} \n Your score count ${playerContribScore}`}>
                 <div className="top-bar-grid-left-text-section center-via-flex">
                     <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                        <div style={{ fontSize: "1.2vw" }}>Jackpot: {Jackpot} $LORDS </div>
+                        <div style={{ fontSize: "1.2vw" }}>Jackpot: {1000} $LORDS </div>
                     </div>
                     <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
 
@@ -163,10 +165,10 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
             </Tooltip>
             <div className="top-bar-grid-right-text-section center-via-flex">
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                    {clientGameData.current_game_id === 1 ?
+                    {clientGameData.current_game_state === 1 ?
                         <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {gameEntityCounter.revenant_count}/{gameData.max_amount_of_revenants}</div>
                         :
-                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostDeadQuery.length}/{outpostQuery.length}</div>
+                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostQuery.length - outpostDeadQuery.length }/{outpostQuery.length}</div>
                     }
                 </div>
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
@@ -196,13 +198,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 };
 
 
-
-
-
-
-
-
-const useTopBardataLoader = (updateInterval = 5000) => {
+const useEventAndUserDataLoader = (updateInterval = 5000) => {
 
     const {
         account: { account },
@@ -215,22 +211,26 @@ const useTopBardataLoader = (updateInterval = 5000) => {
     useEffect(() => {
 
         const updateFunctions = () => {
-            checkBlockCount();
-            getGameData();
-        }
-
-        const getGameData = async () => {
-
             const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
+            checkBlockCount(clientGameData);
+            getGameData(clientGameData);
+        }
+
+        const getGameData = async (clientGameData: any) => {
+          
+            // fetch new game data from chain
             const gameDataQuery = await fetchGameData(graphSdk, clientGameData.current_game_id);
             setComponentsFromGraphQlEntitiesHM(gameDataQuery, contractComponents, false);
 
+            //and new data of the player it self
             const playerInfoQuery = await fetchPlayerInfo(graphSdk, clientGameData.current_game_id, account.address);
             setComponentsFromGraphQlEntitiesHM(playerInfoQuery, contractComponents, false);
 
+            //get the entity counter
             const entityCount = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
 
+            // this checks if there is an event to load in 
             const latest_loaded_event = clientGameData.current_event_drawn;
             const latest_onchain_event = entityCount.event_count;
 
@@ -245,9 +245,8 @@ const useTopBardataLoader = (updateInterval = 5000) => {
             }
         }
 
-        const checkBlockCount = async () => {
+        const checkBlockCount = async (clientGameData: any) => {
             const blockCount = await view_block_count();
-            const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
             checkAndSetPhaseClientSide(clientGameData.current_game_id, blockCount!, contractComponents, clientComponents);
         };
 
@@ -257,54 +256,4 @@ const useTopBardataLoader = (updateInterval = 5000) => {
         return () => clearInterval(intervalId);
     }, []);
 
-};
-
-
-const useTopBarOwnDaraLoader = (updateIntervalSeconds = 15) => {
-
-    const {
-        account: { account },
-        networkLayer: {
-            network: { contractComponents, clientComponents, graphSdk }
-        },
-    } = useDojo();
-
-    const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])).current_game_state
-
-
-    useEffect(() => {
-
-        console.error("this is a call fromt he client gameoutpotand th top bar thing ")
-
-
-        const updateOwnData = async () => {
-
-            if (clientGameData === 1) { return; }
-
-            const visibleOutposts = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { owned: true })]));
-
-            for (let index = 0; index < visibleOutposts.length; index++) {
-                const entity_id = visibleOutposts[index];
-
-                const outpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
-                const outpostDatadd = getComponentValueStrict(contractComponents.Outpost, entity_id);
-
-                console.error(outpostData);
-
-                console.error(outpostData.entity_id);
-                console.error(outpostDatadd.id);
-
-                const outpostModelQuery = await fetchSpecificOutRevData(graphSdk, clientGameData.current_game_id, outpostData.id);
-                setComponentsFromGraphQlEntitiesHM(outpostModelQuery, contractComponents, false);
-
-                console.error(`calling the new data ${visibleOutposts.length}`)
-                console.error(outpostModelQuery);
-            }
-        }
-
-        updateOwnData();
-        const intervalId = setInterval(updateOwnData, updateIntervalSeconds * 1000);
-
-        return () => clearInterval(intervalId);
-    }, [clientGameData]);
 };

@@ -151,8 +151,8 @@ mod world_event_actions {
 
             let seed = starknet::get_tx_info().unbox().transaction_hash;
             let mut random = RandomImpl::new(seed);
-            let x = (MAP_WIDTH / 2) - random.next_u32(0, 400);
-            let y = (MAP_HEIGHT / 2) - random.next_u32(0, 400);
+            let x = (MAP_WIDTH / 2) - random.next_u32(0, 800);
+            let y = (MAP_HEIGHT / 2) - random.next_u32(0, 800);
 
             WorldEvent { game_id, entity_id, x, y, radius, destroy_count: 0, block_number }
         }

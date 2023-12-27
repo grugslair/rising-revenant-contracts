@@ -6,7 +6,7 @@ import {
     getComponentValueStrict,
     getComponentValue
 } from "@latticexyz/recs";
-import { useEntityQuery } from "@latticexyz/react";
+import { useEntityQuery,useComponentValue } from "@latticexyz/react";
 
 import "./ComponentsStyles/JurnalEventStyles.css";
 
@@ -38,7 +38,7 @@ export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState
     //do we want the ones that have their event already confirmed to go?
     const ownOutpost = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true, event_effected: true })]);
 
-    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+    const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     const lastEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]))
 
     return (

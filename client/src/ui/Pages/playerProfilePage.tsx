@@ -133,7 +133,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
                         <div className="test-query">
                             {ownedOutpost.map((ownedOutID, index) => (
                                 <React.Fragment key={index}>
-                                    <ListElement entityId={ownedOutID} contractComponents={contractComponents} clientComponents={clientComponents} reinforce_outpost={reinforceOutpost} currentBalance={reinforcementCount} goHereFunc={setCameraPos} phase={clientGameData.current_game_state} confirmEvent={callSingularEventConfirm} />
+                                    <ListElement entityId={ownedOutID} reinforce_outpost={reinforceOutpost} currentBalance={reinforcementCount} goHereFunc={setCameraPos} phase={clientGameData.current_game_state} confirmEvent={callSingularEventConfirm} />
                                     {index < ownedOutpost.length - 1 && dividingLine}
                                 </React.Fragment>
                             ))}
@@ -162,8 +162,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
 
 interface ListElementProps {
     entityId: EntityIndex
-    contractComponents: any
-    clientComponents: any
     reinforce_outpost: any
     currentBalance: number
     goHereFunc: any
@@ -171,7 +169,7 @@ interface ListElementProps {
     confirmEvent: any
 }
 
-export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComponents, clientComponents, reinforce_outpost, currentBalance, goHereFunc, phase, confirmEvent }) => {
+export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_outpost, currentBalance, goHereFunc, phase, confirmEvent }) => {
     const [buttonIndex, setButtonIndex] = useState<number>(0)
     const [amountToReinforce, setAmountToReinforce] = useState<number>(1)
     const [heightValue, setHeight] = useState<number>(0)
@@ -188,7 +186,13 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, contractComp
 
     const clickWrapperRef = useRef<HTMLDivElement>(null);
 
-    const outpostData = getComponentValueStrict(contractComponents.Outpost, entityId);
+    const {
+        networkLayer: {
+            network: { contractComponents, clientComponents}
+        },
+    } = useDojo();
+
+    const outpostData = useComponentValue(contractComponents.Outpost, entityId);
     const revenantData = getComponentValueStrict(contractComponents.Revenant, entityId);
     const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entityId);
 
