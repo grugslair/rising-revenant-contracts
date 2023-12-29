@@ -53,12 +53,12 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
       const create_game_prop: CreateGameProps =
       {
         account: account,
-        preparation_phase_interval: 20,
+        preparation_phase_interval: 50,
         event_interval: 5,
         erc_addr: account.address,
         reward_pool_addr: account.address,
         revenant_init_price: 10,
-        max_amount_of_revenants: 10,
+        max_amount_of_revenants: 35,
       }
   
       await create_game(create_game_prop)
@@ -106,7 +106,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
 
   useEffect(() => {
 
-    if (account.address === "0x517ececd29116499f4a1b64b094da79ba08dfd54a3edaa316134c41f8160973")
+    if (account.address === "0x31479dba5621b0160109cef77ff8489fdb6750514f4901feebef5d91181e7a4")
     {
       return;
     }
