@@ -30,28 +30,21 @@ export const PrepPhaseEndsPage: React.FC<PrepPhaseEndsPageProps> = ({ setMenuSta
 
     const [freeRevs, setFreeRevs] = useState<number>(10);
 
-    const toggleShowBlocks = () => {
-        setShowBlocks((prevShowBlocks) => !prevShowBlocks);
-    };
-
     const {
         networkLayer: {
           network: { contractComponents, clientComponents }
         },
       } = useDojo();
 
-
     const clientGame = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     
     const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGame.current_game_id)]));
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGame.current_game_id)]));
 
-
     useEffect(() => {
         const blocksLeft = (gameData.start_block_number + gameData.preparation_phase_interval) - clientGame.current_block_number!;
         setBlocksLeft(blocksLeft);
     }, [clientGame]);
-
 
     useEffect(() => {
         setFreeRevs(Number(gameData.max_amount_of_revenants) - Number(gameEntityCounter.revenant_count));

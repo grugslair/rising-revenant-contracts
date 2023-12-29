@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { MenuState } from "./gamePhaseManager";
 import { Has, getComponentValueStrict, EntityIndex } from "@latticexyz/recs";
-import { useEntityQuery } from "@latticexyz/react";
+import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 
 //styles
 import "./PagesStyles/RevenantJurnalPageStyles.css";
@@ -11,6 +11,7 @@ import { ClickWrapper } from "../clickWrapper";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
+import { namesArray, surnamesArray, truncateString } from "../../utils";
 
 //elements/components
 
@@ -150,7 +151,7 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
     return (
         <div className="game-page-container">
             <img className="page-img" src="./assets/Page_Bg/JOURNAL_PAGE_BG.png" alt="testPic" />
-            <PageTitleElement name="REVENANT JURNAL" closeFunction={closePage} rightPicture="close_icon.svg" />
+            <PageTitleElement name="REVENANT JUORNAL" closeFunction={closePage} rightPicture="close_icon.svg" />
             <div style={{ width: "100%", height: "10%", backgroundColor: "red" }}>
             </div>
             <div style={{ width: "100%", height: "80%", position: "relative", display: "flex", flexDirection: "row", color: "white", fontFamily: "OL" }}>
@@ -172,7 +173,7 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
                                 <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Position <br /> X:{currentlySelectedEventData.x || 0} || Y:{currentlySelectedEventData.y || 0}</div>
                             </div>
                             <div className="rev-jurn-page-grid-radius-data center-via-flex">
-                                <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Radius: <br /> {currentlySelectedEventData.radius || 0}</div>
+                                <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Radius: <br /> {currentlySelectedEventData.radius || 0} km</div>
                             </div>
                             <div className="rev-jurn-page-grid-type-data center-via-flex">
                                 <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Type: <br /> {"Null"} </div>
@@ -184,7 +185,7 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
                                     </div>
                                         <ClickWrapper  style={{ width: "100%", height: "80%", overflowY: "auto", scrollbarGutter: "stable both-edges" }}>
                                         {outpostHitList.map((outpostHit, index) => (
-                                            <ListElement key={index} entityId={outpostHit} clientComponents={clientComponents} contractComponents={contractComponents} />
+                                            <ListElement key={index} entityId={outpostHit} />
                                         ))}
 
                                     </ClickWrapper>
@@ -209,37 +210,43 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
     );
 };
 
-const ListElement: React.FC<{ entityId: EntityIndex, clientComponents: any, contractComponents: any }> = ({ entityId, clientComponents, contractComponents }) => {
+const ListElement: React.FC<{ entityId: EntityIndex}> = ({ entityId }) => {
   
     const [outpostId, setOutpostId] = useState<string>("404");
-    const [outpostOwner, setOutpostOwner] = useState<string>("0x2347...23");
+    const [outpostOwner, setOutpostOwner] = useState<string>("NaN");
 
     const [outpostCoordinates, setOutpostCoordinates] = useState<{ x: number, y: number }>({ x: 404, y: 404 });
 
+    const {
+        account: {account},
+        networkLayer: {
+            network: { contractComponents},
+        },
+    } = useDojo();
+
+    // const outpostClientData = useComponentValue(clientComponents.ClientOutpostData, entityId);
+    const outpostContractData = useComponentValue(contractComponents.Outpost, entityId);
+    const revenantContractData = useComponentValue(contractComponents.Revenant, entityId);
+
+    //probably doesnt need the fetch to client outpost data     HERE
+
     useEffect(() => {
 
-        const getOutpostClientData = getComponentValueStrict(clientComponents.ClientOutpostData, entityId);
-        const getOutpostContractData = getComponentValueStrict(contractComponents.Outpost, entityId);
+        setOutpostId(outpostContractData.entity_id.toString());
 
-        setOutpostId(getOutpostClientData.id);
+        const name = namesArray[revenantContractData.first_name_idx] + " " + surnamesArray[revenantContractData.last_name_idx];
+        setOutpostOwner(name);
+        
+        setOutpostCoordinates({ x: outpostContractData.x, y: outpostContractData.y });
 
-        if (getOutpostClientData.owned) {
-            setOutpostOwner("You");
-        }
-        else {
-            setOutpostOwner(getOutpostContractData.owner.toString());
-        }
-
-        setOutpostCoordinates({ x: getOutpostContractData.x, y: getOutpostContractData.y });
-
-    }, [entityId]);
+    }, [outpostContractData]);
 
     return (
         <div className="rev-jurn-outpost-element-grid-container">
             <div style={{gridColumn:"1/3"}}>Outpost Id: {outpostId}</div>
-            <div>||</div>
-            <div>X: {outpostCoordinates.x}, Y: {outpostCoordinates.y}</div>
-            <div>||</div>
+            <div>| |</div>
+            <div style={{whiteSpace:"nowrap"}}>X: {outpostCoordinates.x}, Y: {outpostCoordinates.y}</div>
+            <div>| |</div>
             <div style={{gridColumn:"6/8"}}>Owner: {outpostOwner}</div>
         </div>
     );

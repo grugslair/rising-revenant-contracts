@@ -1,5 +1,3 @@
-
-
 import { getEntityIdFromKeys, parseComponentValueFromGraphQLEntity, setComponentFromGraphQLEntity } from "@dojoengine/utils";
 import { setComponent, Components, ComponentValue, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { getTileIndex } from "../phaser/constants";
@@ -289,13 +287,10 @@ export const loadInClientOutpostData = (game_id: number,contractComponents:any, 
 
     if (outpostData.owner === account.address) {owned = true;}
     
+    
     setClientOutpostComponent(Number(outpostData.entity_id), owned, false, false,false,clientComponents,  contractComponents,game_id);
   }
 }
-
-
-
-
 
 /**
  * Sets the client click position component based on provided coordinates.
@@ -344,7 +339,16 @@ export const setClientCameraEntityIndex = async (x: number, y: number, clientCom
 
 //endregion
 
+export function convertBlockCountToTime(number: number): string {
+    const totalMinutes = number * 20;
 
+    const days = Math.floor(totalMinutes / (24 * 60));
+    const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+    const minutes = Math.floor(totalMinutes % 60);
+    const seconds = Math.floor((totalMinutes % 1) * 60);
+
+    return `DD: ${days} HH: ${hours} MM: ${minutes} SS: ${seconds}`;
+}
 
 export function isValidArray(input: any): input is any[] {
     return Array.isArray(input) && input != null;
@@ -404,7 +408,7 @@ export function truncateString(inputString: string, prefixLength: number): strin
 export function setComponentsFromGraphQlEntitiesHM(data: any, components: Components, isModel: boolean): void {
 
     if (data === null && data === undefined) {
-        console.error("something sent to the setComponent func was not correct")
+        console.error(`something sent to the setComponent func was not correct ${data}`)
         return;
     }
 
@@ -433,7 +437,7 @@ export function setComponentsFromGraphQlEntitiesHM(data: any, components: Compon
                     return acc;
                 }, {});
 
-                console.log(componentValues)
+                // console.log(componentValues)
                 setComponent(component, entityIndex, componentValues);
             }
         }
@@ -473,7 +477,6 @@ export const fetchGameTracker = async (graphSDK_: any): Promise<any> => {
     return entities;
 }
 
-
 export const fetchGameData = async (graphSDK_: any, game_id: number): Promise<any> => {
     const {
         data: { entities },
@@ -481,7 +484,6 @@ export const fetchGameData = async (graphSDK_: any, game_id: number): Promise<an
 
     return entities;
 }
-
 
 export const fetchPlayerInfo = async (graphSDK_: any, game_id: number, owner: string): Promise<any> => {
 
@@ -491,7 +493,6 @@ export const fetchPlayerInfo = async (graphSDK_: any, game_id: number, owner: st
 
     return entities;
 }
-
 
 export const fetchAllEvents = async (graphSDK_: any, game_id: number, numOfEvents: number): Promise<any> => {
 
@@ -529,7 +530,6 @@ export const fetchAllOutRevData = async (graphSDK_: any, game_id: number, numOfO
     return outpostModels;
 }
 
-
 export const fetchAllTrades = async (graphSDK_: any, game_id: number, state: number): Promise<any> => {
 
     const {
@@ -538,7 +538,6 @@ export const fetchAllTrades = async (graphSDK_: any, game_id: number, state: num
 
     return tradeModels;
 }
-
 
 export const fetchSpecificOutRevData = async (graphSDK_: any, game_id: number, entity_id: number): Promise<any> => {
 
@@ -549,7 +548,6 @@ export const fetchSpecificOutRevData = async (graphSDK_: any, game_id: number, e
     return entities;
 }
 
-
 export const fetchAllOwnOutRevData = async (graphSDK_: any, game_id: number, numOfObjects: number, account: any): Promise<any> => {
 
     const {
@@ -558,7 +556,5 @@ export const fetchAllOwnOutRevData = async (graphSDK_: any, game_id: number, num
 
     return outpostModels;
 }
-
-
 
 //endregion

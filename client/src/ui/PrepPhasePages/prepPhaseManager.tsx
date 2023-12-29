@@ -19,13 +19,14 @@ import { PrepPhaseEndsPage } from "./preparationPhaseEndsPage";
 import { WaitForTransactionPage } from "./waitForTransactionPage";
 import { DebugPage } from "../Pages/debugPage";
 
-import { PrepPhaseNavbarComponent } from "../Components/nabarComponent";
+import { PrepPhaseNavbarComponent } from "../Components/navbarComponent";
 import { ProfilePage } from "../Pages/playerProfilePage";
 import { RulesPage } from "../Pages/rulePage";
 import { Phase } from "../phaseManager";
 import { SettingsPage } from "../Pages/settingsPage";
 import { GuestPagePrepPhase } from "./guestPrepPhasePage";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
+import { blockDataTypes, useLeftBlockCounter } from "../Elements/leftBlockCounterElement";
 
 export enum PrepPhaseStages {
     VID,
@@ -49,7 +50,6 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
     const [prepPhaseStage, setPrepPhaseStage] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
 
     const [showBlocks, setShowBlocks] = useState(false);
-    const [blocksLeft, setBlocksLeft] = useState(0);
 
     const [lastSavedState, setLastSavedState] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
 
@@ -95,10 +95,8 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
 
     }, [prepPhaseStage]);
 
-    useEffect(() => {
-        const blocksLeft = (gameData.start_block_number + gameData.preparation_phase_interval) - clientGameData.current_block_number;
-        setBlocksLeft(blocksLeft);
-    }, [clientGameData]);
+    const { blocksLeftData } = useLeftBlockCounter();
+    const { numberValue, stringValue } = blocksLeftData;
 
     // video stuff
     const onVideoDone = () => {
@@ -160,7 +158,7 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
             </div>
         </div>
 
-        {prepPhaseStage !== PrepPhaseStages.WAIT_PHASE_OVER && <ClickWrapper className='prep-phase-text' style={{ fontSize: "0.7cqw" }} onMouseDown={() => { setShowBlocks(!showBlocks) }}> <h2> Preparation phase ends in <br /> {showBlocks ? "DD: 5 HH: 5 MM: 5 SS: 5" : `${blocksLeft} Blocks`}</h2></ClickWrapper>}
+        {prepPhaseStage !== PrepPhaseStages.WAIT_PHASE_OVER && <ClickWrapper className='prep-phase-text' style={{ fontSize: "0.7cqw" }} onMouseDown={() => { setShowBlocks(!showBlocks) }}> <h2> Preparation phase ends in <br /> {showBlocks ? `${stringValue}` : `${numberValue} Blocks`}</h2></ClickWrapper>}
         <PrepPhaseNavbarComponent currentMenuState={prepPhaseStage} lastSavedState={lastSavedState} setMenuState={setMenuState} />
     </div>);
 };

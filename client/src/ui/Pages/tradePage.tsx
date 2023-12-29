@@ -63,7 +63,7 @@ export const TradesPage: React.FC<TradesPageProps> = ({ setMenuState }) => {
     return (
         <div className="game-page-container">
 
-            <img className="page-img" src="./assets/Page_Bg/TRADES_PAGE_BG.png" alt="testPic" />
+            <img className="page-img brightness-down" src="./assets/Page_Bg/TRADES_PAGE_BG.png" alt="testPic" />
             <PageTitleElement name={"TRADES"} rightPicture={"close_icon.svg"} closeFunction={() => { closePage() }} ></PageTitleElement>
 
             <ClickWrapper style={{ display: "flex", flexDirection: "row", gap: "3%", position: "relative", width: "100%", height: "10%", fontSize: "1.6cqw" }}>
@@ -197,69 +197,6 @@ const ReinforcementListingElement = ({ trade }: { trade: Maybe<World__Entity> | 
 
 
 
-
-// const ReinforcementListingElement: React.FC<ItemListingProp> = ({ guest, entityData, game_id }) => {
-
-//     const [maker, setMaker] = useState("");
-//     const [count, setCount] = useState(0);
-//     const [cost, setCost] = useState(0);
-//     const [id, setId] = useState(0);
-
-//     const {
-//         account: { account },
-//         networkLayer: {
-//             network: { clientComponents, graphSdk, contractComponents },
-//             systemCalls: { create_trade_reinf, revoke_trade_reinf, purchase_trade_reinf }
-//         },
-//     } = useDojo();
-
-//     useEffect(() => {
-//         const tradeData = getComponentValueStrict(contractComponents.Trade, entityData);
-
-//         setMaker(tradeData.seller.toString());
-//         setCount(tradeData.count);
-//         setCost(tradeData.price);
-
-//         setId(tradeData.entity_id)
-//     }, [])
-
-
-//     const revokeTrade = () => {
-//         const revokeTradeProp: RevokeTradeReinf = {
-//             account: account,
-//             game_id: game_id,
-//             trade_id: id,
-//         }
-
-//         revoke_trade_reinf(revokeTradeProp);
-//     }
-
-//     const buyTrade = () => {
-//         const buyTradeProp: PurchaseTradeReinf = {
-//             account: account,
-//             game_id: game_id,
-//             trade_id: id,
-//             revenant_id: 1
-//         }
-
-//         purchase_trade_reinf(buyTradeProp)
-//     }
-
-//     return (
-//         <ClickWrapper className="reinforcement-sale-element-container ">
-//             <div className="reinf-grid-wallet center-via-flex">Maker: {truncateString(maker, 5)}</div>
-//             <div className="reinf-grid-reinf-amount center-via-flex"><img src="reinforcements_logo.png" className="test-embed" alt="" /> Reinforcements: {count}</div>
-//             <div className="reinf-grid-cost center-via-flex">Price: ${cost} LORDS</div>
-//             {guest ? (<div className="reinf-grid-buy-button center-via-flex" style={{ filter: "brightness(70%) grayscale(70%)" }}>BUY NOW</div>) :
-//                 (
-//                     <>
-//                         {account.address === maker ? <div className="reinf-grid-buy-button center-via-flex pointer" onClick={() => revokeTrade()} >REVOKE</div> : <div className="reinf-grid-buy-button center-via-flex pointer" onClick={() => buyTrade()}>BUY NOW</div>}
-//                     </>
-//                 )
-//             }
-//         </ClickWrapper >
-//     )
-// }
 
 // https://github.com/cartridge-gg/beer-baron/blob/main/client/src/ui/modules/TradeTable.tsx
 
@@ -481,6 +418,8 @@ const OutpostTradeWindow: React.FC = () => {
     )
 }
 
+
+// on  the price change just click the price wiht a tooltip
 
 const ReinforcementTradeWindow: React.FC = () => {
 
