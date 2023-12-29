@@ -106,7 +106,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
 
   useEffect(() => {
 
-    if (account.address === "0x52b5150a58bbaedba6b3baca010e209a5ad85ac37c92ce039740117eac2a2c6")
+    if (account.address === "0x5eed40770004a6ce788e8126756776bc24d145ea1d0fea92c8750cb65ed533d")
     {
       return;
     }

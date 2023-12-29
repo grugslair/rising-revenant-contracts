@@ -23,8 +23,8 @@ rpc_url = "https://api.cartridge.gg/x/rr-demo/katana"
 # account_address = "0x517ececd29116499f4a1b64b094da79ba08dfd54a3edaa316134c41f8160973"
 # private_key = "0x1800000000300000180000000000030000000000003006001800006600"
 
-account_address = "0x52b5150a58bbaedba6b3baca010e209a5ad85ac37c92ce039740117eac2a2c6"
-private_key = "0x14dcfca4c4a5250edb9d508e6690d57fe7d42f9e4507b50e801109130eb9b9c"
+account_address = "0x5eed40770004a6ce788e8126756776bc24d145ea1d0fea92c8750cb65ed533d"
+private_key = "0x5cbccc8c95249cb269e1016881836777a751a54e53e9eacd858f9c8761caa85"
 
 world_address = "0x4093d0743e76913eb1a6458662c34971e5edfc95aa93b307eaf1b12ffbac397"
 # keystore_password = "password"
