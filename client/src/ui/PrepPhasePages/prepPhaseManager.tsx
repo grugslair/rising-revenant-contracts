@@ -27,6 +27,7 @@ import { SettingsPage } from "../Pages/settingsPage";
 import { GuestPagePrepPhase } from "./guestPrepPhasePage";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 import { blockDataTypes, useLeftBlockCounter } from "../Elements/leftBlockCounterElement";
+import { fetchAllOutRevData, loadInClientOutpostData, setComponentsFromGraphQlEntitiesHM } from "../../utils";
 
 export enum PrepPhaseStages {
     VID,
@@ -54,8 +55,9 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
     const [lastSavedState, setLastSavedState] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
 
     const {
+        account: {account},
         networkLayer: {
-            network: { clientComponents, contractComponents }
+            network: { clientComponents, contractComponents,graphSdk }
         },
     } = useDojo();
 
@@ -124,6 +126,23 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
         setUIState(Phase.GAME);
     }
 
+    useEffect(() => {
+        const reloading = async () => {
+          const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+      
+          const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData.current_game_id, gameEntityCounter.outpost_count);
+          setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
+      
+          loadInClientOutpostData(clientGameData.current_game_id, contractComponents, clientComponents, account);
+        };
+      
+        reloading(); // Immediately invoke the async function
+      
+        return () => {
+          // Cleanup code if needed
+        };
+    }, []);
+      
     if (clientGameData.guest) {
         return (
         <div className="main-page-container-layout">
