@@ -66,6 +66,10 @@ export const PhaseManager = () => {
       {phase === Phase.LOADING && <LoadingComponent setUIState={setUIState}/>}
       {phase === Phase.PREP && <PrepPhaseManager setUIState={setUIState}/>}
       {phase === Phase.GAME && <GamePhaseManager />}
+
+      <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "1rem", color: "white" }}>
+            Date of Version: 29th Dec
+      </div>
     </>
   );
 };
