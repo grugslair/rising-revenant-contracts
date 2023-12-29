@@ -196,7 +196,7 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
         account: { account },
         networkLayer: {
             network: { contractComponents, clientComponents, graphSdk },
-            systemCalls: { view_block_count }
+            systemCalls: { get_current_block }
         },
     } = useDojo();
 
@@ -238,7 +238,7 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
         }
 
         const checkBlockCount = async (clientGameData: any) => {
-            const blockCount = await view_block_count();
+            const blockCount = await get_current_block();
             checkAndSetPhaseClientSide(clientGameData.current_game_id, blockCount!, contractComponents, clientComponents);
         };
 
