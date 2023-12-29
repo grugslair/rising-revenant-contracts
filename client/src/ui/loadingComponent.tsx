@@ -76,8 +76,8 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     setComponentsFromGraphQlEntitiesHM(gameDataQuery, contractComponents, false);
     
     //game entity comp
-    const blockCount =  await view_block_count();  //get the current block count
-    const data = checkAndSetPhaseClientSide(game_id, blockCount!, contractComponents, clientComponents)
+    // const blockCount =  await view_block_count();  //get the current block count
+    const data = checkAndSetPhaseClientSide(game_id, 2, contractComponents, clientComponents)
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]))
 
     const playerInfoQuery = await fetchPlayerInfo(graphSdk, game_id, account.address);
