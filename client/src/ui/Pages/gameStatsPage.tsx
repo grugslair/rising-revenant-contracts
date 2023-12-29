@@ -83,7 +83,7 @@ export const StatsPage: React.FC<StatsPageProps> = ({ setMenuState }) => {
     return (
         <ClickWrapper className="game-page-container">
 
-            <img className="page-img" src="./assets/Page_Bg/STATS_PAGE_BG.png" alt="testPic" />
+            <img className="page-img brightness-down" src="./assets/Page_Bg/STATS_PAGE_BG.png" alt="testPic" />
 
             <PageTitleElement name={"STATISTICS"} rightPicture={"close_icon.svg"} closeFunction={closePage} ></PageTitleElement>
 

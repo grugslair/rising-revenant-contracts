@@ -122,7 +122,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
     return (
         <ClickWrapper className="game-page-container">
 
-            <img className="page-img" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
+            <img className="page-img brightness-down" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
 
             <PageTitleElement name={"PROFILE"} rightPicture={"close_icon.svg"} closeFunction={setUIState} right_html_element={reinforcementsBalanceDiv} />
 
@@ -249,7 +249,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
     return (
         <div ref={clickWrapperRef} className={`grid-container ${clientOutpostData.event_effected && outpostData.lifes > 0 ? ' profile-page-attacked-style' : ''}`}    style={clickWrapperStyle}    onMouseEnter={() => setButtonIndex(1)} onMouseLeave={() => setButtonIndex(0)}>
             <div className="pfp">
-                <img src="Rev_PFP_11.png" className="child-img" />
+                <img src="Rev_PFP_11.png" className="child-img " />
             </div>
             <div className="name" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}> <h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw", whiteSpace: "nowrap" }}>{name} {surname}</h3></div>
             <div className="otp">

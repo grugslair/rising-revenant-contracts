@@ -86,7 +86,7 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
           <h2 style={{ fontFamily: "Zelda", fontSize: "2vw", color: "white" }}>Rising Revenant</h2>
         </div>
         <div style={{ gridRow: "2/6", gridColumn: "1/9", backgroundColor: "green" }}>
-          <img src="test_out_pp.png" style={{ height: "100%", width: "100%" }}></img>
+          <img src="login_revenant_pic.png" style={{ height: "100%", width: "100%" }}></img>
         </div>
         <ClickWrapper style={{ gridRow: "6/9", gridColumn: "1/9", flexDirection: "column", padding:"5% 10px" }} className="center-via-flex">
           <div style={{ flex: "1" }} className="center-via-flex">
