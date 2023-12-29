@@ -1,7 +1,7 @@
 {
   "world": {
     "name": "world",
-    "address": "0x6232fe23b5b1504525ab921d824fd1ec130d0ab6efc7cae92f2afab94758a3e",
+    "address": "0x4093d0743e76913eb1a6458662c34971e5edfc95aa93b307eaf1b12ffbac397",
     "class_hash": "0x99b08b2ff33750916e36b5e241b5d4a63e8d48862bf90a68fec2ff58a8de6",
     "abi": [
       {
@@ -948,7 +948,7 @@
   "contracts": [
     {
       "name": "game_actions",
-      "address": "0x1a25d0ac9bba57d3053b98a29a3a5794579ad2925587480c3009a7608732b5a",
+      "address": "0x2132a307d596353b54320a39df7df977d3d8f48daf4859ccba36cfad7b7aa89",
       "class_hash": "0x6af430e1b91e83a50bddae6ffd0809d613905d1fe85e59e0aafb85af297dcb6",
       "abi": [
         {
@@ -1138,7 +1138,7 @@
     },
     {
       "name": "revenant_actions",
-      "address": "0x6a52748df270bba595b115c471f4a963a918a24d8b5312f035a5d0dc2c5bc81",
+      "address": "0xe004dc4db6f5837abbd5122f9d5f129c39a67a1bbbcd47ca0a4a8259485846",
       "class_hash": "0x62ff2f726b9fd3886d23a41c9b78b1243d3efc812af966371447154d6f84295",
       "abi": [
         {
@@ -1414,7 +1414,7 @@
     },
     {
       "name": "trade_actions",
-      "address": "0x592793f25122e1056a1d0d4bd2c9bd593819ef1c9bc1495930e299e966d1df4",
+      "address": "0x608f1ac3a00b01a8721f872d9cbe88a0c60c069d9616ce11e49527708388c85",
       "class_hash": "0x7ce4a7fc1d2cf61f5552ff93651d70b08aadcb2f6370f7f1dfdadc1c51c2c45",
       "abi": [
         {
@@ -1606,7 +1606,7 @@
     },
     {
       "name": "world_event_actions",
-      "address": "0x74474c815d0ef32b59d3d9b43911e27885eb8def34b6d3164f43488e7fb48cc",
+      "address": "0xc4bf8a155f0cc61367790347ee38465b2105fcdb782e8b932ff6feee1603dd",
       "class_hash": "0x5e32c01d6bae28861fa29bf5cb9ad73d1883fb7616bdec149bfea391a4d073c",
       "abi": [
         {
