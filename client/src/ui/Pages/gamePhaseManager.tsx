@@ -159,6 +159,8 @@ export const GamePhaseManager = () => {
 
   return (
     <>
+      
+      <DirectionalEventIndicator/>
       <ClickWrapper className="main-page-container-layout" >
         <div className='main-page-topbar'>
           <TopBarComponent phaseNum={2} />
@@ -180,16 +182,16 @@ export const GamePhaseManager = () => {
 
         </div>
       </ClickWrapper>
-
       {/* pretty sure this is the wrong class as it doesnt make sense */}
       <div className='main-page-topbar'>
         <NavbarComponent menuState={currentMenuState} setMenuState={setCurrentMenuState} />
       </div>
-
+      
       {currentMenuState === MenuState.NONE && <JurnalEventComponent setMenuState={setCurrentMenuState} />}
       {currentMenuState === MenuState.NONE && <OutpostTooltipComponent />}
-      <DirectionalEventIndicator/>
+      
       {showEventButton && <ClickWrapper className='fire-button pointer' onClick={() => createEvent()}>Summon Event</ClickWrapper>}
+      
     </>
   );
 }

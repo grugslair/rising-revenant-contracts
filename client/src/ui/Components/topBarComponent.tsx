@@ -140,7 +140,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     }, [clientGameData]);
 
     return (
-        <ClickWrapper className="top-bar-grid-container ">
+        <ClickWrapper className="top-bar-grid-container">
             <div className="top-bar-grid-game-logo center-via-flex">
                 <img src="LOGO_WHITE.png" className="game-logo" style={{ height: "100%", aspectRatio: "1/1" }}></img>
             </div>
