@@ -341,8 +341,6 @@ export const setClientCameraEntityIndex = async (x: number, y: number, clientCom
 
 //endregion
 
-
-
 export function isValidArray(input: any): input is any[] {
     return Array.isArray(input) && input != null;
 }

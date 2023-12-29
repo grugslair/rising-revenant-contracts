@@ -20,10 +20,10 @@ initializer_class_hash = "0xbeef"
 rpc_url = "https://api.cartridge.gg/x/rr-demo/katana"
 # rpc_url = "http://localhost:5050"
 # Default account for katana with seed = 0
-account_address = "0x6bbcc84085a9e7a585735a7566cb05fd3ea80f715d198764aad2fff10a0856d"
-private_key = "0x1ced04fcecbccd07a25a0240e2c00e6a9e21bd3c3fd9deca1bcf80bf3a44a4b"
+account_address = "0x9e761489c1bfa5a456d812b5828ef04a20dfd563397769a405cbc3790ef080"
+private_key = "0x44f53ccd1d1cecf85d53d9e92498ddb5fea34dd51e0d933e67db13268103ee6"
 
-world_address = "0x6232fe23b5b1504525ab921d824fd1ec130d0ab6efc7cae92f2afab94758a3e"
+world_address = "0x4093d0743e76913eb1a6458662c34971e5edfc95aa93b307eaf1b12ffbac397"
 # keystore_password = "password"
 # keystore_path = "../keystore.json"
 
