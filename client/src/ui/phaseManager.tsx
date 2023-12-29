@@ -40,7 +40,7 @@ export const PhaseManager = () => {
       <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "1rem", color: "white" }}>
             Date of Version: 29th Dec<br/>
             Branch: Game-demo-branch<br/>
-            Pull: Deploy to vercel 4 test
+            Pull: Deploy to vercel 3 test
       </div>
     </>
   );

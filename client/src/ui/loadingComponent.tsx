@@ -76,8 +76,8 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     setComponentsFromGraphQlEntitiesHM(gameDataQuery, contractComponents, false);
     
     //game entity comp
-    const blockCount =  await view_block_count();  //get the current block count
-    const data = checkAndSetPhaseClientSide(game_id, blockCount!, contractComponents, clientComponents)
+    // const blockCount =  await view_block_count();  //get the current block count
+    const data = checkAndSetPhaseClientSide(game_id, 2, contractComponents, clientComponents)
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]))
 
     const playerInfoQuery = await fetchPlayerInfo(graphSdk, game_id, account.address);
@@ -106,7 +106,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
 
   useEffect(() => {
 
-    if (account.address === "0x6e0e6498e5ba6b14c5742e693ead3532db2acf3808b52e24129492320149c11")
+    if (account.address === "0x5eed40770004a6ce788e8126756776bc24d145ea1d0fea92c8750cb65ed533d")
     {
       return;
     }
