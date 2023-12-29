@@ -17,7 +17,6 @@ interface LoadingPageProps {
 
 export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => {
 
-  const [gamePhase, setGamePhase] = useState<number>(1);
   //https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel/preload
   // this is to preload
 
@@ -81,8 +80,6 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     const data = checkAndSetPhaseClientSide(game_id, blockCount!, contractComponents, clientComponents)
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]))
 
-    setGamePhase(data.phase);
-
     const playerInfoQuery = await fetchPlayerInfo(graphSdk, game_id, account.address);
     setComponentsFromGraphQlEntitiesHM(playerInfoQuery, contractComponents, false);
 
@@ -92,28 +89,19 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     loadInClientOutpostData(game_id, contractComponents,clientComponents,account);
 
     switch (data.phase) {
+      case 1:
+
+      setUIState(Phase.PREP);
+       break;
   
       case 2:
 
-        // console.error("THIS SHOULD BE FETCHING ALL THE EVENTS ALREADY")
-
         const allEventsModels = await fetchAllEvents(graphSdk, game_id, gameEntityCounter.event_count);
         setComponentsFromGraphQlEntitiesHM(allEventsModels, contractComponents, true);
-
-        const allTradesModels = await fetchAllOutRevData(graphSdk, game_id, 1);
-        setComponentsFromGraphQlEntitiesHM(allTradesModels, contractComponents, true);
-        
+        setUIState(Phase.GAME);
        break;
     }
 
-    if (data.phase === 1)
-    {
-      setUIState(Phase.PREP);
-    }
-    else
-    {
-      setUIState(Phase.GAME);
-    }
   }
 
   useEffect(() => {

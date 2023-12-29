@@ -4,12 +4,12 @@ import {
   Has,
   getComponentValue,
   HasValue,
-  getComponentValueStrict
+  getComponentValueStrict,
+  runQuery
 } from "@latticexyz/recs";
 import { useEntityQuery,useComponentValue } from "@latticexyz/react";
 import { useDojo } from '../../hooks/useDojo';
 import { getEntityIdFromKeys } from '@dojoengine/utils';
-import { getTileIndex } from '../../phaser/constants';
 
 // styles
 import "./PagesStyles/MainMenuContainerStyles.css"
@@ -73,11 +73,6 @@ export const GamePhaseManager = () => {
     }
   } = useDojo();
 
-  // const CAMERA_SPEED = 10;   ///needs to be global in the settings
-
-  // let prevX: number = 0;
-  // let prevY: number = 0;
-
   const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
   const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
@@ -88,11 +83,9 @@ export const GamePhaseManager = () => {
 
   //can be custom hooked
   useEffect(() => {
+    const worldEvents = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { selected: true })]));
 
-    if (totalOutposts.length - outpostDeadQuery.length <= 1) {
-
-      // this is part of the issue
-
+    if (totalOutposts.length - outpostDeadQuery.length <= 1  && worldEvents.length > 0) {
       setCurrentMenuState(MenuState.WINNER);
     }
 

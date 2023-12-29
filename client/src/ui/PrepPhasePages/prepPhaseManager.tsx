@@ -63,8 +63,6 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
 
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])); 
 
-    const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
-
     // this is only here to call the debug menu
     useEffect(() => {
         const handleKeyPress = (event: KeyboardEvent) => {
@@ -100,6 +98,23 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
     const { blocksLeftData } = useLeftBlockCounter();
     const { numberValue, stringValue } = blocksLeftData;
 
+    useEffect(() => {
+        const reloading = async () => {
+          const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+      
+          const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData.current_game_id, gameEntityCounter.outpost_count);
+          setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
+            
+          loadInClientOutpostData(clientGameData.current_game_id, contractComponents, clientComponents, account);
+        };
+      
+        return () => {
+            if (account.address !== "0x517ececd29116499f4a1b64b094da79ba08dfd54a3edaa316134c41f8160973"){
+                reloading(); 
+            }
+        };
+    }, [account]);
+
     // video stuff
     const onVideoDone = () => {
         if (clientGameData.guest)
@@ -126,22 +141,6 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
         setUIState(Phase.GAME);
     }
 
-    useEffect(() => {
-        const reloading = async () => {
-          const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
-      
-          const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData.current_game_id, gameEntityCounter.outpost_count);
-          setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
-      
-          loadInClientOutpostData(clientGameData.current_game_id, contractComponents, clientComponents, account);
-        };
-      
-        reloading(); // Immediately invoke the async function
-      
-        return () => {
-          // Cleanup code if needed
-        };
-    }, []);
       
     if (clientGameData.guest) {
         return (

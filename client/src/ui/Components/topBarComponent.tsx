@@ -59,22 +59,14 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
     // this should only be getting called when the user is active the moment the game switches from prep to game phase as the other oupost from other people are not loaded in 
     // in the prep phase
-    // useEffect(() => {
-    //     const loadInAllOutpostsPhaseChange = async () => {
-    //         const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData.current_game_id, gameEntityCounter.outpost_count);
-    //         setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
+    useEffect(() => {
 
-    //         loadInClientOutpostData(clientGameData.current_game_id, contractComponents, clientComponents, account)
-    //     }
-
-    //     if (phaseNum === 1 && setGamePhase !== undefined) {   // this should only be getting called when the phase goes from prep to game
-    //         if (clientGameData.current_game_state === 2) {
-    //             setGamePhase();
-
-    //             loadInAllOutpostsPhaseChange()
-    //         }
-    //     }
-    // }, [clientGameData, gameEntityCounter]);
+        if (phaseNum === 1 && setGamePhase !== undefined) {   // this should only be getting called when the phase goes from prep to game
+            if (clientGameData.current_game_state === 2) {
+                setGamePhase();
+            }
+        }
+    }, [clientGameData, gameEntityCounter]);
 
     // on change this should deal with the contribution value change draw
     useEffect(() => {
