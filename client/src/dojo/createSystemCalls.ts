@@ -116,9 +116,10 @@ export function createSystemCalls(
     //TO SWAP FOR THE REAL LIB
     const get_current_block = async () => {
         try {
-            const tx: any = await call("game_actions", "get_current_block", []);
-            return hexToDecimal(tx.result[0]);
-            // return 90;
+            // const tx: any = await call("game_actions", "get_current_block", []);
+            // return hexToDecimal(tx.result[0]);
+
+            return 90;
         } catch (e) {
             console.log(e)
         }
