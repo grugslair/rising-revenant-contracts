@@ -30,7 +30,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
   const {
     account: { account },
     networkLayer: {
-      systemCalls: { create_game, get_current_block, get_current_reinforcement_price },
+      systemCalls: { create_game, get_current_block   },
       network: { contractComponents, clientComponents, graphSdk },
     },
   } = useDojo();
@@ -74,13 +74,8 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     //then fetch the game comp
     const gameDataQuery = await fetchGameData(graphSdk, game_id);  // fetching the last game
     setComponentsFromGraphQlEntitiesHM(gameDataQuery, contractComponents, false);
-
-    //game entity comp
-    const current_price = await get_current_reinforcement_price(1, 1);
-    console.error(current_price);
-    console.log("Before get_current_block");
-    const blockCount = await get_current_block();
-    console.log("After get_current_block");
+    
+    const blockCount =  await get_current_block ();  //get the current block count
 
     const data = checkAndSetPhaseClientSide(game_id, blockCount!, contractComponents, clientComponents)
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]))
@@ -106,7 +101,6 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
         setUIState(Phase.GAME);
         break;
     }
-
   }
 
   useEffect(() => {

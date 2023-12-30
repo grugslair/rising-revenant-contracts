@@ -38,9 +38,10 @@ export const PhaseManager = () => {
       {phase === Phase.GAME && <GamePhaseManager />}
 
       <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "1rem", color: "white" }}>
-            Date of Version: 29th Dec<br/>
-            Branch: Game-demo-branch<br/>
-            Pull: test push view block amend 
+
+            Date of Version: 30th Dec<br/>
+            Branch: dev<br/>
+            Pull: call dojo fix 4
       </div>
     </>
   );

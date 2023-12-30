@@ -6,7 +6,6 @@ import { Phase } from "./phaseManager";
 import { useDojo } from "../hooks/useDojo";
 import { setClientCameraComponent, setClientCameraEntityIndex, setClientClickPositionComponent, setClientGameComponent, truncateString } from "../utils";
 
-
 interface LoginPageProps {
   setUIState: React.Dispatch<Phase>;
 }

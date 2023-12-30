@@ -32,36 +32,6 @@ export const clickManager = (layer: PhaserLayer) => {
     },
   } = layer;
 
-  // input.pointerdown$.subscribe(({ pointer }) => {
-  //   if (!pointer) {
-  //     return;
-  //   }
-
-  //   if (pointer.button === 0)
-  //   {
-  //     console.error("right click")
-  //   }
-  //   else
-  //   {
-  //     console.error("midd click")
-  //     console.error(pointer.x)
-  //     console.error(pointer.y)
-
-      
-  //     // const clickRelativeToMiddlePointX = pointer.x - camera.phaserCamera.width / 2;
-  //     // const clickRelativeToMiddlePointY = pointer.y - camera.phaserCamera.height / 2;
-      
-  //     // const camPos = getComponentValue(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
-
-  //     // setClientCameraComponent(camPos.x + clickRelativeToMiddlePointX, camPos.y+ clickRelativeToMiddlePointY,clientComponents);
-  //   }
-    
-  //   // setClientClickPositionComponent(pointer.x, pointer.y, clickRelativeToMiddlePointX, clickRelativeToMiddlePointY, clientComponents);
-
-  // }
-  
-  // );
-
   // Click checks for the ui tooltip
   defineSystem(world, [Has(ClientClickPosition)], ({ entity }) => {
 
