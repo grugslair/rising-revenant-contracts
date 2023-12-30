@@ -38,6 +38,7 @@ export const PhaseManager = () => {
       {phase === Phase.GAME && <GamePhaseManager />}
 
       <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "1rem", color: "white" }}>
+
             Date of Version: 30th Dec<br/>
             Branch: dev<br/>
             Pull: call dojo fix 4

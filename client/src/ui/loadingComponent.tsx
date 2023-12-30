@@ -3,7 +3,7 @@ import { CreateGameProps } from "../dojo/types";
 
 import { Phase } from "./phaseManager";
 import { useDojo } from "../hooks/useDojo";
-import { checkAndSetPhaseClientSide,  fetchAllEvents,  fetchAllOutRevData,  fetchGameData,  fetchGameTracker,  fetchPlayerInfo,  fetchSpecificOutRevData,  loadInClientOutpostData,  setClientOutpostComponent,  setComponentsFromGraphQlEntitiesHM } from "../utils";
+import { checkAndSetPhaseClientSide, fetchAllEvents, fetchAllOutRevData, fetchGameData, fetchGameTracker, fetchPlayerInfo, fetchSpecificOutRevData, loadInClientOutpostData, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM } from "../utils";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 
 import { getComponentValueStrict, getComponentValue } from "@latticexyz/recs";
@@ -53,14 +53,14 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
       const create_game_prop: CreateGameProps =
       {
         account: account,
-        preparation_phase_interval: 20,
+        preparation_phase_interval: 50,
         event_interval: 5,
         erc_addr: account.address,
         reward_pool_addr: account.address,
         revenant_init_price: 10,
-        max_amount_of_revenants: 10,
+        max_amount_of_revenants: 35,
       }
-  
+
       await create_game(create_game_prop)
 
       const gameTrackerData = await fetchGameTracker(graphSdk);
@@ -75,8 +75,8 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     const gameDataQuery = await fetchGameData(graphSdk, game_id);  // fetching the last game
     setComponentsFromGraphQlEntitiesHM(gameDataQuery, contractComponents, false);
     
-    //game entity comp
     const blockCount =  await get_current_block ();  //get the current block count
+
     const data = checkAndSetPhaseClientSide(game_id, blockCount!, contractComponents, clientComponents)
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]))
 
@@ -86,7 +86,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     const allOutpostsModels = await fetchAllOutRevData(graphSdk, game_id, gameEntityCounter.outpost_count);
     setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
 
-    loadInClientOutpostData(game_id, contractComponents,clientComponents,account);
+    loadInClientOutpostData(game_id, contractComponents, clientComponents, account);
 
     switch (data.phase) {
       case 1:
