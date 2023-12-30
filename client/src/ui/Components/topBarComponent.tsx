@@ -60,18 +60,10 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     // this should only be getting called when the user is active the moment the game switches from prep to game phase as the other oupost from other people are not loaded in 
     // in the prep phase
     useEffect(() => {
-        const loadInAllOutpostsPhaseChange = async () => {
-            const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData.current_game_id, gameEntityCounter.outpost_count);
-            setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
-
-            loadInClientOutpostData(clientGameData.current_game_id, contractComponents, clientComponents, account)
-        }
 
         if (phaseNum === 1 && setGamePhase !== undefined) {   // this should only be getting called when the phase goes from prep to game
             if (clientGameData.current_game_state === 2) {
                 setGamePhase();
-
-                loadInAllOutpostsPhaseChange()
             }
         }
     }, [clientGameData, gameEntityCounter]);
@@ -140,7 +132,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     }, [clientGameData]);
 
     return (
-        <ClickWrapper className="top-bar-grid-container ">
+        <ClickWrapper className="top-bar-grid-container">
             <div className="top-bar-grid-game-logo center-via-flex">
                 <img src="LOGO_WHITE.png" className="game-logo" style={{ height: "100%", aspectRatio: "1/1" }}></img>
             </div>
@@ -204,7 +196,7 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
         account: { account },
         networkLayer: {
             network: { contractComponents, clientComponents, graphSdk },
-            systemCalls: { view_block_count }
+            systemCalls: { get_current_block }
         },
     } = useDojo();
 
@@ -246,7 +238,7 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
         }
 
         const checkBlockCount = async (clientGameData: any) => {
-            const blockCount = await view_block_count();
+            const blockCount = await get_current_block();
             checkAndSetPhaseClientSide(clientGameData.current_game_id, blockCount!, contractComponents, clientComponents);
         };
 

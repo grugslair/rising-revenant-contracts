@@ -114,7 +114,7 @@ export function createSystemCalls(
     };
 
     //TO SWAP FOR THE REAL LIB
-    const view_block_count = async () => {
+    const get_current_block = async () => {
         try {
             const tx: any = await call("game_actions", "get_current_block", []);
             return hexToDecimal(tx.result[0])
@@ -339,7 +339,7 @@ export function createSystemCalls(
         claim_score_rewards,
         claim_endgame_rewards,
 
-        view_block_count,
+        get_current_block,
         get_current_reinforcement_price
     };
 }
