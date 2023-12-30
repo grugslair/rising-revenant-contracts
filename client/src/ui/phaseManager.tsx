@@ -41,7 +41,7 @@ export const PhaseManager = () => {
 
             Date of Version: 30th Dec<br/>
             Branch: dev<br/>
-            Pull: call dojo fix 4
+            Pull: after merge fix
       </div>
     </>
   );
