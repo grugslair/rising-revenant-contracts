@@ -31,7 +31,7 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
 
     return (
         <div className="game-page-container">
-            <img className="page-img" src="./assets/Page_Bg/RULES_PAGE_BG.png" alt="testPic" />
+            <img className="page-img brightness-down" src="./assets/Page_Bg/RULES_PAGE_BG.png" alt="testPic" />
             <PageTitleElement name={"RULES"} rightPicture={"close_icon.svg"} closeFunction={setUIState} ></PageTitleElement>
 
             <ClickWrapper style={{ display: "flex", flexDirection: "row", gap: "20px", position: "relative", width: "100%", height: "10%", fontSize: "1.6cqw", justifyContent: "center", alignItems: "center" }}>

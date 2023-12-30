@@ -44,7 +44,7 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
 
     return (
         <div className="game-page-container">
-            <img className="page-img" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
+            <img className="page-img brightness-down" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
             <PageTitleElement name={"SETTINGS"} rightPicture={"close_icon.svg"} closeFunction={setUIState} />
 
             <ClickWrapper style={{ position: "relative", width: "100%", height: "90%", display: "flex", flexDirection: "row", padding: "5% 3%", boxSizing: "border-box", color:"white"}}>

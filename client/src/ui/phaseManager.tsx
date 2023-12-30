@@ -40,7 +40,7 @@ export const PhaseManager = () => {
       <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "1rem", color: "white" }}>
             Date of Version: 30th Dec<br/>
             Branch: dev<br/>
-            Pull: typo fix
+            Pull: call dojo fix 2
       </div>
     </>
   );

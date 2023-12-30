@@ -27,6 +27,7 @@ import { SettingsPage } from "../Pages/settingsPage";
 import { GuestPagePrepPhase } from "./guestPrepPhasePage";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 import { blockDataTypes, useLeftBlockCounter } from "../Elements/leftBlockCounterElement";
+import { fetchAllOutRevData, loadInClientOutpostData, setComponentsFromGraphQlEntitiesHM } from "../../utils";
 
 export enum PrepPhaseStages {
     VID,
@@ -54,14 +55,13 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
     const [lastSavedState, setLastSavedState] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
 
     const {
+        account: {account},
         networkLayer: {
-            network: { clientComponents, contractComponents }
+            network: { clientComponents, contractComponents,graphSdk }
         },
     } = useDojo();
 
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])); 
-
-    const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
 
     // this is only here to call the debug menu
     useEffect(() => {
@@ -98,6 +98,23 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
     const { blocksLeftData } = useLeftBlockCounter();
     const { numberValue, stringValue } = blocksLeftData;
 
+    useEffect(() => {
+        const reloading = async () => {
+          const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+      
+          const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData.current_game_id, gameEntityCounter.outpost_count);
+          setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
+            
+          loadInClientOutpostData(clientGameData.current_game_id, contractComponents, clientComponents, account);
+        };
+      
+        return () => {
+            if (account.address !== "0x6d1e2e7566fea34a48a25413f87949b24527ca4719571268a6c3443585725e"){
+                reloading(); 
+            }
+        };
+    }, [account]);
+
     // video stuff
     const onVideoDone = () => {
         if (clientGameData.guest)
@@ -124,6 +141,7 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
         setUIState(Phase.GAME);
     }
 
+      
     if (clientGameData.guest) {
         return (
         <div className="main-page-container-layout">
