@@ -37,11 +37,10 @@ export const PhaseManager = () => {
       {phase === Phase.PREP && <PrepPhaseManager setUIState={setUIState}/>}
       {phase === Phase.GAME && <GamePhaseManager />}
 
-      <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "1rem", color: "white" }}>
-
-            Date of Version: 30th Dec<br/>
+      <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "0.7vw", color: "white" }}>
+            Date of Version: 31th Dec<br/>
             Branch: dev<br/>
-            Pull: after merge fix
+            Pull: New Trade UI
       </div>
     </>
   );

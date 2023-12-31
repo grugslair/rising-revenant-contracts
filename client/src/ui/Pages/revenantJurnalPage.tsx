@@ -243,11 +243,11 @@ const ListElement: React.FC<{ entityId: EntityIndex}> = ({ entityId }) => {
 
     return (
         <div className="rev-jurn-outpost-element-grid-container">
-            <div style={{gridColumn:"1/3"}}>Outpost Id: {outpostId}</div>
-            <div>| |</div>
-            <div style={{whiteSpace:"nowrap"}}>X: {outpostCoordinates.x}, Y: {outpostCoordinates.y}</div>
-            <div>| |</div>
-            <div style={{gridColumn:"6/8"}}>Owner: {outpostOwner}</div>
+            <div style={{gridColumn:"1/3", display:"flex", justifyContent:"flex-end",height:"100%", width:"100%"}}> Outpost Id: {outpostId} </div>
+            <div style={{ height:"100%", width:"100%"}}>| |</div>
+            <div style={{whiteSpace:"nowrap", display:"flex", justifyContent:"center",  height:"100%", width:"100%"}}>X: {outpostCoordinates.x}, Y: {outpostCoordinates.y}</div>
+            <div style={{ height:"100%", width:"100%"}}>| |</div>
+            <div style={{gridColumn:"6/8", whiteSpace:"nowrap", display:"flex", justifyContent:"flex-start",  height:"100%", width:"100%"}}>Owner: {outpostOwner}</div>
         </div>
     );
 };

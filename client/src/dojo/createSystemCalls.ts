@@ -24,7 +24,7 @@ export function createSystemCalls(
 ) {
 
     //HERE SHOULD BE DONE need to fix the notify to actually change if it fails or not
-    // THIS SHOULD ALSO HAVE A LINK
+    // as right now it doesnt detect if it gets rejected only if the transaciton fails
 
     const notify = (message: string, succeeded: boolean) => 
     {

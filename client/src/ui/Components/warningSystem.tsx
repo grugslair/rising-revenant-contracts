@@ -19,7 +19,7 @@ export const DirectionalEventIndicator: React.FC = () => {
   const imageUrl = `/warning_system/${direction}.png`;
 
   return (
-    <div style={{ width: '100vw', height: '100vh', backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover', position: 'absolute', zIndex: "-1" }}>
+    <div style={{ backgroundImage: `url(${imageUrl})`}} className='directional-event-indicator'>
     </div>
   );
 };

@@ -186,12 +186,11 @@
 }
 
 
-.grid-container {
+.profile-page-grid-container {
   width: 99%;
   display: grid;
   grid-template-columns: repeat(24, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  padding: 2px 2px;
 
   box-sizing: border-box;
 }

@@ -124,7 +124,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
   // }, []);
 
   return (
-    <div className="centered-div" style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+    <div className="centered-div" style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center",backgroundColor:"black" }}>
       <video
         autoPlay
         loop

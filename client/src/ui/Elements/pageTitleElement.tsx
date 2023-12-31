@@ -9,6 +9,7 @@ interface CounterElementProps {
 
     left_html_elemt?: JSX.Element;
     right_html_element?: JSX.Element;
+    picStyle?: JSX.Element;
 }
 
 const containerStyle: CSSProperties = {
@@ -60,7 +61,7 @@ const titleContainerStyle: CSSProperties = {
     fontFamily: "Zelda",
 }
 
-const PageTitleElement: React.FC<CounterElementProps> = ({ name , rightPicture, closeFunction, left_html_elemt, right_html_element: right_html_elemt}) => {
+const PageTitleElement: React.FC<CounterElementProps> = ({ name, rightPicture, closeFunction, left_html_elemt, right_html_element, picStyle}) => {
     return (
         <ClickWrapper style={containerStyle}>
             <div style={leftContainerStyle}>
@@ -70,8 +71,8 @@ const PageTitleElement: React.FC<CounterElementProps> = ({ name , rightPicture, 
                 <h1 style={{fontWeight:"100"}}>{name}</h1>
             </div>
             <div style={rightContainerStyle}>
-                {right_html_elemt}
-                <img src={rightPicture} alt="" style={{ height:"100%"}} className="pointer" onMouseDown={closeFunction}/>
+                {right_html_element}
+                <img src={rightPicture} alt="" style={{ height:"100%", ...picStyle}} className="pointer" onMouseDown={closeFunction}/>
             </div>
         </ClickWrapper>
     );

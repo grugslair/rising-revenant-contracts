@@ -209,7 +209,6 @@ const useMainPageContentClick = (currentMenuState: MenuState) => {
         clickedElement.classList.contains('main-page-content') &&
         currentMenuState === MenuState.NONE
       ) {
-
         const pointXRelativeToMiddle = event.clientX -(window.innerWidth / 2 );
         const pointYRelativeToMiddle = event.clientY - (window.innerHeight / 2);
 
@@ -226,12 +225,12 @@ const useMainPageContentClick = (currentMenuState: MenuState) => {
       }
     };
 
-    document.addEventListener('click', handleClick);
+    document.addEventListener('mousedown', handleClick);
 
     return () => {
-      document.removeEventListener('click', handleClick);
+      document.removeEventListener('mousedown', handleClick);
     };
-  }, [currentMenuState]); // Include currentMenuState as a dependency
+  }, [currentMenuState]);
 
 };
  

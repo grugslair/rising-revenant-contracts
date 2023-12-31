@@ -121,27 +121,6 @@ export function useCameraInteraction(menuState: MenuState) {
         };
     }, [keysDown]);
 
-    // useEffect(() => {
-    //     const handleClick = (event: MouseEvent) => {
-    //       const mouseX = event.clientX;
-    //       const mouseY = event.clientY;
-
-    //       const camPos = getComponentValue(
-    //         clientComponents.ClientCameraPosition,
-    //         getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])
-    //       );
-
-    //       console.log("Mouse Click Coordinates: ", mouseX, mouseY);
-            
-    //     };
-      
-    //     window.addEventListener("click", handleClick);
-
-    //     return () => {
-    //       window.removeEventListener("click", handleClick);
-    //     };
-    // }, []);
-    
     return {
     };
 }

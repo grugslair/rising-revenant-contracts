@@ -54,8 +54,27 @@ h4, h2, h3, h1 {
     margin: 0px 10px;
 }
 
+@keyframes opacityLoop {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Apply the animation to the DirectionalEventIndicator div */
+.directional-event-indicator {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  background-size: 'cover';
+  z-index: -1;
+  animation: opacityLoop 5s linear infinite; /* Adjust the duration as needed */
+}
+
  /* Firefox */
- * {
+* {
   /* scrollbar-width: auto; */
   scrollbar-color: #dddfdc #1a1e23;
 }

@@ -145,12 +145,15 @@
   display: grid;
   grid-template-columns: repeat(12, 1fr); 
   width: 98%;
-  height: 45px;
+  height: 15%;
   background-color: #2F2F2F;
   border: 3px #C0C0C0 solid;
-  margin-bottom: 25px;
+  margin-bottom: 10px;
   box-sizing: border-box;
   color: white;
+  white-space: nowrap;
+  font-size: 16px;
+  border-radius: 3px;
 }
 
 .reinf-grid-wallet
@@ -160,7 +163,7 @@
 
 .reinf-grid-reinf-amount
 {
-  grid-column: 4/7;
+  grid-column: 4/8;
 }
 
 .reinf-grid-cost
@@ -170,6 +173,9 @@
 
 .reinf-grid-buy-button
 {
+  font-size: 0.9vw;
+  font-family: "Zelda";
+  font-weight: 100;
   grid-column: 11/13;
   background-color: blue;
   color: black;

@@ -35,7 +35,7 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
   useEffect(() => {
     const updateHeight = () => {
       if (clickWrapperRef.current) {
-        setHeight((clickWrapperRef.current.offsetWidth / 8) * 8);
+        setHeight((clickWrapperRef.current.offsetWidth / 4) * 6);
       }
     };
 
@@ -50,7 +50,7 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
 
   const clickWrapperStyle: React.CSSProperties = {
     height: `${heightValue}px`,
-    width: '30%',
+    width: '20%',
   };
 
   return (
@@ -76,18 +76,18 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
         border: "10px solid var(--borderColour)",
         boxSizing: "border-box",
         display: "grid",
-        gridTemplateRows: "repeat(8,1fr)",
-        gridTemplateColumns: "repeat(8,1fr)",
+        gridTemplateRows: "repeat(6,1fr)",
+        gridTemplateColumns: "repeat(4,1fr)",
         padding: "10px 20px",
         gap: "2px",
       }}>
-        <div style={{ gridRow: "1", gridColumn: "1/9" }} className="center-via-flex">
-          <h2 style={{ fontFamily: "Zelda", fontSize: "2vw", color: "white" }}>Rising Revenant</h2>
+        <div style={{ gridRow: "1", gridColumn: "1/5" }} className="center-via-flex">
+          <h2 style={{ fontFamily: "Zelda", fontSize: "3vw", color: "white" }}>Rising Revenant</h2>
         </div>
-        <div style={{ gridRow: "2/6", gridColumn: "1/9", backgroundColor: "green" }}>
+        <div style={{ gridRow: "2/5", gridColumn: "1/5", backgroundColor: "green" }}>
           <img src="login_revenant_pic.png" style={{ height: "100%", width: "100%" }}></img>
         </div>
-        <ClickWrapper style={{ gridRow: "6/9", gridColumn: "1/9", flexDirection: "column", padding:"5% 10px" }} className="center-via-flex">
+        <ClickWrapper style={{ gridRow: "5/7", gridColumn: "1/5", flexDirection: "column", padding:"5% 10px" }} className="center-via-flex">
           <div style={{ flex: "1" }} className="center-via-flex">
             <div className="global-button-style" style={{ fontSize: "1vw", fontFamily: "OL", fontWeight: "100", boxSizing: "border-box", padding:"5px 10px" }} onClick={() => { createGameClient(false)}}>
               Wallet Login {truncateString(account.address,5)}

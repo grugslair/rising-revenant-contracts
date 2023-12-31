@@ -36,7 +36,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
     const [playerContribScore, setPlayerContribScore] = useState(0);
     const [playerContribScorePerc, setPlayerContribScorePerc] = useState(0);
-    
+
     const {
         account: { account },
         networkLayer: {
@@ -91,8 +91,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
                 const outpostData = getComponentValueStrict(contractComponents.Outpost, entity_id);
 
-                if (outpostData.lifes === 0) 
-                {
+                if (outpostData.lifes === 0) {
                     continue;
                 }
 
@@ -102,12 +101,10 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                 if (clientGameData.current_event_drawn !== 0) {
                     const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
 
-                    if (Number(outpostData.last_affect_event_id) === clientGameData.current_event_drawn) 
-                    {
+                    if (Number(outpostData.last_affect_event_id) === clientGameData.current_event_drawn) {
                         setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, false, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
                     }
-                    else 
-                    {
+                    else {
                         const lastEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]));
 
                         const outpostX = outpostData.x;
@@ -160,7 +157,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                     {clientGameData.current_game_state === 1 ?
                         <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {gameEntityCounter.revenant_count}/{gameData.max_amount_of_revenants}</div>
                         :
-                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostQuery.length - outpostDeadQuery.length }/{outpostQuery.length}</div>
+                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostQuery.length - outpostDeadQuery.length}/{outpostQuery.length}</div>
                     }
                 </div>
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
@@ -172,18 +169,26 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                     <h2 style={{ fontFamily: "Zelda", fontWeight: "100", fontSize: "2.8vw", whiteSpace: "nowrap" }}>Rising Revenant</h2>
                 </div>
             </div>
-            <div className="top-bar-grid-address center-via-flex">
-                <div style={{ width: "100%", height: "75%" }} className="center-via-flex">
+            <div className="top-bar-grid-address" style={{ gap: "4px", justifyContent: "space-around", display: "flex", alignItems: "center" }}>
+                <div style={{ width: "50%", height: "75%" }} className="center-via-flex">
                     {!clientGameData.guest ?
-                        <h2 >
-                            <img src="argent_logo.png" className="chain-logo"></img>
-                            {truncateString(account.address, 5)}
-                        </h2> :
+                        <Tooltip title="Click to copy" placement="bottom">
+                            <h2 onClick={() => navigator.clipboard.writeText(account.address)} className="pointer">
+                                <img src="argent_logo.png" className="chain-logo" alt="Logo" />
+                                {truncateString(account.address, 5)}
+                            </h2>
+                        </Tooltip>
+                        :
                         <div className="global-button-style" style={{ padding: "5px 10px", fontSize: "1.2vw", cursor: "pointer" }} onClick={() => window.location.reload()}>
                             LOG IN
                         </div>
                     }
                 </div>
+
+                <div className="global-button-style" style={{ padding: "5px 10px" }} onClick={() => window.open('https://forms.gle/mpmYp4CdLJxk6nLx7', '_blank')}>
+                    Give Feedback!!
+                </div>
+                
             </div>
         </ClickWrapper>
     );
@@ -210,7 +215,7 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
         }
 
         const getGameData = async (clientGameData: any) => {
-          
+
             // fetch new game data from chain
             const gameDataQuery = await fetchGameData(graphSdk, clientGameData.current_game_id);
             setComponentsFromGraphQlEntitiesHM(gameDataQuery, contractComponents, false);
