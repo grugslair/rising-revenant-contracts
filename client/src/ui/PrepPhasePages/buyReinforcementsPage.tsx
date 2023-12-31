@@ -47,7 +47,7 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
 
     const [freeRevs, setFreeRevs] = useState<number>(10);
 
-    const [text, setText] = useState("Summoning a Revenant will allow you to call forth a powerful ally from the realm of the undead");
+    const [text, setText] = useState("Reinforcements provide an additional extra life to your outpost, enhancing the player's ability to withstand hostile attacks");
     const [opacity, setOpacity] = useState(1);
 
     const {
@@ -71,9 +71,9 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
             setOpacity(0);
             setTimeout(() => {
                 setText((prevText) =>
-                    prevText === "Summoning a Revenant will allow you to call forth a powerful ally from the realm of the undead"
-                        ? "This Revenant, after being summoned successfully, will settle and be responsible for protecting an outpost with the goal of being the last one alive"
-                        : "Summoning a Revenant will allow you to call forth a powerful ally from the realm of the undead"
+                    prevText === "Reinforcements provide an additional extra life to your outpost, enhancing the player's ability to withstand hostile attacks"
+                        ? "An outpost can only have a maximum of 20 reinforcements applied during its existance"
+                        : "Reinforcements provide an additional extra life to your outpost, enhancing the player's ability to withstand hostile attacks"
                 );
                 setOpacity(1);
             }, 1000);
@@ -136,7 +136,7 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
                     </div>
                     <div style={{ gridRow: "3/6", gridColumn: "1/2" }}>
                         <CounterElement value={reinforcementNumber} setValue={setReinforcementNumber} containerStyleAddition={{ maxWidth: "40%" }} additionalButtonStyleAdd={{ padding: "2px", boxSizing: "border-box", width: "15%" }} textAddtionalStyle={{ fontSize: "2cqw" }}/>
-                        <div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { buyReinforcements(reinforcementNumber) }}>Summon (Tot: ≈{reinforcementNumber * priceOfReinforcements} $Lords)</div>
+                        <div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { buyReinforcements(reinforcementNumber) }}>Reinforce (Tot: ≈{reinforcementNumber * priceOfReinforcements} $Lords)</div>
                     </div>
 
                     <div style={{ gridRow: "2/4", gridColumn: "2/3", display: "flex", flexDirection: "row" }}>

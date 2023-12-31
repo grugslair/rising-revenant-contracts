@@ -40,7 +40,7 @@ export const PhaseManager = () => {
       <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "0.7vw", color: "white" }}>
             Date of Version: 31th Dec<br/>
             Branch: dev<br/>
-            Pull: New Trade UI
+            Pull: Typo fixes and re-enabled the trading
       </div>
     </>
   );

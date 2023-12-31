@@ -50,9 +50,21 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
 
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
+    const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]))
+
     const dividingLine: JSX.Element = (
         <div className="divider"></div>
     )
+
+    useEffect(() => {
+
+        if (playerInfo !== undefined)
+        {
+            setReinforcementCount(playerInfo.reinforcement_count);
+        }
+
+    }, [playerInfo]);
+
 
     const reinforceOutpost = (outpost_id: any, count: number) => {
 
@@ -182,11 +194,12 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
     }, [outpostData]);
 
     useEffect(() => {
+        console.error(currentBalance);
+
         if (currentBalance === 0) {
             setAmountToReinforce(0);
             return;
         }
-
         if (amountToReinforce > currentBalance) {
             setAmountToReinforce(currentBalance);
         }

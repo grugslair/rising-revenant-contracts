@@ -184,9 +184,9 @@ export function createSystemCalls(
                 { retryInterval: 100 }
             )
 
-            // setComponentsFromEvents(contractComponents,
-            //     getEvents(receipt)
-            // );
+            setComponentsFromEvents(contractComponents,
+                getEvents(receipt)
+            );
 
             notify(`Created trade`, true)
         } catch (e) {

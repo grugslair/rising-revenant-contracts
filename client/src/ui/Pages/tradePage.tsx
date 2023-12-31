@@ -163,59 +163,81 @@ const OutpostListingElement: React.FC<ItemListingProp> = ({ guest, entityData, g
 }
 
 
-// const ReinforcementListingElement = ({ trade }: { trade: Maybe<World__Entity> | undefined }) => {
-//     const trade_model = trade?.models?.find((m) => m?.__typename == 'Trade') as Trade;
+const ReinforcementListingElement = ({ trade }: { trade: Maybe<World__Entity> | undefined }) => {
+    const trade_model = trade?.models?.find((m) => m?.__typename == 'Trade') as Trade;
 
-//     const {
-//         account: { account },
-//         networkLayer: {
-//             network: { clientComponents },
-//             systemCalls: { revoke_trade_reinf, purchase_trade_reinf }
-//         },
-//     } = useDojo();
+    const {
+        account: { account },
+        networkLayer: {
+            network: { clientComponents },
+            systemCalls: { revoke_trade_reinf, purchase_trade_reinf }
+        },
+    } = useDojo();
 
-//     const clientGameDate = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+    const clientGameDate = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
-//     const revokeTrade = () => {
-//         const revokeTradeProp: RevokeTradeReinf = {
-//             account: account,
-//             game_id: clientGameDate.current_game_id,
-//             trade_id: trade_model?.entity_id,
-//         }
+    const revokeTrade = () => {
+        const revokeTradeProp: RevokeTradeReinf = {
+            account: account,
+            game_id: clientGameDate.current_game_id,
+            trade_id: trade_model?.entity_id,
+        }
 
-//         revoke_trade_reinf(revokeTradeProp);
-//     }
+        revoke_trade_reinf(revokeTradeProp);
+    }
 
-//     const buyTrade = () => {
-//         const buyTradeProp: PurchaseTradeReinf = {
-//             account: account,
-//             game_id: clientGameDate.current_game_id,
-//             trade_id: trade_model?.entity_id,
-//             revenant_id: 1
-//         }
+    const buyTrade = () => {
+        const buyTradeProp: PurchaseTradeReinf = {
+            account: account,
+            game_id: clientGameDate.current_game_id,
+            trade_id: trade_model?.entity_id,
+            revenant_id: 1
+        }
 
-//         purchase_trade_reinf(buyTradeProp)
-//     }
+        purchase_trade_reinf(buyTradeProp)
+    }
 
-//     if (trade_model?.status !== 1) {
-//         return (<></>)
-//     }
+    if (trade_model?.status !== 1) {
+        return (<></>)
+    }
 
-//     return (
-//         <ClickWrapper className="reinforcement-sale-element-container ">
-//             <div className="reinf-grid-wallet center-via-flex">Maker: {truncateString(trade_model?.seller, 5)}</div>
-//             <div className="reinf-grid-reinf-amount center-via-flex"><img src="reinforcements_logo.png" className="test-embed" alt="" /> Reinforcements: {trade_model?.count}</div>
-//             <div className="reinf-grid-cost center-via-flex">Price: ${trade_model?.price} LORDS</div>
-//             {clientGameDate.guest ? (<div className="reinf-grid-buy-button center-via-flex" style={{ filter: "brightness(70%) grayscale(70%)" }}>BUY NOW</div>) :
-//                 (
-//                     <>
-//                         {account.address === trade_model.seller ? <div className="reinf-grid-buy-button center-via-flex pointer" onClick={() => revokeTrade()} >REVOKE</div> : <div className="reinf-grid-buy-button center-via-flex pointer" onClick={() => buyTrade()}>BUY NOW</div>}
-//                     </>
-//                 )
-//             }
-//         </ClickWrapper >
-//     );
-// };
+    return (
+
+        <ClickWrapper className="reinforcement-sale-element-container ">
+            <div style={{ gridColumn: "1/11", whiteSpace: "nowrap", display: "flex", flexDirection: "row", fontSize: "1.1vw" }}>
+                <div style={{ flex: "0.55", display: "flex", alignItems: "center", justifyContent: "flex-start", padding: "0px 1%" }}>
+                    Maker: {account.address === trade_model?.seller ? "You" : truncateString(trade_model?.seller, 5)}
+                </div>
+                <div style={{ flex: "1", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <img src="reinforcements_logo.png" className="test-embed" alt="" /> Reinforcements: {trade_model?.count}
+                </div>
+                <div style={{ flex: "0.75", display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "0px 1%" }}>
+                    {account.address === trade_model?.seller ? <Tooltip title="Click to change price"><div className="pointer">Price: ${trade_model?.price} LORDS</div></Tooltip> : <div>Price: ${trade_model?.price} LORDS</div>}
+                </div>
+            </div>
+
+            {/* we need to add the change price thing */}
+            {clientGameDate.guest ? <div className="reinf-grid-buy-button center-via-flex" style={{ filter: "brightness(70%) grayscale(70%)" }}>BUY NOW</div> :
+                <>
+                    {account.address === trade_model?.seller ? <div className="reinf-grid-buy-button center-via-flex pointer" onClick={() => revokeTrade()} >REVOKE</div> : <div className="reinf-grid-buy-button center-via-flex pointer" onClick={() => buyTrade()}>BUY NOW</div>}
+                </>}
+
+
+        </ClickWrapper >
+        // <ClickWrapper className="reinforcement-sale-element-container ">
+        //     <div className="reinf-grid-wallet center-via-flex">Maker: {truncateString(trade_model?.seller, 5)}</div>
+        //     <div className="reinf-grid-reinf-amount center-via-flex"><img src="reinforcements_logo.png" className="test-embed" alt="" /> Reinforcements: {trade_model?.count}</div>
+        //     <div className="reinf-grid-cost center-via-flex">Price: ${trade_model?.price} LORDS</div>
+        //     {clientGameDate.guest ? (<div className="reinf-grid-buy-button center-via-flex" style={{ filter: "brightness(70%) grayscale(70%)" }}>BUY NOW</div>) :
+        //         (
+        //             <>
+        //                 {account.address === trade_model.seller ? <div className="reinf-grid-buy-button center-via-flex pointer" onClick={() => revokeTrade()} >REVOKE</div> : <div className="reinf-grid-buy-button center-via-flex pointer" onClick={() => buyTrade()}>BUY NOW</div>}
+        //             </>
+        //         )
+        //     }
+        // </ClickWrapper >
+    );
+};
 
 
 
@@ -232,29 +254,29 @@ const OutpostListingElement: React.FC<ItemListingProp> = ({ guest, entityData, g
 
 //both of these windows need to be redone and put into different files maybe into a folder in the pages
 
-const DumbReinforcementListing: React.FC<{ type: number }> = ({ type }) => {
-    return (
-        <ClickWrapper className="reinforcement-sale-element-container ">
-            <div style={{ gridColumn: "1/11", whiteSpace: "nowrap", display: "flex", flexDirection: "row", fontSize: "1.1vw" }}>
-                <div style={{ flex: "0.7", display: "flex", alignItems: "center", justifyContent: "flex-start", padding: "0px 1%" }}>
-                    Maker: {truncateString("0x7231897387126387di1h17ney1", 5)}
-                </div>
-                <div style={{ flex: "1", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <img src="reinforcements_logo.png" className="test-embed" alt="" /> Reinforcements: {20}
-                </div>
-                <div style={{ flex: "0.6", display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "0px 1%" }}>
-                    {type === 3 ? <Tooltip title="Click to change price"><div className="pointer">Price: ${22} LORDS</div></Tooltip> : <div>Price: ${22} LORDS</div>}
-                </div>
-            </div>
+// const DumbReinforcementListing: React.FC<{ type: number }> = ({ type }) => {
+//     return (
+//         <ClickWrapper className="reinforcement-sale-element-container ">
+//             <div style={{ gridColumn: "1/11", whiteSpace: "nowrap", display: "flex", flexDirection: "row", fontSize: "1.1vw" }}>
+//                 <div style={{ flex: "0.7", display: "flex", alignItems: "center", justifyContent: "flex-start", padding: "0px 1%" }}>
+//                     Maker: {truncateString("0x7231897387126387di1h17ney1", 5)}
+//                 </div>
+//                 <div style={{ flex: "1", display: "flex", alignItems: "center", justifyContent: "center" }}>
+//                     <img src="reinforcements_logo.png" className="test-embed" alt="" /> Reinforcements: {20}
+//                 </div>
+//                 <div style={{ flex: "0.6", display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "0px 1%" }}>
+//                     {type === 3 ? <Tooltip title="Click to change price"><div className="pointer">Price: ${22} LORDS</div></Tooltip> : <div>Price: ${22} LORDS</div>}
+//                 </div>
+//             </div>
 
-            {/* we need to add the change price thing */}
-            {type === 1 && <div className="reinf-grid-buy-button center-via-flex" style={{ filter: "brightness(70%) grayscale(70%)" }}>BUY NOW</div>}
-            {type === 2 && <div className="reinf-grid-buy-button center-via-flex pointer" >BUY NOW</div>}
-            {type === 3 && <div className="reinf-grid-buy-button center-via-flex pointer" >REVOKE</div>}
+//             {/* we need to add the change price thing */}
+//             {type === 1 && <div className="reinf-grid-buy-button center-via-flex" style={{ filter: "brightness(70%) grayscale(70%)" }}>BUY NOW</div>}
+//             {type === 2 && <div className="reinf-grid-buy-button center-via-flex pointer" >BUY NOW</div>}
+//             {type === 3 && <div className="reinf-grid-buy-button center-via-flex pointer" >REVOKE</div>}
 
-        </ClickWrapper >
-    );
-};
+//         </ClickWrapper >
+//     );
+// };
 
 
 
@@ -592,7 +614,7 @@ const ReinforcementTradeWindow: React.FC = () => {
     return (
         <>
             <div style={{ height: "100%", width: "9%" }}></div>
-            <div style={{ backgroundColor: "#2F2F2F", height: "100%", width: "20%", border: "5px solid var(--borderColour)", boxSizing: "border-box", color: "white",borderRadius:"3px" }}>
+            <div style={{ backgroundColor: "#2F2F2F", height: "100%", width: "20%", border: "5px solid var(--borderColour)", boxSizing: "border-box", color: "white", borderRadius: "3px" }}>
 
                 <div style={{ height: "15%", width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", flexDirection: "row", padding: "0px 5%", boxSizing: "border-box" }}>
                     <div style={{ height: "100%", width: "20%", display: "flex", justifyContent: "flex-start", alignItems: "center", fontSize: "1vw" }}>Sort</div>
@@ -603,7 +625,7 @@ const ReinforcementTradeWindow: React.FC = () => {
                         onChange={(e) => setSelectedSortingMethod(Number(e.target.value))}
                         SelectProps={{
                             native: true,
-                            
+
                         }}
                         variant="outlined"
                         size="medium"
@@ -613,8 +635,8 @@ const ReinforcementTradeWindow: React.FC = () => {
                                 color: "white", // Change to the desired text color
                             },
                         }}
-                        
-                        
+
+
                         style={{ width: "70%", height: "100%", color: "white", display: "flex", justifyContent: "center", alignItems: "center" }}
                     >
                         {sortingReinforcements.map((option) => (
@@ -622,8 +644,8 @@ const ReinforcementTradeWindow: React.FC = () => {
                                 {option.value}
                             </option>
                         ))}
-                    </TextField> 
-                    
+                    </TextField>
+
                 </div>
 
                 <div style={{ height: "65%", width: "100%", padding: "2% 2%", boxSizing: "border-box", display: "flex", justifyContent: "flex-start", alignItems: "center", flexDirection: "column" }}>
@@ -652,7 +674,7 @@ const ReinforcementTradeWindow: React.FC = () => {
                                 variant="standard"
                             />
                         </Box>
-                        <div className="global-button-style">Refresh</div>
+                        <div className="global-button-style" onClick={() => setRefresh(!refresh)}>Refresh</div>
                     </>}
 
                     {selectedSortingMethod === SortingMethods.REINF && <>
@@ -681,7 +703,7 @@ const ReinforcementTradeWindow: React.FC = () => {
                             </Grid>
 
                         </Grid>
-                        <div className="global-button-style">Refresh</div>
+                        <div className="global-button-style" onClick={() => setRefresh(!refresh)}>Refresh</div>
                     </>}
 
                     {selectedSortingMethod === SortingMethods.SELLER_ADDR && <></>}
@@ -697,10 +719,10 @@ const ReinforcementTradeWindow: React.FC = () => {
             </div>
             <div style={{ height: "100%", width: "2%" }}></div>
             <div style={{ height: "100%", width: "60%", overflowY: "auto" }}>
-                {/* {tradeList.map((trade: TradeEdge, index: number) => {
+                {tradeList.map((trade: TradeEdge, index: number) => {
                     return <ReinforcementListingElement trade={trade.node?.entity} key={index} />;
-                })} */}
-                <DumbReinforcementListing type={1} />
+                })}
+                {/* <DumbReinforcementListing type={1} />
                 <DumbReinforcementListing type={2} />
                 <DumbReinforcementListing type={3} />
                 <DumbReinforcementListing type={1} />
@@ -709,7 +731,7 @@ const ReinforcementTradeWindow: React.FC = () => {
                 <DumbReinforcementListing type={2} />
                 <DumbReinforcementListing type={2} />
                 <DumbReinforcementListing type={3} />
-                <DumbReinforcementListing type={2} />
+                <DumbReinforcementListing type={2} /> */}
             </div>
             <div style={{ height: "100%", width: "9%" }}></div>
         </>
@@ -771,24 +793,22 @@ const CreateReinforcementTradeWindow: React.FC = () => {
             account: account,
             game_id: clientGameData.current_game_id,
             count: amountToSell,
-            price: numberValue,
+            price: 11,
         };
 
         await create_trade_reinf(createTradeProp);
     };
 
-
-
     return (
         <>
             <div style={{ height: "100%", width: "10%" }}></div>
-            <div style={{ backgroundColor: "#2F2F2F", height: "100%", width: "40%" }}>
+            <div style={{ height: "100%", width: "40%" }}>
                 <img src="./assets/Page_Bg/REINFORCEMENT_PAGE_BG.png" style={{ height: "100%", width: "100%" }}></img>
             </div>
             <div style={{ height: "100%", width: "10%" }}></div>
             <div style={{ height: "100%", width: "20%", display: "flex", justifyContent: "flex-start", flexDirection: "column", color: "white" }}>
                 <h2 style={{ fontSize: "1.7vw", margin: "0px", whiteSpace: "nowrap" }}>Sell Reinforcements</h2>
-                <CounterElement value={amountToSell} setValue={setAmountToSell} containerStyleAddition={{ maxWidth: "80%", height: "12%", backgroundColor: "green", marginBottom: "9%" }} additionalButtonStyleAdd={{ width: "15%" }} textAddtionalStyle={{ fontSize: "2vw" }} />
+                <CounterElement value={amountToSell} setValue={setAmountToSell} containerStyleAddition={{ maxWidth: "80%", height: "12%", marginBottom: "9%" }} additionalButtonStyleAdd={{ width: "15%" }} textAddtionalStyle={{ fontSize: "2vw" }} />
                 <h2 style={{ fontSize: "1.7vw", margin: "0px", whiteSpace: "nowrap" }}>Set a Price</h2>
 
                 <TextField
@@ -798,18 +818,10 @@ const CreateReinforcementTradeWindow: React.FC = () => {
                     style={{ width: "60%" }}
                 />
 
-                <h5 style={{ marginBottom: "0px" }}>Current Active Trades: X</h5>
-                <h5 style={{ marginTop: "0px" }}>Trading Volume: Y</h5>
                 <div className="global-button-style" style={{ padding: "5px 10px", maxWidth: "fit-content" }} onClick={confirmCreationOfOrder}>Confirm</div>
             </div>
 
-            {/* <div style={{ backgroundColor: "red", height: "100%", width: "20%", display: "grid", color: "white", gridTemplateRows: "repeat(9, 1fr)", gridTemplateColumns: "repeat(7, 1fr)" }}>
-                <div style={{gridRow:"1/1",gridColumn:"1/8", backgroundColor:"green"}}>Sell Reinforcements</div>
-                <div style={{gridRow:"2/4",gridColumn:"1/1", backgroundColor:"yellow"}}></div>
-                <div style={{gridRow:"2/4",gridColumn:"1/1", backgroundColor:"yellow"}}></div>
-            </div> */}
-
-            <div style={{ backgroundColor: "green", height: "100%", width: "20%" }}></div>
+            <div style={{ height: "100%", width: "20%" }}></div>
         </>
     )
 }
