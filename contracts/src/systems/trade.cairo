@@ -8,6 +8,9 @@ trait ITradeActions<TContractState> {
 
     // Purchase an existing trade
     fn purchase(self: @TContractState, game_id: u32, player_id: u128, trade_id: u32);
+
+    // Modify the price of an existing trade
+    fn modify_price(self: @TContractState, game_id: u32, trade_id: u32, new_price: u128);
 }
 
 #[dojo::contract]
@@ -89,10 +92,10 @@ mod trade_actions {
 
         fn purchase(self: @ContractState, game_id: u32, player_id: u128, trade_id: u32) {
             let world = self.world_dispatcher.read();
-            let player = get_caller_address();  //get the address of the person calling the api
+            let player = get_caller_address(); //get the address of the person calling the api
 
-            let mut game = get!(world, game_id, Game);   // get the game struct
-            game.assert_is_playing(world);  // check if the game is on going
+            let mut game = get!(world, game_id, Game); // get the game struct
+            game.assert_is_playing(world); // check if the game is on going
 
             // let revenant = get!(world, (game_id, player_id), Revenant);    //fetch the revenants given a player_id? but probably you mean an entity_id
             // assert(revenant.owner == player, 'unable purchase for others');   // check if the revenant is owend by the player why? is it to check the user has ever bought into the game?
@@ -123,6 +126,24 @@ mod trade_actions {
             trade.buyer = player;
 
             set!(world, (player_info, trade));
+        }
+
+        fn modify_price(self: @ContractState, game_id: u32, trade_id: u32, new_price: u128) {
+            let world = self.world_dispatcher.read();
+            let player = get_caller_address();
+
+            let mut game = get!(world, game_id, (Game));
+            game.assert_is_playing(world);
+
+            let mut trade = get!(world, (game_id, trade_id), Trade);
+            assert(trade.status != TradeStatus::not_created, 'trade not exist');
+            assert(trade.status != TradeStatus::sold, 'trade had been sold');
+            assert(trade.status != TradeStatus::revoked, 'trade had been revoked');
+            assert(trade.seller == player, 'not owner');
+
+            trade.price = new_price;
+
+            set!(world, (trade));
         }
     }
 }

@@ -40,7 +40,7 @@ mod tests {
 
     #[test]
     #[available_gas(3000000000)]
-    fn test_create_game() {、
+    fn test_create_game() {
         let DefaultWorld{world, game_action, caller, test_erc, revenant_action, .. } =
             _init_world();
         let game_id = game_action
@@ -78,7 +78,6 @@ mod tests {
             _init_world();
         let game_id = game_action
             .create(
-
                 PREPARE_PHRASE_INTERVAL,
                 EVENT_BLOCK_INTERVAL,
                 test_erc.contract_address,
@@ -339,6 +338,9 @@ mod tests {
         let trade_count = 5;
         let trade_id = trade_action.create(game_id, trade_count, price); // create trade by seller
 
+        let price = price - 1;
+        trade_action.modify_price(game_id, trade_id, price);
+
         starknet::testing::set_contract_address(buyer); // switch to buyer 
         let buyer_info = get!(world, (game_id, buyer), PlayerInfo);
         assert(
@@ -360,6 +362,7 @@ mod tests {
             'failed purchase trade'
         );
     }
+
 
     #[test]
     #[available_gas(3000000000)]
