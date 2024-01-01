@@ -17,10 +17,10 @@ mod world_event_actions {
     use realmsrisingrevenant::components::outpost::{
         Outpost, OutpostPosition, OutpostStatus, OutpostImpl, OutpostTrait
     };
-    use realmsrisingrevenant::components::player::{PlayerInfo};
+    use realmsrisingrevenant::components::player::{PlayerInfo, PlayerInfoImpl, PlayerInfoTrait};
     use realmsrisingrevenant::components::world_event::{WorldEvent, WorldEventTracker};
     use realmsrisingrevenant::constants::{
-        EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH, EVENT_CREATE_SCORE, DESTORY_OUTPOST_SCORE,
+        EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH, EVENT_CREATE_SCORE, DESTORY_OUTPOST_SCORE,SPAWN_RANGE_X,SPAWN_RANGE_Y
     };
     use realmsrisingrevenant::utils::MAX_U32;
     use realmsrisingrevenant::utils::random::{Random, RandomImpl};
@@ -53,8 +53,8 @@ mod world_event_actions {
 
             let mut caller_info = get!(world, (game_id, player), (PlayerInfo));
             let world_event = self._new_world_event(world, game_id, player, entity_id);
-            caller_info.score += EVENT_CREATE_SCORE;
-            game_data.score_count += EVENT_CREATE_SCORE;
+            // caller_info.score += EVENT_CREATE_SCORE;    
+            // game_data.score_count += EVENT_CREATE_SCORE;
             set!(world, (world_event, game_data, caller_info));
             world_event
         }
@@ -106,6 +106,7 @@ mod world_event_actions {
             };
 
             let mut owner_info = get!(world, (game_id, outpost.owner), (PlayerInfo));
+            owner_info.check_player_exists(world);  // alex: only people that have bought revenants should be able to interact with the world
             if outpost.lifes == 0 {
                 game_data.outpost_exists_count -= 1;
                 owner_info.revenant_count -= 1;
@@ -121,6 +122,7 @@ mod world_event_actions {
             // caller_info may be the same as owner_info. In this case, it is not possible to 
             // perform a set operation on both at the same time. To be cautious, they should be set separately.
             let mut caller_info = get!(world, (game_id, player), (PlayerInfo));
+            caller_info.check_player_exists(world);
             caller_info.score += DESTORY_OUTPOST_SCORE;
             set!(world, (caller_info));
             // Emit World Event
@@ -151,8 +153,8 @@ mod world_event_actions {
 
             let seed = starknet::get_tx_info().unbox().transaction_hash;
             let mut random = RandomImpl::new(seed);
-            let x = (MAP_WIDTH / 2) - random.next_u32(0, 800);
-            let y = (MAP_HEIGHT / 2) - random.next_u32(0, 800);
+            let x = (MAP_WIDTH / 2) - random.next_u32(0, SPAWN_RANGE_X);    // HERE add constant
+            let y = (MAP_HEIGHT / 2) - random.next_u32(0, SPAWN_RANGE_Y);
 
             WorldEvent { game_id, entity_id, x, y, radius, destroy_count: 0, block_number }
         }

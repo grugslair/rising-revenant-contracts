@@ -7,7 +7,7 @@ trait ITradeActions<TContractState> {
     fn revoke(self: @TContractState, game_id: u32, entity_id: u32);
 
     // Purchase an existing trade
-    fn purchase(self: @TContractState, game_id: u32, player_id: u128, trade_id: u32);
+    fn purchase(self: @TContractState, game_id: u32, trade_id: u32);
 
     // Modify the price of an existing trade
     fn modify_price(self: @TContractState, game_id: u32, trade_id: u32, new_price: u128);
@@ -29,7 +29,7 @@ mod trade_actions {
         ReinforcementBalance, ReinforcementBalanceImpl, ReinforcementBalanceTrait
     };
 
-    use realmsrisingrevenant::components::player::PlayerInfo;
+    use realmsrisingrevenant::components::player::{PlayerInfo, PlayerInfoImpl, PlayerInfoTrait};
     use realmsrisingrevenant::components::revenant::{Revenant, RevenantStatus,};
 
     use realmsrisingrevenant::components::trade::{Trade, TradeStatus};
@@ -46,6 +46,7 @@ mod trade_actions {
             game.assert_is_playing(world);
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
+            player_info.check_player_exists(world);  // alex: only people that have bought a revenant can create trades
             assert(count > 0, 'count must larger than 0');
             assert(player_info.reinforcement_count >= count, 'No reinforcement can sell');
 
@@ -90,13 +91,15 @@ mod trade_actions {
             set!(world, (player_info, trade, game_data));
         }
 
-        fn purchase(self: @ContractState, game_id: u32, player_id: u128, trade_id: u32) {
+        fn purchase(self: @ContractState, game_id: u32, trade_id: u32) {
             let world = self.world_dispatcher.read();
             let player = get_caller_address(); //get the address of the person calling the api
 
             let mut game = get!(world, game_id, Game); // get the game struct
             game.assert_is_playing(world); // check if the game is on going
 
+
+            // this should be deleted   alex
             // let revenant = get!(world, (game_id, player_id), Revenant);    //fetch the revenants given a player_id? but probably you mean an entity_id
             // assert(revenant.owner == player, 'unable purchase for others');   // check if the revenant is owend by the player why? is it to check the user has ever bought into the game?
             // assert(revenant.status == RevenantStatus::started, 'not valid player');
@@ -107,20 +110,21 @@ mod trade_actions {
             assert(trade.status != TradeStatus::revoked, 'trade had been revoked');
             assert(trade.seller != player, 'unable purchase your own trade');
 
-            // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
-            // let seller_amount: u256 = trade.price.into() * 90 / 100;
-            // let contract_amount: u256 = trade.price.into() - seller_amount.into();
+            let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+            let seller_amount: u256 = trade.price.into() * 90 / 100;
+            let contract_amount: u256 = trade.price.into() - seller_amount.into();
 
-            // let result = erc20
-            //     .transfer_from(sender: player, recipient: trade.seller, amount: seller_amount);
-            // assert(result, 'need approve for erc20');
-            // let result = erc20
-            //     .transfer_from(
-            //         sender: player, recipient: game.reward_pool_addr, amount: contract_amount
-            //     );
-            // assert(result, 'need approve for erc20');
+            let result = erc20
+                .transfer_from(sender: player, recipient: trade.seller, amount: seller_amount);
+            assert(result, 'need approve for erc20');
+            let result = erc20
+                .transfer_from(
+                    sender: player, recipient: game.reward_pool_addr, amount: contract_amount
+                );
+            assert(result, 'need approve for erc20');
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
+            player_info.check_player_exists(world); // alex: only people that have bought revenants can buy trades
             player_info.reinforcement_count += trade.count;
             trade.status = TradeStatus::sold;
             trade.buyer = player;
