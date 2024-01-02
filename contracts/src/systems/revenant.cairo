@@ -4,6 +4,8 @@ use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 trait IRevenantActions<TContractState> {
     fn create(self: @TContractState, game_id: u32) -> (u128, u128);
 
+    fn create_multi_revenants(self: @TContractState, game_id: u32, count: u32);
+
     // Claim the initial game rewards.
     fn claim_initial_rewards(self: @TContractState, game_id: u32) -> bool;
 
@@ -16,7 +18,7 @@ trait IRevenantActions<TContractState> {
 
     fn purchase_reinforcement(self: @TContractState, game_id: u32, count: u32) -> bool;
 
-    fn reinforce_outpost(self: @TContractState, game_id: u32,count: u32, outpost_id: u128);
+    fn reinforce_outpost(self: @TContractState, game_id: u32, count: u32, outpost_id: u128);
 }
 
 
@@ -51,13 +53,104 @@ mod revenant_actions {
 
     #[external(v0)]
     impl RevenantActionImpl of IRevenantActions<ContractState> {
+        fn create_multi_revenants(self: @ContractState, game_id: u32, count: u32) {
+            let world = self.world_dispatcher.read();
+            let player = get_caller_address();
+            let (mut game, mut game_data) = get!(world, game_id, (Game, GameEntityCounter));
+            game.assert_can_create_outpost(world);
+            assert(count > 0, 'count must larget than 0');
+
+            assert(
+                game_data.revenant_count + count <= game.max_amount_of_revenants,
+                'max revenants reached'
+            ); //Alex
+
+            let mut player_info = get!(world, (game_id, player), PlayerInfo);
+            let seed = starknet::get_tx_info().unbox().transaction_hash;
+            let mut random = RandomImpl::new(seed);
+
+            let mut i = 1;
+            loop {
+                if i > count {
+                    break;
+                } else {
+                    i += 1;
+                }
+
+                game_data.revenant_count += 1;
+
+                let entity_id: u128 = game_data.revenant_count.into();
+
+                let first_name_idx = random.next_u32(0, 100);
+                let last_name_idx = random.next_u32(0, 100);
+
+                let revenant = Revenant {
+                    game_id,
+                    entity_id,
+                    first_name_idx,
+                    last_name_idx,
+                    owner: player,
+                    outpost_count: 1,
+                    status: RevenantStatus::started
+                };
+                player_info.revenant_count += 1;
+                player_info.outpost_count += 1;
+
+                game_data.outpost_count += 1;
+                game_data.outpost_exists_count += 1;
+                game_data.remain_life_count += OUTPOST_INIT_LIFE;
+
+                let outpost_id: u128 = game_data.outpost_count.into();
+                // create outpost
+
+                let mut x = (MAP_WIDTH / 2) - random.next_u32(0, 800);
+                let mut y = (MAP_HEIGHT / 2) - random.next_u32(0, 800);
+
+                let mut prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
+                // avoid multiple outpost appearing in the same position
+                if prev_outpost.entity_id > 0 {
+                    loop {
+                        x = (MAP_WIDTH / 2) - random.next_u32(0, 800);
+                        y = (MAP_HEIGHT / 2) - random.next_u32(0, 800);
+                        prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
+                        if prev_outpost.entity_id == 0 {
+                            break;
+                        };
+                    }
+                };
+
+                let outpost = Outpost {
+                    game_id,
+                    x,
+                    y,
+                    entity_id: outpost_id,
+                    owner: player,
+                    name_outpost: 'Outpost',
+                    lifes: OUTPOST_INIT_LIFE,
+                    shield: 0,
+                    reinforcement_count: 0,
+                    status: OutpostStatus::created,
+                    last_affect_event_id: 0
+                };
+
+                let position = OutpostPosition { game_id, x, y, entity_id: outpost_id };
+
+                set!(world, (revenant, outpost, position));
+            };
+
+            set!(world, (game, game_data, player_info));
+        }
+
         fn create(self: @ContractState, game_id: u32) -> (u128, u128) {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
             let (mut game, mut game_data) = get!(world, game_id, (Game, GameEntityCounter));
             game.assert_can_create_outpost(world);
 
-            assert(game_data.revenant_count + 1 <=  game.max_amount_of_revenants, 'max revenants reached');  //Alex
+            assert(
+                game_data.revenant_count + 1 <= game.max_amount_of_revenants,
+                'max revenants reached'
+            ); //Alex
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
             // assert(player_info.revenant_count < REVENANT_MAX_COUNT, 'reach revenant limit');
@@ -100,7 +193,6 @@ mod revenant_actions {
             let (outpost, position) = self._create_outpost(world, game_id, player, outpost_id);
 
             set!(world, (revenant, game, game_data, player_info, outpost, position));
-
 
             (entity_id, outpost_id)
         }
@@ -145,7 +237,6 @@ mod revenant_actions {
 
             set!(world, (game));
 
-
             prize
         }
 
@@ -172,7 +263,6 @@ mod revenant_actions {
             player_info.earned_prize = prize;
 
             prize
-
         }
 
         fn get_current_price(self: @ContractState, game_id: u32, count: u32) -> u128 {
@@ -218,16 +308,18 @@ mod revenant_actions {
             let (mut game, mut game_counter) = get!(world, game_id, (Game, GameEntityCounter));
             // game.assert_is_playing(world);   // Alex
 
-            let mut outpost = get!(world, (game_id, outpost_id), (Outpost));  // get reinforcement obj
+            let mut outpost = get!(
+                world, (game_id, outpost_id), (Outpost)
+            ); // get reinforcement obj
             outpost.assert_can_reinforcement();
 
-            assert(outpost.lifes != 0, 'outpost is dead');  //added line, Alex
+            assert(outpost.lifes != 0, 'outpost is dead'); //added line, Alex
             assert(player == outpost.owner, 'not owner');
 
-            let mut player_info = get!(world, (game_id, player), PlayerInfo);  // get player data
-            assert(player_info.reinforcement_count >= count, 'no reinforcement');  //Alex
+            let mut player_info = get!(world, (game_id, player), PlayerInfo); // get player data
+            assert(player_info.reinforcement_count >= count, 'no reinforcement'); //Alex
 
-            assert((count + outpost.reinforcement_count <= 20), 'cant add more' ); //Alex
+            assert((count + outpost.reinforcement_count <= 20), 'cant add more'); //Alex
 
             // Fortifying Outposts: Outposts, can be bolstered up to 20 times in their lifetime. 
             // The extent of reinforcements directly influences the Outpost’s defense, manifested in the number of shields it wields:
@@ -241,7 +333,7 @@ mod revenant_actions {
             outpost.reinforcement_count += count;
             outpost.lifes += count;
 
-            let shield_amount = outpost.get_shields_amount();  // Alex
+            let shield_amount = outpost.get_shields_amount(); // Alex
             outpost.shield = shield_amount;
 
             game_counter.remain_life_count += count;
@@ -311,4 +403,3 @@ mod revenant_actions {
         }
     }
 }
-

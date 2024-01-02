@@ -37,7 +37,6 @@ mod tests {
         _create_revenant, _add_block_number,
     };
     use starknet::{ContractAddress, syscalls::deploy_syscall};
-
     #[test]
     #[available_gas(3000000000)]
     fn test_create_game() {
@@ -97,6 +96,22 @@ mod tests {
         assert(revenant.owner == caller, 'wrong revenant owner');
     }
 
+    #[test]
+    #[available_gas(3000000000)]
+    fn test_create_multi_revenant() {
+        let (DefaultWorld{world, caller, revenant_action, .. }, game_id) = _init_game();
+        let count = 9;
+        revenant_action.create_multi_revenants(game_id, count);
+        let (game, game_counter) = get!(world, (game_id), (Game, GameEntityCounter));
+        assert(game_counter.revenant_count == count, 'wrong revenant count');
+        assert(game_counter.outpost_count == count, 'wrong outpost count');
+        assert(game_counter.outpost_exists_count == count, 'wrong outpost count');
+        assert(game_counter.remain_life_count == OUTPOST_INIT_LIFE * count, 'wrong remain lifes');
+
+        let revenant = get!(world, (game_id, count), Revenant);
+        assert(revenant.outpost_count == 1, 'wrong revenant info');
+        assert(revenant.owner == caller, 'wrong revenant owner');
+    }
     #[test]
     #[available_gas(3000000000)]
     fn test_purchase_reinforcement() {
@@ -362,7 +377,6 @@ mod tests {
             'failed purchase trade'
         );
     }
-
 
     #[test]
     #[available_gas(3000000000)]
