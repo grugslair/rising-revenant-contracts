@@ -10,6 +10,7 @@ use realmsrisingrevenant::components::outpost::outpost;
 use realmsrisingrevenant::components::player::player_info;
 use realmsrisingrevenant::components::revenant::revenant;
 use realmsrisingrevenant::components::trade::trade;
+use realmsrisingrevenant::components::trade_revenant::trade_revenant;
 use realmsrisingrevenant::components::world_event::world_event;
 
 use realmsrisingrevenant::constants::{EVENT_INIT_RADIUS, GAME_CONFIG, OUTPOST_INIT_LIFE};
@@ -22,6 +23,9 @@ use realmsrisingrevenant::systems::revenant::{
 };
 use realmsrisingrevenant::systems::trade::{
     trade_actions, ITradeActionsDispatcher, ITradeActionsDispatcherTrait
+};
+use realmsrisingrevenant::systems::trade_revenant::{
+    trade_revenant_actions, ITradeRevenantActionsDispatcher, ITradeRevenantActionsDispatcherTrait
 };
 use realmsrisingrevenant::systems::world_event::{
     world_event_actions, IWorldEventActionsDispatcher, IWorldEventActionsDispatcherTrait
@@ -40,6 +44,7 @@ struct DefaultWorld {
     game_action: IGameActionsDispatcher,
     revenant_action: IRevenantActionsDispatcher,
     trade_action: ITradeActionsDispatcher,
+    trade_revenant_action: ITradeRevenantActionsDispatcher,
     world_event_action: IWorldEventActionsDispatcher,
     test_erc: IERC20Dispatcher,
 }
@@ -57,6 +62,7 @@ fn _init_world() -> DefaultWorld {
         outpost::TEST_CLASS_HASH,
         revenant::TEST_CLASS_HASH,
         trade::TEST_CLASS_HASH,
+        trade_revenant::TEST_CLASS_HASH,
         world_event::TEST_CLASS_HASH
     ];
 
@@ -76,6 +82,11 @@ fn _init_world() -> DefaultWorld {
     let trade_action = ITradeActionsDispatcher {
         contract_address: world
             .deploy_contract('salt', trade_actions::TEST_CLASS_HASH.try_into().unwrap())
+    };
+
+    let trade_revenant_action = ITradeRevenantActionsDispatcher {
+        contract_address: world
+            .deploy_contract('salt', trade_revenant_actions::TEST_CLASS_HASH.try_into().unwrap())
     };
 
     let world_event_action = IWorldEventActionsDispatcher {
@@ -103,11 +114,19 @@ fn _init_world() -> DefaultWorld {
     world.grant_owner(admin, 'WorldEventTracker');
     world.grant_owner(admin, 'ReinforcementBalance');
     world.grant_owner(admin, 'Trade');
+    world.grant_owner(admin, 'TradeRevenant');
 
     test_erc.transfer(admin, 0x100000000000000_u256);
 
     DefaultWorld {
-        world, caller, game_action, revenant_action, trade_action, world_event_action, test_erc
+        world,
+        caller,
+        game_action,
+        revenant_action,
+        trade_action,
+        trade_revenant_action,
+        world_event_action,
+        test_erc,
     }
 }
 
@@ -128,7 +147,7 @@ fn _init_game() -> (DefaultWorld, u32) {
 }
 
 fn _create_revenant(revenant_action: IRevenantActionsDispatcher, game_id: u32) -> (u128, u128) {
-    let (revenant_id, outpost_id) = revenant_action.create(game_id);
+    let (revenant_id, outpost_id) = revenant_action.create(game_id, 1);
     revenant_action.claim_initial_rewards(game_id);
     (revenant_id, outpost_id)
 }

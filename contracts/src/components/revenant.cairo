@@ -7,6 +7,7 @@ struct Revenant {
     game_id: u32,
     #[key]
     entity_id: u128,
+    outpost_id: u128,
     owner: ContractAddress,
     first_name_idx: u32,
     last_name_idx: u32,

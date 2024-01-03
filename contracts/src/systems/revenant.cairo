@@ -2,9 +2,9 @@ use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
 #[starknet::interface]
 trait IRevenantActions<TContractState> {
-    fn create(self: @TContractState, game_id: u32) -> (u128, u128);
-
-    fn create_multi_revenants(self: @TContractState, game_id: u32, count: u32);
+    // Create revenants, it is possible to create multiple at once. Return the IDs of the revenant and the outpost. 
+    // If multiple are created at once, then the ID of the first one will be returned.
+    fn create(self: @TContractState, game_id: u32, count: u32) -> (u128, u128);
 
     // Claim the initial game rewards.
     fn claim_initial_rewards(self: @TContractState, game_id: u32) -> bool;
@@ -53,12 +53,11 @@ mod revenant_actions {
 
     #[external(v0)]
     impl RevenantActionImpl of IRevenantActions<ContractState> {
-        fn create_multi_revenants(self: @ContractState, game_id: u32, count: u32) {
+        fn create(self: @ContractState, game_id: u32, count: u32) -> (u128, u128) {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
             let (mut game, mut game_data) = get!(world, game_id, (Game, GameEntityCounter));
             game.assert_can_create_outpost(world);
-            assert(count > 0, 'count must larget than 0');
 
             assert(
                 game_data.revenant_count + count <= game.max_amount_of_revenants,
@@ -66,135 +65,57 @@ mod revenant_actions {
             ); //Alex
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            let seed = starknet::get_tx_info().unbox().transaction_hash;
-            let mut random = RandomImpl::new(seed);
-
-            let mut i = 1;
-            loop {
-                if i > count {
-                    break;
-                } else {
-                    i += 1;
-                }
-
-                game_data.revenant_count += 1;
-
-                let entity_id: u128 = game_data.revenant_count.into();
-
-                let first_name_idx = random.next_u32(0, 100);
-                let last_name_idx = random.next_u32(0, 100);
-
-                let revenant = Revenant {
-                    game_id,
-                    entity_id,
-                    first_name_idx,
-                    last_name_idx,
-                    owner: player,
-                    outpost_count: 1,
-                    status: RevenantStatus::started
-                };
-                player_info.revenant_count += 1;
-                player_info.outpost_count += 1;
-
-                game_data.outpost_count += 1;
-                game_data.outpost_exists_count += 1;
-                game_data.remain_life_count += OUTPOST_INIT_LIFE;
-
-                let outpost_id: u128 = game_data.outpost_count.into();
-                // create outpost
-
-                let mut x = (MAP_WIDTH / 2) - random.next_u32(0, 800);
-                let mut y = (MAP_HEIGHT / 2) - random.next_u32(0, 800);
-
-                let mut prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
-                // avoid multiple outpost appearing in the same position
-                if prev_outpost.entity_id > 0 {
-                    loop {
-                        x = (MAP_WIDTH / 2) - random.next_u32(0, 800);
-                        y = (MAP_HEIGHT / 2) - random.next_u32(0, 800);
-                        prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
-                        if prev_outpost.entity_id == 0 {
-                            break;
-                        };
-                    }
-                };
-
-                let outpost = Outpost {
-                    game_id,
-                    x,
-                    y,
-                    entity_id: outpost_id,
-                    owner: player,
-                    name_outpost: 'Outpost',
-                    lifes: OUTPOST_INIT_LIFE,
-                    shield: 0,
-                    reinforcement_count: 0,
-                    status: OutpostStatus::created,
-                    last_affect_event_id: 0
-                };
-
-                let position = OutpostPosition { game_id, x, y, entity_id: outpost_id };
-
-                set!(world, (revenant, outpost, position));
-            };
-
-            set!(world, (game, game_data, player_info));
-        }
-
-        fn create(self: @ContractState, game_id: u32) -> (u128, u128) {
-            let world = self.world_dispatcher.read();
-            let player = get_caller_address();
-            let (mut game, mut game_data) = get!(world, game_id, (Game, GameEntityCounter));
-            game.assert_can_create_outpost(world);
-
-            assert(
-                game_data.revenant_count + 1 <= game.max_amount_of_revenants,
-                'max revenants reached'
-            ); //Alex
-
-            let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            // assert(player_info.revenant_count < REVENANT_MAX_COUNT, 'reach revenant limit');
-            game_data.revenant_count += 1;
+            // assert(player_info.revenant_count + count <= REVENANT_MAX_COUNT, 'reach revenant limit');
 
             // if game.revenant_init_price > 0 {
+            //     let total_price = game.revenant_init_price * count;
             //     let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
             //     let result = erc20
             //         .transfer_from(
-            //             sender: player,
-            //             recipient: get_contract_address(),
-            //             amount: game.revenant_init_price,
+            //             sender: player, recipient: get_contract_address(), amount: total_price,
             //         );
             //     assert(result, 'need approve for erc20');
-            //     game.prize += game.revenant_init_price;
+            //     game.prize += total_price;
             // }
 
-            let entity_id: u128 = game_data.revenant_count.into();
+            let seed = starknet::get_tx_info().unbox().transaction_hash;
+            let mut random = RandomImpl::new(seed);
+            let first_revenant_id: u128 = (game_data.revenant_count + 1).into();
+            let first_outpost_id: u128 = (game_data.outpost_count + 1).into();
 
-            let (first_name_idx, last_name_idx) = self._create_random_revenant_name();
-            let revenant = Revenant {
-                game_id,
-                entity_id,
-                first_name_idx,
-                last_name_idx,
-                owner: player,
-                outpost_count: 1,
-                status: RevenantStatus::started
+            let mut i = 0_u128;
+            loop {
+                if i >= count.into() {
+                    break;
+                }
+
+                let (revenant, outpost, position) = self
+                    ._create_revenant_and_outpost(
+                        world,
+                        game_id,
+                        player,
+                        ref random,
+                        first_revenant_id + i,
+                        first_outpost_id + i,
+                    );
+
+                set!(world, (revenant, outpost, position));
+
+                i += 1;
             };
-            player_info.revenant_count += 1;
-            player_info.outpost_count += 1;
 
-            game_data.outpost_count += 1;
-            game_data.outpost_exists_count += 1;
-            game_data.remain_life_count += OUTPOST_INIT_LIFE;
+            game_data.revenant_count += count;
+            game_data.outpost_count += count;
+            game_data.outpost_exists_count += count;
 
-            let outpost_id: u128 = game_data.outpost_count.into();
+            player_info.revenant_count += count;
+            player_info.outpost_count += count;
 
-            // create outpost
-            let (outpost, position) = self._create_outpost(world, game_id, player, outpost_id);
+            game_data.remain_life_count += OUTPOST_INIT_LIFE * count;
 
-            set!(world, (revenant, game, game_data, player_info, outpost, position));
+            set!(world, (game, game_data, player_info));
 
-            (entity_id, outpost_id)
+            (first_revenant_id, first_outpost_id)
         }
 
         fn claim_initial_rewards(self: @ContractState, game_id: u32) -> bool {
@@ -349,20 +270,34 @@ mod revenant_actions {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        fn _create_outpost(
+        fn _create_revenant_and_outpost(
             self: @ContractState,
             world: IWorldDispatcher,
             game_id: u32,
             player: ContractAddress,
-            new_outpost_id: u128,
-        ) -> (Outpost, OutpostPosition) {
-            let seed = starknet::get_tx_info().unbox().transaction_hash;
-            let mut random = RandomImpl::new(seed);
+            ref random: Random,
+            revenant_id: u128,
+            outpost_id: u128,
+        ) -> (Revenant, Outpost, OutpostPosition) {
+            // Revenant
+            let first_name_idx = random.next_u32(0, 100);
+            let last_name_idx = random.next_u32(0, 100);
+
+            let revenant = Revenant {
+                game_id,
+                entity_id: revenant_id,
+                first_name_idx,
+                last_name_idx,
+                outpost_id,
+                owner: player,
+                outpost_count: 1,
+                status: RevenantStatus::started
+            };
+
             let mut x = (MAP_WIDTH / 2) - random.next_u32(0, 800);
             let mut y = (MAP_HEIGHT / 2) - random.next_u32(0, 800);
 
             let mut prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
-
             // avoid multiple outpost appearing in the same position
             if prev_outpost.entity_id > 0 {
                 loop {
@@ -379,7 +314,8 @@ mod revenant_actions {
                 game_id,
                 x,
                 y,
-                entity_id: new_outpost_id,
+                revenant_id,
+                entity_id: outpost_id,
                 owner: player,
                 name_outpost: 'Outpost',
                 lifes: OUTPOST_INIT_LIFE,
@@ -389,17 +325,9 @@ mod revenant_actions {
                 last_affect_event_id: 0
             };
 
-            let position = OutpostPosition { game_id, x, y, entity_id: new_outpost_id };
+            let position = OutpostPosition { game_id, x, y, entity_id: outpost_id };
 
-            (outpost, position)
-        }
-
-        fn _create_random_revenant_name(self: @ContractState) -> (u32, u32) {
-            let seed = starknet::get_tx_info().unbox().transaction_hash;
-            let mut random = RandomImpl::new(seed);
-            let first_name = random.next_u32(0, 100);
-            let last_name = random.next_u32(0, 100);
-            (first_name, last_name)
+            (revenant, outpost, position)
         }
     }
 }
