@@ -124,7 +124,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
             <div className="top-bar-grid-game-logo center-via-flex">
                 <img src="LOGO_WHITE.png" className="game-logo" style={{ height: "100%", aspectRatio: "1/1" }}></img>
             </div>
-            <Tooltip title={`Tot score game ${gameEntityCounter.score_count} \n Your score count ${playerContribScore}`}>
+            
                 <div className="top-bar-grid-left-text-section center-via-flex">
                     <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
                         <div style={{ fontSize: "1.2vw" }}>Jackpot: {1000} $LORDS </div>
@@ -135,14 +135,16 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                             {clientGameData.guest ? (
                                 <div style={{ fontSize: "1.2vw", filter: "brightness(70%) grayscale(70%)" }}>Contribution: Log in</div>
                             ) : (
-                                <div style={{ fontSize: "1.2vw" }}>Contribution: {playerContribScorePerc}%</div>
+                                <Tooltip title={`Tot score game ${gameEntityCounter.score_count} \n Your score count ${playerContribScore}`}>
+                                    <div style={{ fontSize: "1.2vw" }}>Contribution: {playerContribScorePerc}%</div>
+                                </Tooltip> 
                             )}
                         </>
                         )}
 
                     </div>
                 </div>
-            </Tooltip>
+            
             <div className="top-bar-grid-right-text-section center-via-flex">
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
                     {clientGameData.current_game_state === 1 ?

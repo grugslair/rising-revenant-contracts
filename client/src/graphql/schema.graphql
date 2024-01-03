@@ -172,6 +172,7 @@ query getSortedPlayerReinforcements($game_id: u32!, $playersNum: Int!) {
               revenant_count
               outpost_count
               reinforcement_count
+              initiated
               inited
             }
           }
@@ -243,6 +244,7 @@ query getPlayerInfo($game_id: String!, $owner: String!) {
             revenant_count
             outpost_count
             reinforcement_count
+            initiated
             inited
           }
         }

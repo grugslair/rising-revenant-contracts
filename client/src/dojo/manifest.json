@@ -1139,7 +1139,7 @@
     {
       "name": "revenant_actions",
       "address": "0xe004dc4db6f5837abbd5122f9d5f129c39a67a1bbbcd47ca0a4a8259485846",
-      "class_hash": "0x350e45708d59cde273717bfdbb62083212ce238b12a2c5d0b8495c55a3061c2",
+      "class_hash": "0x4a1f79ffe96645d41426f6fd3d1459d0843a592ef2974b15da731af3522741f",
       "abi": [
         {
           "type": "impl",
@@ -1418,7 +1418,7 @@
     {
       "name": "trade_actions",
       "address": "0x608f1ac3a00b01a8721f872d9cbe88a0c60c069d9616ce11e49527708388c85",
-      "class_hash": "0x5a0be9da291d804f72102f80dc2fa6edf06d84d230f293dcc89cadb06744205",
+      "class_hash": "0x55dc1d916066dc941b17b270e217be93feb0c10f57660791770d03ceff68ee6",
       "abi": [
         {
           "type": "impl",
@@ -1626,7 +1626,7 @@
     {
       "name": "trade_revenant_actions",
       "address": "0x212a507cd43a5156d7b0822cee4650cc9d30993ced3fec377f9e9f36dbf0e2a",
-      "class_hash": "0x5d3cc9e2cdae1673dd44b8636cac11256dd39787b9cbc2e08da2feac53041fa",
+      "class_hash": "0x139fbaa2decc256ad4eb6de1326ff0df271757e3d46bf0b0978719a0ce9645b",
       "abi": [
         {
           "type": "impl",
@@ -1838,7 +1838,7 @@
     {
       "name": "world_event_actions",
       "address": "0xc4bf8a155f0cc61367790347ee38465b2105fcdb782e8b932ff6feee1603dd",
-      "class_hash": "0x2b477d0571d10b17dbfd09a690de0e2a34c5274bf5a81a981e85725452d4e7e",
+      "class_hash": "0x228f3ce79ab81aa2ae9dfa01782c22c156fc449b2c06f4268f7977197b2c99c",
       "abi": [
         {
           "type": "impl",
@@ -3130,12 +3130,17 @@
           "key": false
         },
         {
+          "name": "initiated",
+          "type": "u8",
+          "key": false
+        },
+        {
           "name": "inited",
           "type": "bool",
           "key": false
         }
       ],
-      "class_hash": "0x70d4ecec18100d8222657b4c0faa58464678097b2aedceb4acd18ea63581b8a",
+      "class_hash": "0x185c828a3f2f5750cbd97b9d5acc4a51f310d61c33ff5c143b1c49b490aab5f",
       "abi": [
         {
           "type": "function",
