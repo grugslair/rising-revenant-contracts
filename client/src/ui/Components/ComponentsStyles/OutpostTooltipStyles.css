@@ -5,7 +5,7 @@
   left: 5%;
 
   height: fit-content;
-  width: 350px;
+  width: 17%;
 
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 3;
@@ -16,10 +16,8 @@
 
   color: white;
 
-  padding: 10px 10px;
+  padding: 10px;
 }
-
-
 
 .outpost-data-container-grid {
   position: relative;
@@ -27,13 +25,13 @@
 
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(9, 1fr);
 }
 
 .outpost-grid-container-text-style{
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  font-weight: 100;
 }
 
 .outpost-data-title-grid-element{
@@ -58,12 +56,17 @@
   padding: 5px 2px
 }
 
-.outpost-data-id-pos-grid-element{
-  grid-row: 6/7;
-  grid-column: 1/7; 
+.outpost-data-statistics-grid-element{
+  grid-row: 6/8;
+  grid-column: 1/7;
+
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
 }
 
-.outpost-data-reinf-grid-element{
+/* .outpost-data-reinf-grid-element{
   grid-row: 7/8;
   grid-column: 1/7; 
 }
@@ -71,10 +74,10 @@
 .outpost-data-state-grid-element{
   grid-row: 8/9;
   grid-column: 1/7; 
-}
+} */
 
 .outpost-data-conf-button-grid-element{
-  grid-row: 9/10;
+  grid-row: 8/9;
   grid-column: 1/7; 
 }
 

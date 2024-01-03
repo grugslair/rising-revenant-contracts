@@ -6,15 +6,14 @@ import { ClickWrapper } from "../clickWrapper";
 
 import { useDojo } from "../../hooks/useDojo";
 
-import { getComponentValueStrict, EntityIndex, HasValue, getComponentValue } from "@latticexyz/recs";
-import { useEntityQuery , useComponentValue} from "@latticexyz/react";
+import { getComponentValueStrict, EntityIndex, runQuery, HasValue } from "@latticexyz/recs";
+import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 
 import { ConfirmEventOutpost } from "../../dojo/types";
 
 import { setTooltipArray } from "../../phaser/systems/eventSystems/eventEmitter";
-import { decimalToHexadecimal, fetchSpecificOutRevData, namesArray, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM, surnamesArray, truncateString } from "../../utils";
+import { fetchSpecificOutRevData, namesArray, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM, surnamesArray, truncateString } from "../../utils";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
-import { useNetworkLayer } from "../../hooks/useNetworkLayer";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 interface OutpostTooltipProps { }
@@ -90,34 +89,33 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
     setClientOutpostComponent(clientCompData.id, clientCompData.owned, clientCompData.event_effected, true, clientCompData.visible, clientComponents, contractComponents, clientGameData.current_game_id)
   }
 
-  const desmountComponentAction = () => {
-    if (selectedOutpost[0] !== undefined && selectedOutpost[0] !== null) {
-      console.log(selectedOutpost[0]);
-      const clientCompData = getComponentValueStrict(clientComponents.ClientOutpostData, selectedOutpost[0]);
-
-      setClientOutpostComponent(clientCompData.id, clientCompData.owned, clientCompData.event_effected, false, clientCompData.visible, clientComponents, contractComponents, clientGameData.current_game_id);
-    }
-  }
-
-  // this is the issue that makes the tooltip go away 
-  useEffect(() => {
-
-    return () => {
-      desmountComponentAction()
-    };
-  }, []);
-
-
   useEffect(() => {
 
     setTooltipArray.on("setToolTipArray", setArray);
 
     return () => {
       setTooltipArray.off("setToolTipArray", setArray);
-
     };
+
   }, [clickedOnOutposts]);
 
+  const desmountComponentAction = () => {
+    const entitiesAtTileIndex = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { selected: true })]));
+
+    if (entitiesAtTileIndex.length > 0)
+    {
+      const clientCompData = getComponentValueStrict(clientComponents.ClientOutpostData, entitiesAtTileIndex[0]);
+      setClientOutpostComponent(clientCompData.id, clientCompData.owned, clientCompData.event_effected, false, clientCompData.visible, clientComponents, contractComponents, clientGameData.current_game_id);
+    }
+  }
+
+  useEffect(() => {
+
+    return () => {
+      desmountComponentAction()
+    };
+  }, []);
+  
   if (clickedOnOutposts.length === 0) { return <div></div>; }
 
   return (
@@ -137,20 +135,20 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
 
       {clickedOnOutposts.length > 1 && (
         <ClickWrapper className="multi-out-container">
-          
-          <div className="pointer" style={{gridColumn:"1/2" , display:"flex", justifyContent:"flex-end", alignItems:"center"}} onClick={() =>  changeSelectedIndex(-1) }>
+
+          <div className="pointer" style={{ gridColumn: "1/2", display: "flex", justifyContent: "flex-end", alignItems: "center" }} onClick={() => changeSelectedIndex(-1)}>
             {"<"}
           </div>
 
-          <div className="pointer" style={{gridColumn:"2/4" , display:"flex", justifyContent:"center", alignItems:"center"}}>
+          <div className="pointer" style={{ gridColumn: "2/4", display: "flex", justifyContent: "center", alignItems: "center" }}>
             Outposts: {selectedIndex + 1}/{clickedOnOutposts.length}
           </div>
 
-          <div className="pointer" style={{gridColumn:"4/5" , display:"flex", justifyContent:"flex-start", alignItems:"center"}} onClick={() =>  changeSelectedIndex(1) }>
+          <div className="pointer" style={{ gridColumn: "4/5", display: "flex", justifyContent: "flex-start", alignItems: "center" }} onClick={() => changeSelectedIndex(1)}>
             {">"}
           </div>
 
-         </ClickWrapper>
+        </ClickWrapper>
       )}
 
     </div>
@@ -170,7 +168,7 @@ const RevenantDataElement: React.FC<{ entityId: EntityIndex }> = ({ entityId }) 
   } = useDojo();
 
   const revenantData = useComponentValue(contractComponents.Revenant, entityId);
- 
+
   useEffect(() => {
 
     if (revenantData.owner === account.address) {
@@ -187,9 +185,9 @@ const RevenantDataElement: React.FC<{ entityId: EntityIndex }> = ({ entityId }) 
 
   return (
     <div className="revenant-data-container">
-      <h1>REVENANT DATA</h1>
-      <h2>Owner: {owner === "You" ? "You" : truncateString(owner,5)}</h2>
-      <h2>Name: {name}</h2>
+      <h1 style={{ fontFamily: "Zelda", fontSize:"1.7vw", margin:"0px", marginBottom:"5px" }}>REVENANT DATA</h1>
+      <h2 style={{ margin:"0px", fontSize:"1.2vw" }}>Owner: {owner === "You" ? "You" : truncateString(owner, 5)}</h2>
+      <h2  style={{ margin:"0px" ,fontSize:"1.2vw"}} >Name: {name}</h2>
     </div>
   );
 };
@@ -218,23 +216,26 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
   
   const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
+  const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+
   useEffect(() => {
     const updateHeight = () => {
       if (clickWrapperRef.current) {
-        setHeight((clickWrapperRef.current.offsetWidth / 6) * 9);
-        // console.error((clickWrapperRef.current.offsetWidth / 6) * 9)
+        setHeight((clickWrapperRef.current.offsetWidth / 6) * (state === "In Event" ? 8 : 7));
+
       }
     };
-
+  
     window.addEventListener('resize', updateHeight);
-
+  
     updateHeight();
-
+  
     return () => {
       window.removeEventListener('resize', updateHeight);
     };
-  }, []);
- 
+  }, [state]);
+  
+
   useEffect(() => {
 
     setPosition({ x: contractOutpostData.x, y: contractOutpostData.y });
@@ -273,37 +274,40 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
   }
 
   return (
-    <div className="outpost-data-container-grid" ref={clickWrapperRef} style={clickWrapperStyle}>
+    <div className="outpost-data-container-grid" ref={clickWrapperRef} style={{...clickWrapperStyle, gridTemplateRows:`${state !== "In Event" ? "repeat(7, 1fr)" : "repeat(8, 1fr)"}`}}>
       <div className="outpost-data-title-grid-element outpost-grid-container-text-style">
-        <h1>OUTPOST HIT</h1>
+        <h1 style={{ fontFamily: "Zelda", fontSize:"1.7vw", margin:"0px" }}>OUTPOST DATA</h1>
       </div>
-      <ClickWrapper className="outpost-data-x-grid-element center-via-flex">
-        <h1 className="pointer" onClick={() => {functionClose([])}}>X</h1>
+
+      <ClickWrapper className="outpost-data-x-grid-element center-via-flex" >
+        <img src="close_icon.svg" className="pointer" onClick={() => { functionClose([]) }} style={{ width: "100%", height: "100%" }}/>
       </ClickWrapper>
+
       <div className="outpost-data-out-pic-grid-element">
-        <img src="test_out_pp.png" alt="" style={{ width: "100%", height: "100%" }} />
+        <img src="test_out_pp.png" style={{ width: "100%", height: "100%" }} />
       </div>
       <div className="outpost-data-shield-grid-element shields-grid-container" style={{ boxSizing: "border-box" }}>
         {Array.from({ length: shields }).map((_, index) => (
           <img key={index} src="SHIELD.png" className="img-full-style" />
         ))}
       </div>
-      <div className="outpost-data-id-pos-grid-element outpost-grid-container-text-style">
-        <h2>{id} ID - X:{position.x} || Y:{position.y}</h2>
-      </div>
-      <div className="outpost-data-reinf-grid-element outpost-grid-container-text-style">
-        <h2>Reinforcements: {reinforcements}</h2>
-      </div>
-      <div className="outpost-data-state-grid-element outpost-grid-container-text-style">
-        <h2>State: 
-          {state === "Dead" && <span style={{color:"red"}}> {state}</span>}
-          {state === "In Event" && <span style={{color:"blue"}}> {state}</span>}
-          {state === "Healthy" && <span style={{color:"green"}}> {state}</span>}
+
+      <div className="outpost-data-statistics-grid-element outpost-grid-container-text-style">
+        <h2  style={{ margin:"0px", fontSize:"1.2vw", whiteSpace:"nowrap" }} >{id} ID - X:{position.x} || Y:{position.y}</h2>
+        <h2  style={{ margin:"0px", fontSize:"1.2vw" }} >Reinforcements: {reinforcements}</h2>
+        <h2  style={{ margin:"0px", fontSize:"1.2vw" }} >State:
+          {state === "Dead" && <span style={{ color: "red" }}> {state}</span>}
+          {state === "In Event" && <span style={{ color: "blue" }}> {state}</span>}
+          {state === "Healthy" && <span style={{ color: "green" }}> {state}</span>}
         </h2>
       </div>
-      <ClickWrapper className="outpost-data-conf-button-grid-element outpost-grid-container-text-style">
-        {state === "In Event" && !clientGameData.guest && <div className="global-button-style pointer" style={{padding:"5px 10px"}} onClick={confirmEvent}>Confirm Event</div>}
-      </ClickWrapper>
+
+      {state === "In Event" && !clientGameData.guest && 
+        <ClickWrapper className="outpost-data-conf-button-grid-element outpost-grid-container-text-style">
+          <div className="global-button-style pointer" style={{ padding: "5px 10px" , fontSize:"1.2vw" }} onClick={confirmEvent}>Confirm Event</div>
+        </ClickWrapper>
+      }
+     
     </div>
   );
 };
@@ -319,6 +323,5 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
   this component should also deal wiht the setting of the selected outpost and the deselection of the previous one so highlight it
 
 the update of the outpost will be done on demand from the clicking on them so this will be done here, when an outpost is selecet it will query it self to update its data
-
 */
 

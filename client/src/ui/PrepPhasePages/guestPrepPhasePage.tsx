@@ -6,11 +6,14 @@ import { getComponentValueStrict } from "@latticexyz/recs";
 import { ClickWrapper } from "../clickWrapper";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
+import { useComponentValue} from "@latticexyz/react";
 
 //styles
 import "./PagesStyles/PrepPhaseEndsPageStyles.css";
 import "./PagesStyles/BuyingPageStyle.css";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
+import { convertBlockCountToTime } from "../../utils";
+import { useLeftBlockCounter } from "../Elements/leftBlockCounterElement";
 
 //components
 
@@ -22,7 +25,7 @@ import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 export const GuestPagePrepPhase: React.FC= () => {
     const [showBlocks, setShowBlocks] = useState(true);
-    const [blocksLeft, setBlocksLeft] = useState(0);
+    const [blocksLeft, setBlocksLeft] = useState<string>("");
 
     const [freeRevs, setFreeRevs] = useState<number>(10);
 
@@ -36,19 +39,17 @@ export const GuestPagePrepPhase: React.FC= () => {
         },
     } = useDojo();
 
-    const clientGame = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+    const clientGame = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     
     const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGame.current_game_id)]));
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGame.current_game_id)]));
 
     useEffect(() => {
-        const blocksLeft = (gameData.start_block_number + gameData.preparation_phase_interval) - clientGame.current_block_number!;
-        setBlocksLeft(blocksLeft);
-    }, [clientGame]);
-
-    useEffect(() => {
         setFreeRevs(Number(gameData.max_amount_of_revenants) - Number(gameEntityCounter.revenant_count));
     }, [gameEntityCounter, gameData]);
+ 
+    const { blocksLeftData } = useLeftBlockCounter();
+    const { numberValue, stringValue } = blocksLeftData;
 
     return (
         <div className="ppe-page-container">
@@ -63,7 +64,7 @@ export const GuestPagePrepPhase: React.FC= () => {
                         <h2 style={{textAlign:"center"}}>Revenants Left to be summoned<br/> { gameData.max_amount_of_revenants - gameEntityCounter.revenant_count}</h2>
                     </div>
                     <div style={{gridColumn:"2/3", gridRow:"2/3"}} className="center-via-flex">
-                        <h2 style={{textAlign:"center"}}>Blocks Left <br/> {blocksLeft}</h2>
+                        {showBlocks ? <h2 style={{textAlign:"center"}} className="pointer" onClick={toggleShowBlocks}>Blocks Left: <br/> {numberValue}</h2> : <h2 style={{textAlign:"center"}} className="pointer" onClick={toggleShowBlocks}>Time Left: <br/> {stringValue}</h2>}
                     </div>
                     <div style={{gridColumn:"1/3", gridRow:"3/4"}} className="center-via-flex">
                         <div className="global-button-style" onClick={() => window.location.reload()} style={{textAlign:"center", padding:"5px 10px"}}>Log in</div>

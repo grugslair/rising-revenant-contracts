@@ -1,7 +1,7 @@
 [package]
 cairo-version = "2.2.0"
 name = "realmsrisingrevenant"
-version = "0.1.0"
+version = "0.2.3"
 
 [cairo]
 sierra-replace-ids = true
@@ -17,6 +17,7 @@ openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", re
 initializer_class_hash = "0xbeef"
 
 [tool.dojo.env]
+
 # local
 # rpc_url = "http://localhost:5050"
 # account_address = "0x517ececd29116499f4a1b64b094da79ba08dfd54a3edaa316134c41f8160973"

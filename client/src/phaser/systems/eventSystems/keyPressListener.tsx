@@ -1,19 +1,28 @@
 import { useEffect, useState } from 'react';
 
 export const useWASDKeys = () => {
-  const [keysDown, setKeysDown] = useState<{ [key: string]: boolean }>({ W: false, A: false, S: false, D: false });
+  const [keysDown, setKeysDown] = useState<{ [key: string]: boolean }>({
+    W: false,
+    A: false,
+    S: false,
+    D: false,
+    ARROWUP: false,
+    ARROWDOWN: false,
+    ARROWLEFT: false,
+    ARROWRIGHT: false,
+  });
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toUpperCase();
-      if (['W', 'A', 'S', 'D'].includes(key)) {
+      if (['W', 'A', 'S', 'D', 'ARROWUP', 'ARROWDOWN', 'ARROWLEFT', 'ARROWRIGHT'].includes(key)) {
         setKeysDown(prevKeys => ({ ...prevKeys, [key]: true }));
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       const key = e.key.toUpperCase();
-      if (['W', 'A', 'S', 'D'].includes(key)) {
+      if (['W', 'A', 'S', 'D', 'ARROWUP', 'ARROWDOWN', 'ARROWLEFT', 'ARROWRIGHT'].includes(key)) {
         setKeysDown(prevKeys => ({ ...prevKeys, [key]: false }));
       }
     };

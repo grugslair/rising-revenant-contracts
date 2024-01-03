@@ -19,13 +19,15 @@ import { PrepPhaseEndsPage } from "./preparationPhaseEndsPage";
 import { WaitForTransactionPage } from "./waitForTransactionPage";
 import { DebugPage } from "../Pages/debugPage";
 
-import { PrepPhaseNavbarComponent } from "../Components/nabarComponent";
+import { PrepPhaseNavbarComponent } from "../Components/navbarComponent";
 import { ProfilePage } from "../Pages/playerProfilePage";
 import { RulesPage } from "../Pages/rulePage";
 import { Phase } from "../phaseManager";
 import { SettingsPage } from "../Pages/settingsPage";
 import { GuestPagePrepPhase } from "./guestPrepPhasePage";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
+import { blockDataTypes, useLeftBlockCounter } from "../Elements/leftBlockCounterElement";
+import { fetchAllOutRevData, loadInClientOutpostData, setComponentsFromGraphQlEntitiesHM } from "../../utils";
 
 export enum PrepPhaseStages {
     VID,
@@ -49,19 +51,17 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
     const [prepPhaseStage, setPrepPhaseStage] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
 
     const [showBlocks, setShowBlocks] = useState(false);
-    const [blocksLeft, setBlocksLeft] = useState(0);
 
     const [lastSavedState, setLastSavedState] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
 
     const {
+        account: {account},
         networkLayer: {
-            network: { clientComponents, contractComponents }
+            network: { clientComponents, contractComponents,graphSdk }
         },
     } = useDojo();
 
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])); 
-
-    const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
 
     // this is only here to call the debug menu
     useEffect(() => {
@@ -95,10 +95,25 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
 
     }, [prepPhaseStage]);
 
+    const { blocksLeftData } = useLeftBlockCounter();
+    const { numberValue, stringValue } = blocksLeftData;
+
     useEffect(() => {
-        const blocksLeft = (gameData.start_block_number + gameData.preparation_phase_interval) - clientGameData.current_block_number;
-        setBlocksLeft(blocksLeft);
-    }, [clientGameData]);
+        const reloading = async () => {
+          const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+      
+          const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData.current_game_id, gameEntityCounter.outpost_count);
+          setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
+            
+          loadInClientOutpostData(clientGameData.current_game_id, contractComponents, clientComponents, account);
+        };
+      
+        return () => {
+            if (account.address !== "0x66ef6a6982a7e844d3d04f52c7799e41936dfc616f44fe873217a4e6d7e576f"){
+                reloading(); 
+            }
+        };
+    }, [account]);
 
     // video stuff
     const onVideoDone = () => {
@@ -126,6 +141,7 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
         setUIState(Phase.GAME);
     }
 
+      
     if (clientGameData.guest) {
         return (
         <div className="main-page-container-layout">
@@ -160,7 +176,7 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
             </div>
         </div>
 
-        {prepPhaseStage !== PrepPhaseStages.WAIT_PHASE_OVER && <ClickWrapper className='prep-phase-text' style={{ fontSize: "0.7cqw" }} onMouseDown={() => { setShowBlocks(!showBlocks) }}> <h2> Preparation phase ends in <br /> {showBlocks ? "DD: 5 HH: 5 MM: 5 SS: 5" : `${blocksLeft} Blocks`}</h2></ClickWrapper>}
+        {prepPhaseStage !== PrepPhaseStages.WAIT_PHASE_OVER && <ClickWrapper className='prep-phase-text' style={{ fontSize: "0.7cqw" }} onMouseDown={() => { setShowBlocks(!showBlocks) }}> <h2> Preparation phase ends in <br /> {showBlocks ? `${stringValue}` : `${numberValue} Blocks`}</h2></ClickWrapper>}
         <PrepPhaseNavbarComponent currentMenuState={prepPhaseStage} lastSavedState={lastSavedState} setMenuState={setMenuState} />
     </div>);
 };

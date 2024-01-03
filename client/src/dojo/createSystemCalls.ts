@@ -24,7 +24,7 @@ export function createSystemCalls(
 ) {
 
     //HERE SHOULD BE DONE need to fix the notify to actually change if it fails or not
-    // THIS SHOULD ALSO HAVE A LINK
+    // as right now it doesnt detect if it gets rejected only if the transaciton fails
 
     const notify = (message: string, succeeded: boolean) => 
     {
@@ -114,10 +114,11 @@ export function createSystemCalls(
     };
 
     //TO SWAP FOR THE REAL LIB
-    const view_block_count = async () => {
+    const get_current_block = async () => {
         try {
             const tx: any = await call("game_actions", "get_current_block", []);
-            return hexToDecimal(tx.result[0])
+            return hexToDecimal(tx.result[0]);
+
             // return 90;
         } catch (e) {
             console.log(e)
@@ -184,9 +185,9 @@ export function createSystemCalls(
                 { retryInterval: 100 }
             )
 
-            // setComponentsFromEvents(contractComponents,
-            //     getEvents(receipt)
-            // );
+            setComponentsFromEvents(contractComponents,
+                getEvents(receipt)
+            );
 
             notify(`Created trade`, true)
         } catch (e) {
@@ -340,7 +341,7 @@ export function createSystemCalls(
         claim_score_rewards,
         claim_endgame_rewards,
 
-        view_block_count,
+        get_current_block,
         get_current_reinforcement_price
     };
 }

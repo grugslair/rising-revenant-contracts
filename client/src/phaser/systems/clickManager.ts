@@ -13,7 +13,9 @@ import {
 
 import { setTooltipArray } from "./eventSystems/eventEmitter";
 import { OUTPOST_HEIGHT, OUTPOST_WIDTH } from "../constants";
-import { setClientClickPositionComponent } from "../../utils";
+import { setClientCameraComponent, setClientClickPositionComponent } from "../../utils";
+import { getEntityIdFromKeys } from "@dojoengine/utils";
+import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 // this can be threaded
 
@@ -30,18 +32,6 @@ export const clickManager = (layer: PhaserLayer) => {
     },
   } = layer;
 
-  input.pointerdown$.subscribe(({ pointer }) => {
-    if (!pointer) {
-      return;
-    }
-
-    const clickRelativeToMiddlePointX = pointer.x - camera.phaserCamera.width / 2;
-    const clickRelativeToMiddlePointY = pointer.y - camera.phaserCamera.height / 2;
-
-    setClientClickPositionComponent(pointer.x, pointer.y, clickRelativeToMiddlePointX, clickRelativeToMiddlePointY, clientComponents);
-
-  });
-
   // Click checks for the ui tooltip
   defineSystem(world, [Has(ClientClickPosition)], ({ entity }) => {
 
@@ -53,9 +43,10 @@ export const clickManager = (layer: PhaserLayer) => {
       return;
     }
 
+    // setClientCameraComponent(camPos.x + positionClick.xFromMiddle, camPos.y+ positionClick.yFromMiddle,clientComponents);
+
     const outpostArray = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { visible: true })]));
     
-
     let zoomVal: number = 0;
 
     camera.zoom$.subscribe((zoom) => { zoomVal = zoom; });
@@ -64,7 +55,6 @@ export const clickManager = (layer: PhaserLayer) => {
     let positionY = (positionClick.yFromMiddle / zoomVal) + camPos.y;
 
     let foundEntity: EntityIndex[] = []; 
-
 
     for (const outpostEntityValue of outpostArray) {
 

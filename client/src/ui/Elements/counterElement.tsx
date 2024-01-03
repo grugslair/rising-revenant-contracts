@@ -25,7 +25,6 @@ const additionalButtonStyle: CSSProperties = {
     alignItems: "center",
 };
 
-
 const CounterElement: React.FC<CounterElementProps> = ({ value, setValue, containerStyleAddition, additionalButtonStyleAdd, textAddtionalStyle }) => {
     return (
         <div style={{ ...containerStyle, ...containerStyleAddition }}>

@@ -14,6 +14,7 @@ import "./PagesStyles/ProfilePageStyles.css";
 import { ClickWrapper } from "../clickWrapper";
 import PageTitleElement from "../Elements/pageTitleElement";
 import { fetchPlayerInfo, namesArray, setClientCameraComponent, setComponentsFromGraphQlEntitiesHM, surnamesArray } from "../../utils";
+import { ReinforcementCountElement } from "../Elements/reinfrocementBalanceElement";
 
 //pages
 
@@ -49,39 +50,21 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
 
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
-
-    const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]));
-
-    useEffect(() => {
-        const fetchData = async () => {
-            
-            if (playerInfo === null || playerInfo === undefined) {
-                const playerSpecificData = await fetchPlayerInfo(graphSdk, clientGameData.current_game_id, account.address);
-                setComponentsFromGraphQlEntitiesHM(playerSpecificData, contractComponents, false);
-                return;
-            }
-    
-            setReinforcementCount(playerInfo.reinforcement_count);
-        };
-    
-        fetchData();
-    
-    }, [playerInfo]);
-    
-    //test embed needs to be standardized 
-    const reinforcementsBalanceDiv = (
-        <div className="title-cart-section">
-            <h1>
-                <img src="reinforcements_logo.png" className="test-embed" alt="" />
-                {reinforcementCount}
-            </h1>
-            <h3>Reinforcement available</h3>
-        </div>
-    );
+    const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]))
 
     const dividingLine: JSX.Element = (
         <div className="divider"></div>
     )
+
+    useEffect(() => {
+
+        if (playerInfo !== undefined)
+        {
+            setReinforcementCount(playerInfo.reinforcement_count);
+        }
+
+    }, [playerInfo]);
+
 
     const reinforceOutpost = (outpost_id: any, count: number) => {
 
@@ -97,6 +80,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
 
     const setCameraPos = (x: number, y: number) => {
         setClientCameraComponent(x, y, clientComponents);
+
+        setUIState()
     }
 
     const confirmAllAttackedOutposts = async () => {
@@ -121,9 +106,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
     return (
         <ClickWrapper className="game-page-container">
 
-            <img className="page-img" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
+            <img className="page-img brightness-down" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
 
-            <PageTitleElement name={"PROFILE"} rightPicture={"close_icon.svg"} closeFunction={setUIState} right_html_element={reinforcementsBalanceDiv} />
+            <PageTitleElement name={"PROFILE"} rightPicture={"close_icon.svg"} closeFunction={setUIState} right_html_element={<ReinforcementCountElement/>} />
 
             <div style={{ width: "100%", height: "90%", position: "relative", display: "flex", flexDirection: "row" }}>
                 <div style={{ width: "8%", height: "100%" }}></div>
@@ -164,8 +149,9 @@ interface ListElementProps {
     entityId: EntityIndex
     reinforce_outpost: any
     currentBalance: number
-    goHereFunc: any
     phase: number
+    reinforce_outpost: any
+    goHereFunc: any
     confirmEvent: any
 }
 
@@ -188,7 +174,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
 
     const {
         networkLayer: {
-            network: { contractComponents, clientComponents}
+            network: { contractComponents, clientComponents }
         },
     } = useDojo();
 
@@ -209,11 +195,12 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
     }, [outpostData]);
 
     useEffect(() => {
+        console.error(currentBalance);
+
         if (currentBalance === 0) {
             setAmountToReinforce(0);
             return;
         }
-
         if (amountToReinforce > currentBalance) {
             setAmountToReinforce(currentBalance);
         }
@@ -227,7 +214,6 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
         const updateHeight = () => {
             if (clickWrapperRef.current) {
                 setHeight((clickWrapperRef.current.offsetWidth / 24) * 4);
-
             }
         };
 
@@ -245,31 +231,42 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
         width: '99%',
     };
 
+
+
     return (
-        <div ref={clickWrapperRef} className={`grid-container ${clientOutpostData.event_effected && outpostData.lifes > 0 ? ' profile-page-attacked-style' : ''}`}    style={clickWrapperStyle}    onMouseEnter={() => setButtonIndex(1)} onMouseLeave={() => setButtonIndex(0)}>
+        <div ref={clickWrapperRef} className={`profile-page-grid-container ${clientOutpostData.event_effected && outpostData.lifes > 0 ? ' profile-page-attacked-style' : ''}`} style={clickWrapperStyle} onMouseEnter={() => setButtonIndex(1)} onMouseLeave={() => setButtonIndex(0)}>
             <div className="pfp">
-                <img src="Rev_PFP_11.png" className="child-img" />
+                <img src="Rev_PFP_11.png" className="child-img " />
             </div>
-            <div className="name" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}> <h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw", whiteSpace: "nowrap" }}>{name} {surname}</h3></div>
+
+            <div className="name" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
+                <h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw", whiteSpace: "nowrap" }}>{name} {surname} </h3>
+            </div>
+
             <div className="otp">
                 <img src="test_out_pp.png" className="child-img" />
             </div>
+
             <div className="sh shields-grid-container" style={{ boxSizing: "border-box" }}>
                 {Array.from({ length: shieldNum }).map((_, index) => (
                     <img key={index} src="SHIELD.png" className="img-full-style" />
                 ))}
             </div>
+
             <div className="info" style={{ display: "flex", gridColumn: clientOutpostData.event_effected ? "12/22" : "12/25" }}>
+
                 <div style={{ flex: "1", height: "100%", boxSizing: "border-box" }}>
                     <div style={{ width: "100%", height: "50%", }}> <h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw" }}>Outpost ID: <br /><br />{id}</h3>   </div>
                     <div style={{ width: "100%", height: "50%", }}></div>
                 </div>
+
                 <div onMouseEnter={() => { setButtonIndex(3) }} onMouseLeave={() => { setButtonIndex(1) }} style={{ flex: "1", height: "100%", boxSizing: "border-box" }}>
                     <div style={{ width: "100%", height: "50%", }}> <h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw" }}>Coordinates: <br /><br />X: {xCoord}, Y: {yCoord}</h3>    </div>
                     <div style={{ width: "100%", height: "50%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                        {buttonIndex === 3 && phase === 2  && <div className="global-button-style" style={{ height: "50%", padding: "5px 10px", boxSizing: "border-box", fontSize: "0.6cqw", display: "flex", justifyContent: "center", alignItems: "center" }} onClick={() => goHereFunc(xCoord, yCoord)}> <h2>Go here</h2></div>}
+                        {buttonIndex === 3 && phase === 2 && <div className="global-button-style" style={{ height: "50%", padding: "5px 10px", boxSizing: "border-box", fontSize: "0.6cqw", display: "flex", justifyContent: "center", alignItems: "center" }} onClick={() => goHereFunc(xCoord, yCoord)}> <h2>Go here</h2></div>}
                     </div>
                 </div>
+
                 <div onMouseEnter={() => { setButtonIndex(4) }} onMouseLeave={() => { setButtonIndex(1) }} style={{ flex: "1", height: "100%", boxSizing: "border-box" }}>
                     <div style={{ width: "100%", height: "50%", }}><h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw" }}>Reinforcements: <br /><br />{reinforcements}</h3> </div>
                     <div style={{ width: "100%", height: "50%", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
@@ -287,16 +284,21 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                         </>)}
                     </div>
                 </div>
-            </div>
 
+            </div>
+            
             {clientOutpostData.event_effected && outpostData.lifes > 0 &&
                 <div className="sell" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                     {buttonIndex !== 0 && phase === 2 && <div className="global-button-style" style={{ padding: "5px 10px", fontSize: "0.9cqw" }} onClick={() => { confirmEvent(entityId) }}>Confirm Event</div>}
                 </div>
             }
+            
         </div>
     );
 };
+
+
+// might be an issue with the last part of this component as it might still take space but not render to check HERE
 
 
 

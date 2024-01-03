@@ -10,7 +10,7 @@ import {
 import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
-import { checkAndSetPhaseClientSide, fetchAllOutRevData, fetchAllOwnOutRevData, fetchGameData, fetchPlayerInfo, fetchSpecificEvent, fetchSpecificOutRevData, loadInClientOutpostData, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM, truncateString } from "../../utils";
+import { checkAndSetPhaseClientSide, fetchAllOutRevData, fetchGameData, fetchPlayerInfo, fetchSpecificEvent, fetchSpecificOutRevData, loadInClientOutpostData, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM, truncateString } from "../../utils";
 import { ClickWrapper } from "../clickWrapper";
 import { GAME_CONFIG_ID, getRefreshOwnOutpostDataTimer } from "../../utils/settingsConstants";
 
@@ -60,18 +60,9 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     // this should only be getting called when the user is active the moment the game switches from prep to game phase as the other oupost from other people are not loaded in 
     // in the prep phase
     useEffect(() => {
-        const loadInAllOutpostsPhaseChange = async () => {
-            const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData.current_game_id, gameEntityCounter.outpost_count);
-            setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
-
-            loadInClientOutpostData(clientGameData.current_game_id, contractComponents, clientComponents, account)
-        }
-
         if (phaseNum === 1 && setGamePhase !== undefined) {   // this should only be getting called when the phase goes from prep to game
             if (clientGameData.current_game_state === 2) {
                 setGamePhase();
-
-                loadInAllOutpostsPhaseChange()
             }
         }
     }, [clientGameData, gameEntityCounter]);
@@ -82,7 +73,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
         if (playerInfo === null || playerInfo === undefined) { return; }
 
         setPlayerContribScore(playerInfo.score);
-        setPlayerContribScorePerc(Number.isNaN((playerInfo.score / gameEntityCounter.score_count) * 100) ? 0 : (playerInfo.score / gameEntityCounter.score_count) * 100);
+        setPlayerContribScorePerc(Number.isNaN((playerInfo.score / gameEntityCounter.score_count) * 100) ? 0 : Number(((playerInfo.score / gameEntityCounter.score_count) * 100).toFixed(2)));
 
     }, [playerInfo]);
 
@@ -99,8 +90,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
                 const outpostData = getComponentValueStrict(contractComponents.Outpost, entity_id);
 
-                if (outpostData.lifes === 0) 
-                {
+                if (outpostData.lifes === 0) {
                     continue;
                 }
 
@@ -110,12 +100,10 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                 if (clientGameData.current_event_drawn !== 0) {
                     const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
 
-                    // if (outpostData.last_affect_event_id === clientGameData.current_event_drawn) 
-                    // {
-                    //     setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, false, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
-                    // }
-                    // else 
-                    // {
+                    if (Number(outpostData.last_affect_event_id) === clientGameData.current_event_drawn) {
+                        setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, false, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
+                    }
+                    else {
                         const lastEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]));
 
                         const outpostX = outpostData.x;
@@ -140,7 +128,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     }, [clientGameData]);
 
     return (
-        <ClickWrapper className="top-bar-grid-container ">
+        <ClickWrapper className="top-bar-grid-container">
             <div className="top-bar-grid-game-logo center-via-flex">
                 <img src="LOGO_WHITE.png" className="game-logo" style={{ height: "100%", aspectRatio: "1/1" }}></img>
             </div>
@@ -168,7 +156,8 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                     {clientGameData.current_game_state === 1 ?
                         <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {gameEntityCounter.revenant_count}/{gameData.max_amount_of_revenants}</div>
                         :
-                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostQuery.length - outpostDeadQuery.length }/{outpostQuery.length}</div>
+                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostQuery.length - outpostDeadQuery.length}/{outpostQuery.length}</div>
+
                     }
                 </div>
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
@@ -180,18 +169,26 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                     <h2 style={{ fontFamily: "Zelda", fontWeight: "100", fontSize: "2.8vw", whiteSpace: "nowrap" }}>Rising Revenant</h2>
                 </div>
             </div>
-            <div className="top-bar-grid-address center-via-flex">
-                <div style={{ width: "100%", height: "75%" }} className="center-via-flex">
+            <div className="top-bar-grid-address" style={{ gap: "4px", justifyContent: "space-around", display: "flex", alignItems: "center" }}>
+                <div style={{ width: "50%", height: "75%" }} className="center-via-flex">
                     {!clientGameData.guest ?
-                        <h2 >
-                            <img src="argent_logo.png" className="chain-logo"></img>
-                            {truncateString(account.address, 5)}
-                        </h2> :
+                        <Tooltip title="Click to copy" placement="bottom">
+                            <h2 onClick={() => navigator.clipboard.writeText(account.address)} className="pointer">
+                                <img src="argent_logo.png" className="chain-logo" alt="Logo" />
+                                {truncateString(account.address, 5)}
+                            </h2>
+                        </Tooltip>
+                        :
                         <div className="global-button-style" style={{ padding: "5px 10px", fontSize: "1.2vw", cursor: "pointer" }} onClick={() => window.location.reload()}>
                             LOG IN
                         </div>
                     }
                 </div>
+
+                <div className="global-button-style" style={{ padding: "5px 10px" }} onClick={() => window.open('https://forms.gle/mpmYp4CdLJxk6nLx7', '_blank')}>
+                    Give Feedback!!
+                </div>
+                
             </div>
         </ClickWrapper>
     );
@@ -204,7 +201,7 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
         account: { account },
         networkLayer: {
             network: { contractComponents, clientComponents, graphSdk },
-            systemCalls: { view_block_count }
+            systemCalls: { get_current_block }
         },
     } = useDojo();
 
@@ -213,12 +210,13 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
         const updateFunctions = () => {
             const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
+
             checkBlockCount(clientGameData);
             getGameData(clientGameData);
         }
 
         const getGameData = async (clientGameData: any) => {
-          
+
             // fetch new game data from chain
             const gameDataQuery = await fetchGameData(graphSdk, clientGameData.current_game_id);
             setComponentsFromGraphQlEntitiesHM(gameDataQuery, contractComponents, false);
@@ -246,7 +244,9 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
         }
 
         const checkBlockCount = async (clientGameData: any) => {
-            const blockCount = await view_block_count();
+
+            const blockCount = await get_current_block();
+
             checkAndSetPhaseClientSide(clientGameData.current_game_id, blockCount!, contractComponents, clientComponents);
         };
 

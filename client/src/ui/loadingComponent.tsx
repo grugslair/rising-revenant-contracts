@@ -3,7 +3,7 @@ import { CreateGameProps } from "../dojo/types";
 
 import { Phase } from "./phaseManager";
 import { useDojo } from "../hooks/useDojo";
-import { checkAndSetPhaseClientSide,  fetchAllEvents,  fetchAllOutRevData,  fetchGameData,  fetchGameTracker,  fetchPlayerInfo,  fetchSpecificOutRevData,  loadInClientOutpostData,  setClientOutpostComponent,  setComponentsFromGraphQlEntitiesHM } from "../utils";
+import { checkAndSetPhaseClientSide, fetchAllEvents, fetchAllOutRevData, fetchGameData, fetchGameTracker, fetchPlayerInfo, fetchSpecificOutRevData, loadInClientOutpostData, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM } from "../utils";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 
 import { getComponentValueStrict, getComponentValue } from "@latticexyz/recs";
@@ -17,7 +17,6 @@ interface LoadingPageProps {
 
 export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => {
 
-  const [gamePhase, setGamePhase] = useState<number>(1);
   //https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel/preload
   // this is to preload
 
@@ -31,7 +30,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
   const {
     account: { account },
     networkLayer: {
-      systemCalls: { create_game, view_block_count  },
+      systemCalls: { create_game, get_current_block   },
       network: { contractComponents, clientComponents, graphSdk },
     },
   } = useDojo();
@@ -54,14 +53,14 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
       const create_game_prop: CreateGameProps =
       {
         account: account,
-        preparation_phase_interval: 30,
-        event_interval: 3,
+        preparation_phase_interval: 50,
+        event_interval: 5,
         erc_addr: account.address,
         reward_pool_addr: account.address,
         revenant_init_price: 10,
-        max_amount_of_revenants: 50,
+        max_amount_of_revenants: 35,
       }
-  
+
       await create_game(create_game_prop)
 
       const gameTrackerData = await fetchGameTracker(graphSdk);
@@ -76,12 +75,10 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     const gameDataQuery = await fetchGameData(graphSdk, game_id);  // fetching the last game
     setComponentsFromGraphQlEntitiesHM(gameDataQuery, contractComponents, false);
     
-    //game entity comp
-    const blockCount =  await view_block_count();  //get the current block count
+    const blockCount =  await get_current_block ();  //get the current block count
+
     const data = checkAndSetPhaseClientSide(game_id, blockCount!, contractComponents, clientComponents)
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]))
-
-    setGamePhase(data.phase);
 
     const playerInfoQuery = await fetchPlayerInfo(graphSdk, game_id, account.address);
     setComponentsFromGraphQlEntitiesHM(playerInfoQuery, contractComponents, false);
@@ -89,34 +86,28 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     const allOutpostsModels = await fetchAllOutRevData(graphSdk, game_id, gameEntityCounter.outpost_count);
     setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
 
-    loadInClientOutpostData(game_id, contractComponents,clientComponents,account);
+    loadInClientOutpostData(game_id, contractComponents, clientComponents, account);
 
     switch (data.phase) {
+
+      case 1:
+
+        setUIState(Phase.PREP);
+        break;
 
       case 2:
 
         const allEventsModels = await fetchAllEvents(graphSdk, game_id, gameEntityCounter.event_count);
         setComponentsFromGraphQlEntitiesHM(allEventsModels, contractComponents, true);
-        
-       break;
-    }
 
-    if (data.phase === 1)
-    {
-      setUIState(Phase.PREP);
-    }
-    else
-    {
-      setUIState(Phase.GAME);
+        setUIState(Phase.GAME);
+        break;
     }
   }
 
-
-
   useEffect(() => {
 
-    if (account.address === "0x6d1e2e7566fea34a48a25413f87949b24527ca4719571268a6c3443585725e")
-    {
+    if (account.address === "0x66ef6a6982a7e844d3d04f52c7799e41936dfc616f44fe873217a4e6d7e576f") {
       return;
     }
 
@@ -135,7 +126,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
   // }, []);
 
   return (
-    <div className="centered-div" style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+    <div className="centered-div" style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center",backgroundColor:"black" }}>
       <video
         autoPlay
         loop

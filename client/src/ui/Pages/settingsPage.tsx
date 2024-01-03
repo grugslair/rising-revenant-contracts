@@ -23,7 +23,6 @@ import { setRefreshOwnOutpostDataTimer } from "../../utils/settingsConstants";
     this will all be set via a promise?
 
     the other section is a list of setting for the player to deal with camera speed and stuff like that, no real query needed for this one
-    
 */
 
 
@@ -41,10 +40,9 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
         setRefreshOwnOutpostDataTimer(sliderValue);
     }, [sliderValue])
     
-
     return (
         <div className="game-page-container">
-            <img className="page-img" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
+            <img className="page-img brightness-down" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
             <PageTitleElement name={"SETTINGS"} rightPicture={"close_icon.svg"} closeFunction={setUIState} />
 
             <ClickWrapper style={{ position: "relative", width: "100%", height: "90%", display: "flex", flexDirection: "row", padding: "5% 3%", boxSizing: "border-box", color:"white"}}>

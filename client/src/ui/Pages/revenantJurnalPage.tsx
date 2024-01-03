@@ -11,7 +11,10 @@ import { ClickWrapper } from "../clickWrapper";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
+
+import { namesArray, surnamesArray, truncateString } from "../../utils";
 import { truncateString } from "../../utils";
+
 
 //elements/components
 
@@ -150,7 +153,9 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
 
     return (
         <div className="game-page-container">
-            <img className="page-img" src="./assets/Page_Bg/JOURNAL_PAGE_BG.png" alt="testPic" />
+
+            <img className="page-img brightness-down" src="./assets/Page_Bg/JOURNAL_PAGE_BG.png" alt="testPic" />
+
             <PageTitleElement name="REVENANT JUORNAL" closeFunction={closePage} rightPicture="close_icon.svg" />
             <div style={{ width: "100%", height: "10%", backgroundColor: "red" }}>
             </div>
@@ -173,7 +178,7 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
                                 <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Position <br /> X:{currentlySelectedEventData.x || 0} || Y:{currentlySelectedEventData.y || 0}</div>
                             </div>
                             <div className="rev-jurn-page-grid-radius-data center-via-flex">
-                                <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Radius: <br /> {currentlySelectedEventData.radius || 0}</div>
+                                <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Radius: <br /> {currentlySelectedEventData.radius || 0} km</div>
                             </div>
                             <div className="rev-jurn-page-grid-type-data center-via-flex">
                                 <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Type: <br /> {"Null"} </div>
@@ -226,31 +231,27 @@ const ListElement: React.FC<{ entityId: EntityIndex}> = ({ entityId }) => {
 
     // const outpostClientData = useComponentValue(clientComponents.ClientOutpostData, entityId);
     const outpostContractData = useComponentValue(contractComponents.Outpost, entityId);
+    const revenantContractData = useComponentValue(contractComponents.Revenant, entityId);
 
     //probably doesnt need the fetch to client outpost data     HERE
 
     useEffect(() => {
-
         setOutpostId(outpostContractData.entity_id.toString());
 
-        if (outpostContractData.owner === account.address) {
-            setOutpostOwner("You");
-        }
-        else {
-            setOutpostOwner(truncateString(outpostContractData.owner.toString(),5));
-        }
-
+        const name = namesArray[revenantContractData.first_name_idx] + " " + surnamesArray[revenantContractData.last_name_idx];
+        setOutpostOwner(name);
+       
         setOutpostCoordinates({ x: outpostContractData.x, y: outpostContractData.y });
 
     }, [outpostContractData]);
 
     return (
         <div className="rev-jurn-outpost-element-grid-container">
-            <div style={{gridColumn:"1/3"}}>Outpost Id: {outpostId}</div>
-            <div>| |</div>
-            <div style={{whiteSpace:"nowrap"}}>X: {outpostCoordinates.x}, Y: {outpostCoordinates.y}</div>
-            <div>| |</div>
-            <div style={{gridColumn:"6/8"}}>Owner: {outpostOwner}</div>
+            <div style={{gridColumn:"1/3", display:"flex", justifyContent:"flex-end",height:"100%", width:"100%"}}> Outpost Id: {outpostId} </div>
+            <div style={{ height:"100%", width:"100%"}}>| |</div>
+            <div style={{whiteSpace:"nowrap", display:"flex", justifyContent:"center",  height:"100%", width:"100%"}}>X: {outpostCoordinates.x}, Y: {outpostCoordinates.y}</div>
+            <div style={{ height:"100%", width:"100%"}}>| |</div>
+            <div style={{gridColumn:"6/8", whiteSpace:"nowrap", display:"flex", justifyContent:"flex-start",  height:"100%", width:"100%"}}>Owner: {outpostOwner}</div>
         </div>
     );
 };
