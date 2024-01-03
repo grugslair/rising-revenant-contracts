@@ -216,8 +216,6 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
   
   const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
-  const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
-
   useEffect(() => {
     const updateHeight = () => {
       if (clickWrapperRef.current) {

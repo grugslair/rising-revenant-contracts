@@ -77,53 +77,45 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
     }, [playerInfo]);
 
-    // this should update all the outpost that have been hit by the current event, as those are the ones with the most likely change of data
     useEffect(() => {
-
         const updateOwnData = async () => {
-            // console.error("complete reload of the entities call")
-
             if (clientGameData === 1) { return; }
-
+    
             for (let index = 0; index < ownOutposts.length; index++) {
                 const entity_id = ownOutposts[index];
-
                 const outpostData = getComponentValueStrict(contractComponents.Outpost, entity_id);
-
+    
                 if (outpostData.lifes === 0) {
                     continue;
                 }
-
+    
                 const outpostModelQuery = await fetchSpecificOutRevData(graphSdk, clientGameData.current_game_id, Number(outpostData.entity_id));
                 setComponentsFromGraphQlEntitiesHM(outpostModelQuery, contractComponents, false);
-
+    
                 if (clientGameData.current_event_drawn !== 0) {
                     const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
-
+    
                     if (Number(outpostData.last_affect_event_id) === clientGameData.current_event_drawn) {
                         setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, false, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
-                    }
-                    else {
+                    } else {
                         const lastEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]));
-
+    
                         const outpostX = outpostData.x;
                         const outpostY = outpostData.y;
-
                         const eventX = lastEvent.x;
                         const eventY = lastEvent.y;
                         const eventRadius = lastEvent.radius;
-
                         const inRadius = Math.sqrt(Math.pow(outpostX - eventX, 2) + Math.pow(outpostY - eventY, 2)) <= eventRadius;
-
+    
                         setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, inRadius, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
-                    // }
+                    }
                 }
             }
-        }
-
+        };
+    
         updateOwnData();
         const intervalId = setInterval(updateOwnData, getRefreshOwnOutpostDataTimer() * 1000);
-
+    
         return () => clearInterval(intervalId);
     }, [clientGameData]);
 
