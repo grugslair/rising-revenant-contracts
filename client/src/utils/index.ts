@@ -339,6 +339,10 @@ export const setClientCameraEntityIndex = async (x: number, y: number, clientCom
 
 //endregion
 
+export function getCount(data: any, nodeName: string): number {
+    return data?.data?.[nodeName]?.totalCount || 0;
+}
+
 export function convertBlockCountToTime(number: number): string {
     const totalMinutes = number * 20;
 

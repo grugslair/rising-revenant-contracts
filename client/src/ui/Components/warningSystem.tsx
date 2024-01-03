@@ -24,6 +24,8 @@ export const DirectionalEventIndicator: React.FC = () => {
   );
 };
 
+// HERE this is broken for some reason thinks the view port is alot bigger than it should be 
+
 const useDirectionalEventIndicator = () => {
   const [direction, setDirection] = useState<string>('');
 

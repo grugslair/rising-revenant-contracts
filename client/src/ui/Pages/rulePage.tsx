@@ -18,7 +18,8 @@ only issue might be with the set menu state
 enum RulesState {
     PREP,
     GAME,
-    FINAL
+    CONTRIB,
+    FINAL,
 }
 
 interface RulesPageProps {
@@ -34,16 +35,21 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
             <img className="page-img brightness-down" src="./assets/Page_Bg/RULES_PAGE_BG.png" alt="testPic" />
             <PageTitleElement name={"RULES"} rightPicture={"close_icon.svg"} closeFunction={setUIState} ></PageTitleElement>
 
-            <ClickWrapper style={{ display: "flex", flexDirection: "row", gap: "20px", position: "relative", width: "100%", height: "10%", fontSize: "1.6cqw", justifyContent: "center", alignItems: "center" }}>
-                <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
+            <ClickWrapper style={{ display: "flex", flexDirection: "row", gap: "20px", position: "relative", width: "96%", height: "10%", fontSize: "1.6cqw", justifyContent: "space-around", alignItems: "center", marginLeft:"2%", boxSizing: "border-box" }}>
+
+                <div style={{ flex: 1 }}>
                     <div className="global-button-style" onClick={() => { setRulesState(RulesState.PREP) }} style={{ opacity: rulesState !== RulesState.PREP ? 0.5 : 1, textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "2px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }} > PREP PHASE</div>
                 </div>
-                <div style={{ width:"fit-content", display: "flex", justifyContent: "center" }}>
+                <div style={{ flex: 1 }}>
                     <div className="global-button-style" onClick={() => { setRulesState(RulesState.GAME) }} style={{ opacity: rulesState !== RulesState.GAME ? 0.5 : 1, textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "2px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }} > GAME PHASE</div>
                 </div>
-                <div style={{ flex: 1, display: "flex", justifyContent: "flex-start" }}>
+                <div style={{ flex: 1 }}>
                     <div className="global-button-style" onClick={() => { setRulesState(RulesState.FINAL) }} style={{ opacity: rulesState !== RulesState.FINAL ? 0.5 : 1, textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "2px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }} > FINAL REWARD</div>
                 </div>
+                <div style={{ flex: 1 }}>
+                    <div className="global-button-style" onClick={() => { setRulesState(RulesState.CONTRIB) }} style={{ opacity: rulesState !== RulesState.CONTRIB ? 0.5 : 1, textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "2px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }} > CONTRIBUTION</div>
+                </div>
+
             </ClickWrapper>
 
 
@@ -80,9 +86,8 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
 
                         <h2 style={{ marginBottom: "0px" }}>Endurance of Outposts:</h2>
                         <h3 style={{ marginTop: "0px" }}> The resilience of an Outpost is key, with its survival odds escalating with every reinforcement. The ultimate ambition? To stand as the last Rising Revenant.</h3>
-
-
                     </>)}
+
                     {rulesState === RulesState.FINAL && (<>
                         <h2 style={{ marginBottom: "0px" }}>Final Rewards:</h2>
                         <h2 style={{ marginBottom: "0px" }}>The Ultimate Prize:</h2>
@@ -90,14 +95,18 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
 
                         <h2 style={{ marginBottom: "0px" }}>Economic Dynamics of "Rising Revenant":</h2>
                         <h2 style={{ marginBottom: "0px" }}>Preparation Phase::</h2>
-                        <h3 style={{ marginTop: "0px" }}>75% of $LORDS channeled into the final jackpot <br/> 10% allocated to transaction confirmation <br/> 15% as a creator tribute</h3>
+                        <h3 style={{ marginTop: "0px" }}>75% of $LORDS channeled into the final jackpot <br /> 10% allocated to transaction confirmation <br /> 15% as a creator tribute</h3>
 
                         <h2 style={{ marginBottom: "0px" }}>Main Phase:</h2>
-                        <h3 style={{ marginTop: "0px" }}> 90% of $LORDS flows to the trader <br/> 5% augments the final jackpot <br/> 5% reserved as a lasting reward for the enduring players</h3>
+                        <h3 style={{ marginTop: "0px" }}> 90% of $LORDS flows to the trader <br /> 5% augments the final jackpot <br /> 5% reserved as a lasting reward for the enduring players</h3>
 
                         <h2 style={{ marginBottom: "0px" }}></h2>
                         <h3 style={{ marginTop: "0px" }}>These rules are your compass in the world of "Rising Revenant," guiding you through a labyrinth of summoning, defense, and cunning trade to claim the crown of the ultimate survivor.</h3>
-                        
+                    </>)}
+
+                    {rulesState === RulesState.CONTRIB && (<>
+                        <h2 style={{ marginBottom: "0px", fontWeight: "bold" }}>Contribution:</h2>
+                        <h3 style={{ marginTop: "0px" }}> In our game, "contribution" refers to a player's active engagement in verifying in-game events on the blockchain. Contributors, who validate at least one event, become eligible for a share of the "contribution jackpot", which is separate from the main prize upon the game's conclusion.</h3>
                     </>)}
 
                 </div>

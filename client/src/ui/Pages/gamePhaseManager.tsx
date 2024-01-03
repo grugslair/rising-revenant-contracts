@@ -24,9 +24,9 @@ import { JurnalEventComponent } from '../Components/jurnalEventComponent';
 import { ProfilePage } from './playerProfilePage';
 import { RulesPage } from './rulePage';
 import { SettingsPage } from './settingsPage';
-import { TradesPage } from './tradePage';
+import { TradesPage } from './Trades/tradePage';
 import { RevenantJurnalPage } from './revenantJurnalPage';
-import { StatsPage } from './gameStatsPage';
+import { StatsPage } from './Stats/gameStatsPage';
 import { WinnerPage } from './winnerPage';
 
 import { DebugPage } from './debugPage';

@@ -147,7 +147,7 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
                         }
                     </div>
 
-                    <div style={{ gridRow: "2/4", gridColumn: "2/3", display: "flex", flexDirection: "row" }}>
+                    <div style={{ gridRow: "2/6", gridColumn: "2/3", display: "flex", flexDirection: "row" }}>
                         <div style={{ height: "100%", width: "30%" }}></div>
                         <div style={{ height: "100%", width: "70%" }}>
                             <h2 style={{ fontSize: "1.3vw", opacity, transition: "opacity 1s" }}>{text}</h2>

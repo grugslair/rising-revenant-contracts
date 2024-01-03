@@ -185,9 +185,9 @@ const RevenantDataElement: React.FC<{ entityId: EntityIndex }> = ({ entityId }) 
 
   return (
     <div className="revenant-data-container">
-      <h1 style={{ fontFamily: "Zelda" }}>REVENANT DATA</h1>
-      <h2>Owner: {owner === "You" ? "You" : truncateString(owner, 5)}</h2>
-      <h2>Name: {name}</h2>
+      <h1 style={{ fontFamily: "Zelda", fontSize:"1.7vw", margin:"0px", marginBottom:"5px" }}>REVENANT DATA</h1>
+      <h2 style={{ margin:"0px", fontSize:"1.2vw" }}>Owner: {owner === "You" ? "You" : truncateString(owner, 5)}</h2>
+      <h2  style={{ margin:"0px" ,fontSize:"1.2vw"}} >Name: {name}</h2>
     </div>
   );
 };
@@ -219,19 +219,19 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
   useEffect(() => {
     const updateHeight = () => {
       if (clickWrapperRef.current) {
-        setHeight((clickWrapperRef.current.offsetWidth / 6) * 9);
-        // console.error((clickWrapperRef.current.offsetWidth / 6) * 9)
+        setHeight((clickWrapperRef.current.offsetWidth / 6) * (state === "In Event" ? 8 : 7));
       }
     };
-
+  
     window.addEventListener('resize', updateHeight);
-
+  
     updateHeight();
-
+  
     return () => {
       window.removeEventListener('resize', updateHeight);
     };
-  }, []);
+  }, [state]);
+  
 
   useEffect(() => {
 
@@ -271,37 +271,40 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
   }
 
   return (
-    <div className="outpost-data-container-grid" ref={clickWrapperRef} style={clickWrapperStyle}>
+    <div className="outpost-data-container-grid" ref={clickWrapperRef} style={{...clickWrapperStyle, gridTemplateRows:`${state !== "In Event" ? "repeat(7, 1fr)" : "repeat(8, 1fr)"}`}}>
       <div className="outpost-data-title-grid-element outpost-grid-container-text-style">
-        <h1 style={{ fontFamily: "Zelda" }}>OUTPOST HIT</h1>
+        <h1 style={{ fontFamily: "Zelda", fontSize:"1.7vw", margin:"0px" }}>OUTPOST DATA</h1>
       </div>
-      <ClickWrapper className="outpost-data-x-grid-element center-via-flex">
-        <h1 className="pointer" onClick={() => { functionClose([]) }}>X</h1>
+
+      <ClickWrapper className="outpost-data-x-grid-element center-via-flex" >
+        <img src="close_icon.svg" className="pointer" onClick={() => { functionClose([]) }} style={{ width: "100%", height: "100%" }}/>
       </ClickWrapper>
+
       <div className="outpost-data-out-pic-grid-element">
-        <img src="test_out_pp.png" alt="" style={{ width: "100%", height: "100%" }} />
+        <img src="test_out_pp.png" style={{ width: "100%", height: "100%" }} />
       </div>
       <div className="outpost-data-shield-grid-element shields-grid-container" style={{ boxSizing: "border-box" }}>
         {Array.from({ length: shields }).map((_, index) => (
           <img key={index} src="SHIELD.png" className="img-full-style" />
         ))}
       </div>
-      <div className="outpost-data-id-pos-grid-element outpost-grid-container-text-style">
-        <h2>{id} ID - X:{position.x} || Y:{position.y}</h2>
-      </div>
-      <div className="outpost-data-reinf-grid-element outpost-grid-container-text-style">
-        <h2>Reinforcements: {reinforcements}</h2>
-      </div>
-      <div className="outpost-data-state-grid-element outpost-grid-container-text-style">
-        <h2>State:
+
+      <div className="outpost-data-statistics-grid-element outpost-grid-container-text-style">
+        <h2  style={{ margin:"0px", fontSize:"1.2vw", whiteSpace:"nowrap" }} >{id} ID - X:{position.x} || Y:{position.y}</h2>
+        <h2  style={{ margin:"0px", fontSize:"1.2vw" }} >Reinforcements: {reinforcements}</h2>
+        <h2  style={{ margin:"0px", fontSize:"1.2vw" }} >State:
           {state === "Dead" && <span style={{ color: "red" }}> {state}</span>}
           {state === "In Event" && <span style={{ color: "blue" }}> {state}</span>}
           {state === "Healthy" && <span style={{ color: "green" }}> {state}</span>}
         </h2>
       </div>
-      <ClickWrapper className="outpost-data-conf-button-grid-element outpost-grid-container-text-style">
-        {state === "In Event" && !clientGameData.guest && <div className="global-button-style pointer" style={{ padding: "5px 10px" }} onClick={confirmEvent}>Confirm Event</div>}
-      </ClickWrapper>
+
+      {state === "In Event" && !clientGameData.guest && 
+        <ClickWrapper className="outpost-data-conf-button-grid-element outpost-grid-container-text-style">
+          <div className="global-button-style pointer" style={{ padding: "5px 10px" , fontSize:"1.2vw" }} onClick={confirmEvent}>Confirm Event</div>
+        </ClickWrapper>
+      }
+      
     </div>
   );
 };

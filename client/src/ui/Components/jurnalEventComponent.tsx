@@ -50,12 +50,12 @@ export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState
                     </div>
                 </div>
                 <div className="jurnal-event-component-grid-enlarge center-via-flex">
-                    <img className="pointer" onClick={() => openJurnal()} src="enlarge_icon.png" alt="Enlarge" style={{ height: "80%", aspectRatio:"1/1"}} />
+                    <img className="pointer" onClick={() => openJurnal()} src="enlarge_icon.png" alt="Enlarge" style={{ height: "60%", aspectRatio:"1/1"}} />
                 </div>
                 <div className="jurnal-event-component-grid-event-data">
                     {lastEvent !== undefined ?
                         (<>
-                            <h2 style={{ fontSize: "1.7vw", marginBottom: "3%" }}>Outpost Event #{clientGameData.current_event_drawn}</h2>
+                            <h2 style={{ fontSize: "1.7vw", marginBottom: "3%" }}>Event Data #{clientGameData.current_event_drawn}</h2>
                             <h4 style={{ margin: "0px", fontSize: "1.1vw" }}>Radius: {lastEvent.radius} km</h4>
                             <h4 style={{ margin: "0px", fontSize: "1.1vw" }}>Type: {"null"}</h4>
                             <h4 style={{ margin: "0px", fontSize: "1.1vw" }}>Position: X: {lastEvent.x}  || Y: {lastEvent.y}</h4>

@@ -78,7 +78,7 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
         display: "grid",
         gridTemplateRows: "repeat(6,1fr)",
         gridTemplateColumns: "repeat(4,1fr)",
-        padding: "10px 20px",
+        padding: "10px",
         gap: "2px",
       }}>
         <div style={{ gridRow: "1", gridColumn: "1/5" }} className="center-via-flex">
@@ -90,10 +90,10 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
         <ClickWrapper style={{ gridRow: "5/7", gridColumn: "1/5", flexDirection: "column", padding:"5% 10px" }} className="center-via-flex">
           <div style={{ flex: "1" }} className="center-via-flex">
             <div className="global-button-style" style={{ fontSize: "1vw", fontFamily: "OL", fontWeight: "100", boxSizing: "border-box", padding:"5px 10px" }} onClick={() => { createGameClient(false)}}>
-              Wallet Login {truncateString(account.address,5)}
+              Wallet Login {truncateString(account.address, 5)}
             </div>
           </div>
-          <h3 style={{ flex: "0.5", textAlign: "center", color:"white" }} className="center-via-flex">or</h3>
+          <h3 style={{ flex: "0.5", textAlign: "center", color:"white", fontSize:"1.3cqw", margin:"0px" }} className="center-via-flex">or</h3>
           <div style={{ flex: "1" }} className="center-via-flex">
             <div className="global-button-style" style={{ fontSize: "1vw", fontFamily: "OL", fontWeight: "100", boxSizing: "border-box", padding:"5px 10px" }} onClick={() => { createGameClient(true)}}>
               Guest Login
