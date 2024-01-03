@@ -8,7 +8,7 @@ trait IGameActions<TContractState> {
         event_interval: u64,
         erc_addr: ContractAddress,
         reward_pool_addr: ContractAddress,
-        revenant_init_price: u128,
+        revenant_init_price: u256,
         max_amount_of_revenants: u32,
     ) -> u32;
     fn get_current_block(self: @TContractState) -> u64;
@@ -33,7 +33,7 @@ mod game_actions {
             event_interval: u64,
             erc_addr: ContractAddress,
             reward_pool_addr: ContractAddress,
-            revenant_init_price: u128,
+            revenant_init_price: u256,
             max_amount_of_revenants: u32,
         ) -> u32 {
             let world = self.world_dispatcher.read();
@@ -88,6 +88,7 @@ mod game_actions {
             game.assert_existed();
             game.refresh_status(world);
         }
+        
 
         fn get_current_block(self: @ContractState) -> u64 {
             let start_block_number = get_block_info().unbox().block_number; // blocknumber
