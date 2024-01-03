@@ -13,8 +13,6 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 import { namesArray, surnamesArray, truncateString } from "../../utils";
-import { truncateString } from "../../utils";
-
 
 //elements/components
 

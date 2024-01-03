@@ -1,7 +1,7 @@
 #[starknet::interface]
 trait ITradeRevenantActions<TContractState> {
     // Create a new trade
-    fn create(self: @TContractState, game_id: u32, revenant_id: u128, price: u128) -> u32;
+    fn create(self: @TContractState, game_id: u32, revenant_id: u128, price: u256) -> u32;
 
     // Revoke an initiated trade
     fn revoke(self: @TContractState, game_id: u32, trade_id: u32);
@@ -10,7 +10,7 @@ trait ITradeRevenantActions<TContractState> {
     fn purchase(self: @TContractState, game_id: u32, trade_id: u32);
 
     // Modify the price of an existing trade
-    fn modify_price(self: @TContractState, game_id: u32, trade_id: u32, new_price: u128);
+    fn modify_price(self: @TContractState, game_id: u32, trade_id: u32, new_price: u256);
 }
 
 // Trade for reinforcement
@@ -37,7 +37,7 @@ mod trade_revenant_actions {
 
     #[external(v0)]
     impl TradeRevenantActionImpl of ITradeRevenantActions<ContractState> {
-        fn create(self: @ContractState, game_id: u32, revenant_id: u128, price: u128) -> u32 {
+        fn create(self: @ContractState, game_id: u32, revenant_id: u128, price: u256) -> u32 {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
 
@@ -105,20 +105,20 @@ mod trade_revenant_actions {
             let mut outpost = get!(world, (game_id, trade.outpost_id), Outpost);
             // TODO: Should we consider checking whether the current outpost has been destroyed? 
             // For now, we can handle this logic on the front end.
-            // assert(outpost.lifes > 0, 'outpost has been destoryed');
+            assert(outpost.lifes > 0, 'outpost has been destoryed');
 
-            // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
-            // let seller_amount: u256 = trade.price.into() * 90 / 100;
-            // let contract_amount: u256 = trade.price.into() - seller_amount.into();
+            let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+            let seller_amount: u256 = trade.price.into() * 90 / 100;
+            let contract_amount: u256 = trade.price.into() - seller_amount.into();
 
-            // let result = erc20
-            //     .transfer_from(sender: player, recipient: trade.seller, amount: seller_amount);
-            // assert(result, 'need approve for erc20');
-            // let result = erc20
-            //     .transfer_from(
-            //         sender: player, recipient: game.reward_pool_addr, amount: contract_amount
-            //     );
-            // assert(result, 'need approve for erc20');
+            let result = erc20
+                .transfer_from(sender: player, recipient: trade.seller, amount: seller_amount);
+            assert(result, 'need approve for erc20');
+            let result = erc20
+                .transfer_from(
+                    sender: player, recipient: game.reward_pool_addr, amount: contract_amount
+                );
+            assert(result, 'need approve for erc20');
 
             revenant.owner = player;
             outpost.owner = player;
@@ -136,7 +136,7 @@ mod trade_revenant_actions {
             set!(world, (trade, revenant, outpost, buyer_info, seller_info));
         }
 
-        fn modify_price(self: @ContractState, game_id: u32, trade_id: u32, new_price: u128) {
+        fn modify_price(self: @ContractState, game_id: u32, trade_id: u32, new_price: u256) {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
 

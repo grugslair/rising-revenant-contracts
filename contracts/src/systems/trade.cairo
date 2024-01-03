@@ -1,7 +1,7 @@
 #[starknet::interface]
 trait ITradeActions<TContractState> {
     // Create a new trade
-    fn create(self: @TContractState, game_id: u32, count: u32, price: u128) -> u32;
+    fn create(self: @TContractState, game_id: u32, count: u32, price: u256) -> u32;
 
     // Revoke an initiated trade
     fn revoke(self: @TContractState, game_id: u32, entity_id: u32);
@@ -10,7 +10,7 @@ trait ITradeActions<TContractState> {
     fn purchase(self: @TContractState, game_id: u32, trade_id: u32);
 
     // Modify the price of an existing trade
-    fn modify_price(self: @TContractState, game_id: u32, trade_id: u32, new_price: u128);
+    fn modify_price(self: @TContractState, game_id: u32, trade_id: u32, new_price: u256);
 }
 
 // Trade for reinforcement
@@ -39,7 +39,7 @@ mod trade_actions {
 
     #[external(v0)]
     impl TradeActionImpl of ITradeActions<ContractState> {
-        fn create(self: @ContractState, game_id: u32, count: u32, price: u128) -> u32 {
+        fn create(self: @ContractState, game_id: u32, count: u32, price: u256) -> u32 {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
 
@@ -47,7 +47,7 @@ mod trade_actions {
             game.assert_is_playing(world);
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            player_info.check_player_exists(world);  // alex: only people that have bought a revenant can create trades
+            player_info.check_player_exists(world); 
             assert(count > 0, 'count must larger than 0');
             assert(player_info.reinforcement_count >= count, 'No reinforcement can sell');
 
@@ -118,7 +118,7 @@ mod trade_actions {
             assert(result, 'need approve for erc20');
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            player_info.check_player_exists(world); // alex: only people that have bought revenants can buy trades
+            player_info.check_player_exists(world); 
             player_info.reinforcement_count += trade.count;
             trade.status = TradeStatus::sold;
             trade.buyer = player;
@@ -126,7 +126,7 @@ mod trade_actions {
             set!(world, (player_info, trade));
         }
 
-        fn modify_price(self: @ContractState, game_id: u32, trade_id: u32, new_price: u128) {
+        fn modify_price(self: @ContractState, game_id: u32, trade_id: u32, new_price: u256) {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
 

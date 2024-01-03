@@ -3,7 +3,7 @@ import { ClientComponents } from "./createClientComponents";
 import { getEntityIdFromKeys, getEvents,  setComponentsFromEvents} from "@dojoengine/utils";
 import {  getComponentValueStrict } from "@latticexyz/recs";
 
-import { CreateGameProps, CreateRevenantProps, ConfirmEventOutpost, CreateEventProps, PurchaseReinforcementProps, ReinforceOutpostProps, CreateTradeFor1Reinf, RevokeTradeReinf, PurchaseTradeReinf, ClaimScoreRewards } from "./types/index"
+import { CreateGameProps, CreateRevenantProps, ConfirmEventOutpost, CreateEventProps, PurchaseReinforcementProps, ReinforceOutpostProps, CreateTradeForReinf, RevokeTradeReinf, PurchaseTradeReinf, ClaimScoreRewards } from "./types/index"
 
 import { toast } from 'react-toastify';
 import { setClientOutpostComponent } from "../utils";
@@ -78,10 +78,10 @@ export function createSystemCalls(
         }
     };
 
-    const create_revenant = async ({ account, game_id }: CreateRevenantProps) => {
+    const create_revenant = async ({ account, game_id, count }: CreateRevenantProps) => {
 
         try {
-            const tx = await execute(account, "revenant_actions", "create", [game_id]);
+            const tx = await execute(account, "revenant_actions", "create", [game_id, count]);
             const receipt = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
@@ -100,16 +100,21 @@ export function createSystemCalls(
         finally
         {
             const gameEntityCounter = getComponentValueStrict(GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
-            const outpostData = getComponentValueStrict(Outpost, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count)]));
-            const clientGameData = getComponentValueStrict(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
-            let owned = false;
+            for (let index = 0; index < Number(count); index++) {
 
-            if (outpostData.owner === account.address) {
-                owned = true;
+                const outpostData = getComponentValueStrict(Outpost, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]));
+                const clientGameData = getComponentValueStrict(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+    
+                let owned = false;
+    
+                if (outpostData.owner === account.address) {
+                    owned = true;
+                }
+    
+                setClientOutpostComponent( Number(outpostData.entity_id), owned, false, false, false, clientComponents, contractComponents, clientGameData.current_game_id) 
             }
-
-            setClientOutpostComponent( Number(outpostData.entity_id), owned, false, false, false, clientComponents, contractComponents, clientGameData.current_game_id) 
+          
         }
     };
 
@@ -176,7 +181,7 @@ export function createSystemCalls(
         }
     };
 
-    const create_trade_reinf = async ({ account, game_id,count, price }: CreateTradeFor1Reinf) => {
+    const create_trade_reinf = async ({ account, game_id,count, price }: CreateTradeForReinf) => {
 
         try {
             const tx = await execute(account, "trade_actions", "create", [game_id, count, price]);
@@ -220,10 +225,10 @@ export function createSystemCalls(
         }
     };
 
-    const purchase_trade_reinf = async ({ account, game_id, revenant_id ,trade_id }: PurchaseTradeReinf) => {
+    const purchase_trade_reinf = async ({ account, game_id ,trade_id }: PurchaseTradeReinf) => {
 
         try {
-            const tx = await execute(account, "trade_actions", "purchase", [game_id, revenant_id, trade_id]);
+            const tx = await execute(account, "trade_actions", "purchase", [game_id, trade_id]);
             const receipt = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }

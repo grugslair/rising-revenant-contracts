@@ -150,7 +150,6 @@ interface ListElementProps {
     reinforce_outpost: any
     currentBalance: number
     phase: number
-    reinforce_outpost: any
     goHereFunc: any
     confirmEvent: any
 }

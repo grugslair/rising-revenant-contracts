@@ -83,14 +83,14 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
 
         const game_id: number = clientGameComp.current_game_id;
 
-        for (let index = 0; index < num; index++) {
-            const createRevProps: CreateRevenantProps = {
-                account: account,
-                game_id: game_id
-            };
+        const createRevProps: CreateRevenantProps = {
+            account: account,
+            game_id: game_id,
+            count: num
+        };
 
-            await create_revenant(createRevProps);
-        }
+        await create_revenant(createRevProps);
+
     };
     const switchToGuest = async () => {
         setClientGameComponent(clientGameComp.current_game_state, clientGameComp.current_game_id, clientGameComp.current_block_number, true, clientGameComp.current_event_drawn, clientComponents);

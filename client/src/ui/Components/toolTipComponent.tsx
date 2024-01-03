@@ -220,7 +220,6 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
     const updateHeight = () => {
       if (clickWrapperRef.current) {
         setHeight((clickWrapperRef.current.offsetWidth / 6) * (state === "In Event" ? 8 : 7));
-
       }
     };
   

@@ -26,7 +26,7 @@ import PageTitleElement from "../../Elements/pageTitleElement"
 import { useDojo } from "../../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { fetchAllTrades, hexToNumber, truncateString } from "../../../utils";
-import { CreateTradeFor1Reinf, PurchaseTradeReinf, RevokeTradeReinf } from "../../../dojo/types";
+import { CreateTradeForReinf, PurchaseTradeReinf, RevokeTradeReinf } from "../../../dojo/types";
 import { GAME_CONFIG_ID, MAP_HEIGHT } from "../../../utils/settingsConstants";
 import { Trade, TradeEdge, World__Entity } from "../../../generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
@@ -266,8 +266,7 @@ const ReinforcementListingElement = ({ trade }: { trade: Maybe<World__Entity> | 
         const buyTradeProp: PurchaseTradeReinf = {
             account: account,
             game_id: clientGameDate.current_game_id,
-            trade_id: trade_model?.entity_id,
-            revenant_id: 1
+            trade_id: trade_model?.entity_id
         }
 
         purchase_trade_reinf(buyTradeProp)
@@ -694,7 +693,7 @@ const CreateReinforcementTradeWindow: React.FC = () => {
 
     const confirmCreationOfOrder = async () => {
 
-        const createTradeProp: CreateTradeFor1Reinf = {
+        const createTradeProp: CreateTradeForReinf = {
             account: account,
             game_id: clientGameData.current_game_id,
             count: amountToSell,

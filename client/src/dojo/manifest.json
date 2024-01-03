@@ -1,7 +1,7 @@
 {
   "world": {
     "name": "world",
-    "address": "0x6232fe23b5b1504525ab921d824fd1ec130d0ab6efc7cae92f2afab94758a3e",
+    "address": "0x4093d0743e76913eb1a6458662c34971e5edfc95aa93b307eaf1b12ffbac397",
     "class_hash": "0x99b08b2ff33750916e36b5e241b5d4a63e8d48862bf90a68fec2ff58a8de6",
     "abi": [
       {
@@ -948,7 +948,7 @@
   "contracts": [
     {
       "name": "game_actions",
-      "address": "0x1a25d0ac9bba57d3053b98a29a3a5794579ad2925587480c3009a7608732b5a",
+      "address": "0x2132a307d596353b54320a39df7df977d3d8f48daf4859ccba36cfad7b7aa89",
       "class_hash": "0x6af430e1b91e83a50bddae6ffd0809d613905d1fe85e59e0aafb85af297dcb6",
       "abi": [
         {
@@ -1138,8 +1138,8 @@
     },
     {
       "name": "revenant_actions",
-      "address": "0x6a52748df270bba595b115c471f4a963a918a24d8b5312f035a5d0dc2c5bc81",
-      "class_hash": "0x3f51521f3166b63cef38e1b82cff60a2b51343eb2e3015b777c40dbcc3c924a",
+      "address": "0xe004dc4db6f5837abbd5122f9d5f129c39a67a1bbbcd47ca0a4a8259485846",
+      "class_hash": "0x350e45708d59cde273717bfdbb62083212ce238b12a2c5d0b8495c55a3061c2",
       "abi": [
         {
           "type": "impl",
@@ -1202,6 +1202,10 @@
               "inputs": [
                 {
                   "name": "game_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "count",
                   "type": "core::integer::u32"
                 }
               ],
@@ -1406,17 +1410,15 @@
         "Game",
         "GameEntityCounter",
         "Outpost",
-        "OutpostPosition",
         "PlayerInfo",
-        "ReinforcementBalance",
-        "Revenant"
+        "ReinforcementBalance"
       ],
       "computed": []
     },
     {
       "name": "trade_actions",
-      "address": "0x592793f25122e1056a1d0d4bd2c9bd593819ef1c9bc1495930e299e966d1df4",
-      "class_hash": "0x223db5c62725633fddb24cd5c78af69fb90157cdd67bdac5564bfc77380ae26",
+      "address": "0x608f1ac3a00b01a8721f872d9cbe88a0c60c069d9616ce11e49527708388c85",
+      "class_hash": "0x5a0be9da291d804f72102f80dc2fa6edf06d84d230f293dcc89cadb06744205",
       "abi": [
         {
           "type": "impl",
@@ -1622,9 +1624,221 @@
       "computed": []
     },
     {
+      "name": "trade_revenant_actions",
+      "address": "0x212a507cd43a5156d7b0822cee4650cc9d30993ced3fec377f9e9f36dbf0e2a",
+      "class_hash": "0x5d3cc9e2cdae1673dd44b8636cac11256dd39787b9cbc2e08da2feac53041fa",
+      "abi": [
+        {
+          "type": "impl",
+          "name": "WorldProviderImpl",
+          "interface_name": "dojo::world::IWorldProvider"
+        },
+        {
+          "type": "struct",
+          "name": "dojo::world::IWorldDispatcher",
+          "members": [
+            {
+              "name": "contract_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "dojo::world::IWorldProvider",
+          "items": [
+            {
+              "type": "function",
+              "name": "world",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "dojo::world::IWorldDispatcher"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "TradeRevenantActionImpl",
+          "interface_name": "realmsrisingrevenant::systems::trade_revenant::ITradeRevenantActions"
+        },
+        {
+          "type": "interface",
+          "name": "realmsrisingrevenant::systems::trade_revenant::ITradeRevenantActions",
+          "items": [
+            {
+              "type": "function",
+              "name": "create",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "revenant_id",
+                  "type": "core::integer::u128"
+                },
+                {
+                  "name": "price",
+                  "type": "core::integer::u128"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::integer::u32"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "revoke",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "trade_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "purchase",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "trade_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "modify_price",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "trade_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "new_price",
+                  "type": "core::integer::u128"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "UpgradableImpl",
+          "interface_name": "dojo::components::upgradeable::IUpgradeable"
+        },
+        {
+          "type": "interface",
+          "name": "dojo::components::upgradeable::IUpgradeable",
+          "items": [
+            {
+              "type": "function",
+              "name": "upgrade",
+              "inputs": [
+                {
+                  "name": "new_class_hash",
+                  "type": "core::starknet::class_hash::ClassHash"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            }
+          ]
+        },
+        {
+          "type": "function",
+          "name": "dojo_resource",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "event",
+          "name": "dojo::components::upgradeable::upgradeable::Upgraded",
+          "kind": "struct",
+          "members": [
+            {
+              "name": "class_hash",
+              "type": "core::starknet::class_hash::ClassHash",
+              "kind": "data"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dojo::components::upgradeable::upgradeable::Event",
+          "kind": "enum",
+          "variants": [
+            {
+              "name": "Upgraded",
+              "type": "dojo::components::upgradeable::upgradeable::Upgraded",
+              "kind": "nested"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "realmsrisingrevenant::systems::trade_revenant::trade_revenant_actions::Event",
+          "kind": "enum",
+          "variants": [
+            {
+              "name": "UpgradeableEvent",
+              "type": "dojo::components::upgradeable::upgradeable::Event",
+              "kind": "nested"
+            }
+          ]
+        }
+      ],
+      "reads": [
+        "Game",
+        "GameEntityCounter",
+        "Outpost",
+        "PlayerInfo",
+        "Revenant",
+        "TradeRevenant"
+      ],
+      "writes": [
+        "GameEntityCounter",
+        "Outpost",
+        "PlayerInfo",
+        "Revenant",
+        "TradeRevenant"
+      ],
+      "computed": []
+    },
+    {
       "name": "world_event_actions",
-      "address": "0x74474c815d0ef32b59d3d9b43911e27885eb8def34b6d3164f43488e7fb48cc",
-      "class_hash": "0x4f935aaf6e8e948189ebecc1f4387e4f387058b39fcf26507990a2b48f6d14c",
+      "address": "0xc4bf8a155f0cc61367790347ee38465b2105fcdb782e8b932ff6feee1603dd",
+      "class_hash": "0x2b477d0571d10b17dbfd09a690de0e2a34c5274bf5a81a981e85725452d4e7e",
       "abi": [
         {
           "type": "impl",
@@ -2472,6 +2686,11 @@
           "key": true
         },
         {
+          "name": "revenant_id",
+          "type": "u128",
+          "key": false
+        },
+        {
           "name": "owner",
           "type": "ContractAddress",
           "key": false
@@ -2517,7 +2736,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x9bbe0b1b7ab317d9ce6528c82b46364ef6f2714abffeb7da0e23c7cad39b68",
+      "class_hash": "0x6c31660d2bd589e015ee72cb097a6d1ceddbc4f9c537f4ace3c7cd5dda63005",
       "abi": [
         {
           "type": "function",
@@ -3280,6 +3499,11 @@
           "key": true
         },
         {
+          "name": "outpost_id",
+          "type": "u128",
+          "key": false
+        },
+        {
           "name": "owner",
           "type": "ContractAddress",
           "key": false
@@ -3305,7 +3529,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x42f86649b2493c3edd110d1e18bf0426b945fe304cf5b22dae4421749db5884",
+      "class_hash": "0x60497e71b38d6e164cda0a293c15241c8697d940a8466118d62ddff99074c3d",
       "abi": [
         {
           "type": "function",
@@ -3665,6 +3889,213 @@
         {
           "type": "event",
           "name": "realmsrisingrevenant::components::trade::trade::Event",
+          "kind": "enum",
+          "variants": []
+        }
+      ]
+    },
+    {
+      "name": "TradeRevenant",
+      "members": [
+        {
+          "name": "game_id",
+          "type": "u32",
+          "key": true
+        },
+        {
+          "name": "entity_id",
+          "type": "u32",
+          "key": true
+        },
+        {
+          "name": "seller",
+          "type": "ContractAddress",
+          "key": false
+        },
+        {
+          "name": "price",
+          "type": "u128",
+          "key": false
+        },
+        {
+          "name": "revenant_id",
+          "type": "u128",
+          "key": false
+        },
+        {
+          "name": "outpost_id",
+          "type": "u128",
+          "key": false
+        },
+        {
+          "name": "buyer",
+          "type": "ContractAddress",
+          "key": false
+        },
+        {
+          "name": "status",
+          "type": "u32",
+          "key": false
+        }
+      ],
+      "class_hash": "0x106ee18ea1ce436b58ce445e12ec01e1a3b67381e682d0c415531e146c9a7ca",
+      "abi": [
+        {
+          "type": "function",
+          "name": "name",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "unpacked_size",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::integer::u32"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "packed_size",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::integer::u32"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "struct",
+          "name": "core::array::Span::<core::integer::u8>",
+          "members": [
+            {
+              "name": "snapshot",
+              "type": "@core::array::Array::<core::integer::u8>"
+            }
+          ]
+        },
+        {
+          "type": "function",
+          "name": "layout",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::array::Span::<core::integer::u8>"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "struct",
+          "name": "core::array::Span::<core::felt252>",
+          "members": [
+            {
+              "name": "snapshot",
+              "type": "@core::array::Array::<core::felt252>"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "core::array::Span::<core::array::Span::<core::felt252>>",
+          "members": [
+            {
+              "name": "snapshot",
+              "type": "@core::array::Array::<core::array::Span::<core::felt252>>"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "dojo::database::introspect::Struct",
+          "members": [
+            {
+              "name": "name",
+              "type": "core::felt252"
+            },
+            {
+              "name": "attrs",
+              "type": "core::array::Span::<core::felt252>"
+            },
+            {
+              "name": "children",
+              "type": "core::array::Span::<core::array::Span::<core::felt252>>"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "core::array::Span::<(core::felt252, core::array::Span::<core::felt252>)>",
+          "members": [
+            {
+              "name": "snapshot",
+              "type": "@core::array::Array::<(core::felt252, core::array::Span::<core::felt252>)>"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "dojo::database::introspect::Enum",
+          "members": [
+            {
+              "name": "name",
+              "type": "core::felt252"
+            },
+            {
+              "name": "attrs",
+              "type": "core::array::Span::<core::felt252>"
+            },
+            {
+              "name": "children",
+              "type": "core::array::Span::<(core::felt252, core::array::Span::<core::felt252>)>"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "dojo::database::introspect::Ty",
+          "variants": [
+            {
+              "name": "Primitive",
+              "type": "core::felt252"
+            },
+            {
+              "name": "Struct",
+              "type": "dojo::database::introspect::Struct"
+            },
+            {
+              "name": "Enum",
+              "type": "dojo::database::introspect::Enum"
+            },
+            {
+              "name": "Tuple",
+              "type": "core::array::Span::<core::array::Span::<core::felt252>>"
+            }
+          ]
+        },
+        {
+          "type": "function",
+          "name": "schema",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "dojo::database::introspect::Ty"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "event",
+          "name": "realmsrisingrevenant::components::trade_revenant::trade_revenant::Event",
           "kind": "enum",
           "variants": []
         }

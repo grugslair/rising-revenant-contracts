@@ -67,7 +67,7 @@ mod revenant_actions {
             assert(
                 game_data.revenant_count + count <= game.max_amount_of_revenants,
                 'max revenants reached'
-            ); //Alex
+            );
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
             // assert(player_info.revenant_count + count <= REVENANT_MAX_COUNT, 'reach revenant limit');
@@ -119,9 +119,9 @@ mod revenant_actions {
 
             player_info.revenant_count += count;
             player_info.outpost_count += count;
+            player_info.inited == true;
 
             game_data.remain_life_count += OUTPOST_INIT_LIFE * count;
-
 
             set!(world, (game, game_data, player_info));
 
@@ -239,9 +239,6 @@ mod revenant_actions {
         }
 
 
-
-        //HERE this needs the check to see if the outpost is getting currently hit by the event
-        //get the latest event check if the outpost has the same value if not chekc its location
         fn reinforce_outpost(self: @ContractState, game_id: u32, count: u32, outpost_id: u128) {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();

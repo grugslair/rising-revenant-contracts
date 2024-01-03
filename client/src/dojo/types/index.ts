@@ -15,6 +15,7 @@ export interface CreateGameProps extends SystemSigner {
 
 export interface CreateRevenantProps extends SystemSigner {
     game_id: num.BigNumberish;
+    count: num.BigNumberish;
 }
 
 export interface PurchaseReinforcementProps extends SystemSigner {
@@ -44,7 +45,7 @@ export interface ConfirmEventOutpost extends SystemSigner {
 // this is all to test
 
 //for the trades only check the last one
-export interface CreateTradeFor1Reinf extends SystemSigner {
+export interface CreateTradeForReinf extends SystemSigner {
     game_id: num.BigNumberish;
     count: num.BigNumberish;
     price: num.BigNumberish;
@@ -56,10 +57,42 @@ export interface RevokeTradeReinf extends SystemSigner {
 }
 
 export interface PurchaseTradeReinf extends SystemSigner {
-    game_id: num.BigNumberish;
-    revenant_id: num.BigNumberish; 
+    game_id: num.BigNumberish; 
     trade_id: num.BigNumberish;
 }
+
+export interface ModifyTradeReinf extends SystemSigner {
+    game_id: num.BigNumberish; 
+    trade_id: num.BigNumberish;
+    new_price: num.BigNumberish;
+}
+
+
+
+
+// trading revenants
+export interface CreateTradeRevenant extends SystemSigner {
+    game_id: num.BigNumberish;
+    revenant_id: num.BigNumberish;
+    price: num.BigNumberish;
+}
+
+export interface RevokeTradeRevenant extends SystemSigner {
+    game_id: num.BigNumberish;
+    trade_id: num.BigNumberish;
+}
+
+export interface PurchaseTradeRevenant extends SystemSigner {
+    game_id: num.BigNumberish; 
+    trade_id: num.BigNumberish;
+}
+
+export interface ModifyTradeRevenant extends SystemSigner {
+    game_id: num.BigNumberish; 
+    trade_id: num.BigNumberish;
+    new_price: num.BigNumberish;
+}
+
 
 
 // for the game not to implement yet

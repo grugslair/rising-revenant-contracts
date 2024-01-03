@@ -92,7 +92,6 @@ mod world_event_actions {
             // update lifes
             outpost.lifes -= 1;
 
-            // Alex
             let shields_amount = outpost.get_shields_amount();
 
             outpost.shield = shields_amount;
@@ -106,7 +105,7 @@ mod world_event_actions {
             };
 
             let mut owner_info = get!(world, (game_id, outpost.owner), (PlayerInfo));
-            owner_info.check_player_exists(world);  // alex: only people that have bought revenants should be able to interact with the world
+            owner_info.check_player_exists(world); 
             if outpost.lifes == 0 {
                 game_data.outpost_exists_count -= 1;
                 owner_info.revenant_count -= 1;
