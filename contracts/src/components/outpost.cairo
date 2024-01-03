@@ -7,12 +7,13 @@ struct Outpost {
     game_id: u32,
     #[key]
     entity_id: u128,
+    revenant_id: u128,
     owner: ContractAddress,
     name_outpost: felt252,
     x: u32,
     y: u32,
     lifes: u32,
-    shield: u8,  //Alex
+    shield: u8, //Alex
     reinforcement_count: u32,
     status: u32,
     last_affect_event_id: u128
@@ -44,46 +45,29 @@ impl OutpostImpl of OutpostTrait {
     }
 
     fn assert_can_reinforcement(self: Outpost) {
-        self.assert_existed();             //Alex
+        self.assert_existed(); //Alex
         assert(self.reinforcement_count <= OUTPOST_MAX_REINFORCEMENT, 'reach reinforce limit');
     }
 
     //Alex
     // does cairo have else if?
     fn get_shields_amount(self: Outpost) -> u8 {
-        
         let reinforcements = self.lifes;
 
-        if (reinforcements < 3)
-        {
+        if (reinforcements < 3) {
             return 0;
-        }
-
-        if (reinforcements < 6)
-        {
+        } else if (reinforcements < 6) {
             return 1;
-        }
-
-        if (reinforcements < 10)
-        {
+        } else if (reinforcements < 10) {
             return 2;
-        }
-
-        if (reinforcements < 14)
-        {
+        } else if (reinforcements < 14) {
             return 3;
-        }
-
-        if (reinforcements < 20)
-        {
+        } else if (reinforcements < 20) {
             return 4;
-        }
-
-        if (reinforcements == 20)
-        {
+        } else if (reinforcements == 20) {
             return 5;
+        } else {
+            return 7; //error 
         }
-
-        return 7;  //error 
-    }   
+    }
 }

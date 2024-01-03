@@ -2,7 +2,9 @@ use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
 #[starknet::interface]
 trait IRevenantActions<TContractState> {
-    fn create(self: @TContractState, game_id: u32) -> (u128, u128);
+    // Create revenants, it is possible to create multiple at once. Return the IDs of the revenant and the outpost. 
+    // If multiple are created at once, then the ID of the first one will be returned.
+    fn create(self: @TContractState, game_id: u32, count: u32) -> (u128, u128);
 
     // Claim the initial game rewards.
     fn claim_initial_rewards(self: @TContractState, game_id: u32) -> bool;
@@ -16,7 +18,7 @@ trait IRevenantActions<TContractState> {
 
     fn purchase_reinforcement(self: @TContractState, game_id: u32, count: u32) -> bool;
 
-    fn reinforce_outpost(self: @TContractState, game_id: u32,count: u32, outpost_id: u128);
+    fn reinforce_outpost(self: @TContractState, game_id: u32, count: u32, outpost_id: u128);
 }
 
 
@@ -56,17 +58,19 @@ mod revenant_actions {
 
     #[external(v0)]
     impl RevenantActionImpl of IRevenantActions<ContractState> {
-        fn create(self: @ContractState, game_id: u32) -> (u128, u128) {
+        fn create(self: @ContractState, game_id: u32, count: u32) -> (u128, u128) {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
             let (mut game, mut game_data) = get!(world, game_id, (Game, GameEntityCounter));
             game.assert_can_create_outpost(world);
 
-            assert(game_data.revenant_count + 1 <=  game.max_amount_of_revenants, 'max revenants reached');  //Alex
+            assert(
+                game_data.revenant_count + count <= game.max_amount_of_revenants,
+                'max revenants reached'
+            ); //Alex
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            // assert(player_info.revenant_count < REVENANT_MAX_COUNT, 'reach revenant limit');
-            game_data.revenant_count += 1;
+            // assert(player_info.revenant_count + count <= REVENANT_MAX_COUNT, 'reach revenant limit');
 
             if game.revenant_init_price > 0 {
                 let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
@@ -80,35 +84,48 @@ mod revenant_actions {
                 game.prize += game.revenant_init_price;
             }
 
-            let entity_id: u128 = game_data.revenant_count.into();
 
-            let (first_name_idx, last_name_idx) = self._create_random_revenant_name();
-            let revenant = Revenant {
-                game_id,
-                entity_id,
-                first_name_idx,
-                last_name_idx,
-                owner: player,
-                outpost_count: 1,
-                status: RevenantStatus::started
+            let seed = starknet::get_tx_info().unbox().transaction_hash;
+            let mut random = RandomImpl::new(seed);
+            let first_revenant_id: u128 = (game_data.revenant_count + 1).into();
+            let first_outpost_id: u128 = (game_data.outpost_count + 1).into();
+
+
+            let mut i = 0_u128;
+            loop {
+                if i >= count.into() {
+                    break;
+                }
+
+                let (revenant, outpost, position) = self
+                    ._create_revenant_and_outpost(
+                        world,
+                        game_id,
+                        player,
+                        ref random,
+                        first_revenant_id + i,
+                        first_outpost_id + i,
+                    );
+
+                set!(world, (revenant, outpost, position));
+
+
+                i += 1;
             };
-            player_info.revenant_count += 1;
-            player_info.outpost_count += 1;
-            player_info.inited = true;     // add
 
-            game_data.outpost_count += 1;
-            game_data.outpost_exists_count += 1;
-            game_data.remain_life_count += OUTPOST_INIT_LIFE;
+            game_data.revenant_count += count;
+            game_data.outpost_count += count;
+            game_data.outpost_exists_count += count;
 
-            let outpost_id: u128 = game_data.outpost_count.into();  // this would be equal to the entity id up there plussed by the loop
+            player_info.revenant_count += count;
+            player_info.outpost_count += count;
 
-            // create outpost
-            let (outpost, position) = self._create_outpost(world, game_id, player, outpost_id);
+            game_data.remain_life_count += OUTPOST_INIT_LIFE * count;
 
-            set!(world, (revenant, game, game_data, player_info, outpost, position));
 
-            //here try set pet loop maybe?  HERE
-            (entity_id, outpost_id)
+            set!(world, (game, game_data, player_info));
+
+            (first_revenant_id, first_outpost_id)
         }
         
 
@@ -153,7 +170,6 @@ mod revenant_actions {
 
             set!(world, (game));
 
-
             prize
         }
 
@@ -180,7 +196,6 @@ mod revenant_actions {
             player_info.earned_prize = prize;
 
             prize
-
         }
 
         fn get_current_price(self: @ContractState, game_id: u32, count: u32) -> u128 {
@@ -234,8 +249,11 @@ mod revenant_actions {
 
             let mut latest_event = get!(world, (game_id, game_counter.event_count), (WorldEvent));  // get last game event obj
 
-            let mut outpost = get!(world, (game_id, outpost_id), (Outpost));  // get reinforcement obj
+            let mut outpost = get!(
+                world, (game_id, outpost_id), (Outpost)
+            ); // get reinforcement obj
             outpost.assert_can_reinforcement();
+
 
             // if the event id is not equal then we need to check if its being attacked right now
             if (outpost.last_affect_event_id != latest_event.entity_id && latest_event.entity_id != 0)
@@ -249,26 +267,18 @@ mod revenant_actions {
            
 
             assert(outpost.lifes != 0, 'outpost is dead');  //added line, Alex
+
             assert(player == outpost.owner, 'not owner');
 
-            let mut player_info = get!(world, (game_id, player), PlayerInfo);  // get player data
-            assert(player_info.reinforcement_count >= count, 'no reinforcement');  //Alex
+            let mut player_info = get!(world, (game_id, player), PlayerInfo); // get player data
+            assert(player_info.reinforcement_count >= count, 'no reinforcement'); //Alex
 
-            assert((count + outpost.reinforcement_count <= 20), 'cant add more' ); //Alex
-
-            // Fortifying Outposts: Outposts, can be bolstered up to 20 times in their lifetime. 
-            // The extent of reinforcements directly influences the Outpost’s defense, manifested in the number of shields it wields:
-            // 1-2 reinforcements: Unshielded
-            // 3-5 reinforcements: 1 Shield
-            // 6-9 reinforcements: 2 Shields
-            // 9-13 reinforcements: 3 Shields
-            // 14-19 reinforcements: 4 Shields
-            // 20 reinforcements: 5 Shields
+            assert((count + outpost.reinforcement_count <= 20), 'cant add more'); //Alex
 
             outpost.reinforcement_count += count;
             outpost.lifes += count;
 
-            let shield_amount = outpost.get_shields_amount();  // Alex
+            let shield_amount = outpost.get_shields_amount(); // Alex
             outpost.shield = shield_amount;
 
             game_counter.remain_life_count += count;
@@ -284,20 +294,34 @@ mod revenant_actions {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        fn _create_outpost(
+        fn _create_revenant_and_outpost(
             self: @ContractState,
             world: IWorldDispatcher,
             game_id: u32,
             player: ContractAddress,
-            new_outpost_id: u128,
-        ) -> (Outpost, OutpostPosition) {
-            let seed = starknet::get_tx_info().unbox().transaction_hash;
-            let mut random = RandomImpl::new(seed);
-            let mut x = (MAP_WIDTH / 2) - random.next_u32(0, SPAWN_RANGE_X);    // HERE CONSTANTS
-            let mut y = (MAP_HEIGHT / 2) - random.next_u32(0, SPAWN_RANGE_Y);
+            ref random: Random,
+            revenant_id: u128,
+            outpost_id: u128,
+        ) -> (Revenant, Outpost, OutpostPosition) {
+            // Revenant
+            let first_name_idx = random.next_u32(0, 100);
+            let last_name_idx = random.next_u32(0, 100);
+
+            let revenant = Revenant {
+                game_id,
+                entity_id: revenant_id,
+                first_name_idx,
+                last_name_idx,
+                outpost_id,
+                owner: player,
+                outpost_count: 1,
+                status: RevenantStatus::started
+            };
+
+            let mut x = (MAP_WIDTH / 2) - random.next_u32(0, 800);
+            let mut y = (MAP_HEIGHT / 2) - random.next_u32(0, 800);
 
             let mut prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
-
             // avoid multiple outpost appearing in the same position
             if prev_outpost.entity_id > 0 {
                 loop {
@@ -314,7 +338,8 @@ mod revenant_actions {
                 game_id,
                 x,
                 y,
-                entity_id: new_outpost_id,
+                revenant_id,
+                entity_id: outpost_id,
                 owner: player,
                 name_outpost: 'Outpost',
                 lifes: OUTPOST_INIT_LIFE,
@@ -324,18 +349,9 @@ mod revenant_actions {
                 last_affect_event_id: 0
             };
 
-            let position = OutpostPosition { game_id, x, y, entity_id: new_outpost_id };
+            let position = OutpostPosition { game_id, x, y, entity_id: outpost_id };
 
-            (outpost, position)
-        }
-
-        fn _create_random_revenant_name(self: @ContractState) -> (u32, u32) {
-            let seed = starknet::get_tx_info().unbox().transaction_hash;
-            let mut random = RandomImpl::new(seed);
-            let first_name = random.next_u32(0, 100);
-            let last_name = random.next_u32(0, 100);
-            (first_name, last_name)
+            (revenant, outpost, position)
         }
     }
 }
-
