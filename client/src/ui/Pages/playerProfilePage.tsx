@@ -147,6 +147,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
 
 interface ListElementProps {
     entityId: EntityIndex
+    reinforce_outpost: any
     currentBalance: number
     phase: number
     reinforce_outpost: any

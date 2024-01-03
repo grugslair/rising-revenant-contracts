@@ -354,6 +354,7 @@ export function convertBlockCountToTime(number: number): string {
     return `DD: ${days} HH: ${hours} MM: ${minutes} SS: ${seconds}`;
 }
 
+
 export function isValidArray(input: any): input is any[] {
     return Array.isArray(input) && input != null;
 }

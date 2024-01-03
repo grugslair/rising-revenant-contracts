@@ -74,9 +74,7 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
 
 
     useEffect(() => {
-
         setFreeRevs(Number(gameComponent.max_amount_of_revenants) - Number(gameEntityCounter.revenant_count));
-
     }, [gameEntityCounter]);
 
 

@@ -89,6 +89,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     loadInClientOutpostData(game_id, contractComponents, clientComponents, account);
 
     switch (data.phase) {
+
       case 1:
 
         setUIState(Phase.PREP);
@@ -98,6 +99,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
 
         const allEventsModels = await fetchAllEvents(graphSdk, game_id, gameEntityCounter.event_count);
         setComponentsFromGraphQlEntitiesHM(allEventsModels, contractComponents, true);
+
         setUIState(Phase.GAME);
         break;
     }

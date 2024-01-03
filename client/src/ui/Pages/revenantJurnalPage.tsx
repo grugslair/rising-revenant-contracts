@@ -11,7 +11,10 @@ import { ClickWrapper } from "../clickWrapper";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
+
 import { namesArray, surnamesArray, truncateString } from "../../utils";
+import { truncateString } from "../../utils";
+
 
 //elements/components
 
@@ -150,7 +153,9 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
 
     return (
         <div className="game-page-container">
+
             <img className="page-img brightness-down" src="./assets/Page_Bg/JOURNAL_PAGE_BG.png" alt="testPic" />
+
             <PageTitleElement name="REVENANT JUORNAL" closeFunction={closePage} rightPicture="close_icon.svg" />
             <div style={{ width: "100%", height: "10%", backgroundColor: "red" }}>
             </div>
@@ -231,12 +236,11 @@ const ListElement: React.FC<{ entityId: EntityIndex}> = ({ entityId }) => {
     //probably doesnt need the fetch to client outpost data     HERE
 
     useEffect(() => {
-
         setOutpostId(outpostContractData.entity_id.toString());
 
         const name = namesArray[revenantContractData.first_name_idx] + " " + surnamesArray[revenantContractData.last_name_idx];
         setOutpostOwner(name);
-        
+       
         setOutpostCoordinates({ x: outpostContractData.x, y: outpostContractData.y });
 
     }, [outpostContractData]);

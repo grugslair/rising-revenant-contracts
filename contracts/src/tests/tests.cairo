@@ -37,10 +37,9 @@ mod tests {
         _create_revenant, _add_block_number,
     };
     use starknet::{ContractAddress, syscalls::deploy_syscall};
-
     #[test]
     #[available_gas(3000000000)]
-    fn test_create_game() {、
+    fn test_create_game() {
         let DefaultWorld{world, game_action, caller, test_erc, revenant_action, .. } =
             _init_world();
         let game_id = game_action
@@ -78,7 +77,6 @@ mod tests {
             _init_world();
         let game_id = game_action
             .create(
-
                 PREPARE_PHRASE_INTERVAL,
                 EVENT_BLOCK_INTERVAL,
                 test_erc.contract_address,
@@ -98,6 +96,22 @@ mod tests {
         assert(revenant.owner == caller, 'wrong revenant owner');
     }
 
+    #[test]
+    #[available_gas(3000000000)]
+    fn test_create_multi_revenant() {
+        let (DefaultWorld{world, caller, revenant_action, .. }, game_id) = _init_game();
+        let count = 9;
+        revenant_action.create_multi_revenants(game_id, count);
+        let (game, game_counter) = get!(world, (game_id), (Game, GameEntityCounter));
+        assert(game_counter.revenant_count == count, 'wrong revenant count');
+        assert(game_counter.outpost_count == count, 'wrong outpost count');
+        assert(game_counter.outpost_exists_count == count, 'wrong outpost count');
+        assert(game_counter.remain_life_count == OUTPOST_INIT_LIFE * count, 'wrong remain lifes');
+
+        let revenant = get!(world, (game_id, count), Revenant);
+        assert(revenant.outpost_count == 1, 'wrong revenant info');
+        assert(revenant.owner == caller, 'wrong revenant owner');
+    }
     #[test]
     #[available_gas(3000000000)]
     fn test_purchase_reinforcement() {
@@ -338,6 +352,9 @@ mod tests {
         // Test Purchase. the buyer's reinforcement should increase from 0 to 1
         let trade_count = 5;
         let trade_id = trade_action.create(game_id, trade_count, price); // create trade by seller
+
+        let price = price - 1;
+        trade_action.modify_price(game_id, trade_id, price);
 
         starknet::testing::set_contract_address(buyer); // switch to buyer 
         let buyer_info = get!(world, (game_id, buyer), PlayerInfo);

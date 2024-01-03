@@ -7,10 +7,9 @@ trait IGameActions<TContractState> {
         preparation_phase_interval: u64,
         event_interval: u64,
         erc_addr: ContractAddress,
-
         reward_pool_addr: ContractAddress,
-        revenant_init_price: u128,
-        max_amount_of_revenants:u32,
+        revenant_init_price: u256,
+        max_amount_of_revenants: u32,
     ) -> u32;
     fn get_current_block(self: @TContractState) -> u64;
     fn refresh_status(self: @TContractState, game_id: u32);
@@ -34,9 +33,9 @@ mod game_actions {
             event_interval: u64,
             erc_addr: ContractAddress,
             reward_pool_addr: ContractAddress,
-            revenant_init_price: u128,
-            max_amount_of_revenants:u32,
-            ) -> u32 {
+            revenant_init_price: u256,
+            max_amount_of_revenants: u32,
+        ) -> u32 {
             let world = self.world_dispatcher.read();
             let mut game_tracker = get!(world, GAME_CONFIG, (GameTracker));
             let game_id = game_tracker.count + 1; // game id increment
@@ -58,7 +57,7 @@ mod game_actions {
                 rewards_claim_status: 0,
                 max_amount_of_revenants: max_amount_of_revenants,
             };
-            
+
             let game_counter = GameEntityCounter {
                 game_id,
                 revenant_count: 0,
@@ -89,6 +88,7 @@ mod game_actions {
             game.assert_existed();
             game.refresh_status(world);
         }
+        
 
         fn get_current_block(self: @ContractState) -> u64 {
             let start_block_number = get_block_info().unbox().block_number; // blocknumber

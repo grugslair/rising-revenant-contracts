@@ -36,7 +36,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
     const [playerContribScore, setPlayerContribScore] = useState(0);
     const [playerContribScorePerc, setPlayerContribScorePerc] = useState(0);
-
+    
     const {
         account: { account },
         networkLayer: {
@@ -60,7 +60,6 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     // this should only be getting called when the user is active the moment the game switches from prep to game phase as the other oupost from other people are not loaded in 
     // in the prep phase
     useEffect(() => {
-
         if (phaseNum === 1 && setGamePhase !== undefined) {   // this should only be getting called when the phase goes from prep to game
             if (clientGameData.current_game_state === 2) {
                 setGamePhase();
@@ -117,7 +116,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                         const inRadius = Math.sqrt(Math.pow(outpostX - eventX, 2) + Math.pow(outpostY - eventY, 2)) <= eventRadius;
 
                         setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, inRadius, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
-                    }
+                    // }
                 }
             }
         }
@@ -158,6 +157,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                         <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {gameEntityCounter.revenant_count}/{gameData.max_amount_of_revenants}</div>
                         :
                         <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostQuery.length - outpostDeadQuery.length}/{outpostQuery.length}</div>
+
                     }
                 </div>
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
@@ -210,6 +210,7 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
         const updateFunctions = () => {
             const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
+
             checkBlockCount(clientGameData);
             getGameData(clientGameData);
         }
@@ -243,7 +244,9 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
         }
 
         const checkBlockCount = async (clientGameData: any) => {
+
             const blockCount = await get_current_block();
+
             checkAndSetPhaseClientSide(clientGameData.current_game_id, blockCount!, contractComponents, clientComponents);
         };
 

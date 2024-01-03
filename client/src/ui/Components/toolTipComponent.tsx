@@ -213,6 +213,8 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
 
   const clientOutpostData = useComponentValue(clientComponents.ClientOutpostData, entityId);
   const contractOutpostData = useComponentValue(contractComponents.Outpost, entityId);
+  
+  const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
   const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
@@ -220,6 +222,7 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
     const updateHeight = () => {
       if (clickWrapperRef.current) {
         setHeight((clickWrapperRef.current.offsetWidth / 6) * (state === "In Event" ? 8 : 7));
+
       }
     };
   
@@ -304,7 +307,7 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
           <div className="global-button-style pointer" style={{ padding: "5px 10px" , fontSize:"1.2vw" }} onClick={confirmEvent}>Confirm Event</div>
         </ClickWrapper>
       }
-      
+     
     </div>
   );
 };
