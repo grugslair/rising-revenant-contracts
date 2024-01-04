@@ -28,7 +28,7 @@ export function createSystemCalls(
     const notify = (message: string, transaction: any) => 
     {
         if (transaction.execution_status == 'REVERTED'){
-            toast("❌ " + message, {
+            toast("❌ " + transaction.revert_reason, {
                 position: "top-left",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -40,7 +40,7 @@ export function createSystemCalls(
             });
         }
         else{
-            toast("✅ " +  transaction.revert_reason, {
+            toast("✅ " +  message, {
                 position: "top-left",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -67,8 +67,6 @@ export function createSystemCalls(
             // setComponentsFromEvents(contractComponents,
             //     getEvents(receipt)
             // );
-
-            console.log(receipt)
 
             notify('Game Created!',receipt)
         } catch (e) {

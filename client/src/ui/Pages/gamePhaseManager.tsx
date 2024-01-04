@@ -83,7 +83,7 @@ export const GamePhaseManager = () => {
 
   //can be custom hooked
   useEffect(() => {
-    const worldEvents = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { selected: true })]));
+    const worldEvents = Array.from(runQuery([Has(contractComponents.WorldEvent)]));
 
     if (totalOutposts.length - outpostDeadQuery.length <= 1  && worldEvents.length > 0) {
       setCurrentMenuState(MenuState.WINNER);

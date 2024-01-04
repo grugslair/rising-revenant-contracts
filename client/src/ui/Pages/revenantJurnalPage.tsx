@@ -154,7 +154,7 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
 
             <img className="page-img brightness-down" src="./assets/Page_Bg/JOURNAL_PAGE_BG.png" alt="testPic" />
 
-            <PageTitleElement name="REVENANT JUORNAL" closeFunction={closePage} rightPicture="close_icon.svg" />
+            <PageTitleElement name="REVENANT JOURNAL" closeFunction={closePage} rightPicture="close_icon.svg" />
             <div style={{ width: "100%", height: "10%", backgroundColor: "red" }}>
             </div>
             <div style={{ width: "100%", height: "80%", position: "relative", display: "flex", flexDirection: "row", color: "white", fontFamily: "OL" }}>
