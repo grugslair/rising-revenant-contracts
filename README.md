@@ -127,3 +127,9 @@ or (depends on OS)
 
 Upon completion, launch your browser and navigate to http://localhost:5147/
 
+
+***How to deploy katana, torii & test erc20 contract at once***
+
+Come to the root directory of the project
+
+```sh run_local.sh```
