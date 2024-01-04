@@ -3,7 +3,7 @@ import { ClientComponents } from "./createClientComponents";
 import { getEntityIdFromKeys, getEvents,  setComponentsFromEvents} from "@dojoengine/utils";
 import {  getComponentValueStrict } from "@latticexyz/recs";
 
-import { CreateGameProps, CreateRevenantProps, ConfirmEventOutpost, CreateEventProps, PurchaseReinforcementProps, ReinforceOutpostProps, CreateTradeForReinf, RevokeTradeReinf, PurchaseTradeReinf, ClaimScoreRewards } from "./types/index"
+import { CreateGameProps, CreateRevenantProps, ConfirmEventOutpost, CreateEventProps, PurchaseReinforcementProps, ReinforceOutpostProps, CreateTradeForReinf, RevokeTradeReinf, PurchaseTradeReinf, ClaimScoreRewards, ModifyTradeReinf } from "./types/index"
 
 import { toast } from 'react-toastify';
 import { setClientOutpostComponent } from "../utils";
@@ -17,7 +17,6 @@ export function createSystemCalls(
     { execute, contractComponents, clientComponents, call }: SetupNetworkResult,
     {
         GameEntityCounter,
-        
         Outpost,
         ClientGameData
     }: ClientComponents
@@ -25,10 +24,10 @@ export function createSystemCalls(
 
     //HERE SHOULD BE DONE need to fix the notify to actually change if it fails or not
     // as right now it doesnt detect if it gets rejected only if the transaciton fails
-
-    const notify = (message: string, succeeded: boolean) => 
+    
+    const notify = (message: string, transaction: any) => 
     {
-        if (!succeeded){
+        if (transaction.execution_status == 'REVERTED'){
             toast("❌ " + message, {
                 position: "top-left",
                 autoClose: 5000,
@@ -41,7 +40,7 @@ export function createSystemCalls(
             });
         }
         else{
-            toast("✅ " + message, {
+            toast("✅ " +  transaction.revert_reason, {
                 position: "top-left",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -71,7 +70,7 @@ export function createSystemCalls(
 
             console.log(receipt)
 
-            notify('Game Created!',true)
+            notify('Game Created!',receipt)
         } catch (e) {
             console.log(e)
             notify(`Error creating game ${e}`, false)
@@ -91,7 +90,7 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify('Revenant Created!', true);
+            notify('Revenant Created!', receipt);
         } catch (e) {
 
             console.log(e);
@@ -174,10 +173,10 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify('Reinforced Outpost', true)
+            notify('Reinforced Outpost', receipt)
         } catch (e) {
             console.log(e)
-            notify("Failed to reinforce outpost", false)
+            
         }
     };
 
@@ -194,10 +193,9 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify(`Created trade`, true)
+            notify(`Created trade`, receipt)
         } catch (e) {
             console.log(e)
-            notify(`Failed to create trade`, false)
         }
     };
 
@@ -214,14 +212,32 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify(`Revoked Trade ${trade_id}`, true)
+            notify(`Revoked Trade ${trade_id}`, receipt)
         } catch (e) {
             console.log(e)
-            notify(`Failed to revoke trade ${trade_id}`, false)
         }
         finally
         {
 
+        }
+    };
+
+    const modify_trade_reinf = async ({ account, game_id, trade_id, new_price }: ModifyTradeReinf) => {
+
+        try {
+            const tx = await execute(account, "trade_actions", "modify_price", [game_id, trade_id, new_price]);
+            const receipt = await account.waitForTransaction(
+                tx.transaction_hash,
+                { retryInterval: 100 }
+            )
+
+            setComponentsFromEvents(contractComponents,
+                getEvents(receipt)
+            );
+
+            notify(`Change Trade ${trade_id} price to ${Number(new_price)}`, receipt)
+        } catch (e) {
+            console.log(e)
         }
     };
 
@@ -238,10 +254,9 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify(`purchased Trade ${trade_id}`, true)
+            notify(`purchased Trade ${trade_id}`, receipt)
         } catch (e) {
             console.log(e)
-            notify(`Failed to revoke trade ${trade_id}`, false)
         }
     };
 
@@ -258,7 +273,7 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify('World Event Created!', true);
+            notify('World Event Created!', receipt);
 
         } catch (e) {
             console.log(e)
@@ -278,10 +293,9 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify('Confirmed the event', true)
+            notify('Confirmed the event', receipt)
         } catch (e) {
             console.log(e)
-            notify('Failed to confirm event', false)
         }
         finally
         {
@@ -304,10 +318,9 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify(`claiming jackpot welldone!!!`, true)
+            notify(`Claiming jackpot well done!!!`, receipt)
         } catch (e) {
             console.log(e)
-            notify(`Failed to create trade`, false)
         }
     };
 
@@ -324,10 +337,9 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify(`claiming score contribution!!!`, true)
+            notify(`Claiming score contribution!!!`, receipt)
         } catch (e) {
             console.log(e)
-            notify(`Failed to create trade`, false)
         }
     };
 
@@ -342,6 +354,7 @@ export function createSystemCalls(
         create_trade_reinf,
         revoke_trade_reinf,
         purchase_trade_reinf,
+        modify_trade_reinf,
 
         claim_score_rewards,
         claim_endgame_rewards,

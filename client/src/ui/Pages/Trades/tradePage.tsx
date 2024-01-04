@@ -2,7 +2,7 @@
 import { ClickWrapper } from "../../clickWrapper"
 import { MenuState } from "../gamePhaseManager";
 import React, { useEffect, useState } from "react"
-import { Checkbox, Grid, Switch, TextField, Tooltip, colors } from "@mui/material";
+import { Box, Checkbox, Grid, Switch, TextField, Tooltip, colors } from "@mui/material";
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -25,16 +25,16 @@ import PageTitleElement from "../../Elements/pageTitleElement"
 
 import { useDojo } from "../../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
-import { fetchAllTrades, hexToNumber, truncateString } from "../../../utils";
-import { CreateTradeForReinf, PurchaseTradeReinf, RevokeTradeReinf } from "../../../dojo/types";
+import { fetchAllTrades, getCount, hexToNumber, truncateString } from "../../../utils";
+import { CreateTradeForReinf, ModifyTradeReinf, PurchaseTradeReinf, RevokeTradeReinf } from "../../../dojo/types";
 import { GAME_CONFIG_ID, MAP_HEIGHT } from "../../../utils/settingsConstants";
 import { Trade, TradeEdge, World__Entity } from "../../../generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 
-// import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 import { ReinforcementCountElement } from "../../Elements/reinfrocementBalanceElement";
 import CounterElement from "../../Elements/counterElement";
+import { LordsBalanceElement } from "../../Elements/playerLordsBalance";
 //pages
 
 
@@ -86,8 +86,8 @@ const graphqlStructureForReinforcements = [
       }
       
     `
-  ,
-  `
+    ,
+    `
   query {
     tradeModels(
       where: { 
@@ -144,10 +144,10 @@ export const TradesPage: React.FC<TradesPageProps> = ({ setMenuState }) => {
 
             <img className="page-img brightness-down" src="./assets/Page_Bg/TRADES_PAGE_BG.png" alt="testPic" />
 
-            {shopState === ShopState.SELL_POST && <PageTitleElement name={"TRADES"} rightPicture={"close_icon.svg"} closeFunction={() => { setShopState(ShopState.OUTPOST) }} ></PageTitleElement>}
-            {shopState === ShopState.OUTPOST && <PageTitleElement name={"TRADES"} rightPicture={"close_icon.svg"} closeFunction={() => { closePage() }} ></PageTitleElement>}
-            {shopState === ShopState.REINFORCES && <PageTitleElement name={"TRADES"} rightPicture={"close_icon.svg"} closeFunction={() => { closePage() }} right_html_element={<ReinforcementCountElement />}></PageTitleElement>}
-            {shopState === ShopState.SELL_REINF && <PageTitleElement name={"TRADES"} rightPicture={"Icons/Symbols/left_arrow.svg"} closeFunction={() => { setShopState(ShopState.REINFORCES) }} right_html_element={<ReinforcementCountElement />} picStyle={{ padding: "5%" }} />}
+            {shopState === ShopState.SELL_POST && <PageTitleElement name={"TRADES"} rightPicture={"close_icon.svg"} closeFunction={() => { setShopState(ShopState.OUTPOST) }} left_html_elemt={<LordsBalanceElement />} />}
+            {shopState === ShopState.OUTPOST && <PageTitleElement name={"TRADES"} rightPicture={"close_icon.svg"} closeFunction={() => { closePage() }} left_html_elemt={<LordsBalanceElement />} />}
+            {shopState === ShopState.REINFORCES && <PageTitleElement name={"TRADES"} rightPicture={"close_icon.svg"} closeFunction={() => { closePage() }} right_html_element={<ReinforcementCountElement />} left_html_elemt={<LordsBalanceElement />} />}
+            {shopState === ShopState.SELL_REINF && <PageTitleElement name={"TRADES"} rightPicture={"Icons/Symbols/left_arrow.svg"} closeFunction={() => { setShopState(ShopState.REINFORCES) }} right_html_element={<ReinforcementCountElement />} picStyle={{ padding: "5%" }} left_html_elemt={<LordsBalanceElement />} />}
 
             <div style={{ width: "100%", height: "5%", position: "relative" }}></div>
 
@@ -242,11 +242,13 @@ const OutpostListingElement: React.FC<ItemListingProp> = ({ guest, entityData, g
 const ReinforcementListingElement = ({ trade }: { trade: Maybe<World__Entity> | undefined }) => {
     const trade_model = trade?.models?.find((m) => m?.__typename == 'Trade') as Trade;
 
+    const [numberValue, setNumberValue] = useState<number | null>(1);
+
     const {
         account: { account },
         networkLayer: {
             network: { clientComponents },
-            systemCalls: { revoke_trade_reinf, purchase_trade_reinf }
+            systemCalls: { revoke_trade_reinf, purchase_trade_reinf, modify_trade_reinf }
         },
     } = useDojo();
 
@@ -260,6 +262,17 @@ const ReinforcementListingElement = ({ trade }: { trade: Maybe<World__Entity> | 
         }
 
         revoke_trade_reinf(revokeTradeProp);
+    }
+
+    const modifyTrade = () => {
+        const revokeTradeProp: ModifyTradeReinf = {
+            account: account,
+            game_id: clientGameDate.current_game_id,
+            trade_id: trade_model?.entity_id,
+            new_price: numberValue!
+        }
+
+        modify_trade_reinf(revokeTradeProp);
     }
 
     const buyTrade = () => {
@@ -287,7 +300,16 @@ const ReinforcementListingElement = ({ trade }: { trade: Maybe<World__Entity> | 
                     <img src="reinforcements_logo.png" className="test-embed" alt="" /> Reinforcements: {trade_model?.count}
                 </div>
                 <div style={{ flex: "0.75", display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "0px 1%" }}>
-                    {account.address === trade_model?.seller ? <Tooltip title="Click to change price"><div className="pointer">Price: ${Number(BigInt(trade_model?.price))} LORDS</div></Tooltip> : <div>Price: ${hexToNumber(trade_model?.price)} LORDS</div>}
+                    {account.address === trade_model?.seller ?
+                        <Tooltip title={<Box component={"span"} p={1} width={200} height={200} >
+                            <h2 style={{ textAlign: "center", marginTop: "1px" }}>Change Price</h2>
+                            <InputNumber min={1} max={50} value={numberValue} onChange={setNumberValue} style={{ width: "50%", height: "45%", fontSize: "1.3cqw", marginLeft: "25%" }} />
+                            <div className="global-button-style" style={{ margin: "5px 0px", fontSize: "1cqw", padding: "5px 10px" }} onClick={modifyTrade}>Confirm</div>
+                        </Box>}>
+                            <div className="pointer">Price: ${Number(BigInt(trade_model?.price))} LORDS</div>
+                        </Tooltip>
+                        :
+                        <div>Price: ${hexToNumber(trade_model?.price)} LORDS</div>}
                 </div>
             </div>
 
@@ -448,24 +470,22 @@ const ReinforcementTradeWindow: React.FC = () => {
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
     useEffect(() => {
-
         const trades = async () => {
             const tradesModels = await fetchAllTrades(graphSdk, clientGameData.current_game_id, 1);
             return setTradeList(tradesModels?.edges);
         };
         trades();
-
     }, [refresh])
 
-
+    // this needs to be used to refresh
     useEffect(() => {
         const intervalId = setInterval(() => {
 
 
         }, 5000);
-    
+
         return () => clearInterval(intervalId);
-    
+
     }, []);
 
 
@@ -475,12 +495,12 @@ const ReinforcementTradeWindow: React.FC = () => {
         setMaxValue(2);
     };
 
-    const createGraphQlRequestGTELTE = async ( nameOfVar: string) => {
+    const createGraphQlRequestGTELTE = async (nameOfVar: string) => {
         // Extract the GraphQL structure at the specified index
-        if (maxValue! <= minValue!) {return;}
+        if (maxValue! <= minValue!) { return; }
 
         const selectedStructure = graphqlStructureForReinforcements[0];
-        
+
         let graphqlRequest = "";
 
         const orderDirection = invertTrade ? 'DESC' : 'ASC';
@@ -490,12 +510,12 @@ const ReinforcementTradeWindow: React.FC = () => {
             .replace('FIELD_NAME', nameOfVar.toUpperCase())
             .replace('NUM_DATA', "25")
             .replace('GAME_ID', clientGameData.current_game_id.toString())
-            .replace('LTE_VAR', nameOfVar+"LTE")
-            .replace('MAX_VAL', (nameOfVar === "price" ? '"'+maxValue!.toString()+'"' :  maxValue!.toString()))
-            .replace('GTE_VAR', nameOfVar+"GTE")
-            .replace('MIN_VAL', (nameOfVar === "price" ? '"'+minValue!.toString()+'"' :  minValue!.toString()));
-       
-        const endpoint = import.meta.env.VITE_PUBLIC_TORII; 
+            .replace('LTE_VAR', nameOfVar + "LTE")
+            .replace('MAX_VAL', (nameOfVar === "price" ? '"' + maxValue!.toString() + '"' : maxValue!.toString()))
+            .replace('GTE_VAR', nameOfVar + "GTE")
+            .replace('MIN_VAL', (nameOfVar === "price" ? '"' + minValue!.toString() + '"' : minValue!.toString()));
+
+        const endpoint = import.meta.env.VITE_PUBLIC_TORII;
 
         try {
             const data: any = await request(endpoint, graphqlRequest);
@@ -511,10 +531,10 @@ const ReinforcementTradeWindow: React.FC = () => {
     // const fetchSpecificUsers = async () => {
 
     //     const arrOfAddresses = extractAddresses(stringOfAddresses);
-        
+
     //     for (let index = 0; index < arrOfAddresses.length; index++) {
     //         const element = arrOfAddresses[index];
-            
+
 
 
     //     }
@@ -524,7 +544,7 @@ const ReinforcementTradeWindow: React.FC = () => {
     //     const addresses = inputString.split('/').filter(address => {
     //         return address;
     //     });
-    
+
     //     return addresses;
     // };
 
@@ -569,15 +589,15 @@ const ReinforcementTradeWindow: React.FC = () => {
                             <h1 style={{ textAlign: "center", fontSize: "1.3rem" }}>Max</h1>
                         </div>
                         <div style={{ gridRow: "3/4", gridColumn: "1/2", width: "100%", height: "100%", display: "flex", justifyContent: "flex-start", alignItems: "flex-start", padding: "0px 5%", boxSizing: "border-box" }} >
-                            <InputNumber  min={1} max={maxValue!} value={minValue} onChange={setMinValue}  placeholder="Min price" style={{ backgroundColor: "white", height: "70%",  width:"100%", fontSize: "1rem" }} />
+                            <InputNumber min={1} max={maxValue!} value={minValue} onChange={setMinValue} placeholder="Min price" style={{ backgroundColor: "white", height: "70%", width: "100%", fontSize: "1rem" }} />
                         </div>
                         {/* stringMode step="0.0001" */}
                         <div style={{ gridRow: "3/4", gridColumn: "2/3", width: "100%", height: "100%", display: "flex", justifyContent: "flex-start", alignItems: "flex-start", padding: "0px 5%", boxSizing: "border-box" }} >
-                            <InputNumber min={minValue!} max={1000} value={maxValue} onChange={setMaxValue} placeholder="Max price" style={{ backgroundColor: "white", height: "70%", width:"100%",fontSize: "1rem" }} />
+                            <InputNumber min={minValue!} max={1000} value={maxValue} onChange={setMaxValue} placeholder="Max price" style={{ backgroundColor: "white", height: "70%", width: "100%", fontSize: "1rem" }} />
                         </div>
 
                         <div style={{ gridRow: "5/6", gridColumn: "1/3", width: "100%", height: "100%" }} className="center-via-flex">
-                            <div className="global-button-style" style={{ fontSize: "1rem", padding: "5px 10px" }} onClick={() => {createGraphQlRequestGTELTE("price");    } }>Refresh</div>
+                            <div className="global-button-style" style={{ fontSize: "1rem", padding: "5px 10px" }} onClick={() => { createGraphQlRequestGTELTE("price"); }}>Refresh</div>
                         </div>
 
                     </div>}
@@ -593,14 +613,14 @@ const ReinforcementTradeWindow: React.FC = () => {
                             <h1 style={{ textAlign: "center", fontSize: "1.3rem" }}>Max</h1>
                         </div>
                         <div style={{ gridRow: "3/4", gridColumn: "1/2", width: "100%", height: "100%", display: "flex", justifyContent: "flex-start", alignItems: "flex-start", padding: "0px 5%", boxSizing: "border-box" }} >
-                            <InputNumber  min={1} max={maxValue!} value={minValue} onChange={setMinValue} precision={0} placeholder="Min Reinforcement" style={{ backgroundColor: "white", height: "70%",  width:"100%", fontSize: "1rem" }} />
+                            <InputNumber min={1} max={maxValue!} value={minValue} onChange={setMinValue} precision={0} placeholder="Min Reinforcement" style={{ backgroundColor: "white", height: "70%", width: "100%", fontSize: "1rem" }} />
                         </div>
                         <div style={{ gridRow: "3/4", gridColumn: "2/3", width: "100%", height: "100%", display: "flex", justifyContent: "flex-start", alignItems: "flex-start", padding: "0px 5%", boxSizing: "border-box" }} >
-                            <InputNumber min={minValue!} max={20} value={maxValue} onChange={setMaxValue} precision={0} placeholder="Max Reinforcement" style={{ backgroundColor: "white", height: "70%", width:"100%",fontSize: "1rem" }} />
+                            <InputNumber min={minValue!} max={20} value={maxValue} onChange={setMaxValue} precision={0} placeholder="Max Reinforcement" style={{ backgroundColor: "white", height: "70%", width: "100%", fontSize: "1rem" }} />
                         </div>
 
                         <div style={{ gridRow: "5/6", gridColumn: "1/3", width: "100%", height: "100%" }} className="center-via-flex">
-                            <div className="global-button-style" style={{ fontSize: "1rem", padding: "5px 10px" }} onClick={() => {createGraphQlRequestGTELTE("count");    } }>Refresh</div>
+                            <div className="global-button-style" style={{ fontSize: "1rem", padding: "5px 10px" }} onClick={() => { createGraphQlRequestGTELTE("count"); }}>Refresh</div>
                         </div>
 
                     </div>}
@@ -623,9 +643,9 @@ const ReinforcementTradeWindow: React.FC = () => {
                 </div>
 
                 <div style={{ height: "20%", width: "100%", display: "flex", justifyContent: "space-around", alignItems: "flex-start", flexDirection: "column", color: "white", padding: "5px 10px", boxSizing: "border-box" }}>
-                    <FormControlLabel control={<Checkbox style={{ color: 'white' }} checked={showYourTrades} onChange={() => setShowYourTrades(!showYourTrades)} />} label={"Show your trades"} />
-                    <FormControlLabel control={<Checkbox style={{ color: 'white' }} checked={showOthersTrades} onChange={() => setShowOthersTrades(!showOthersTrades)} />} label={"Show other people trades"} />
                     <FormControlLabel control={<Checkbox style={{ color: 'white' }} checked={invertTrade} onChange={() => setInvertTrade(!invertTrade)} />} label={"Invert order"} />
+                    <FormControlLabel disabled control={<Checkbox style={{ color: 'white' }} checked={showYourTrades} onChange={() => setShowYourTrades(!showYourTrades)} />} label={"Show your trades"} />
+                    <FormControlLabel disabled control={<Checkbox style={{ color: 'white' }} checked={showOthersTrades} onChange={() => setShowOthersTrades(!showOthersTrades)} />} label={"Show other people trades"} />
                 </div>
 
             </div>
@@ -656,12 +676,7 @@ const CreateReinforcementTradeWindow: React.FC = () => {
     const [numberValue, setNumberValue] = useState<number | null>(1);
     const [amountToSell, setAmountToSell] = useState<number>(0);
 
-    // const handleNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     const input = event.target.value;
-    //     if (!isNaN(Number(input)) || input === '') {
-    //         setNumberValue(input);
-    //     }
-    // };
+    const [numberOfCurrentTrades, setNumberOfCurrentTrades] = useState<number>(-1);
 
     const {
         account: { account },
@@ -689,6 +704,69 @@ const CreateReinforcementTradeWindow: React.FC = () => {
 
     }, [account, playerInfo, amountToSell])
 
+
+    useEffect(() => {
+
+        if (playerInfo === undefined) { return; }
+
+        if (amountToSell < 0) {
+            setAmountToSell(0)
+            return;
+        }
+
+        if (amountToSell > playerInfo.reinforcement_count) {
+            setAmountToSell(playerInfo.reinforcement_count);
+        }
+
+    }, [account, playerInfo, amountToSell])
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const graphqlRequest = `query {
+            tradeModels(
+              where: {
+                game_id: 1,
+                status: 1,
+              }
+            ) {
+              edges {
+                node {
+                  entity {
+                    keys
+                    models {
+                      __typename
+                      ... on Trade {
+                        game_id
+              entity_id
+              seller
+              price
+              count
+              buyer
+              status
+                      }
+                    }
+                  }
+                }
+              }
+              total_count
+            }
+          }`;
+
+            const endpoint = import.meta.env.VITE_PUBLIC_TORII;
+
+            try {
+                const data = await request(endpoint, graphqlRequest);
+                setNumberOfCurrentTrades(getCount(data, "tradeModels"))
+            } catch (error) {
+                console.error('Error executing GraphQL query:', error);
+                throw error;
+            }
+        };
+        
+        fetchData();
+    }, []);
+
+
     const confirmCreationOfOrder = async () => {
 
         const createTradeProp: CreateTradeForReinf = {
@@ -713,7 +791,7 @@ const CreateReinforcementTradeWindow: React.FC = () => {
             <div style={{ height: "100%", width: "20%", display: "flex", flexDirection: "column", color: "white" }}>
 
                 <div style={{ flex: "1", display: "flex", justifyContent: "flex-start", flexDirection: "column" }}>
-                    <h2 style={{ fontSize: "1.7vw", margin: "0px", whiteSpace: "nowrap", height: "50%" }}>Sell Reinforcements</h2>
+                    <h2 style={{ fontSize: "1.7vw", margin: "1px", whiteSpace: "nowrap", height: "50%" }}>Sell Reinforcements</h2>
                     <CounterElement value={amountToSell} setValue={setAmountToSell} containerStyleAddition={{ maxWidth: "75%", height: "40%", marginBottom: "9%" }} additionalButtonStyleAdd={{ width: "15%" }} textAddtionalStyle={{ fontSize: "2vw" }} />
                 </div>
 
@@ -722,18 +800,17 @@ const CreateReinforcementTradeWindow: React.FC = () => {
                     <ConfigProvider
                         theme={{
                             token: {
-                                colorText: "white"
+                                colorText: "white",
                             },
                         }}>
-                        <InputNumber min={1} max={20} value={numberValue} onChange={setNumberValue} style={{ backgroundColor: "#131313", color: "white", borderColor: "#2D2D2D", width: "60%", height: "45%", fontSize: "1.5rem" }} />
+                        <InputNumber min={1} max={50} value={numberValue} onChange={setNumberValue} style={{ backgroundColor: "#131313", color: "white", borderColor: "#2D2D2D", width: "60%", height: "45%", fontSize: "1.3cqw" }} />
                     </ConfigProvider>
                 </div>
 
                 <div style={{ flex: "1", display: "flex", justifyContent: "flex-end", flexDirection: "column", alignContent: "flex-end" }}>
-                    <h3 style={{ margin: "0px", whiteSpace: "nowrap", height: "20%" }}>Current Trades available: X</h3>
+                    <h3 style={{ margin: "0px", whiteSpace: "nowrap", height: "20%" }}>Current Trades available: {numberOfCurrentTrades}</h3>
                     <div className="global-button-style" style={{ padding: "5px 10px", maxWidth: "fit-content", margin: "0px", fontSize: "1.2vw" }} onClick={confirmCreationOfOrder}>Confirm</div>
                 </div>
-
             </div>
 
             <div style={{ height: "100%", width: "20%" }}></div>

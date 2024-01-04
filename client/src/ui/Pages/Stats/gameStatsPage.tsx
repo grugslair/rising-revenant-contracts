@@ -264,7 +264,8 @@ const StatsTable: React.FC = () => {
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
     useEffect(() => {
-        createGraphQlRequest(0, "SCORE","playerinfoModels"); setSelectedSortingMethod(1);
+        createGraphQlRequest(0, "SCORE","playerinfoModels"); 
+        setSelectedSortingMethod(1);
     }, []);
 
     const createGraphQlRequest = async (indexOfStructure: number, nameOfVar: string, modelName: string) => {
@@ -313,10 +314,6 @@ const StatsTable: React.FC = () => {
             throw error;
         }
     }
-
-    useEffect(() => {
-        console.error(dataList)
-    }, [dataList]);
     
     return (
         <ClickWrapper style={{height:"100%", width:"90%", marginLeft:"5%",  display:"flex", flexDirection:"column", fontSize:"1.5rem", color:"white"}}>
@@ -341,7 +338,7 @@ const StatsTable: React.FC = () => {
 
                 {category === "1" && <>
                         <Space style={{flex:"1", height:"100%"}} className="center-via-flex pointer" onClick={() => {createGraphQlRequest(0, "SCORE","playerinfoModels"); setSelectedSortingMethod(1);}}> Contribution Score { selectedSortingIndex === 1  &&  <>{directionSorting ? <DownOutlined/> : <UpOutlined/>}</>} </Space>
-                        <Space style={{flex:"1", height:"100%"}} className="center-via-flex pointer" onClick={() => {createGraphQlRequest(0, "REVENANT_COUNT","playerinfoModels"); setSelectedSortingMethod(2);}}> Revenants Count { selectedSortingIndex === 2  &&  <>{directionSorting ? <DownOutlined/> : <UpOutlined/>}</>} </Space>
+                        <Space style={{flex:"1", height:"100%"}} className="center-via-flex pointer" onClick={() => {createGraphQlRequest(0, "OUTPOST_COUNT","playerinfoModels"); setSelectedSortingMethod(2);}}> Revenants Count { selectedSortingIndex === 2  &&  <>{directionSorting ? <DownOutlined/> : <UpOutlined/>}</>} </Space>
                         <Space style={{flex:"1", height:"100%"}} className="center-via-flex pointer" onClick={() => {createGraphQlRequest(0, "REINFORCEMENT_COUNT","playerinfoModels");  setSelectedSortingMethod(3);}}> Reinforcements in wallet  { selectedSortingIndex === 3  &&  <>{directionSorting ? <DownOutlined/> : <UpOutlined/>}</>} </Space>
                         <Space style={{flex:"1", height:"100%"}} className="center-via-flex"> Trades up </Space>
                 </>}

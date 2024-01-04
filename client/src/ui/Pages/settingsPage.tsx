@@ -45,8 +45,8 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
             <img className="page-img brightness-down" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
             <PageTitleElement name={"SETTINGS"} rightPicture={"close_icon.svg"} closeFunction={setUIState} />
 
-            <ClickWrapper style={{ position: "relative", width: "100%", height: "90%", display: "flex", flexDirection: "row", padding: "5% 3%", boxSizing: "border-box", color:"white"}}>
-                <ClickWrapper style={{ height: "100%", width: "60%", display: "flex", flexDirection: "column", justifyContent: "center", paddingRight:"4%", boxSizing:"border-box" }}>
+            <ClickWrapper style={{ position: "relative", width: "100%", height: "90%", display: "flex", flexDirection: "row", padding: "5% 3%", boxSizing: "border-box", color:"white"}} className="center-via-flex">
+                {/* <ClickWrapper style={{ height: "100%", width: "60%", display: "flex", flexDirection: "column", justifyContent: "center", paddingRight:"4%", boxSizing:"border-box" }}>
                     <FormControlLabel control={<Checkbox style={{ color: 'grey' }} checked={checkboxChecked} onChange={() => setCheckboxChecked(!checkboxChecked)} />} label={checkboxChecked ? "This is checked" : "this is not checked"} />
 
                     <FormControlLabel control={<Switch style={{ color: 'grey' }} checked={switchChecked} onChange={() => setSwitchChecked(!switchChecked)} />} label={switchChecked ? "This is switched" : "this is not switch"} />
@@ -70,7 +70,9 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
                     <TransactionDataElement transactionData={{state:TransactionState.PASSED, txHash:"0x272b758005aefb75e524a53f28ebc7fe1e57720c448a388746ba2eff4874e54"}} />
                     <TransactionDataElement transactionData={{state:TransactionState.WAITING, txHash:"0x272b758005aefb75e524a53f28ebc7fe1e57720c448a388746ba2eff4874e54"}} />
                     <TransactionDataElement transactionData={{state:TransactionState.FAILED, txHash:"0x272b758005aefb75e524a53f28ebc7fe1e57720c448a388746ba2eff4874e54"}} />
-                </div>  
+                </div>   */}
+
+                <h1 style={{fontWeight:"100", fontFamily:"Zelda", fontSize:"3vw"}}>COMING SOON!!</h1>
             </ClickWrapper>
         </div>
     );

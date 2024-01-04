@@ -15,6 +15,8 @@ import { ClickWrapper } from "../clickWrapper";
 import PageTitleElement from "../Elements/pageTitleElement";
 import { fetchPlayerInfo, namesArray, setClientCameraComponent, setComponentsFromGraphQlEntitiesHM, surnamesArray } from "../../utils";
 import { ReinforcementCountElement } from "../Elements/reinfrocementBalanceElement";
+import { MenuState } from "./gamePhaseManager";
+import { LordsBalanceElement } from "../Elements/playerLordsBalance";
 
 //pages
 
@@ -31,16 +33,17 @@ needs functionality to move the camera to a certain location and ability to call
 
 interface ProfilePageProps {
     setUIState: () => void;
+    specificSetState?: (MenuState) => void;
 }
 
-export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
+export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSetState }) => {
 
     const [reinforcementCount, setReinforcementCount] = useState(0);
 
     const {
         account: { account },
         networkLayer: {
-            network: { contractComponents, clientComponents, graphSdk },
+            network: { contractComponents, clientComponents },
             systemCalls: { reinforce_outpost, confirm_event_outpost }
         },
     } = useDojo();
@@ -58,8 +61,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
 
     useEffect(() => {
 
-        if (playerInfo !== undefined)
-        {
+        if (playerInfo !== undefined) {
             setReinforcementCount(playerInfo.reinforcement_count);
         }
 
@@ -80,7 +82,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
 
     const setCameraPos = (x: number, y: number) => {
         setClientCameraComponent(x, y, clientComponents);
-
         setUIState()
     }
 
@@ -108,7 +109,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
 
             <img className="page-img brightness-down" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
 
-            <PageTitleElement name={"PROFILE"} rightPicture={"close_icon.svg"} closeFunction={setUIState} right_html_element={<ReinforcementCountElement/>} />
+            <PageTitleElement name={"PROFILE"} rightPicture={"close_icon.svg"} closeFunction={setUIState} right_html_element={<ReinforcementCountElement />} left_html_elemt={<LordsBalanceElement/>}/>
 
             <div style={{ width: "100%", height: "90%", position: "relative", display: "flex", flexDirection: "row" }}>
                 <div style={{ width: "8%", height: "100%" }}></div>
@@ -128,9 +129,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState }) => {
                         {clientGameData.current_game_state === 1 ? (<></>) :
                             (
                                 <>
-                                    <div className="global-button-style" style={{ padding: "5px 5px" }} onClick={() => { setUIState }}>Go To Trade Section</div>
-                                    {ownedAndInEvent.length > 0 ? (
-                                        <div className="global-button-style" style={{ padding: "5px 5px" }} onClick={() => { confirmAllAttackedOutposts() }}>Confirm All</div>) : (<></>)}
+                                    <div className="global-button-style" style={{ padding: "5px 5px", fontSize: "1cqw" }} onClick={() => { specificSetState(MenuState.TRADES) }}>Go To Trade Section</div>
+                                    {ownedAndInEvent.length > 0 ? (<div className="global-button-style" style={{ padding: "5px 5px" }} onClick={() => { confirmAllAttackedOutposts() }}>Confirm All</div>) : (<></>)}
                                 </>
                             )}
                     </div>
@@ -285,13 +285,13 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                 </div>
 
             </div>
-            
+
             {clientOutpostData.event_effected && outpostData.lifes > 0 &&
                 <div className="sell" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                     {buttonIndex !== 0 && phase === 2 && <div className="global-button-style" style={{ padding: "5px 10px", fontSize: "0.9cqw" }} onClick={() => { confirmEvent(entityId) }}>Confirm Event</div>}
                 </div>
             }
-            
+
         </div>
     );
 };

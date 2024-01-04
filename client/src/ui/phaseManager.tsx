@@ -40,7 +40,7 @@ export const PhaseManager = () => {
       <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "0.7vw", color: "white" }}>
             Date of Version: 3rd Jan<br/>
             Branch: main<br/>
-            Pull: fake erc20 addition
+            Pull: display lords 
       </div>
     </>
   );

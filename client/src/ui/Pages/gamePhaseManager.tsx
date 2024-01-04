@@ -48,15 +48,15 @@ import { useCameraInteraction } from '../Elements/cameraInteractionElement';
 import { DirectionalEventIndicator } from '../Components/warningSystem';
 
 export enum MenuState {
-  NONE,
-  PROFILE,
-  STATS,
-  SETTINGS,
-  TRADES,
-  RULES,
-  REV_JURNAL,
-  WINNER,
-  Debug
+  NONE = 0,
+  PROFILE= 1,
+  STATS=2 ,
+  SETTINGS= 3,
+  TRADES= 4,
+  RULES= 5,
+  REV_JURNAL= 6,
+  WINNER= 7,
+  Debug= 8
 }
 
 //this needs an event for the gamephase so it redraws this is called form the mapspawn script
@@ -150,6 +150,8 @@ export const GamePhaseManager = () => {
 
   useMainPageContentClick(currentMenuState);
 
+  
+
   return (
     <>
       
@@ -162,7 +164,7 @@ export const GamePhaseManager = () => {
         <div className='main-page-content'>
           {currentMenuState !== MenuState.NONE && (
             <div className='page-container'>
-              {currentMenuState === MenuState.PROFILE && <ProfilePage setUIState={closePage} />}
+              {currentMenuState === MenuState.PROFILE && <ProfilePage setUIState={closePage} specificSetState={setCurrentMenuState}/>}
               {currentMenuState === MenuState.RULES && <RulesPage setUIState={closePage} />}
               {currentMenuState === MenuState.SETTINGS && <SettingsPage setUIState={closePage} />}
               {currentMenuState === MenuState.TRADES && <TradesPage setMenuState={setCurrentMenuState} />}

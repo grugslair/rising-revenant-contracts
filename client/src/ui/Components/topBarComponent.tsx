@@ -72,7 +72,6 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     useEffect(() => {
 
         if (playerInfo === null || playerInfo === undefined) { return; }
-        console.error(playerInfo.player_wallet_amount);
         setPlayerContribScore(playerInfo.player_wallet_amount);
         setPlayerContribScorePerc(Number.isNaN((playerInfo.score / gameEntityCounter.score_count) * 100) ? 0 : Number(((playerInfo.score / gameEntityCounter.score_count) * 100).toFixed(2)));
 
@@ -130,7 +129,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
             
                 <div className="top-bar-grid-left-text-section center-via-flex">
                     <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                        <div style={{ fontSize: "1.2vw" }}>Jackpot: {1000} $LORDS </div>
+                        <div style={{ fontSize: "1.2vw" }}>Jackpot: {Number(gameData.prize) } $LORDS </div>
                     </div>
                     <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
 

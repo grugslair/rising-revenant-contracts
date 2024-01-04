@@ -65,6 +65,7 @@ const PageTitleElement: React.FC<CounterElementProps> = ({ name, rightPicture, c
     return (
         <ClickWrapper style={containerStyle}>
             <div style={leftContainerStyle}>
+                <div style={{height:"100%", aspectRatio:"1/1"}}></div>
                 {left_html_elemt}
             </div>
             <div style={titleContainerStyle}>

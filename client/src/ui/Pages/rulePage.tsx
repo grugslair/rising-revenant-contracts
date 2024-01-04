@@ -55,7 +55,7 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
 
             <div style={{ width: "100%", height: "5%", position: "relative" }}></div>
             <ClickWrapper style={{ width: "100%", height: "70%", position: "relative", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                <div style={{ width: "80%", height: "100%", color: "white", fontFamily: "OL", overflowY: "auto", scrollbarGutter: "stable", paddingRight: "5px" }}>
+                <div className="test-class-name" style={{ width: "80%", height: "100%", color: "white", fontFamily: "OL", overflowY: "auto", scrollbarGutter: "stable", paddingRight: "5px" }}>
 
                     {rulesState === RulesState.PREP && (<>
                         <h2 style={{ marginBottom: "0px", fontWeight: "bold" }}>Summoning the Revenants:</h2>
@@ -90,9 +90,8 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
 
                     {rulesState === RulesState.FINAL && (<>
                         <h2 style={{ marginBottom: "0px" }}>Final Rewards:</h2>
-                        <h2 style={{ marginBottom: "0px" }}>The Ultimate Prize:</h2>
-                        <h3 style={{ marginTop: "0px" }}> The game’s transactions feed into a colossal final jackpot, destined for the sole Revenant who outlasts all others.</h3>
-
+                        <h3 style={{ marginTop: "0px" }}>The Ultimate Prize: The games transactions feed into a colossal final jackpot, destined for the sole Revenant who outlasts all others.</h3>
+                        <h2></h2>
                         <h2 style={{ marginBottom: "0px" }}>Economic Dynamics of "Rising Revenant":</h2>
                         <h2 style={{ marginBottom: "0px" }}>Preparation Phase::</h2>
                         <h3 style={{ marginTop: "0px" }}>75% of $LORDS channeled into the final jackpot <br /> 10% allocated to transaction confirmation <br /> 15% as a creator tribute</h3>

@@ -340,7 +340,7 @@ export const setClientCameraEntityIndex = async (x: number, y: number, clientCom
 //endregion
 
 export function getCount(data: any, nodeName: string): number {
-    return data?.data?.[nodeName]?.totalCount || 0;
+    return data?.[nodeName]?.total_count || 0;
 }
 
 export function convertBlockCountToTime(number: number): string {
@@ -468,7 +468,7 @@ export function checkAndSetPhaseClientSide(game_id: number, currentBlockNumber: 
 }
 
 
-//there might be issues in the future where the graphql request gets too big i dont think the Models specifc request work correctly honeslty 
+//there might be issues in the future where the graphql request gets too big i dont think the Models specifc request work correctly 
 // it better to do the entities one
 
 
