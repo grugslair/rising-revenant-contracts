@@ -39,8 +39,8 @@ export const PhaseManager = () => {
 
       <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "0.7vw", color: "white" }}>
             Date of Version: 3rd Jan<br/>
-            Branch: dev<br/>
-            Pull: New UI and sorted query system
+            Branch: main<br/>
+            Pull: fake erc20 addition
       </div>
     </>
   );

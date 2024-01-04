@@ -459,15 +459,15 @@ const ReinforcementTradeWindow: React.FC = () => {
 
 
     useEffect(() => {
+        const intervalId = setInterval(() => {
 
-       console.error(tradeList)
 
-    }, [tradeList])
+        }, 5000);
+    
+        return () => clearInterval(intervalId);
+    
+    }, []);
 
-    useEffect(() => {
-        console.error(selectedSortingMethod)
-        // console.error(items.find(item => item.key === selectedSortingMethod)?.label )
-    }, [selectedSortingMethod])
 
     const onClick = ({ key }) => {
         setSelectedSortingMethod(key);
@@ -507,28 +507,26 @@ const ReinforcementTradeWindow: React.FC = () => {
         }
     };
 
-
-
     //issue
-    const fetchSpecificUsers = async () => {
+    // const fetchSpecificUsers = async () => {
 
-        const arrOfAddresses = extractAddresses(stringOfAddresses);
+    //     const arrOfAddresses = extractAddresses(stringOfAddresses);
         
-        for (let index = 0; index < arrOfAddresses.length; index++) {
-            const element = arrOfAddresses[index];
+    //     for (let index = 0; index < arrOfAddresses.length; index++) {
+    //         const element = arrOfAddresses[index];
             
 
 
-        }
-    }
+    //     }
+    // }
 
-    const extractAddresses = (inputString) => {
-        const addresses = inputString.split('/').filter(address => {
-            return address;
-        });
+    // const extractAddresses = (inputString) => {
+    //     const addresses = inputString.split('/').filter(address => {
+    //         return address;
+    //     });
     
-        return addresses;
-    };
+    //     return addresses;
+    // };
 
     return (
         <>
@@ -617,7 +615,7 @@ const ReinforcementTradeWindow: React.FC = () => {
                             </div>
 
                             <div style={{ gridRow: "5/6", gridColumn: "1/3", width: "100%", height: "100%" }} className="center-via-flex">
-                                <div className="global-button-style" style={{ fontSize: "1rem", padding: "5px 10px" }} onClick={() => fetchSpecificUsers()}>Refresh</div>
+                                {/* <div className="global-button-style" style={{ fontSize: "1rem", padding: "5px 10px" }} onClick={() => fetchSpecificUsers()}>Refresh</div> */}
                             </div>
                         </div>
                     }

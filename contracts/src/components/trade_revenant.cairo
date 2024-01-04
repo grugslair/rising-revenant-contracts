@@ -8,7 +8,7 @@ struct TradeRevenant {
     #[key]
     entity_id: u32,
     seller: ContractAddress,
-    price: u256,
+    price: u128,
     revenant_id: u128,
     outpost_id: u128,
     buyer: ContractAddress,

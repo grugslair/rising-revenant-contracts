@@ -72,8 +72,8 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     useEffect(() => {
 
         if (playerInfo === null || playerInfo === undefined) { return; }
-
-        setPlayerContribScore(playerInfo.score);
+        console.error(playerInfo.player_wallet_amount);
+        setPlayerContribScore(playerInfo.player_wallet_amount);
         setPlayerContribScorePerc(Number.isNaN((playerInfo.score / gameEntityCounter.score_count) * 100) ? 0 : Number(((playerInfo.score / gameEntityCounter.score_count) * 100).toFixed(2)));
 
     }, [playerInfo, gameData]);

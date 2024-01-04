@@ -8,7 +8,7 @@ struct Trade {
     #[key]
     entity_id: u32,
     seller: ContractAddress,
-    price: u256,
+    price: u128,
     count: u32,
     buyer: ContractAddress,
     status: u32,

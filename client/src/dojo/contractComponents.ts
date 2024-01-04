@@ -67,7 +67,7 @@ export function defineContractComponents(world: World) {
 	  PlayerInfo: (() => {
 	    return defineComponent(
 	      world,
-	      { game_id: RecsType.Number, owner: RecsType.String, score: RecsType.Number, score_claim_status: RecsType.Boolean, earned_prize: RecsType.BigInt, revenant_count: RecsType.Number, outpost_count: RecsType.Number, reinforcement_count: RecsType.Number, inited: RecsType.Boolean },
+	      { game_id: RecsType.Number, owner: RecsType.String, score: RecsType.Number, score_claim_status: RecsType.Boolean, earned_prize: RecsType.BigInt, revenant_count: RecsType.Number, outpost_count: RecsType.Number, reinforcement_count: RecsType.Number, initiated: RecsType.Number, inited: RecsType.Boolean, player_wallet_amount: RecsType.BigInt },
 	      {
 	        metadata: {
 	          name: "PlayerInfo",

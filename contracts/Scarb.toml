@@ -22,13 +22,13 @@ initializer_class_hash = "0xbeef"
 #rpc_url = "http://localhost:5050"
 #account_address = "0x517ececd29116499f4a1b64b094da79ba08dfd54a3edaa316134c41f8160973"
 #private_key = "0x1800000000300000180000000000030000000000003006001800006600"
-#world_address = "0x6232fe23b5b1504525ab921d824fd1ec130d0ab6efc7cae92f2afab94758a3e"
+#world_address = ""
 
 # slot
 rpc_url = "https://api.cartridge.gg/x/rr-demo/katana"
-account_address = "0x570c68a553edaefaa21b76a49febc02da5ede9df08cd3fee1e3bd0fad39796f"
-private_key = "0x5d1d050d453d24f0cbb12b2bf8a3d29c7db470fb48ab09f358dc5d62b1e3f61"
-world_address = "0x4093d0743e76913eb1a6458662c34971e5edfc95aa93b307eaf1b12ffbac397"
+account_address = "0x4e662a380a6eb007722ed1a30cd7a9bd00f4abfa9598f791d7acb1836dd61bb"
+private_key = "0x5cdcd51d3d0ce55f9f6a19e8598b8d0c8fad9da96688d285f5f4046a10b12c2"
+#world_address = ""
 
 
 [tool.fmt]

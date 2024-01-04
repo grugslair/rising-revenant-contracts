@@ -263,6 +263,10 @@ const StatsTable: React.FC = () => {
 
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
+    useEffect(() => {
+        createGraphQlRequest(0, "SCORE","playerinfoModels"); setSelectedSortingMethod(1);
+    }, []);
+
     const createGraphQlRequest = async (indexOfStructure: number, nameOfVar: string, modelName: string) => {
         // Extract the GraphQL structure at the specified index
         const selectedStructure = graphqlStructure[indexOfStructure];

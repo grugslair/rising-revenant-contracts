@@ -1,7 +1,7 @@
 #[starknet::interface]
 trait ITradeActions<TContractState> {
     // Create a new trade
-    fn create(self: @TContractState, game_id: u32, count: u32, price: u256) -> u32;
+    fn create(self: @TContractState, game_id: u32, count: u32, price: u128) -> u32;
 
     // Revoke an initiated trade
     fn revoke(self: @TContractState, game_id: u32, entity_id: u32);
@@ -10,7 +10,7 @@ trait ITradeActions<TContractState> {
     fn purchase(self: @TContractState, game_id: u32, trade_id: u32);
 
     // Modify the price of an existing trade
-    fn modify_price(self: @TContractState, game_id: u32, trade_id: u32, new_price: u256);
+    fn modify_price(self: @TContractState, game_id: u32, trade_id: u32, new_price: u128);
 }
 
 // Trade for reinforcement
@@ -39,7 +39,7 @@ mod trade_actions {
 
     #[external(v0)]
     impl TradeActionImpl of ITradeActions<ContractState> {
-        fn create(self: @ContractState, game_id: u32, count: u32, price: u256) -> u32 {
+        fn create(self: @ContractState, game_id: u32, count: u32, price: u128) -> u32 {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
 
@@ -104,29 +104,40 @@ mod trade_actions {
             assert(trade.status != TradeStatus::revoked, 'trade had been revoked');
             assert(trade.seller != player, 'unable purchase your own trade');
 
-            let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
-            let seller_amount: u256 = trade.price.into() * 90 / 100;
-            let contract_amount: u256 = trade.price.into() - seller_amount.into();
+            // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+            // let seller_amount: u128 = trade.price.into() * 90 / 100;
 
-            let result = erc20
-                .transfer_from(sender: player, recipient: trade.seller, amount: seller_amount);
-            assert(result, 'need approve for erc20');
-            let result = erc20
-                .transfer_from(
-                    sender: player, recipient: game.reward_pool_addr, amount: contract_amount
-                );
-            assert(result, 'need approve for erc20');
 
-            let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            player_info.check_player_exists(world); 
-            player_info.reinforcement_count += trade.count;
+
+            // let contract_amount: u128 = trade.price.into() - seller_amount.into();
+
+            // let result = erc20
+            //     .transfer_from(sender: player, recipient: trade.seller, amount: seller_amount);
+            // assert(result, 'need approve for erc20');
+            // let result = erc20
+            //     .transfer_from(
+            //         sender: player, recipient: game.reward_pool_addr, amount: contract_amount
+            //     );
+            // assert(result, 'need approve for erc20');
+
+            let mut player_info_buyer = get!(world, (game_id, player), PlayerInfo);
+            player_info_buyer.check_player_exists(world); 
+            player_info_buyer.reinforcement_count += trade.count;
+
+            assert(player_info_buyer.player_wallet_amount >= trade.price, 'not enough cash');
+
+            let mut player_info_seller = get!(world, (game_id, trade.seller), PlayerInfo);
+
+            player_info_buyer.player_wallet_amount -= trade.price;
+            player_info_seller.player_wallet_amount += trade.price;
+
             trade.status = TradeStatus::sold;
             trade.buyer = player;
 
-            set!(world, (player_info, trade));
+            set!(world, (player_info_buyer,player_info_seller, trade));
         }
 
-        fn modify_price(self: @ContractState, game_id: u32, trade_id: u32, new_price: u256) {
+        fn modify_price(self: @ContractState, game_id: u32, trade_id: u32, new_price: u128) {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
 
