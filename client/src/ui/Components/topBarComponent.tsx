@@ -44,6 +44,8 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
         },
     } = useDojo();
 
+
+    // this needs to be custom hooked
     const outpostQuery = useEntityQuery([Has(contractComponents.Outpost)]);
     const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
     const ownOutposts = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
@@ -52,10 +54,9 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
     const gameEntityCounter = useComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
     const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]))
-    const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+    const gameData = useComponentValue(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
 
     useEventAndUserDataLoader();
-    // console.error("complete reload of the top bar")
 
     // this should only be getting called when the user is active the moment the game switches from prep to game phase as the other oupost from other people are not loaded in 
     // in the prep phase
@@ -75,8 +76,10 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
         setPlayerContribScore(playerInfo.score);
         setPlayerContribScorePerc(Number.isNaN((playerInfo.score / gameEntityCounter.score_count) * 100) ? 0 : Number(((playerInfo.score / gameEntityCounter.score_count) * 100).toFixed(2)));
 
-    }, [playerInfo]);
+    }, [playerInfo, gameData]);
 
+
+    //PRETTY SURE THIS IS BROKEN CLIENTGAMEDATA === 1?
     useEffect(() => {
         const updateOwnData = async () => {
             if (clientGameData === 1) { return; }

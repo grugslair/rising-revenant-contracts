@@ -315,8 +315,8 @@ mod revenant_actions {
                 status: RevenantStatus::started
             };
 
-            let mut x = (MAP_WIDTH / 2) - random.next_u32(0, 800);
-            let mut y = (MAP_HEIGHT / 2) - random.next_u32(0, 800);
+            let mut x = (MAP_WIDTH / 2) - random.next_u32(0, SPAWN_RANGE_X);
+            let mut y = (MAP_HEIGHT / 2) - random.next_u32(0, SPAWN_RANGE_Y);
 
             let mut prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
             // avoid multiple outpost appearing in the same position

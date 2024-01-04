@@ -47,7 +47,7 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
 
     const [freeRevs, setFreeRevs] = useState<number>(10);
 
-    const [text, setText] = useState("Reinforcements provide an additional extra life to your outpost, enhancing the player's ability to withstand hostile attacks");
+    const [text, setText] = useState(`"Reinforcements provide an additional extra life to your outpost, enhancing the player's ability to withstand hostile attacks."`);
     const [opacity, setOpacity] = useState(1);
 
     const {
@@ -71,9 +71,9 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
             setOpacity(0);
             setTimeout(() => {
                 setText((prevText) =>
-                    prevText === "Reinforcements provide an additional extra life to your outpost, enhancing the player's ability to withstand hostile attacks"
-                        ? "An outpost can only have a maximum of 20 reinforcements applied during its existance"
-                        : "Reinforcements provide an additional extra life to your outpost, enhancing the player's ability to withstand hostile attacks"
+                    prevText === `"Reinforcements provide an additional extra life to your outpost, enhancing the player's ability to withstand hostile attacks."`
+                        ? `"An outpost can only have a maximum of 20 reinforcements applied during its existance."`
+                        : `"Reinforcements provide an additional extra life to your outpost, enhancing the player's ability to withstand hostile attacks."`
                 );
                 setOpacity(1);
             }, 1000);
@@ -125,11 +125,7 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
                         Summon more Revenants
                     </ClickWrapper>}
                 </div>
-                {/* <ClickWrapper style={{ height: "50%", width: "100%", position: "relative",  display:"flex", justifyContent:"center", flexDirection:"column"}}>
-                <h2 className="main-content-header">BUY REINFORCEMENTS</h2>
-                <CounterElement value={reinforcementNumber} setValue={setReinforcementNumber} containerStyleAddition={{maxWidth:"30%"}}  additionalButtonStyleAdd={{padding:"2px", boxSizing:"border-box"}} textAddtionalStyle={{fontSize:"2cqw"}}/>
-                <div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { buyReinforcements(reinforcementNumber) }}>Summon (Tot: ≈{reinforcementNumber * priceOfReinforcements} $Lords)</div>
-            </ClickWrapper> */}
+               
                 <ClickWrapper style={{ height: "50%", width: "100%", position: "relative", display: "grid", gridTemplateRows: "repeat(5,1fr)", gridTemplateColumns: "repeat(2,1fr)" }}>
                     <div style={{ gridRow: "2/3", gridColumn: "1/2", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
                         <h2 style={{ fontFamily: "Zelda", fontWeight: "100", fontSize: "3vw" }}>BUY REINFORCEMENTS</h2>
@@ -142,7 +138,7 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
                     <div style={{ gridRow: "2/6", gridColumn: "2/3", display: "flex", flexDirection: "row" }}>
                         <div style={{ height: "100%", width: "30%" }}></div>
                         <div style={{ height: "100%", width: "70%" }}>
-                            <h2 style={{ fontSize: "1.3vw", opacity, transition: "opacity 1s" }}>{text}</h2>
+                            <h2 style={{ fontSize: "1.3vw", opacity, transition: "opacity 1s", fontStyle:"italic", marginTop:"0px" }}>{text}</h2>
                         </div>
                     </div>
                 </ClickWrapper>

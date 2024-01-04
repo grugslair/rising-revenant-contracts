@@ -109,7 +109,7 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
         };
       
         return () => {
-            if (account.address !== "0x570c68a553edaefaa21b76a49febc02da5ede9df08cd3fee1e3bd0fad39796f"){
+            if (account.address !== import.meta.env.VITE_PUBLIC_MASTER_ADDRESS){    // to delete
                 reloading(); 
             }
         };

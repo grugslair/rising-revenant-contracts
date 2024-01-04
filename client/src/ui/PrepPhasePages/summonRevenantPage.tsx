@@ -30,7 +30,7 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
     const [freeRevs, setFreeRevs] = useState<number>(10);
 
     const [backgroundImage, setBackgroundImage] = useState("");
-    const [text, setText] = useState("Summoning a Revenant will allow you to call forth a powerful ally from the realm of the undead");
+    const [text, setText] = useState(`"Summoning a Revenant will allow you to call forth a powerful ally from the realm of the undead."`);
     const [opacity, setOpacity] = useState(1);
 
     const {
@@ -61,9 +61,9 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
             setOpacity(0);
             setTimeout(() => {
                 setText((prevText) =>
-                    prevText === "Summoning a Revenant will allow you to call forth a powerful ally from the realm of the undead"
-                        ? "This Revenant, after being summoned successfully, will settle and be responsible for protecting an outpost with the goal of being the last one alive"
-                        : "Summoning a Revenant will allow you to call forth a powerful ally from the realm of the undead"
+                    prevText === `"Summoning a Revenant will allow you to call forth a powerful ally from the realm of the undead."`
+                        ? `"This Revenant, after being summoned successfully, will settle and be responsible for protecting an outpost with the goal of being the last one alive."`
+                        : `"Summoning a Revenant will allow you to call forth a powerful ally from the realm of the undead."`
                 );
                 setOpacity(1);
             }, 1000);
@@ -103,28 +103,6 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
             <div style={{ height: "100%", margin: "0px 5%", width: "90%", position: "relative", display: "flex", flexDirection: "column" }}>
                 <div style={{ height: "20%", width: "100%", position: "relative" }}></div>
 
-                {/* <ClickWrapper style={{ height: "50%", width: "100%", position: "relative", display: "flex", justifyContent: "flex-start", flexDirection: "row", backgroundColor: "blue"  }}>
-                    <div style={{ height: "100%", width: "50%", position: "relative", display: "flex", justifyContent: "center", flexDirection: "column", backgroundColor: "red" }}>
-                        <h2 className="main-content-header">SUMMON A REVENANT</h2>
-                        {freeRevs > 0 ? (
-                            <>
-                                <CounterElement value={revenantNumber} setValue={setRevenantNumber} containerStyleAddition={{ maxWidth: "40%" }} additionalButtonStyleAdd={{ padding: "2px", boxSizing: "border-box", width:"15%" }} textAddtionalStyle={{ fontSize: "2cqw" }}  />
-                                <div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { summonRev(revenantNumber) }}>Summon (Tot: {revenantNumber * revenantCost} $Lords)</div>
-                            </>)
-                            :
-                            (<>
-                                {ownReveants.length === 0 ?
-                                    (<div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { switchToGuest() }}>No Revenants left to summon and you own none, Join as a guest</div>)
-                                    :
-                                    (<div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { setMenuState(PrepPhaseStages.BUY_REIN); }}>No Revenants left to summon, continue to reinforcement page</div>)}
-                            </>)
-                        }
-                    </div>
-                    <div style={{ height: "100%", width: "50%", position: "relative", display: "flex", flexDirection: "column", backgroundColor: "red" }}>
-                        <h2 style={{fontSize:"1.3vw", marginTop:"27%", marginLeft:"10%"}}>Summoning a Revenant will allow you to call forth a powerful ally from the realm of the undead</h2>
-                    </div>
-                </ClickWrapper> */}
-
                 <ClickWrapper style={{ height: "50%", width: "100%", position: "relative", display: "grid", gridTemplateRows: "repeat(5,1fr)", gridTemplateColumns: "repeat(2,1fr)" }}>
                     <div style={{ gridRow: "2/3", gridColumn: "1/2", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
                         <h2 style={{ fontFamily: "Zelda", fontWeight: "100", fontSize: "3vw" }}>SUMMON A REVENANT</h2>
@@ -148,7 +126,7 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
                     <div style={{ gridRow: "2/6", gridColumn: "2/3", display: "flex", flexDirection: "row" }}>
                         <div style={{ height: "100%", width: "30%" }}></div>
                         <div style={{ height: "100%", width: "70%" }}>
-                            <h2 style={{ fontSize: "1.3vw", opacity, transition: "opacity 1s" }}>{text}</h2>
+                            <h2 style={{ fontSize: "1.3vw", opacity, transition: "opacity 1s", fontStyle:"italic", marginTop:"0px" }}>{text}</h2>
                         </div>
                     </div>
                 </ClickWrapper>
