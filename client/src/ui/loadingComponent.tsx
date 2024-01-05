@@ -53,7 +53,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
       const create_game_prop: CreateGameProps =
       {
         account: account,
-        preparation_phase_interval: 50,
+        preparation_phase_interval: 25,
         event_interval: 5,
         erc_addr: account.address,
         reward_pool_addr: account.address,

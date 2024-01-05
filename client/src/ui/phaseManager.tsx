@@ -38,9 +38,9 @@ export const PhaseManager = () => {
       {phase === Phase.GAME && <GamePhaseManager />}
 
       <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "0.7vw", color: "white" }}>
-            Date of Version: 4th Jan<br/>
+            Date of Version: 5th Jan<br/>
             Branch: main<br/>
-            Pull: end game screen fix
+            Pull: demo 2 test
       </div>
     </>
   );
