@@ -16,6 +16,8 @@ interface NavbarProps {
   setMenuState: (menuState: MenuState) => void;
 }
 
+//Create own tooltip HERE
+
 export const NavbarComponent: React.FC<NavbarProps> = ({ menuState, setMenuState }) => {
 
   const {
@@ -103,7 +105,7 @@ export const PrepPhaseNavbarComponent: React.FC<PrepPhaseNavbarProps> = ({ curre
   const guest = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])).guest;
 
   return (
-    <ClickWrapper className="navbar-container" style={{ height: "15%" }}>
+    <ClickWrapper className="navbar-container">
 
       {guest ?
         <Tooltip title="PROFILE (DISABLED)" placement="left">
@@ -128,6 +130,10 @@ export const PrepPhaseNavbarComponent: React.FC<PrepPhaseNavbarProps> = ({ curre
           <img src="Icons/SETTINGS.png" alt="" />
         </div>
       </Tooltip>
+        <div className={`navbar-icon-off `} >
+        </div>
+        <div className={`navbar-icon-off `} >
+        </div>
     </ClickWrapper>
   );
 };

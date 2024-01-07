@@ -28,11 +28,11 @@ export const LordsBalanceElement: React.FC = () => {
 
     return (
         <div className="title-cart-section">
-            <h3 style={{ marginRight: "4px" }}>Player Wallet</h3>
-            <h1>
+            <h3 className="test-h3 no-margin" style={{ marginRight: "4px"}}>$LORDS Balance</h3>
+            <h2 className="test-h2 no-margin">
                 {reinforcementCount}
                 <img src="lords_toke_pic.png" className="test-embed" alt="" />
-            </h1>
+            </h2>
         </div>
     );
 };

@@ -14,13 +14,13 @@ interface CounterElementProps {
 
 const containerStyle: CSSProperties = {
     width: "100%",
-    height : "10%",
-    
+    flex: "2",
+
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    
+
     position: "relative",
 
     color: "white",
@@ -57,25 +57,30 @@ const titleContainerStyle: CSSProperties = {
     justifyContent: "center",
     alignItems: "center",
 
-    fontSize: "1cqw",
     fontFamily: "Zelda",
 }
 
-const PageTitleElement: React.FC<CounterElementProps> = ({ name, rightPicture, closeFunction, left_html_elemt, right_html_element, picStyle}) => {
+const PageTitleElement: React.FC<CounterElementProps> = ({ name, rightPicture, closeFunction, left_html_elemt, right_html_element, picStyle }) => {
     return (
-        <ClickWrapper style={containerStyle}>
-            <div style={leftContainerStyle}>
-                <div style={{height:"100%", aspectRatio:"1/1"}}></div>
-                {left_html_elemt}
-            </div>
-            <div style={titleContainerStyle}>
-                <h1 style={{fontWeight:"100"}}>{name}</h1>
-            </div>
-            <div style={rightContainerStyle}>
-                {right_html_element}
-                <img src={rightPicture} alt="" style={{ height:"100%", ...picStyle}} className="pointer" onMouseDown={closeFunction}/>
-            </div>
-        </ClickWrapper>
+
+        <div style={{ height: "15%", width: "100%", display: "flex", flexDirection: "column"}}>
+            <div style={{flex:"1"}}></div>
+            <ClickWrapper style={containerStyle} >
+                <div style={leftContainerStyle}>
+                    <div style={{ height: "100%", aspectRatio: "1/1" }}></div>
+                    {left_html_elemt}
+                </div>
+                <div style={titleContainerStyle}>
+                    <h1 className="no-margin test-h1" style={{ fontWeight: "100" }}>{name}</h1>
+                </div>
+                <div style={rightContainerStyle}>
+                    {right_html_element}
+                    <img src={rightPicture} alt="" style={{ height: "100%", ...picStyle }} className="pointer" onMouseDown={closeFunction} />
+                </div>
+            </ClickWrapper>
+            <div style={{flex:"1"}}></div>
+        </div>
+
     );
 };
 

@@ -81,7 +81,7 @@ export const GamePhaseManager = () => {
 
   useCameraInteraction(currentMenuState);
 
-  //can be custom hooked
+  //can be custom hooked HERE
   useEffect(() => {
     const worldEvents = Array.from(runQuery([Has(contractComponents.WorldEvent)]));
 
@@ -114,6 +114,8 @@ export const GamePhaseManager = () => {
     };
   }, [currentMenuState]);
 
+
+  // this needs to be delete from demo and only visible locally
   useEffect(() => {
 
     const current_block = clientGameData.current_block_number;
@@ -149,8 +151,6 @@ export const GamePhaseManager = () => {
   }
 
   useMainPageContentClick(currentMenuState);
-
-  
 
   return (
     <>
@@ -195,11 +195,6 @@ const useMainPageContentClick = (currentMenuState: MenuState) => {
   const {
     networkLayer: {
       network: { clientComponents },
-    },
-    phaserLayer: {
-      scenes: {
-        Main: { camera, input },
-      },
     },
   } = useDojo();
 

@@ -4,8 +4,7 @@ import {
     Has,
     getComponentValueStrict,
     HasValue,
-    getComponentValue,
-    runQuery,
+    getComponentValue
 } from "@latticexyz/recs";
 import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 import { useDojo } from "../../hooks/useDojo";
@@ -13,18 +12,33 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { checkAndSetPhaseClientSide, fetchAllOutRevData, fetchGameData, fetchPlayerInfo, fetchSpecificEvent, fetchSpecificOutRevData, loadInClientOutpostData, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM, truncateString } from "../../utils";
 import { ClickWrapper } from "../clickWrapper";
 import { GAME_CONFIG_ID, getRefreshOwnOutpostDataTimer } from "../../utils/settingsConstants";
+import { toast } from 'react-toastify';
 
 //styles
 import "./ComponentsStyles/TopBarStyles.css";
 
 //Comps
 import Tooltip from '@mui/material/Tooltip';
+import { LordsBalanceElement } from "../Elements/playerLordsBalance";
 
 //Pages
 
 
 
 // this is all to redo
+
+const notify = (message: string) => {
+    toast(message, {
+        position: "top-left",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+    });
+}
 
 
 interface TopBarPageProps {
@@ -36,7 +50,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
     const [playerContribScore, setPlayerContribScore] = useState(0);
     const [playerContribScorePerc, setPlayerContribScorePerc] = useState(0);
-    
+
     const {
         account: { account },
         networkLayer: {
@@ -48,7 +62,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     // this needs to be custom hooked
     const outpostQuery = useEntityQuery([Has(contractComponents.Outpost)]);
     const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
-    const ownOutposts = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
+    const allOutpostsEffected = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
 
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
@@ -72,7 +86,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     useEffect(() => {
 
         if (playerInfo === null || playerInfo === undefined) { return; }
-        setPlayerContribScore(playerInfo.player_wallet_amount);
+        setPlayerContribScore(playerInfo.score);
         setPlayerContribScorePerc(Number.isNaN((playerInfo.score / gameEntityCounter.score_count) * 100) ? 0 : Number(((playerInfo.score / gameEntityCounter.score_count) * 100).toFixed(2)));
 
     }, [playerInfo, gameData]);
@@ -82,42 +96,57 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     useEffect(() => {
         const updateOwnData = async () => {
             if (clientGameData === 1) { return; }
-    
-            for (let index = 0; index < ownOutposts.length; index++) {
-                const entity_id = ownOutposts[index];
-                const outpostData = getComponentValueStrict(contractComponents.Outpost, entity_id);
-    
+
+            for (let index = 0; index < allOutpostsEffected.length; index++) {
+                const entity_id = allOutpostsEffected[index];
+
+                //get the current entity
+                let outpostData = getComponentValueStrict(contractComponents.Outpost, entity_id);
+                const lastSavedLifes = outpostData.lifes;
+
+                // if its already dead skip it
                 if (outpostData.lifes === 0) {
                     continue;
                 }
-    
-                const outpostModelQuery = await fetchSpecificOutRevData(graphSdk, clientGameData.current_game_id, Number(outpostData.entity_id));
-                setComponentsFromGraphQlEntitiesHM(outpostModelQuery, contractComponents, false);
-    
+
+                // if there is at least on event being drawn then
                 if (clientGameData.current_event_drawn !== 0) {
+                    // create the query
+                    const outpostModelQuery = await fetchSpecificOutRevData(graphSdk, clientGameData.current_game_id, Number(outpostData.entity_id));
+                    // set the query
+                    setComponentsFromGraphQlEntitiesHM(outpostModelQuery, contractComponents, false);
+                    outpostData = getComponentValueStrict(contractComponents.Outpost, entity_id);
+
                     const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
-    
+
+                    // if the outpost has the same value of last event then dont set it to effectd
                     if (Number(outpostData.last_affect_event_id) === clientGameData.current_event_drawn) {
                         setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, false, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
                     } else {
+                        // else calc if it is in there which it should be, to check if this is necessary HERE
                         const lastEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]));
-    
+
                         const outpostX = outpostData.x;
                         const outpostY = outpostData.y;
                         const eventX = lastEvent.x;
                         const eventY = lastEvent.y;
                         const eventRadius = lastEvent.radius;
                         const inRadius = Math.sqrt(Math.pow(outpostX - eventX, 2) + Math.pow(outpostY - eventY, 2)) <= eventRadius;
-    
+
                         setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, inRadius, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
+                    }
+
+                    // if the health is not the same as last saved and its owned this should be mean that someone else accepted the event 
+                    if (outpostData.lifes !== lastSavedLifes && clientOutpostData.owned) {
+                        notify(`someone confirmed your outpost ${clientOutpostData.entity_id}`);
                     }
                 }
             }
         };
-    
+
         updateOwnData();
         const intervalId = setInterval(updateOwnData, getRefreshOwnOutpostDataTimer() * 1000);
-    
+
         return () => clearInterval(intervalId);
     }, [clientGameData]);
 
@@ -126,27 +155,27 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
             <div className="top-bar-grid-game-logo center-via-flex">
                 <img src="LOGO_WHITE.png" className="game-logo" style={{ height: "100%", aspectRatio: "1/1" }}></img>
             </div>
-            
-                <div className="top-bar-grid-left-text-section center-via-flex">
-                    <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                        <div style={{ fontSize: "1.2vw" }}>Jackpot: {Number(gameData.prize) } $LORDS </div>
-                    </div>
-                    <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
 
-                        {clientGameData.current_game_state === 2 && (<>
-                            {clientGameData.guest ? (
-                                <div style={{ fontSize: "1.2vw", filter: "brightness(70%) grayscale(70%)" }}>Contribution: Log in</div>
-                            ) : (
-                                <Tooltip title={`Tot score game ${gameEntityCounter.score_count} \n Your score count ${playerContribScore}`}>
-                                    <div style={{ fontSize: "1.2vw" }}>Contribution: {playerContribScorePerc}%</div>
-                                </Tooltip> 
-                            )}
-                        </>
-                        )}
-
-                    </div>
+            <div className="top-bar-grid-left-text-section center-via-flex">
+                <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
+                    <div style={{ fontSize: "1.2vw" }}>Jackpot: {Number(gameData.prize)} $LORDS </div>
                 </div>
-            
+                <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
+
+                    {clientGameData.current_game_state === 2 && (<>
+                        {clientGameData.guest ? (
+                            <div style={{ fontSize: "1.2vw", filter: "brightness(70%) grayscale(70%)" }}>Contribution: Log in</div>
+                        ) : (
+                            <Tooltip title={`Tot score game ${gameEntityCounter.score_count} \n Your score count ${playerContribScore}`}>
+                                <div style={{ fontSize: "1.2vw" }}>Contribution: {playerContribScorePerc}%</div>
+                            </Tooltip>
+                        )}
+                    </>
+                    )}
+
+                </div>
+            </div>
+
             <div className="top-bar-grid-right-text-section center-via-flex">
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
                     {clientGameData.current_game_state === 1 ?
@@ -166,6 +195,8 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                 </div>
             </div>
             <div className="top-bar-grid-address" style={{ gap: "4px", justifyContent: "space-around", display: "flex", alignItems: "center" }}>
+                <LordsBalanceElement/>
+
                 <div style={{ width: "50%", height: "75%" }} className="center-via-flex">
                     {!clientGameData.guest ?
                         <Tooltip title="Click to copy" placement="bottom">
@@ -181,16 +212,20 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                     }
                 </div>
 
-                <div className="global-button-style" style={{ padding: "5px 10px" }} onClick={() => window.open('https://forms.gle/mpmYp4CdLJxk6nLx7', '_blank')}>
-                    Give Feedback!!
-                </div>
-                
+                {/* <div className="global-button-style" style={{ padding: "5px 10px" }} onClick={() => window.open('https://forms.gle/mpmYp4CdLJxk6nLx7', '_blank')}>
+                    
+                </div> */}
+
+
             </div>
         </ClickWrapper>
     );
 };
 
 
+
+
+// i think this should be in the gamePhaseManager HERE no point in doing checks whilst in the prepPhase 
 const useEventAndUserDataLoader = (updateInterval = 5000) => {
 
     const {
@@ -205,7 +240,6 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
 
         const updateFunctions = () => {
             const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
-
 
             checkBlockCount(clientGameData);
             getGameData(clientGameData);
@@ -242,7 +276,6 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
         const checkBlockCount = async (clientGameData: any) => {
 
             const blockCount = await get_current_block();
-
             checkAndSetPhaseClientSide(clientGameData.current_game_id, blockCount!, contractComponents, clientComponents);
         };
 

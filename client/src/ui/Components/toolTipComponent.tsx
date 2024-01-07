@@ -63,6 +63,8 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
 
   const setArray = async (selectedOutposts: any[]) => {
 
+    console.error("this si working ")
+
     for (let index = 0; index < clickedOnOutposts.length; index++) {
       const entity_id = clickedOnOutposts[index];
       const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
@@ -133,6 +135,8 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
           entityId={selectedOutpost[0]} />
       )}
 
+
+        {/* HERE change to the pictures */}
       {clickedOnOutposts.length > 1 && (
         <ClickWrapper className="multi-out-container">
 
@@ -185,9 +189,9 @@ const RevenantDataElement: React.FC<{ entityId: EntityIndex }> = ({ entityId }) 
 
   return (
     <div className="revenant-data-container">
-      <h1 style={{ fontFamily: "Zelda", fontSize:"1.7vw", margin:"0px", marginBottom:"5px" }}>REVENANT DATA</h1>
-      <h2 style={{ margin:"0px", fontSize:"1.2vw" }}>Owner: {owner === "You" ? "You" : truncateString(owner, 5)}</h2>
-      <h2  style={{ margin:"0px" ,fontSize:"1.2vw"}} >Name: {name}</h2>
+      <h2 className="no-margin test-h2" style={{ fontFamily: "Zelda", marginBottom:"5px" }}>REVENANT DATA</h2>
+      <h4 className="no-margin test-h4">Owner: {owner === "You" ? "You" : truncateString(owner, 5)}</h4>
+      <h4 className="no-margin test-h4">Name: {name}</h4>
     </div>
   );
 };
@@ -215,6 +219,8 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
   const contractOutpostData = useComponentValue(contractComponents.Outpost, entityId);
   
   const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+
+  //HERE add use query for the auto sizing altouhg i think its not going to work as it is different here
 
   useEffect(() => {
     const updateHeight = () => {
@@ -273,7 +279,7 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
   return (
     <div className="outpost-data-container-grid" ref={clickWrapperRef} style={{...clickWrapperStyle, gridTemplateRows:`${state !== "In Event" ? "repeat(7, 1fr)" : "repeat(8, 1fr)"}`}}>
       <div className="outpost-data-title-grid-element outpost-grid-container-text-style">
-        <h1 style={{ fontFamily: "Zelda", fontSize:"1.7vw", margin:"0px" }}>OUTPOST DATA</h1>
+        <h2 className="no-margin test-h2" style={{ fontFamily: "Zelda" }}>OUTPOST DATA</h2>
       </div>
 
       <ClickWrapper className="outpost-data-x-grid-element center-via-flex" >
@@ -290,18 +296,18 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
       </div>
 
       <div className="outpost-data-statistics-grid-element outpost-grid-container-text-style">
-        <h2  style={{ margin:"0px", fontSize:"1.2vw", whiteSpace:"nowrap" }} >{id} ID - X:{position.x} || Y:{position.y}</h2>
-        <h2  style={{ margin:"0px", fontSize:"1.2vw" }} >Reinforcements: {reinforcements}</h2>
-        <h2  style={{ margin:"0px", fontSize:"1.2vw" }} >State:
+        <h4 className="no-margin test-h4" style={{ whiteSpace:"nowrap"  }} >{id} ID - X:{position.x} || Y:{position.y}</h4>
+        <h4  className="no-margin test-h4" >Reinforcements: {reinforcements}</h4>
+        <h4 className="no-margin test-h4" >State:
           {state === "Dead" && <span style={{ color: "red" }}> {state}</span>}
-          {state === "In Event" && <span style={{ color: "blue" }}> {state}</span>}
+          {state === "In Event" && <span style={{ color: "#2A71AA" }}> {state}</span>}
           {state === "Healthy" && <span style={{ color: "green" }}> {state}</span>}
-        </h2>
+        </h4>
       </div>
 
       {state === "In Event" && !clientGameData.guest && 
-        <ClickWrapper className="outpost-data-conf-button-grid-element outpost-grid-container-text-style">
-          <div className="global-button-style pointer" style={{ padding: "5px 10px" , fontSize:"1.2vw" }} onClick={confirmEvent}>Confirm Event</div>
+        <ClickWrapper className="outpost-data-conf-button-grid-element outpost-grid-container-text-style" style={{display:"flex"}}>
+          <div className="global-button-style no-margin test-h4" style={{ padding: "5px 10px", display:"inline-block", alignSelf:"start"  }} onClick={confirmEvent}>Confirm Event</div>
         </ClickWrapper>
       }
      

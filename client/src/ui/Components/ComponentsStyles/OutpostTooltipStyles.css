@@ -2,15 +2,15 @@
   position: absolute;
 
   top: 15%;
-  left: 5%;
+  left: 2%;
 
   height: fit-content;
-  width: 17%;
+  width: 11%;
 
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 3;
 
-  border: 5px solid var(--borderColour);
+  border: var(--borderRadius) solid var(--borderColour);
   border-radius: 5px;
   box-sizing: border-box;
 

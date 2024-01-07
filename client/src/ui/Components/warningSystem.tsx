@@ -24,14 +24,15 @@ export const DirectionalEventIndicator: React.FC = () => {
   );
 };
 
-// HERE this is broken for some reason thinks the view port is alot bigger than it should be 
+// HERE i dont know why this calls so many times i think its inefficient maybe make it an html element
 
 const useDirectionalEventIndicator = () => {
   const [direction, setDirection] = useState<string>('');
 
   const { networkLayer: { network: { contractComponents, clientComponents } }, phaserLayer: { scenes: { Main: { camera } } } } = useDojo();
 
-  const camPos = useComponentValue(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+  const camPos = getComponentValueStrict(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+  const camTile = useComponentValue(clientComponents.EntityTileIndex, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
   useEffect(() => {
         const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
@@ -74,7 +75,7 @@ const useDirectionalEventIndicator = () => {
     
         setDirection(newDirection);
       
-  }, [camPos]);
+  }, [camTile]);
 
   return direction;
 };

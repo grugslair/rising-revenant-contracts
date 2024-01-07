@@ -13,10 +13,12 @@ import "./PagesStyles/ProfilePageStyles.css";
 //elements/components
 import { ClickWrapper } from "../clickWrapper";
 import PageTitleElement from "../Elements/pageTitleElement";
-import { fetchPlayerInfo, namesArray, setClientCameraComponent, setComponentsFromGraphQlEntitiesHM, surnamesArray } from "../../utils";
+import { fetchPlayerInfo, namesArray, setClientCameraComponent, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM, surnamesArray } from "../../utils";
 import { ReinforcementCountElement } from "../Elements/reinfrocementBalanceElement";
 import { MenuState } from "./gamePhaseManager";
 import { LordsBalanceElement } from "../Elements/playerLordsBalance";
+import { useResizeableHeight } from "../loginComponent";
+import { setTooltipArray } from "../../phaser/systems/eventSystems/eventEmitter";
 
 //pages
 
@@ -56,7 +58,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
     const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]))
 
     const dividingLine: JSX.Element = (
-        <div className="divider"></div>
+        <div className="divider" ></div>
     )
 
     useEffect(() => {
@@ -80,10 +82,15 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
         reinforce_outpost(reinforceOutpostProps);
     }
 
-    const setCameraPos = (x: number, y: number) => {
+    const setCameraPos = (x: number, y: number, ent: any) => {
         setClientCameraComponent(x, y, clientComponents);
-        setUIState()
-    }
+        setUIState();
+
+        //we do this to give enough time for the state to change as if its too fast the tooltip doesnt have time to spawn
+        setTimeout(() => {
+            setTooltipArray.emit("setToolTipArray", [ent]);
+        }, 750);
+    };
 
     const confirmAllAttackedOutposts = async () => {
         for (let index = 0; index < ownedAndInEvent.length; index++) {
@@ -109,9 +116,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
 
             <img className="page-img brightness-down" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
 
-            <PageTitleElement name={"PROFILE"} rightPicture={"close_icon.svg"} closeFunction={setUIState} right_html_element={<ReinforcementCountElement />} left_html_elemt={<LordsBalanceElement/>}/>
+            <PageTitleElement name={"PROFILE"} rightPicture={"close_icon.svg"} closeFunction={setUIState}/>
 
-            <div style={{ width: "100%", height: "90%", position: "relative", display: "flex", flexDirection: "row" }}>
+            <ReinforcementCountElement style={{position:"absolute", top:"5%", right:"10%"}}/>
+
+            <div style={{ width: "100%", height: "80%", position: "relative", display: "flex", flexDirection: "row" }}>
                 <div style={{ width: "8%", height: "100%" }}></div>
 
                 <div style={{ width: "84%", height: "100%" }}>
@@ -157,7 +166,6 @@ interface ListElementProps {
 export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_outpost, currentBalance, goHereFunc, phase, confirmEvent }) => {
     const [buttonIndex, setButtonIndex] = useState<number>(0)
     const [amountToReinforce, setAmountToReinforce] = useState<number>(1)
-    const [heightValue, setHeight] = useState<number>(0)
 
     const [name, setName] = useState<string>("Name")
     const [surname, setSurname] = useState<string>("Surname")
@@ -169,7 +177,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
     const [shieldNum, setShieldNum] = useState<number>(5)
     const [reinforcements, setReinforcements] = useState<number>(20)
 
-    const clickWrapperRef = useRef<HTMLDivElement>(null);
+    const { clickWrapperRef, clickWrapperStyle } = useResizeableHeight(24, 4, "99%");
 
     const {
         networkLayer: {
@@ -182,7 +190,6 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
     const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entityId);
 
     useEffect(() => {
-
         setShieldNum(outpostData.shield);
         setXCoord(outpostData.x);
         setYCoord(outpostData.y);
@@ -194,7 +201,6 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
     }, [outpostData]);
 
     useEffect(() => {
-        console.error(currentBalance);
 
         if (currentBalance === 0) {
             setAmountToReinforce(0);
@@ -207,43 +213,23 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
             setAmountToReinforce(1);
         }
 
-    }, [amountToReinforce]);
+    }, [amountToReinforce, buttonIndex]);
 
-    useEffect(() => {
-        const updateHeight = () => {
-            if (clickWrapperRef.current) {
-                setHeight((clickWrapperRef.current.offsetWidth / 24) * 4);
-            }
-        };
-
-        window.addEventListener('resize', updateHeight);
-
-        updateHeight();
-
-        return () => {
-            window.removeEventListener('resize', updateHeight);
-        };
-    }, []);
-
-    const clickWrapperStyle: React.CSSProperties = {
-        height: `${heightValue}px`,
-        width: '99%',
-    };
-
-
+    // ${clientOutpostData.event_effected && outpostData.lifes > 0 ? ' profile-page-attacked-style' : ''}
 
     return (
-        <div ref={clickWrapperRef} className={`profile-page-grid-container ${clientOutpostData.event_effected && outpostData.lifes > 0 ? ' profile-page-attacked-style' : ''}`} style={clickWrapperStyle} onMouseEnter={() => setButtonIndex(1)} onMouseLeave={() => setButtonIndex(0)}>
+        <div ref={clickWrapperRef} className={`profile-page-grid-container`} style={clickWrapperStyle} onMouseEnter={() => setButtonIndex(1)} onMouseLeave={() => setButtonIndex(0)}>
             <div className="pfp">
                 <img src="Rev_PFP_11.png" className="child-img " />
             </div>
 
-            <div className="name" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-                <h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw", whiteSpace: "nowrap" }}>{name} {surname} </h3>
+            <div className="name" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", overflowX: "visible" }}>
+                <h3 className="no-margin test-h4" style={{ textAlign: "center", fontFamily: "OL", color: "white", whiteSpace: "nowrap" }}>{name} {surname} </h3>
             </div>
 
-            <div className="otp">
-                <img src="test_out_pp.png" className="child-img" />
+            <div className="otp" style={{position:"relative"}}>
+                {clientOutpostData.event_effected && <div style={{position:"absolute", top:"0", left:"0", backgroundColor:"#ff000055", height:"100%", width:"100%"}}></div>}
+                <img src="test_out_pp.png" className="child-img"/>
             </div>
 
             <div className="sh shields-grid-container" style={{ boxSizing: "border-box" }}>
@@ -252,46 +238,60 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                 ))}
             </div>
 
-            <div className="info" style={{ display: "flex", gridColumn: clientOutpostData.event_effected ? "12/22" : "12/25" }}>
-
-                <div style={{ flex: "1", height: "100%", boxSizing: "border-box" }}>
-                    <div style={{ width: "100%", height: "50%", }}> <h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw" }}>Outpost ID: <br /><br />{id}</h3>   </div>
-                    <div style={{ width: "100%", height: "50%", }}></div>
-                </div>
-
-                <div onMouseEnter={() => { setButtonIndex(3) }} onMouseLeave={() => { setButtonIndex(1) }} style={{ flex: "1", height: "100%", boxSizing: "border-box" }}>
-                    <div style={{ width: "100%", height: "50%", }}> <h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw" }}>Coordinates: <br /><br />X: {xCoord}, Y: {yCoord}</h3>    </div>
-                    <div style={{ width: "100%", height: "50%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                        {buttonIndex === 3 && phase === 2 && <div className="global-button-style" style={{ height: "50%", padding: "5px 10px", boxSizing: "border-box", fontSize: "0.6cqw", display: "flex", justifyContent: "center", alignItems: "center" }} onClick={() => goHereFunc(xCoord, yCoord)}> <h2>Go here</h2></div>}
-                    </div>
-                </div>
-
-                <div onMouseEnter={() => { setButtonIndex(4) }} onMouseLeave={() => { setButtonIndex(1) }} style={{ flex: "1", height: "100%", boxSizing: "border-box" }}>
-                    <div style={{ width: "100%", height: "50%", }}><h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw" }}>Reinforcements: <br /><br />{reinforcements}</h3> </div>
-                    <div style={{ width: "100%", height: "50%", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
-                        {buttonIndex === 4 && (<>
-                            <div style={{ height: "50%", width: "100%", padding: "5%", display: "flex", justifyContent: "space-around", alignItems: "center" }}>
-                                <div className="global-button-style" style={{ height: "100%", textAlign: "center", boxSizing: "border-box" }}>
-                                    <img src="/minus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce - 1)} />
-                                </div>
-                                <h2 style={{ color: "white", fontSize: "2cqw" }}>{amountToReinforce}</h2>
-                                <div className="global-button-style" style={{ height: "100%", textAlign: "center", boxSizing: "border-box" }}>
-                                    <img src="/plus.png" alt="plus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce + 1)} />
-                                </div>
-                            </div>
-                            <div className="global-button-style" style={{ height: "50%", textAlign: "center", padding: "5px 10px", boxSizing: "border-box", fontSize: "0.6cqw", display: "flex", justifyContent: "center", alignItems: "center" }} onClick={() => reinforce_outpost(clientOutpostData.id, amountToReinforce)}>  <h2>Reinforce</h2></div>
-                        </>)}
-                    </div>
-                </div>
-
+            <div className="info-id-text">
+                <h4 className="no-margin test-h4 info-pp-text-style">Outpost ID:</h4>
+            </div>
+            <div className="info-id-value">
+                <h4 className="no-margin test-h4 info-pp-text-style">{id}</h4>
             </div>
 
-            {clientOutpostData.event_effected && outpostData.lifes > 0 &&
-                <div className="sell" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                    {buttonIndex !== 0 && phase === 2 && <div className="global-button-style" style={{ padding: "5px 10px", fontSize: "0.9cqw" }} onClick={() => { confirmEvent(entityId) }}>Confirm Event</div>}
-                </div>
-            }
+            <div className="info-coord-text">
+                <h4 className="no-margin test-h4 info-pp-text-style">Coordinates:</h4>
+            </div>
+            <div className="info-coord-value">
+                <h4 className="no-margin test-h4 info-pp-text-style">X: {xCoord}, Y: {yCoord}</h4>
+            </div>
+            <div className="info-coord-button">
+                <h4 className="no-margin test-h4 global-button-style info-pp-text-style" style={{ width: "fit-content", height: "fit-content", padding: "2px 5px", boxSizing: "border-box", margin: "0px auto" }} onClick={() => goHereFunc(xCoord, yCoord, entityId)}>Go Here</h4>
+            </div>
 
+            <div className="info-reinf-text">
+                <h4 className="no-margin test-h4 info-pp-text-style">Reinforcements:</h4>
+            </div>
+            <div className="info-reinf-value">
+                <h4 className="no-margin test-h4 info-pp-text-style">{reinforcements}</h4>
+            </div>
+
+            {outpostData.lifes > 0 && phase === 2 &&
+                <>
+                    {clientOutpostData.event_effected ?
+                        <div className="action" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                            <div className="global-button-style" style={{ padding: "5px 10px" }} onClick={() => { confirmEvent(entityId) }}>
+                                <h2 className="no-margin test-h4">Confirm Event</h2>
+                            </div>
+                        </div>
+                        :
+                        <div className="action" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gridTemplateRows: "1fr 1fr" }}>
+                            <div style={{ gridRow: "1", gridColumn: "1", display: "flex" }}>
+                                <div className="global-button-style info-pp-text-style" style={{ width: "50%", height: "50%", margin: "0px auto" }} >
+                                    <img src="/minus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce - 1)} />
+                                </div>
+                            </div>
+                            <div style={{ gridRow: "1", gridColumn: "2", display: "flex" }}>
+                                <h4 className="no-margin test-h4 info-pp-text-style">1</h4>
+                            </div>
+                            <div style={{ gridRow: "1", gridColumn: "3", display: "flex" }}>
+                                <div className="global-button-style info-pp-text-style" style={{ width: "50%", height: "50%", margin: "0px auto" }} >
+                                    <img src="/plus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce - 1)} />
+                                </div>
+                            </div>
+                            <div style={{ gridRow: "2", gridColumn: "1/4", display: "flex", position: "relative" }}>
+                                <h4 className="no-margin test-h4 global-button-style info-pp-text-style" style={{ width: "fit-content", height: "fit-content", padding: "2px 5px", boxSizing: "border-box", margin: "0px auto" }} onClick={() => reinforce_outpost(clientOutpostData.id, amountToReinforce)}>Reinforce</h4>
+                            </div>
+                        </div>
+                    }
+                </>
+            }
         </div>
     );
 };

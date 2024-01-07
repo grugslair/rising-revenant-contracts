@@ -30,6 +30,19 @@ export const PhaseManager = () => {
     setPhase(state);
   }
 
+  const playClickSound = () => {
+    const audio = new Audio("/sounds/click.wav");
+    audio.currentTime = 0;
+    audio.play();
+  };
+
+  useEffect(() => {
+    document.addEventListener('click', playClickSound);
+    return () => {
+      document.removeEventListener('click', playClickSound);
+    };
+  }, []);
+
   return (
     <>
       {phase === Phase.LOGIN && <LoginComponent setUIState={setUIState}/>}
@@ -41,6 +54,10 @@ export const PhaseManager = () => {
             Date of Version: 5th Jan<br/>
             Branch: main<br/>
             Pull: demo 2 test
+      </div>
+
+      <div style={{ position: "absolute", bottom: "10px", right: "10px", fontFamily: "OL", color: "white" }}>
+            <h2 className="global-button-style no-margin test-h2">Give Feedback</h2>
       </div>
     </>
   );

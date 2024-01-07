@@ -37,6 +37,7 @@ export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState
 
     //do we want the ones that have their event already confirmed to go?
     const ownOutpost = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true, event_effected: true })]);
+    // this is why the dead ones dont get added i think in the calc of the event the already dead ones dont get added to the event effected so dont appear HERE
 
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     const lastEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]))
@@ -46,7 +47,7 @@ export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState
             <div className="jurnal-event-component-grid">
                 <div className="jurnal-event-component-grid-title">
                     <div style={{ height: "100%", width: "100%", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-                        <h2 style={{ fontFamily: "Zelda", fontWeight: "100", fontSize: "1.8vw" }}>REVENANT JOURNAL</h2>
+                        <h2  className="test-h2" style={{ fontFamily: "Zelda" }}>REVENANT JOURNAL</h2>
                     </div>
                 </div>
                 <div className="jurnal-event-component-grid-enlarge center-via-flex">
@@ -55,22 +56,23 @@ export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState
                 <div className="jurnal-event-component-grid-event-data">
                     {lastEvent !== undefined ?
                         (<>
-                            <h2 style={{ fontSize: "1.7vw", marginBottom: "3%" }}>Event Data #{clientGameData.current_event_drawn}</h2>
-                            <h4 style={{ margin: "0px", fontSize: "1.1vw" }}>Radius: {lastEvent.radius} km</h4>
-                            <h4 style={{ margin: "0px", fontSize: "1.1vw" }}>Type: {"null"}</h4>
-                            <h4 style={{ margin: "0px", fontSize: "1.1vw" }}>Position: X: {lastEvent.x}  || Y: {lastEvent.y}</h4>
+                            <h3  className="no-margin test-h2" style={{marginBottom: "3%" }}>Event Data #{clientGameData.current_event_drawn}</h3>
+                            <h4 className="no-margin test-h4">Radius: {lastEvent.radius} km</h4>
+                            <h4 className="no-margin test-h4">Position: X: {lastEvent.x}  || Y: {lastEvent.y}</h4>
+                            {/* <h4 style={{ margin: "0px", fontSize: "1.1vw" }}>Type: {"null"}</h4> */}
+                            <h4 className="no-margin test-h4"></h4>
                         </>)
                         :
                         (<>
-                            <h2 style={{ fontSize: "1.7vw", marginBottom: "3%" }}>No event yet</h2>
-                            <h4 style={{ margin: "0px", fontSize: "1.1vw" }}></h4>
-                            <h4 style={{ margin: "0px", fontSize: "1.1vw" }}></h4>
-                            <h4 style={{ margin: "0px", fontSize: "1.1vw" }}></h4>
+                            <h2  className="no-margin test-h2" style={{ marginBottom: "3%" }}>No event yet</h2>
+                            <h4 style={{ margin: "0px" }}></h4>
+                            <h4 style={{ margin: "0px" }}></h4>
+                            <h4 style={{ margin: "0px" }}></h4>
                         </>)}
                 </div>
                 <div className="jurnal-event-component-grid-outpost-data">
-                    <h2 style={{ margin: "0px", marginBottom: "2%", fontSize: "1.7vw" }}>Your Outposts Hit</h2>
-                    {clientGameData.guest ? <h2>Log in to see your outpost that have been hit</h2> :
+                    <h3  className="no-margin test-h2" style={{  marginBottom: "2%" }}>Your Outposts' Hit</h3>
+                    {clientGameData.guest ? <h3 className="no-margin test-h3">Log in to see your outpost that have been hit</h3> :
 
                         <div className="outpost-hit-list-container" >
                             {ownOutpost.map((outpostId: EntityIndex) => (
@@ -111,9 +113,9 @@ const ListElement: React.FC<{ entityIndex: EntityIndex, contractComponents: any 
 
     return (
         <>
-            <h3 style={{ textDecoration: lifes === 0 ? 'line-through' : 'none', margin: "0px", fontSize: "1.2vw" }}>
+            <h4 className="no-margin test-h4" style={{ textDecoration: lifes === 0 ? 'line-through' : 'none' }}>
                 Outpost ID: {outpostData.id} || X: {outpostData.x}, Y: {outpostData.y}
-            </h3>
+            </h4>
         </>
     );
 };

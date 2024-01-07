@@ -32,6 +32,15 @@
   padding: 5% 5%;
 }
 
+.navbar-icon-off{
+  flex: 1;
+  aspect-ratio: 1/1;
+
+  user-select: none;
+
+  padding: 5% 5%;
+}
+
 .navbar-icon:hover {
   cursor: pointer;
 }

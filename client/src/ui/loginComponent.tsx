@@ -12,8 +12,7 @@ interface LoginPageProps {
 
 export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
 
-  const clickWrapperRef = useRef<HTMLDivElement>(null);
-  const [heightValue, setHeight] = useState<number>(0)
+  const { clickWrapperRef, clickWrapperStyle } = useResizeableHeight(4,6, "20%");
 
   //for now we use a burner account
   const {
@@ -32,27 +31,6 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
     setUIState(Phase.LOADING);
   }
 
-  useEffect(() => {
-    const updateHeight = () => {
-      if (clickWrapperRef.current) {
-        setHeight((clickWrapperRef.current.offsetWidth / 4) * 6);
-      }
-    };
-
-    window.addEventListener('resize', updateHeight);
-
-    updateHeight();
-
-    return () => {
-      window.removeEventListener('resize', updateHeight);
-    };
-  }, []);
-
-  const clickWrapperStyle: React.CSSProperties = {
-    height: `${heightValue}px`,
-    width: '20%',
-  };
-
   return (
     <>
       <div style={{
@@ -67,13 +45,13 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
 
       <div ref={clickWrapperRef} style={{
         ...clickWrapperStyle,
-        backgroundColor: "#00000055",
+        backgroundColor: "#000000aa",
         position: "absolute",
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
         borderRadius: "5px",
-        border: "10px solid var(--borderColour)",
+        border: "var(--borderRadius) solid var(--borderColour)",
         boxSizing: "border-box",
         display: "grid",
         gridTemplateRows: "repeat(6,1fr)",
@@ -82,24 +60,45 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
         gap: "2px",
       }}>
         <div style={{ gridRow: "1", gridColumn: "1/5" }} className="center-via-flex">
-          <h2 style={{ fontFamily: "Zelda", fontSize: "3vw", color: "white", whiteSpace:"nowrap"}}>Rising Revenant</h2>
+          <h1 className="no-margin test-h1" style={{ fontFamily: "Zelda", color: "white", whiteSpace:"nowrap"}}>Rising Revenant</h1>
         </div>
-        <div style={{ gridRow: "2/5", gridColumn: "1/5", backgroundColor: "green" }}>
-          <img src="login_revenant_pic.png" style={{ height: "100%", width: "100%" }}></img>
+        <div style={{ gridRow: "2/5", gridColumn: "1/5"}}>
+          <img src="login_revenant_pic.png" style={{ height: "100%", width: "100%", borderRadius:"10px" }}></img>
         </div>
         <ClickWrapper style={{ gridRow: "5/7", gridColumn: "1/5", flexDirection: "column", padding:"5% 10px" }} className="center-via-flex">
+          
           <div style={{ flex: "1" }} className="center-via-flex">
-            <div className="global-button-style" style={{ fontSize: "1vw", fontFamily: "OL", fontWeight: "100", boxSizing: "border-box", padding:"5px 10px" }} onClick={() => { createGameClient(false)}}>
+            <h2 className="global-button-style no-margin test-h2" style={{ fontFamily: "OL", fontWeight: "100", padding:"5px 10px" }} onClick={() => { createGameClient(false)}}>
               Wallet Login {truncateString(account.address, 5)}
-            </div>
+            </h2>
           </div>
-          <h3 style={{ flex: "0.5", textAlign: "center", color:"white", fontSize:"1.3cqw", margin:"0px" }} className="center-via-flex">or</h3>
+
+          <div style={{ flex: "0.5", textAlign: "center", color:"white" }} className="center-via-flex"> <h3 className="no-margin test-h5">or</h3></div>
+          
           <div style={{ flex: "1" }} className="center-via-flex">
-            <div className="global-button-style" style={{ fontSize: "1vw", fontFamily: "OL", fontWeight: "100", boxSizing: "border-box", padding:"5px 10px" }} onClick={() => { createGameClient(true)}}>
+            <h2 className="global-button-style no-margin test-h2" style={{ fontFamily: "OL", fontWeight: "100", padding:"5px 10px" }} onClick={() => { createGameClient(true)}}>
               Guest Login
-            </div>
+            </h2>
           </div>
+
         </ClickWrapper>
+      </div>
+
+      <div  style={{
+        backgroundColor: "white",
+        position: "absolute",
+        top: "50%",
+        left: "25%",
+        transform: "translate(-50%, -50%)",
+        borderRadius: "5px",
+        border: "10px solid var(--borderColour)",
+        boxSizing: "border-box",
+      }}>
+        <div className="test-h1">This is a test h1</div>
+        <div className="test-h2">This is a test h2</div>
+        <div className="test-h3">This is a test h3</div>
+        <div className="test-h4">This is a test h4</div>
+        <div className="test-h5">This is a test h5</div>
       </div>
 
       <ClickWrapper style={{
@@ -139,4 +138,33 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
       </ClickWrapper>
     </>
   );
+};
+
+
+export const useResizeableHeight = (colNum: number, rowNum: number, setWidht: string) => {
+  const clickWrapperRef = useRef<HTMLDivElement>(null);
+  const [heightValue, setHeight] = useState<number>(0);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (clickWrapperRef.current) {
+        setHeight((clickWrapperRef.current.offsetWidth / colNum) * rowNum);
+      }
+    };
+
+    window.addEventListener('resize', updateHeight);
+
+    updateHeight();
+
+    return () => {
+      window.removeEventListener('resize', updateHeight);
+    };
+  }, []);
+
+  const clickWrapperStyle: React.CSSProperties = {
+    height: `${heightValue}px`,
+    width:setWidht
+  };
+
+  return { clickWrapperRef, clickWrapperStyle };
 };
