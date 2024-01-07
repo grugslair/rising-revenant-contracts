@@ -72,16 +72,16 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
 
                 {winningAddress === account.address ?
                     (<>
-                        <h3>Address: {winningAddress}</h3>
-                        <h1>YOU ARE THE RISING REVENANT</h1>
-                        <ClickWrapper className="global-button-style" style={{padding:"5px 10px"}}>Claim your jackpot</ClickWrapper>
-                        <ClickWrapper className="global-button-style" style={{padding:"5px 10px"}}>Claim your contribution award</ClickWrapper>
+                        <h3 className="test-h2">Address: {winningAddress}</h3>
+                        <h1 className="test-h1">YOU ARE THE RISING REVENANT</h1>
+                        <ClickWrapper className="global-button-style test-h2" style={{padding:"5px 10px", margin:"1%"}}>Claim your jackpot</ClickWrapper>
+                        <ClickWrapper className="global-button-style test-h2" style={{padding:"5px 10px", margin:"1%"}}>Claim your contribution award</ClickWrapper>
                     </>)
                     :
                     (<>
-                        <h3>Address: {winningAddress}</h3>
-                        <h1>IS THE RISING REVENANT</h1>
-                        <ClickWrapper className="global-button-style" style={{padding:"5px 10px"}}>Claim your contribution award</ClickWrapper>
+                        <h3 className="test-h2">Address: {winningAddress}</h3>
+                        <h1 className="test-h1">IS THE RISING REVENANT</h1>
+                        <ClickWrapper className="global-button-style test-h2" style={{padding:"5px 10px", margin:"1%"}}>Claim your contribution award</ClickWrapper>
                     </>)}
 
             </div>
