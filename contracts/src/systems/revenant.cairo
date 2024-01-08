@@ -25,7 +25,7 @@ trait IRevenantActions<TContractState> {
 #[dojo::contract]
 mod revenant_actions {
     use core::traits::Into;
-use openzeppelin::token::erc20::interface::{
+    use openzeppelin::token::erc20::interface::{
         IERC20, IERC20Dispatcher, IERC20DispatcherImpl, IERC20DispatcherTrait
     };
 
@@ -48,7 +48,8 @@ use openzeppelin::token::erc20::interface::{
     use realmsrisingrevenant::components::world_event::{WorldEvent, WorldEventTracker};
 
     use realmsrisingrevenant::constants::{
-        MAP_HEIGHT, MAP_WIDTH, OUTPOST_INIT_LIFE, REVENANT_MAX_COUNT, REINFORCEMENT_INIT_COUNT, SPAWN_RANGE_X,SPAWN_RANGE_Y
+        MAP_HEIGHT, MAP_WIDTH, OUTPOST_INIT_LIFE, REVENANT_MAX_COUNT, REINFORCEMENT_INIT_COUNT,
+        SPAWN_RANGE_X, SPAWN_RANGE_Y
     };
     use realmsrisingrevenant::utils::random::{Random, RandomImpl};
     use starknet::{
@@ -85,13 +86,10 @@ use openzeppelin::token::erc20::interface::{
             //     game.prize += game.revenant_init_price;
             // }
 
-
-
             let seed = starknet::get_tx_info().unbox().transaction_hash;
             let mut random = RandomImpl::new(seed);
             let first_revenant_id: u128 = (game_data.revenant_count + 1).into();
             let first_outpost_id: u128 = (game_data.outpost_count + 1).into();
-
 
             let mut i = 0_u128;
             loop {
@@ -111,7 +109,6 @@ use openzeppelin::token::erc20::interface::{
 
                 set!(world, (revenant, outpost, position));
 
-
                 i += 1;
             };
 
@@ -122,7 +119,7 @@ use openzeppelin::token::erc20::interface::{
             player_info.revenant_count += count;
             player_info.outpost_count += count;
 
-            if (player_info.initiated == 0 )    // here
+            if (player_info.initiated == 0) // here
             {
                 assert(count < 14, 'too many revs');
                 player_info.initiated = 1;
@@ -131,7 +128,7 @@ use openzeppelin::token::erc20::interface::{
 
             player_info.player_wallet_amount -= game.revenant_init_price * count.into();
 
-            game.prize += count.into() * game.revenant_init_price;   // here 
+            game.prize += count.into() * game.revenant_init_price; // here 
 
             game_data.remain_life_count += OUTPOST_INIT_LIFE * count;
 
@@ -139,7 +136,7 @@ use openzeppelin::token::erc20::interface::{
 
             (first_revenant_id, first_outpost_id)
         }
-        
+
 
         // this function if not necessary needs to be deleted
         fn claim_initial_rewards(self: @ContractState, game_id: u32) -> bool {
@@ -173,7 +170,7 @@ use openzeppelin::token::erc20::interface::{
 
             // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
 
-            let prize = game.prize * 75 / 100;
+            let prize = game.prize / 100 * 85;
             // let result = erc20.transfer(recipient: player, amount: prize);
 
             // assert(result, 'failed to transfer');
@@ -196,10 +193,10 @@ use openzeppelin::token::erc20::interface::{
             assert(player_info.score > 0, 'you have no score');
 
             let prize = game.prize
-                * 10
                 / 100
-                * player_info.score.into()
-                / game_info.score_count.into();
+                * 15
+                / game_info.score_count.into()
+                * player_info.score.into();
             // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
             // let result = erc20.transfer(recipient: player, amount: prize);
             // assert(result, 'failed to transfer');
@@ -227,13 +224,16 @@ use openzeppelin::token::erc20::interface::{
             game.assert_can_create_outpost(world);
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            player_info.check_player_exists(world);   //player should not be able to buy reinforcements if he has never bought a revenant
+            player_info
+                .check_player_exists(
+                    world
+                ); //player should not be able to buy reinforcements if he has never bought a revenant
 
             let mut reinforcement_balance = get!(world, game_id, ReinforcementBalance);
             let current_price = reinforcement_balance
                 .get_reinforcement_price(world, game_id, count);
 
-            assert(current_price < player_info.player_wallet_amount ,'no funds');
+            assert(current_price < player_info.player_wallet_amount, 'no funds');
 
             // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
             // let result = erc20
@@ -261,26 +261,26 @@ use openzeppelin::token::erc20::interface::{
             let player = get_caller_address();
             let (mut game, mut game_counter) = get!(world, game_id, (Game, GameEntityCounter));
 
-            let mut latest_event = get!(world, (game_id, game_counter.event_count), (WorldEvent));  // get last game event obj
+            let mut latest_event = get!(
+                world, (game_id, game_counter.event_count), (WorldEvent)
+            ); // get last game event obj
 
             let mut outpost = get!(
                 world, (game_id, outpost_id), (Outpost)
             ); // get reinforcement obj
             outpost.assert_can_reinforcement();
 
-
             // if the event id is not equal then we need to check if its being attacked right now
-            if (outpost.last_affect_event_id != latest_event.entity_id && latest_event.entity_id != 0)
-            {
+            if (outpost.last_affect_event_id != latest_event.entity_id
+                && latest_event.entity_id != 0) {
                 let distance = utils::calculate_distance(
                     latest_event.x, latest_event.y, outpost.x, outpost.y, 100
                 );
 
                 assert(distance > latest_event.radius, 'outpost under attack');
             }
-           
 
-            assert(outpost.lifes != 0, 'outpost is dead');  //added line, Alex
+            assert(outpost.lifes != 0, 'outpost is dead'); //added line, Alex
 
             assert(player == outpost.owner, 'not owner');
 
@@ -339,10 +339,10 @@ use openzeppelin::token::erc20::interface::{
             // avoid multiple outpost appearing in the same position
             if prev_outpost.entity_id > 0 {
                 loop {
-                    x = (MAP_WIDTH / 2) - random.next_u32(0, SPAWN_RANGE_X);    // HERE add constants
+                    x = (MAP_WIDTH / 2) - random.next_u32(0, SPAWN_RANGE_X); // HERE add constants
                     y = (MAP_HEIGHT / 2) - random.next_u32(0, SPAWN_RANGE_Y);
                     prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
-                    if prev_outpost.entity_id == 0 {  
+                    if prev_outpost.entity_id == 0 {
                         break;
                     };
                 }

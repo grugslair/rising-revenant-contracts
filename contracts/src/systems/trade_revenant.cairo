@@ -108,7 +108,7 @@ mod trade_revenant_actions {
             assert(outpost.lifes > 0, 'outpost has been destoryed');
 
             // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
-            let seller_amount: u128 = trade.price * 90 / 100;
+            let seller_amount: u128 = trade.price * 95 / 100;
             let contract_amount: u128 = trade.price - seller_amount.into();
 
             // let result = erc20
