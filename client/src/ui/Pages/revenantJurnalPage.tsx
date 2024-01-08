@@ -167,11 +167,11 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
                                     <h2 className="test-h2">Event {selectedEventIndex}/{allEvents.length}</h2>
                                 </div>
                             </div>
-                            <div className="rev-jurn-page-grid-left-arrow ">
-                                <img src="left-arrow.png" onMouseDown={() => setSelectedEventIndex(selectedEventIndex - 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
+                            <div className="rev-jurn-page-grid-left-arrow center-via-flex">
+                                <img src="left-arrow.png" onMouseDown={() => setSelectedEventIndex(selectedEventIndex - 1)} className="pointer" alt="" style={{  height: "80%", aspectRatio:"1/1" }} />
                             </div>
-                            <div className="rev-jurn-page-grid-right-arrow">
-                                <img src="right-arrow.png" onMouseDown={() => setSelectedEventIndex(selectedEventIndex + 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
+                            <div className="rev-jurn-page-grid-right-arrow center-via-flex">
+                                <img src="right-arrow.png" onMouseDown={() => setSelectedEventIndex(selectedEventIndex + 1)} className="pointer" alt="" style={{  height: "80%", aspectRatio:"1/1"  }} />
                             </div>
 
 

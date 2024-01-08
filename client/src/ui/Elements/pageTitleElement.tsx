@@ -52,10 +52,6 @@ const PageTitleElement: React.FC<PageTitleElementProps> = ({ name, imagePosition
         }}>
             <div style={{ width: size}}></div>
 
-            <div style={{height:"100%", flex:"1", ...styleContainerLeft}}>
-                {htmlContentsLeft}
-            </div>
-
             {imagePosition === ImagesPosition.LEFT || imagePosition === ImagesPosition.BOTH ? (
                 <img
                     src={leftPicture}
@@ -64,6 +60,11 @@ const PageTitleElement: React.FC<PageTitleElementProps> = ({ name, imagePosition
                     onClick={handleLeftImageClick}
                 />
             ) : <div style={{ width: size }} />}
+
+            <div style={{height:"100%", flex:"1", ...styleContainerLeft}}>
+                {htmlContentsLeft}
+            </div>
+
 
             <h1 className="no-margin test-h1" style={{ whiteSpace: "nowrap", fontWeight: "100", fontFamily:"Zelda", color:"white" }}>{name}</h1>
             

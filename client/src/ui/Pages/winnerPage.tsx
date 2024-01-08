@@ -65,11 +65,10 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
     }, []);
 
     const shareOnTwitter = () => {
-        const message = 'I just won!';
+        const message = 'I am the Rising Revenant.\n After a long battle, time to enjoy my $LORDS Jackpot';
         const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`;
         window.open(twitterShareUrl, '_blank');
     };
-
 
     const claimEndGameRewards = async () => {
 

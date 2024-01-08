@@ -369,7 +369,7 @@ const StatsTable: React.FC = () => {
 
             </div>
 
-            <div style={{ width: "100%", height: "75%", overflowY: "auto", scrollbarGutter: "stable" }}>
+            <div style={{ width: "100%", height: "70%", overflowY: "auto", scrollbarGutter: "stable" }}>
 
                 {category === "1" && <>
                     {dataList.map((playerInfo: PlayerInfoEdge, index: number) => {
@@ -386,7 +386,7 @@ const StatsTable: React.FC = () => {
 
             </div>
 
-            <div style={{ width: "100%", height: "15%", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ width: "100%", height: "10%", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div className="global-button-style" style={{ textAlign: "center", fontSize: "1.5rem", padding: "5px 10px" }} onClick={() => setSavedLastQuery(savedLastQuery)}>Refresh Data</div>
                 <Space >
                     Number of data points

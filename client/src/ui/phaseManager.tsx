@@ -26,26 +26,10 @@ export enum Phase {
 
 export const PhaseManager = () => {
   const [phase, setPhase] = useState<Phase>(Phase.LOGIN);
-  const [soundOn, setSoundOn] = useState<Boolean>(true);
 
   const setUIState = (state: Phase) => {
     setPhase(state);
   }
-
-  const playClickSound = () => {
-    if (soundOn) {
-      const audio = new Audio("/sounds/click.wav");
-      audio.currentTime = 0;
-      audio.play();
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener('click', playClickSound);
-    return () => {
-      document.removeEventListener('click', playClickSound);
-    };
-  }, [soundOn]);
 
   return (
     <>
@@ -57,7 +41,7 @@ export const PhaseManager = () => {
       <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "0.7vw", color: "white" }}>
         Date of Version: 8th Jan<br />
         Branch: main<br />
-        Pull: new deployment test 4
+        Pull: demo test 5
       </div>
 
       <ClickWrapper style={{ position: "absolute", bottom: "10px", right: "10px", fontFamily: "OL", color: "white" }}>
@@ -65,10 +49,6 @@ export const PhaseManager = () => {
           Give Feedback
         </h2>
       </ClickWrapper>
-
-      {/* <div style={{ position: "absolute", top: "0px", left: "0px" }}>
-          <img src="unmuted.png" alt="" style={{width:"100%", height:"100%"}} />
-      </div> */}
     </>
   );
 };

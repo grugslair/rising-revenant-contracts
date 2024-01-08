@@ -51,6 +51,8 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     const [playerContribScore, setPlayerContribScore] = useState(0);
     const [playerContribScorePerc, setPlayerContribScorePerc] = useState(0);
 
+    const [soundOn, setSoundOn] = useState<boolean>(true);
+
     const {
         account: { account },
         networkLayer: {
@@ -90,7 +92,6 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
         setPlayerContribScorePerc(Number.isNaN((playerInfo.score / gameEntityCounter.score_count) * 100) ? 0 : Number(((playerInfo.score / gameEntityCounter.score_count) * 100).toFixed(2)));
 
     }, [playerInfo, gameData]);
-
 
     //PRETTY SURE THIS IS BROKEN CLIENTGAMEDATA === 1?
     useEffect(() => {
@@ -138,7 +139,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
                     // if the health is not the same as last saved and its owned this should be mean that someone else accepted the event 
                     if (outpostData.lifes !== lastSavedLifes && clientOutpostData.owned) {
-                        notify(`Someone confirmed your outpost ${Number(clientOutpostData.entity_id)}`);
+                        notify(`Someone confirmed your outpost ${clientOutpostData.id}`);
                     }
                 }
             }
@@ -150,10 +151,26 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
         return () => clearInterval(intervalId);
     }, [clientGameData]);
 
+    const playClickSound = () => {
+        if (soundOn) {
+            const audio = new Audio("/sounds/click.wav");
+            audio.currentTime = 0;
+            audio.play();
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener('click', playClickSound);
+        return () => {
+            document.removeEventListener('click', playClickSound);
+        };
+    }, [soundOn]);
+
     return (
         <ClickWrapper className="top-bar-grid-container">
-            <div className="top-bar-grid-game-logo center-via-flex">
-                <img src="LOGO_WHITE.png" className="game-logo" style={{ height: "100%", aspectRatio: "1/1" }}></img>
+            <div className="top-bar-grid-game-logo" style={{ display: "flex", justifyContent: "space-evenly", alignItems: "center" }}>
+                <img src="LOGO_WHITE.png" style={{ height: "100%", aspectRatio: "1/1" }}></img>
+                <img src={soundOn === true ? "soundon.png" : "soundoff.png"} className="pointer" style={{ height: "50%", aspectRatio: "1/1" }} onClick={() => setSoundOn(!soundOn)}></img>
             </div>
 
             <div className="top-bar-grid-left-text-section center-via-flex">
@@ -166,7 +183,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                         {clientGameData.guest ? (
                             <div style={{ fontSize: "1.2vw", filter: "brightness(70%) grayscale(70%)" }}>Contribution: Log in</div>
                         ) : (
-                            <Tooltip title={  <><h4 className="no-margin test-h4" style={{textAlign:"center"}}>Total contribution game score: {gameEntityCounter.score_count}</h4> <h4 className="no-margin test-h4" style={{textAlign:"center"}}>Your contribution score count: {playerContribScore}</h4></>}>
+                            <Tooltip title={<><h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Total contribution game score: {gameEntityCounter.score_count}</h4> <h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Your contribution score count: {playerContribScore}</h4></>}>
                                 <div style={{ fontSize: "1.2vw" }}>Contribution: {playerContribScorePerc}%</div>
                             </Tooltip>
                         )}
@@ -195,7 +212,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                 </div>
             </div>
             <div className="top-bar-grid-address" style={{ gap: "4px", justifyContent: "space-around", display: "flex", alignItems: "center" }}>
-                <LordsBalanceElement/>
+                <LordsBalanceElement />
 
                 <div style={{ width: "50%", height: "75%" }} className="center-via-flex">
                     {!clientGameData.guest ?

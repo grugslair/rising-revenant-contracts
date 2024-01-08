@@ -1139,7 +1139,7 @@
     {
       "name": "revenant_actions",
       "address": "0xe004dc4db6f5837abbd5122f9d5f129c39a67a1bbbcd47ca0a4a8259485846",
-      "class_hash": "0x32893db472e117ae4b41cfbf5a64233b24686eb0cf384e69ce65f665fd9f00e",
+      "class_hash": "0x4920d622d32c1861e1f45125186e4644016ed81beee37ed50a35d5e5b8cd1f5",
       "abi": [
         {
           "type": "impl",
@@ -1626,7 +1626,7 @@
     {
       "name": "trade_revenant_actions",
       "address": "0x212a507cd43a5156d7b0822cee4650cc9d30993ced3fec377f9e9f36dbf0e2a",
-      "class_hash": "0x7ce36e289c1ec971a72fe8fa3c195a6a12080366bc7ed0344865a82288289f3",
+      "class_hash": "0x301e2b71f06bf49f69e82d52e91deec522f21661bd36a8ba7138ed474af2655",
       "abi": [
         {
           "type": "impl",
