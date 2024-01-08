@@ -55,9 +55,9 @@ export const PhaseManager = () => {
       {phase === Phase.GAME && <GamePhaseManager />}
 
       <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "0.7vw", color: "white" }}>
-        Date of Version: 6th Jan<br />
+        Date of Version: 8th Jan<br />
         Branch: main<br />
-        Pull: Refresh of trades and stats 
+        Pull: new deployment test 4
       </div>
 
       <ClickWrapper style={{ position: "absolute", bottom: "10px", right: "10px", fontFamily: "OL", color: "white" }}>
