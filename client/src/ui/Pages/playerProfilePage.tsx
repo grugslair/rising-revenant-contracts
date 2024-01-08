@@ -113,7 +113,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
 
             <img className="page-img brightness-down" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
 
-            <PageTitleElement imagePosition={ImagesPosition.RIGHT} name={"PROFILE"} rightPicture={"close_icon.png"} rightImageFunction={setUIState} htmlContentsRight={<ReinforcementCountElement style={{marginRight:"8%"}}/>} styleContainerRight={{display:"flex", justifyContent:"flex-end" , alignItems:"center"}}/>
+            <PageTitleElement imagePosition={ImagesPosition.RIGHT} name={"PROFILE"} rightPicture={"close_icon.png"} rightImageFunction={setUIState} htmlContentsRight={<ReinforcementCountElement style={{ marginRight: "8%" }} />} styleContainerRight={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }} />
 
             <div style={{ width: "100%", height: "80%", position: "relative", display: "flex", flexDirection: "row" }}>
                 <div style={{ width: "8%", height: "100%" }}></div>
@@ -195,7 +195,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
 
         setName(namesArray[revenantData.first_name_idx]);
         setSurname(surnamesArray[revenantData.last_name_idx]);
-    }, [outpostData,useComponentValue]);
+    }, [outpostData, useComponentValue]);
 
     useEffect(() => {
 
@@ -259,13 +259,35 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                 <h4 className="no-margin test-h4 info-pp-text-style">{reinforcements}</h4>
             </div>
 
-            {outpostData.lifes > 0 && phase === 2 &&
+            {outpostData.lifes > 0 &&
                 <>
-                    {clientOutpostData.event_effected ?
-                        <div style={{ gridRow: "3/4", gridColumn: "22/25", display: "flex" }}>
-                            <h4 className="no-margin test-h4 global-button-style info-pp-text-style" style={{ width: "fit-content", height: "fit-content", padding: "2px 5px", boxSizing: "border-box", margin: "0px auto" }} onClick={() => { confirmEvent(entityId) }}>Validate Event</h4>
-                        </div>
-                        :
+                    {phase === 2 ?
+                        <>
+                            {clientOutpostData.event_effected ?
+                                <div style={{ gridRow: "3/4", gridColumn: "22/25", display: "flex" }}>
+                                    <h4 className="no-margin test-h4 global-button-style info-pp-text-style" style={{ width: "fit-content", height: "fit-content", padding: "2px 5px", boxSizing: "border-box", margin: "0px auto" }} onClick={() => { confirmEvent(entityId) }}>Validate Event</h4>
+                                </div>
+                                :
+                                <div className="action" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gridTemplateRows: "1fr 1fr" }}>
+                                    <div style={{ gridRow: "1", gridColumn: "1", display: "flex" }}>
+                                        <div className="global-button-style info-pp-text-style" style={{ width: "50%", height: "50%", margin: "0px auto" }} >
+                                            <img src="/minus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce - 1)} />
+                                        </div>
+                                    </div>
+                                    <div style={{ gridRow: "1", gridColumn: "2", display: "flex" }}>
+                                        <h4 className="no-margin test-h4 info-pp-text-style">{amountToReinforce}</h4>
+                                    </div>
+                                    <div style={{ gridRow: "1", gridColumn: "3", display: "flex" }}>
+                                        <div className="global-button-style info-pp-text-style" style={{ width: "50%", height: "50%", margin: "0px auto" }} >
+                                            <img src="/plus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce + 1)} />
+                                        </div>
+                                    </div>
+                                    <div style={{ gridRow: "2", gridColumn: "1/4", display: "flex", position: "relative" }}>
+                                        <h4 className="no-margin test-h4 global-button-style info-pp-text-style" style={{ width: "fit-content", height: "fit-content", padding: "2px 5px", boxSizing: "border-box", margin: "0px auto" }} onClick={() => reinforce_outpost(clientOutpostData.id, amountToReinforce)}>Reinforce</h4>
+                                    </div>
+                                </div>
+                            }
+                        </> :
                         <div className="action" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gridTemplateRows: "1fr 1fr" }}>
                             <div style={{ gridRow: "1", gridColumn: "1", display: "flex" }}>
                                 <div className="global-button-style info-pp-text-style" style={{ width: "50%", height: "50%", margin: "0px auto" }} >
@@ -291,11 +313,4 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
     );
 };
 
-
 // might be an issue with the last part of this component as it might still take space but not render to check HERE
-
-
-
-
-
-
