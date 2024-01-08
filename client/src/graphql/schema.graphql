@@ -114,43 +114,6 @@ query getAllOwnRevOut($game_id: u32!, $outpostCount: Int!, $owner: ContractAddre
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-query getTradesAvailable($game_id: u32!, $tradeStatus: u32!) {
-  tradeModels(where: { game_id: $game_id, status: $tradeStatus }) {
-    edges {
-      node {
-        entity {
-          keys
-          models {
-            __typename
-            ... on Trade {
-              game_id
-              entity_id
-              seller
-              price
-              count
-              buyer
-              status
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-
 query getSortedPlayerReinforcements($game_id: u32!, $playersNum: Int!) {
   playerinfoModels(
     where: { game_id: $game_id }

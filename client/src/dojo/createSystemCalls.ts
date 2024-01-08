@@ -134,6 +134,7 @@ export function createSystemCalls(
             return tx.result[0]
         } catch (e) {
             console.log(e)
+            
         }
     }
 
@@ -150,6 +151,8 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
+            notify(`Bought ${count} reinforcements`, receipt)
+
         } catch (e) {
             console.log(e)
         }
@@ -157,8 +160,6 @@ export function createSystemCalls(
     };
 
     const reinforce_outpost = async ({ account, game_id, count, outpost_id }: ReinforceOutpostProps) => {
-
-        console.error("for the reinforce ", outpost_id, " ", count, " ", game_id);
 
         try {
             const tx = await execute(account, "revenant_actions", "reinforce_outpost", [game_id,count, outpost_id]);

@@ -114,17 +114,6 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     loadingFunction();
   }, [account]);
 
-  // // this is just a test do delete when in actual build
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setUIState(Phase.PREP);
-  //   }, 5000);
-
-  //   return () => {
-  //     clearTimeout(timer);
-  //   };
-  // }, []);
-
   return (
     <div className="centered-div" style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center",backgroundColor:"black" }}>
       <video

@@ -140,7 +140,7 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
                         <ClickWrapper onMouseDown={() => { setMenuState(PrepPhaseStages.BUY_REIN); }} className="global-button-style no-margin test-h2"
                             style={{ padding: "5px 10px" }}
                                 > Buy Reinforcements
-                            <img className="embedded-text-icon" src="Icons/Symbols/right_arrow.svg" alt="Sort Data" onMouseDown={() => { }} />
+                            <img className="embedded-text-icon" src="right-arrow.png" alt="Sort Data" onMouseDown={() => { }} />
                         </ClickWrapper>
                     }
                 </div>

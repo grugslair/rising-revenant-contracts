@@ -11,6 +11,8 @@ import "./PagesStyles/WinnerPageStyles.css";
 
 //elements/components
 import { ClickWrapper } from "../clickWrapper";
+import { ClaimEndGameRewards, ClaimScoreRewards } from "../../dojo/types";
+import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 //pages
 
@@ -37,12 +39,15 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
     const {
         account: { account },
         networkLayer: {
-            network: { contractComponents },
+            network: { contractComponents,clientComponents },
+            systemCalls: {claim_score_rewards, claim_endgame_rewards}
         },
     } = useDojo();
 
     const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
     const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
+
+    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
     useEffect(() => {
 
@@ -65,6 +70,28 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
         window.open(twitterShareUrl, '_blank');
     };
 
+
+    const claimEndGameRewards = async () => {
+
+        const props: ClaimEndGameRewards = {
+            account: account,
+            game_id: clientGameData.current_game_id,
+        };
+
+        await claim_endgame_rewards(props);
+    }
+
+    const claimScoreRewards = async () => {
+
+        const props: ClaimScoreRewards = {
+            account: account,
+            game_id: clientGameData.current_game_id,
+        };
+
+        await claim_score_rewards(props);
+    }
+
+
     return (
         <div className="game-page-container">
             <img className="page-img brightness-down" src="./revenant_vincitore_image.png" alt="testPic" />
@@ -74,14 +101,14 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
                     (<>
                         <h3 className="test-h2">Address: {winningAddress}</h3>
                         <h1 className="test-h1">YOU ARE THE RISING REVENANT</h1>
-                        <ClickWrapper className="global-button-style test-h2" style={{padding:"5px 10px", margin:"1%"}}>Claim your jackpot</ClickWrapper>
-                        <ClickWrapper className="global-button-style test-h2" style={{padding:"5px 10px", margin:"1%"}}>Claim your contribution award</ClickWrapper>
+                        <ClickWrapper className="global-button-style test-h2" style={{padding:"5px 10px", margin:"1%"}} onClick={claimEndGameRewards}>Claim your jackpot</ClickWrapper>
+                        <ClickWrapper className="global-button-style test-h2" style={{padding:"5px 10px", margin:"1%"}} onClick={claimScoreRewards}>Claim your contribution award</ClickWrapper>
                     </>)
                     :
                     (<>
                         <h3 className="test-h2">Address: {winningAddress}</h3>
                         <h1 className="test-h1">IS THE RISING REVENANT</h1>
-                        <ClickWrapper className="global-button-style test-h2" style={{padding:"5px 10px", margin:"1%"}}>Claim your contribution award</ClickWrapper>
+                        <ClickWrapper className="global-button-style test-h2" style={{padding:"5px 10px", margin:"1%"}} onClick={claimScoreRewards}>Claim your contribution award</ClickWrapper>
                     </>)}
 
             </div>

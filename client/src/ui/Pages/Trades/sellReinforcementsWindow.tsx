@@ -3,17 +3,17 @@ import { useEffect, useState } from "react";
 import { getCount } from "../../../utils";
 import { CreateTradeForReinf } from "../../../dojo/types";
 import CounterElement from "../../Elements/counterElement";
-import { ConfigProvider, InputNumber } from "antd";
+import { ConfigProvider, Flex, InputNumber } from "antd";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useDojo } from "../../../hooks/useDojo";
 
-import {useComponentValue} from "@latticexyz/react";
-import {getComponentValueStrict} from "@latticexyz/recs";
+import { useComponentValue } from "@latticexyz/react";
+import { getComponentValueStrict } from "@latticexyz/recs";
 import { GAME_CONFIG_ID } from "../../../utils/settingsConstants";
 
 export const SellReinforcementTradeWindow: React.FC = () => {
 
-    const [numberValue, setNumberValue] = useState<number | null>(1);
+    const [priceValue, setPriceValue] = useState<number | null>(1);
     const [amountToSell, setAmountToSell] = useState<number>(0);
 
     const [numberOfCurrentTrades, setNumberOfCurrentTrades] = useState<number>(-1);
@@ -43,7 +43,6 @@ export const SellReinforcementTradeWindow: React.FC = () => {
         }
 
     }, [account, playerInfo, amountToSell])
-
 
     useEffect(() => {
 
@@ -102,10 +101,9 @@ export const SellReinforcementTradeWindow: React.FC = () => {
                 throw error;
             }
         };
-        
+
         fetchData();
     }, []);
-
 
     const confirmCreationOfOrder = async () => {
 
@@ -113,47 +111,66 @@ export const SellReinforcementTradeWindow: React.FC = () => {
             account: account,
             game_id: clientGameData.current_game_id,
             count: amountToSell,
-            price: numberValue!,
+            price: priceValue!,
         };
 
         await create_trade_reinf(createTradeProp);
     };
 
-    //HERE THE NUMBER IS CUT OFF A BIT AT THE TOP AND PROB SHOULD NOT BE FREELY GOING UP LIKE THIS NEEDS A CLAMP
-
     return (
         <>
-            <div style={{ height: "100%", width: "10%" }}></div>
-            <div style={{ height: "100%", width: "40%" }}>
-                <img src="./assets/Page_Bg/REINFORCEMENT_PAGE_BG.png" style={{ height: "100%", width: "100%" }}></img>
-            </div>
-            <div style={{ height: "100%", width: "10%" }}></div>
-            <div style={{ height: "100%", width: "20%", display: "flex", flexDirection: "column", color: "white" }}>
 
-                <div style={{ flex: "1", display: "flex", justifyContent: "flex-start", flexDirection: "column" }}>
-                    <h3 className="no-margin test-h3" style={{  whiteSpace: "nowrap" }}>Sell Reinforcements</h3>
-                    <CounterElement value={amountToSell} setValue={setAmountToSell} containerStyleAddition={{ maxWidth: "75%", height: "40%", marginBottom: "9%" }} additionalButtonStyleAdd={{ width: "15%" }} textAddtionalStyle={{ fontSize:"1rem"}} />
+            <div style={{ height: "100%", width: "10%" }}></div>
+
+            <div style={{ height: "100%", width: "38.5%", overflow: "visible" }} className="center-via-flex">
+                <img src="./assets/Page_Bg/REINFORCEMENT_PAGE_BG.png" style={{ height: "100%", aspectRatio: "3/2" }}></img>
+            </div>
+
+            <div style={{ height: "100%", width: "8.5%" }}></div>
+
+            <div style={{ height: "100%", width: "19%", display: "grid", gridTemplateRows: "repeat(9,1fr)", gridTemplateColumns: "repeat(5, 1fr)", color: "white" }}>
+                <div style={{ gridRow: "1/2", gridColumn: "1/6" }}> <h2 className="test-h2 no-margin">Sell Reinfrocements</h2></div>
+
+                <div style={{ gridRow: "2/3", gridColumn: "1/5", display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "20%" }}>
+                    <div className="global-button-style no-margin" style={{ height: "80%", aspectRatio: "1/1" }}>
+                        <img src="minus.png" style={{ width: "100%", height: "100%" }} className="pointer" onClick={() => setAmountToSell(amountToSell - 1)} />
+                    </div>
+
+                    <h1 className="no-margin test-h1-5">{amountToSell}</h1>
+
+                    <div className="global-button-style no-margin" style={{ height: "80%", aspectRatio: "1/1" }}>
+                        <img src="plus.png" style={{ width: "100%", height: "100%" }} className="pointer" onClick={() => setAmountToSell(amountToSell + 1)} />
+                    </div>
                 </div>
 
-                <div style={{ flex: "1", display: "flex", justifyContent: "center", flexDirection: "column" }}>
-                    <h3 className="no-margin test-h3" style={{ whiteSpace: "nowrap", height: "50%" }}>Set Price</h3>
+                <div style={{ gridRow: "4/5", gridColumn: "1/6" }}>
+                    <h2 className="test-h2 no-margin">Set a Price</h2>
+                </div>
+                <div style={{ gridRow: "5/6", gridColumn: "1/6" }}>
+
                     <ConfigProvider
                         theme={{
                             token: {
-                                colorText: "white",
+                               colorText:"white",
+                               fontSize:"clamp(1.1rem, 0.7vw + 0.8rem, 8rem)"
                             },
-                        }}>
-                        <InputNumber min={1} max={50} value={numberValue} onChange={setNumberValue} className="test-h2" style={{ backgroundColor: "#131313", color: "white", borderColor: "#2D2D2D", width: "60%", height: "45%" }} />
+                        }}
+                    >
+                        <InputNumber min={1} max={50} value={priceValue} onChange={setPriceValue} style={{ backgroundColor: "#131313", borderColor: "#2D2D2D", width: "60%", height: "fit-content" }} />
                     </ConfigProvider>
+
+                </div>
+                <div style={{ gridRow: "6/7", gridColumn: "1/6", width: "100%", height: "100%", display: "flex", justifyContent: "center" }}>
+                    <h4 className="no-margin test-h4" style={{ marginTop: "auto", marginRight: "auto" }}> current Active Trades: {numberOfCurrentTrades}</h4>
                 </div>
 
-                <div style={{ flex: "1", display: "flex", justifyContent: "flex-end", flexDirection: "column", alignContent: "flex-end" }}>
-                    <h3 className="no-margin test-h4" style={{  whiteSpace: "nowrap", height: "20%" }}>Current Active Trades: {numberOfCurrentTrades}</h3>
-                    <div className="global-button-style no-margin test-h2" style={{ padding: "5px 10px", maxWidth: "fit-content" }} onClick={confirmCreationOfOrder}>Confirm</div>
+                <div style={{ gridRow: "9/10", gridColumn: "1/6", display: "flex", justifyContent: "flex-end" }}>
+                    <div className="global-button-style" style={{ marginTop: "auto", padding:"2px 5px" }} onClick={confirmCreationOfOrder}>Confirm</div>
                 </div>
             </div>
 
-            <div style={{ height: "100%", width: "20%" }}></div>
+            <div style={{ height: "100%", width: "24%" }}></div>
+
         </>
     )
 }

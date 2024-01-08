@@ -283,7 +283,7 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
       </div>
 
       <ClickWrapper className="outpost-data-x-grid-element center-via-flex" >
-        <img src="close_icon.svg" className="pointer" onClick={() => { functionClose([]) }} style={{ width: "100%", height: "100%" }}/>
+        <img src="close_icon.png" className="pointer" onClick={() => { functionClose([]) }} style={{ width: "clamp(0.8rem, 0.7vw + 0.7rem, 7rem)", height: "clamp(0.8rem, 0.7vw + 0.7rem, 7rem)" }}/>
       </ClickWrapper>
 
       <div className="outpost-data-out-pic-grid-element">
@@ -307,7 +307,7 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
 
       {state === "In Event" && !clientGameData.guest && 
         <ClickWrapper className="outpost-data-conf-button-grid-element outpost-grid-container-text-style" style={{display:"flex"}}>
-          <div className="global-button-style no-margin test-h4" style={{ padding: "5px 10px", display:"inline-block", alignSelf:"start"  }} onClick={confirmEvent}>Confirm Event</div>
+          <div className="global-button-style no-margin test-h4" style={{ padding: "3px 10px", display:"inline-block", alignSelf:"start"  }} onClick={confirmEvent}>Validate Event</div>
         </ClickWrapper>
       }
      

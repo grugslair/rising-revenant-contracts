@@ -84,7 +84,7 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
         </ClickWrapper>
       </div>
 
-      <div  style={{
+      {/* <div  style={{
         backgroundColor: "white",
         position: "absolute",
         top: "50%",
@@ -95,11 +95,12 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
         boxSizing: "border-box",
       }}>
         <div className="test-h1">This is a test h1</div>
+        <div className="test-h1-5">This is a test h1.5</div>
         <div className="test-h2">This is a test h2</div>
         <div className="test-h3">This is a test h3</div>
         <div className="test-h4">This is a test h4</div>
         <div className="test-h5">This is a test h5</div>
-      </div>
+      </div> */}
 
       <ClickWrapper style={{
         height: "10%",

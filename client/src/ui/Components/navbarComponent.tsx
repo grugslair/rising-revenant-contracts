@@ -53,21 +53,16 @@ export const NavbarComponent: React.FC<NavbarProps> = ({ menuState, setMenuState
         </Tooltip>
       }
 
+      
+<Tooltip title="TRADES" placement="left">
+        <div onClick={() => handleIconClick(MenuState.TRADES)} className={`navbar-icon ${menuState === MenuState.TRADES ? "active" : "not-active"}`}>
+          <img src="Icons/TRADES.png" alt="" />
+        </div>
+      </Tooltip>
+
       <Tooltip title="STATISTICS" placement="left">
         <div className={`navbar-icon ${menuState === MenuState.STATS ? "active" : "not-active"}`} onClick={() => handleIconClick(MenuState.STATS)}>
           <img src="Icons/STATISTICS.png" alt="" />
-        </div>
-      </Tooltip>
-
-      <Tooltip title="SETTINGS" placement="left">
-        <div onClick={() => handleIconClick(MenuState.SETTINGS)} className={`navbar-icon ${menuState === MenuState.SETTINGS ? "active" : "not-active"}`}>
-          <img src="Icons/SETTINGS.png" alt="" />
-        </div>
-      </Tooltip>
-
-      <Tooltip title="TRADES" placement="left">
-        <div onClick={() => handleIconClick(MenuState.TRADES)} className={`navbar-icon ${menuState === MenuState.TRADES ? "active" : "not-active"}`}>
-          <img src="Icons/TRADES.png" alt="" />
         </div>
       </Tooltip>
 
@@ -76,6 +71,19 @@ export const NavbarComponent: React.FC<NavbarProps> = ({ menuState, setMenuState
           <img src="Icons/RULES.png" alt="" />
         </div>
       </Tooltip>
+
+      <Tooltip title="SETTINGS (WIP)" placement="left">
+          <div className={`navbar-icon not-active`} style={{ filter: "brightness(50%) grayscale(50%)" }}>
+            <img src="Icons/SETTINGS.png" alt="" />
+          </div>
+        </Tooltip>
+
+        
+      {/* <Tooltip title="SETTINGS" placement="left">
+        <div onClick={() => handleIconClick(MenuState.SETTINGS)} className={`navbar-icon ${menuState === MenuState.SETTINGS ? "active" : "not-active"}`}>
+          <img src="Icons/SETTINGS.png" alt="" />
+        </div>
+      </Tooltip> */}
     </ClickWrapper>
   );
 };
@@ -109,7 +117,7 @@ export const PrepPhaseNavbarComponent: React.FC<PrepPhaseNavbarProps> = ({ curre
 
       {guest ?
         <Tooltip title="PROFILE (DISABLED)" placement="left">
-          <div className={`navbar-icon not-active`} style={{ filter: "brightness(70%) grayscale(70%)" }}>
+          <div className={`navbar-icon not-active`} style={{ filter: "brightness(50%) grayscale(50%)" }}>
             <img src="Icons/PROFILE.png" alt="" />
           </div>
         </Tooltip>
@@ -125,11 +133,17 @@ export const PrepPhaseNavbarComponent: React.FC<PrepPhaseNavbarProps> = ({ curre
           <img src="Icons/RULES.png" alt="" />
         </div>
       </Tooltip>
-      <Tooltip title="SETTINGS" placement="left">
+      {/* <Tooltip title="SETTINGS" placement="left">
         <div className={`navbar-icon ${currentMenuState === PrepPhaseStages.SETTINGS ? "active" : "not-active"}`} onClick={() => handleIconClick(PrepPhaseStages.SETTINGS)}>
           <img src="Icons/SETTINGS.png" alt="" />
         </div>
-      </Tooltip>
+      </Tooltip> */}
+
+      <Tooltip title="SETTINGS (WIP)" placement="left">
+          <div className={`navbar-icon not-active`} style={{ filter:"brightness(50%) grayscale(50%)" }}>
+            <img src="Icons/SETTINGS.png" alt="" />
+          </div>
+        </Tooltip>
         <div className={`navbar-icon-off `} >
         </div>
         <div className={`navbar-icon-off `} >

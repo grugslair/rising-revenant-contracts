@@ -12,9 +12,7 @@ import { Box } from "@mui/material";
 import { Trade, TradeEdge, World__Entity } from "../../../generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 
-import { getComponentValueStrict, HasValue, Has } from '@latticexyz/recs';
-import { useEntityQuery, useComponentValue } from '@latticexyz/react';
-
+import { getComponentValueStrict } from '@latticexyz/recs';
 
 // export const DumbReinforcementListingElement: React.FC<{ type: number }> = ({ type }) => {
 //     return (
@@ -41,11 +39,7 @@ import { useEntityQuery, useComponentValue } from '@latticexyz/react';
 // };
 
 
-
-
-
-
-export const ReinforcementListingElement = ({ trade }: { trade: Maybe<World__Entity> | undefined }) => {
+export const ReinforcementListingElement = ({ trade, showOwn, showOthers }: { trade: Maybe<World__Entity> | undefined, showOwn:boolean | undefined, showOthers:boolean | undefined }) => {
     const trade_model = trade?.models?.find((m) => m?.__typename == 'Trade') as Trade;
 
     const [numberValue, setNumberValue] = useState<number | null>(1);
@@ -94,9 +88,16 @@ export const ReinforcementListingElement = ({ trade }: { trade: Maybe<World__Ent
     if (trade_model?.status !== 1) {
         return (<></>)
     }
+    if (!showOwn && account.address === trade_model?.seller)
+    {   
+        return (<></>)
+    }
+    if (!showOthers && account.address !== trade_model?.seller)
+    {
+        return (<></>)
+    }
 
     return (
-
         <ClickWrapper className="reinforcement-sale-element-container ">
             <div style={{ gridColumn: "1/11", whiteSpace: "nowrap", display: "flex", flexDirection: "row", fontSize: "1.8rem" }}>
                 <div style={{ flex: "0.55", display: "flex", alignItems: "center", justifyContent: "flex-start", padding: "0px 1%" }}>
@@ -115,11 +116,10 @@ export const ReinforcementListingElement = ({ trade }: { trade: Maybe<World__Ent
                                     <InputNumber min={1} max={50} value={numberValue} onChange={setNumberValue} style={{ width: "50%", height: "45%", fontSize: "1.3cqw", marginLeft: "25%" }} />
                                 <div className="global-button-style" style={{ margin: "5px 0px", fontSize: "1cqw", padding: "5px 10px" }} onClick={modifyTrade}>Confirm</div>
                             </Box>}>
-                            <h3 className="pointer test-h3" >Price: ${Number(BigInt(trade_model?.price))}LORDS</h3>
+                            <h3 className="pointer test-h3" >Price: ${Number(BigInt(trade_model?.price))} LORDS</h3>
                         </Tooltip>
-                        
                         :
-                        <h3 className="test-h3">Price: ${hexToNumber(trade_model?.price)}LORDS</h3>}
+                        <h3 className="test-h3">Price: ${hexToNumber(trade_model?.price)} LORDS</h3>}
                 </div>
             </div>
 

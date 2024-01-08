@@ -6,7 +6,7 @@ import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 
 //styles
 import "./PagesStyles/RevenantJurnalPageStyles.css";
-import PageTitleElement from "../Elements/pageTitleElement";
+import PageTitleElement, { ImagesPosition } from "../Elements/pageTitleElement";
 import { ClickWrapper } from "../clickWrapper";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
@@ -152,7 +152,8 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
 
             <img className="page-img brightness-down" src="./assets/Page_Bg/JOURNAL_PAGE_BG.png" alt="testPic" />
 
-            <PageTitleElement name="REVENANT JOURNAL" closeFunction={closePage} rightPicture="close_icon.svg" />
+            <PageTitleElement imagePosition={ImagesPosition.RIGHT} name={"REVENANT JOURNAL"} rightPicture={"close_icon.png"} rightImageFunction={closePage} />
+
             <div style={{ width: "100%", height: "10%", backgroundColor: "red" }}>
             </div>
             <div style={{ width: "100%", height: "80%", position: "relative", display: "flex", flexDirection: "row", color: "white", fontFamily: "OL" }}>
@@ -167,10 +168,10 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
                                 </div>
                             </div>
                             <div className="rev-jurn-page-grid-left-arrow ">
-                                <img src="Icons/Symbols/left_arrow.svg" onMouseDown={() => setSelectedEventIndex(selectedEventIndex - 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
+                                <img src="left-arrow.png" onMouseDown={() => setSelectedEventIndex(selectedEventIndex - 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
                             </div>
                             <div className="rev-jurn-page-grid-right-arrow">
-                                <img src="Icons/Symbols/right_arrow.svg" onMouseDown={() => setSelectedEventIndex(selectedEventIndex + 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
+                                <img src="right-arrow.png" onMouseDown={() => setSelectedEventIndex(selectedEventIndex + 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
                             </div>
 
 

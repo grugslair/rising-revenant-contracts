@@ -1,89 +1,87 @@
 import React, { CSSProperties } from "react";
 import { ClickWrapper } from "../clickWrapper";
 
-interface CounterElementProps {
+export enum ImagesPosition {
+    NONE,
+    LEFT,
+    RIGHT,
+    BOTH
+}
+
+interface PageTitleElementProps {
     name: string;
-    rightPicture: string;
+    imagePosition?: ImagesPosition;
 
-    closeFunction: () => void;
+    rightPicture?: string;
+    leftPicture?: string;
+    rightImageFunction?: () => void;
+    leftImageFunction?: () => void;
 
-    left_html_elemt?: JSX.Element;
-    right_html_element?: JSX.Element;
-    picStyle?: JSX.Element;
+    htmlContentsLeft?: any;
+    htmlContentsRight?: any;
+    styleContainerLeft?: any;
+    styleContainerRight?: any;
 }
 
-const containerStyle: CSSProperties = {
-    width: "100%",
-    flex: "2",
+const size: string = "clamp(1.1rem, 1.6vw + 0.9rem, 10rem)"; // this is test-h1 size
 
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+const PageTitleElement: React.FC<PageTitleElementProps> = ({ name, imagePosition = ImagesPosition.NONE, rightPicture, leftPicture, rightImageFunction, leftImageFunction, htmlContentsLeft, htmlContentsRight, styleContainerLeft, styleContainerRight }) => {
+    
+    const handleLeftImageClick = () => {
+        if (leftImageFunction) {
+            leftImageFunction();
+        }
+    };
 
-    position: "relative",
+    const handleRightImageClick = () => {
+        if (rightImageFunction) {
+            rightImageFunction();
+        }
+    };
 
-    color: "white",
-
-    boxSizing: "border-box",
-}
-
-const leftContainerStyle: CSSProperties = {
-    flex: "1",
-    height: "100%",
-
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center",
-}
-
-const rightContainerStyle: CSSProperties = {
-    flex: "1",
-    height: "100%",
-
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-}
-
-const titleContainerStyle: CSSProperties = {
-    flex: "1",
-    height: "100%",
-
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-
-    fontFamily: "Zelda",
-}
-
-const PageTitleElement: React.FC<CounterElementProps> = ({ name, rightPicture, closeFunction, left_html_elemt, right_html_element, picStyle }) => {
     return (
+        <div style={{
+            height: "15%",
+            width: "100%",
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: "row",
+            position: "relative",
+            justifyContent: "space-between",
+            alignItems: "center",
+        }}>
+            <div style={{ width: size}}></div>
 
-        <div style={{ height: "15%", width: "100%", display: "flex", flexDirection: "column"}}>
-            <div style={{flex:"1"}}></div>
-            <ClickWrapper style={containerStyle} >
-                <div style={leftContainerStyle}>
-                    <div style={{ height: "100%", aspectRatio: "1/1" }}></div>
-                    {left_html_elemt}
-                </div>
-                <div style={titleContainerStyle}>
-                    <h1 className="no-margin test-h1" style={{ fontWeight: "100" }}>{name}</h1>
-                </div>
-                <div style={rightContainerStyle}>
-                    {right_html_element}
-                    <img src={rightPicture} alt="" style={{ height: "100%", ...picStyle }} className="pointer" onMouseDown={closeFunction} />
-                </div>
-            </ClickWrapper>
-            <div style={{flex:"1"}}></div>
+            <div style={{height:"100%", flex:"1", ...styleContainerLeft}}>
+                {htmlContentsLeft}
+            </div>
+
+            {imagePosition === ImagesPosition.LEFT || imagePosition === ImagesPosition.BOTH ? (
+                <img
+                    src={leftPicture}
+                    style={{ width: size, height: size, cursor: 'pointer',verticalAlign:"middle",paddingBottom:"0.3em" }}
+                    alt="Left Image"
+                    onClick={handleLeftImageClick}
+                />
+            ) : <div style={{ width: size }} />}
+
+            <h1 className="no-margin test-h1" style={{ whiteSpace: "nowrap", fontWeight: "100", fontFamily:"Zelda", color:"white" }}>{name}</h1>
+            
+            <div style={{height:"100%", flex:"1", ...styleContainerRight}}>
+                {htmlContentsRight}
+            </div>
+
+            {imagePosition === ImagesPosition.RIGHT || imagePosition === ImagesPosition.BOTH ? (
+                <img
+                    src={rightPicture}
+                    style={{ width: size, height: size, cursor: 'pointer', verticalAlign:"middle", paddingBottom:"0.3em" }}
+                    alt="Right Image"
+                    onClick={handleRightImageClick}
+                />
+            ) : <div style={{ width: size }} />}
+            <div style={{ width: size}}></div>
         </div>
-
     );
 };
 
 export default PageTitleElement;
-
-

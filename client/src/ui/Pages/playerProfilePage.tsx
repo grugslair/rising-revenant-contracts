@@ -1,5 +1,5 @@
 //libs
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { HasValue, getComponentValueStrict, getComponentValue, EntityIndex, Has } from "@latticexyz/recs";
 import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 import { useDojo } from "../../hooks/useDojo";
@@ -12,11 +12,10 @@ import "./PagesStyles/ProfilePageStyles.css";
 
 //elements/components
 import { ClickWrapper } from "../clickWrapper";
-import PageTitleElement from "../Elements/pageTitleElement";
-import { fetchPlayerInfo, namesArray, setClientCameraComponent, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM, surnamesArray } from "../../utils";
+import PageTitleElement, { ImagesPosition } from "../Elements/pageTitleElement";
+import { namesArray, setClientCameraComponent, surnamesArray } from "../../utils";
 import { ReinforcementCountElement } from "../Elements/reinfrocementBalanceElement";
 import { MenuState } from "./gamePhaseManager";
-import { LordsBalanceElement } from "../Elements/playerLordsBalance";
 import { useResizeableHeight } from "../loginComponent";
 import { setTooltipArray } from "../../phaser/systems/eventSystems/eventEmitter";
 
@@ -30,8 +29,6 @@ examples
 needs functionality to move the camera to a certain location and ability to call reinforce dojo function and go to the trade page
 */
 
-
-// HERE this needs to be put into a grid system not flex
 
 interface ProfilePageProps {
     setUIState: () => void;
@@ -116,9 +113,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
 
             <img className="page-img brightness-down" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
 
-            <PageTitleElement name={"PROFILE"} rightPicture={"close_icon.svg"} closeFunction={setUIState}/>
-
-            <ReinforcementCountElement style={{position:"absolute", top:"5%", right:"10%"}}/>
+            <PageTitleElement imagePosition={ImagesPosition.RIGHT} name={"PROFILE"} rightPicture={"close_icon.png"} rightImageFunction={setUIState} htmlContentsRight={<ReinforcementCountElement style={{marginRight:"8%"}}/>} styleContainerRight={{display:"flex", justifyContent:"flex-end" , alignItems:"center"}}/>
 
             <div style={{ width: "100%", height: "80%", position: "relative", display: "flex", flexDirection: "row" }}>
                 <div style={{ width: "8%", height: "100%" }}></div>
@@ -163,6 +158,8 @@ interface ListElementProps {
     confirmEvent: any
 }
 
+// HERE all these use states can be delete and just put one for the rev and outpost data no need for this many
+
 export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_outpost, currentBalance, goHereFunc, phase, confirmEvent }) => {
     const [buttonIndex, setButtonIndex] = useState<number>(0)
     const [amountToReinforce, setAmountToReinforce] = useState<number>(1)
@@ -187,7 +184,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
 
     const outpostData = useComponentValue(contractComponents.Outpost, entityId);
     const revenantData = getComponentValueStrict(contractComponents.Revenant, entityId);
-    const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entityId);
+    const clientOutpostData = useComponentValue(clientComponents.ClientOutpostData, entityId);
 
     useEffect(() => {
         setShieldNum(outpostData.shield);
@@ -198,7 +195,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
 
         setName(namesArray[revenantData.first_name_idx]);
         setSurname(surnamesArray[revenantData.last_name_idx]);
-    }, [outpostData]);
+    }, [outpostData,useComponentValue]);
 
     useEffect(() => {
 
@@ -227,9 +224,9 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                 <h3 className="no-margin test-h4" style={{ textAlign: "center", fontFamily: "OL", color: "white", whiteSpace: "nowrap" }}>{name} {surname} </h3>
             </div>
 
-            <div className="otp" style={{position:"relative"}}>
-                {clientOutpostData.event_effected && <div style={{position:"absolute", top:"0", left:"0", backgroundColor:"#ff000055", height:"100%", width:"100%"}}></div>}
-                <img src="test_out_pp.png" className="child-img"/>
+            <div className="otp" style={{ position: "relative" }}>
+                {clientOutpostData.event_effected && <div style={{ position: "absolute", top: "0", left: "0", backgroundColor: "#ff000055", height: "100%", width: "100%" }}></div>}
+                <img src="test_out_pp.png" className="child-img" />
             </div>
 
             <div className="sh shields-grid-container" style={{ boxSizing: "border-box" }}>
@@ -265,10 +262,8 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
             {outpostData.lifes > 0 && phase === 2 &&
                 <>
                     {clientOutpostData.event_effected ?
-                        <div className="action" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                            <div className="global-button-style" style={{ padding: "5px 10px" }} onClick={() => { confirmEvent(entityId) }}>
-                                <h2 className="no-margin test-h4">Confirm Event</h2>
-                            </div>
+                        <div style={{ gridRow: "3/4", gridColumn: "22/25", display: "flex" }}>
+                            <h4 className="no-margin test-h4 global-button-style info-pp-text-style" style={{ width: "fit-content", height: "fit-content", padding: "2px 5px", boxSizing: "border-box", margin: "0px auto" }} onClick={() => { confirmEvent(entityId) }}>Validate Event</h4>
                         </div>
                         :
                         <div className="action" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gridTemplateRows: "1fr 1fr" }}>
@@ -278,11 +273,11 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                                 </div>
                             </div>
                             <div style={{ gridRow: "1", gridColumn: "2", display: "flex" }}>
-                                <h4 className="no-margin test-h4 info-pp-text-style">1</h4>
+                                <h4 className="no-margin test-h4 info-pp-text-style">{amountToReinforce}</h4>
                             </div>
                             <div style={{ gridRow: "1", gridColumn: "3", display: "flex" }}>
                                 <div className="global-button-style info-pp-text-style" style={{ width: "50%", height: "50%", margin: "0px auto" }} >
-                                    <img src="/plus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce - 1)} />
+                                    <img src="/plus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce + 1)} />
                                 </div>
                             </div>
                             <div style={{ gridRow: "2", gridColumn: "1/4", display: "flex", position: "relative" }}>

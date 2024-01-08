@@ -141,7 +141,6 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
         setUIState(Phase.GAME);
     }
 
-      
     if (clientGameData.guest) {
         return (
         <div className="main-page-container-layout">

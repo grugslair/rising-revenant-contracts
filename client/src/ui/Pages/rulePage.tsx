@@ -4,7 +4,7 @@ import { MenuState } from "./gamePhaseManager";
 
 //styles
 import "./PagesStyles/RulesPageStyles.css"
-import PageTitleElement from "../Elements/pageTitleElement";
+import PageTitleElement, { ImagesPosition } from "../Elements/pageTitleElement";
 import { ClickWrapper } from "../clickWrapper";
 
 //elements/components
@@ -33,9 +33,10 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
     return (
         <div className="game-page-container">
             <img className="page-img brightness-down" src="./assets/Page_Bg/RULES_PAGE_BG.png" alt="testPic" />
-            <PageTitleElement name={"RULES"} rightPicture={"close_icon.svg"} closeFunction={setUIState} ></PageTitleElement>
+            
+            <PageTitleElement imagePosition={ImagesPosition.RIGHT} name={"RULES"} rightPicture={"close_icon.png"} rightImageFunction={setUIState} />
 
-            <ClickWrapper style={{ display: "grid",  gridTemplateColumns:"1fr 1fr", gridTemplateRows:"1fr 1fr", gap: "20px", position: "relative", width: "60%", height: "10%", marginLeft:"20%", boxSizing: "border-box" }}>
+            <ClickWrapper style={{ display: "grid",  gridTemplateColumns:"1fr 1fr", gridTemplateRows:"1fr 1fr", gap: "10px", position: "relative", width: "60%", height: "10%", marginLeft:"20%", boxSizing: "border-box" }}>
                 <div className="global-button-style" style={{ gridRow:"1", gridColumn:"1" }}>
                     <h2 className="test-h2 no-margin" onClick={() => { setRulesState(RulesState.PREP) }} style={{ opacity: rulesState !== RulesState.PREP ? 0.5 : 1, textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "0px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }}>PREP PHASE</h2>
                 </div >
@@ -53,21 +54,21 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
 
             <div style={{ width: "100%", height: "5%", position: "relative" }}></div>
             <ClickWrapper style={{ width: "100%", height: "70%", position: "relative"}} className="center-via-flex" >
-                <div style={{ width: "60%", height: "100%", color: "white", fontFamily: "OL", display:"flex", flexDirection:"row"}}>
+                <div style={{ width: "60%", height: "100%", color: "white", fontFamily: "OL", display:"flex", flexDirection:"row",gap:"1%"}}>
 
-                    <div style={{height: "90%",width:"10%"}} className="center-via-flex">
+                    <div style={{height: "90%",width:"5%"}} className="center-via-flex">
                         {rulesState !== RulesState.PREP && <img style={{width:"100%", aspectRatio:"1/1"}} onClick={() => {setRulesState(prevState => prevState - 1)}} className="pointer" src="left-arrow.png"></img>}
                     </div>
 
-                    <div style={{height: "90%",width:"82%", color: "white", fontFamily: "OL", overflowY: "auto", scrollbarGutter: "stable", paddingRight: "5px"}}>
+                    <div style={{height: "90%",width:"88%", color: "white", fontFamily: "OL", overflowY: "auto", scrollbarGutter: "stable", paddingRight: "5px"}}>
                     {rulesState === RulesState.PREP && (<>
-                        <h2 style={{ marginBottom: "0px", fontWeight: "bold" }} className="test-h2">Summoning the Revenants:</h2>
+                        <h2 style={{ marginBottom: "0px", fontWeight: "bold", textDecoration:"underline"  }} className="test-h2">Summoning the Revenants:</h2>
                         <h3 style={{ marginTop: "0px" }} className="test-h3"> Players begin by summoning Revenants, powerful entities, through a mystical expenditure of $LORDS. Each successful summoning not only brings forth a Revenant but also establishes an Outpost around the game map.</h3>
 
-                        <h2 style={{ marginBottom: "0px", fontWeight: "bold" }} className="test-h2">Building Outposts:</h2>
+                        <h2 style={{ marginBottom: "0px", fontWeight: "bold", textDecoration:"underline"  }} className="test-h2">Building Outposts:</h2>
                         <h3 style={{ marginTop: "0px" }} className="test-h3">These bastions of power will initially have 1 health. Following a Revenant's summoning, players may fortify these Outposts in the following phase.</h3>
 
-                        <h2 style={{ marginBottom: "0px", fontWeight: "bold" }} className="test-h2">Fortifying Outposts:</h2>
+                        <h2 style={{ marginBottom: "0px", fontWeight: "bold" , textDecoration:"underline" }} className="test-h2">Fortifying Outposts:</h2>
                         <h3 style={{ marginTop: "0px" }} className="test-h3">Outposts, symbols of your burgeoning empire, can be bolstered up to 20 times in their lifetime. The extent of reinforcements directly influences the Outpost’s defense, manifested in the number of shields it wields:<br />
                             1-2 reinforcements: Unshielded<br />
                             3-5 reinforcements: 1 shield<br />
@@ -76,33 +77,33 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
                             14-19 reinforcements: 4 shields<br />
                             20 reinforcements: 5 shields</h3>
 
-                        <h2 style={{ marginBottom: "0px", fontWeight: "bold" }} className="test-h2">The Anticipation Screen:</h2>
+                        <h2 style={{ marginBottom: "0px", fontWeight: "bold" , textDecoration:"underline" }} className="test-h2">The Anticipation Screen:</h2>
                         <h3 style={{ marginTop: "0px"}} className="test-h3">Post-preparation, players enter a phase of strategic anticipation. Here, the summoning of new Revenants and bolstering of Outposts continues, setting the stage for the impending Main Phase.</h3>
                     </>)}
 
                     {rulesState === RulesState.GAME && (<>
-                        <h2 style={{ marginBottom: "0px", fontWeight: "bold"  }} className="test-h2">Commencing the Main Phase:</h2>
+                        <h2 style={{ marginBottom: "0px", fontWeight: "bold", textDecoration:"underline"  }} className="test-h2">Commencing the Main Phase:</h2>
                         <h3 style={{ marginTop: "0px" }} className="test-h3"> Following the initial phase, the game escalates into a whirlwind of action, marked by attacks and disorder.</h3>
 
-                        <h2 style={{ marginBottom: "0px", fontWeight: "bold"  }} className="test-h2">Diverse Attacks:</h2>
+                        <h2 style={{ marginBottom: "0px", fontWeight: "bold", textDecoration:"underline"   }} className="test-h2">Diverse Attacks:</h2>
                         <h3 style={{ marginTop: "0px" }} className="test-h3">Players must confront challenges ranging from cataclysmic natural disasters to the fiery wrath of dragons and the cunning onslaught of goblins.</h3>
 
-                        <h2 style={{ marginBottom: "0px", fontWeight: "bold" }} className="test-h2">Endurance of Outposts:</h2>
+                        <h2 style={{ marginBottom: "0px", fontWeight: "bold", textDecoration:"underline"  }} className="test-h2">Endurance of Outposts:</h2>
                         <h3 style={{ marginTop: "0px" }} className="test-h3"> The resilience of an Outpost is key, with its survival odds escalating with every reinforcement. The ultimate ambition? To stand as the last Rising Revenant.</h3>
                     </>)}
 
                     {rulesState === RulesState.FINAL && (<>
-                        <h2 style={{ marginBottom: "0px", fontWeight: "bold"  }} className="test-h2">Final Rewards:</h2>
+                        <h2 style={{ marginBottom: "0px", fontWeight: "bold", textDecoration:"underline"   }} className="test-h2">Final Rewards:</h2>
                         <h3 style={{ marginTop: "0px" }} className="test-h3">The Ultimate Prize: The games transactions feed into a colossal final jackpot, destined for the sole Revenant who outlasts all others.</h3>
                         <h2></h2>
-                        <h2 style={{ marginBottom: "0px" , fontWeight: "bold" }} className="test-h2">Economic Dynamics of "Rising Revenant":</h2>
-                        <h2 style={{ marginBottom: "0px", fontWeight: "bold"  }} className="test-h2">Preparation Phase::</h2>
+                        <h2 style={{ marginBottom: "0px" , fontWeight: "bold", textDecoration:"underline"  }} className="test-h2">Economic Dynamics of "Rising Revenant":</h2>
+                        <h2 style={{ marginBottom: "0px", fontWeight: "bold", textDecoration:"underline"   }} className="test-h2">Preparation Phase:</h2>
                         <h3 style={{ marginTop: "0px" }} className="test-h3">75% of $LORDS channeled into the final jackpot <br /> 10% allocated to transaction confirmation <br /> 15% as a creator tribute</h3>
 
-                        <h2 style={{ marginBottom: "0px" , fontWeight: "bold" }} className="test-h2">Main Phase:</h2>
+                        <h2 style={{ marginBottom: "0px" , fontWeight: "bold", textDecoration:"underline"  }} className="test-h2">Main Phase:</h2>
                         <h3 style={{ marginTop: "0px" }} className="test-h3"> 90% of $LORDS flows to the trader <br /> 5% augments the final jackpot <br /> 5% reserved as a lasting reward for the enduring players</h3>
 
-                        <h2 style={{ marginBottom: "0px" , fontWeight: "bold" }} className="test-h2"></h2>
+                        <h2 style={{ marginBottom: "0px" , fontWeight: "bold", textDecoration:"underline"  }} className="test-h2"></h2>
                         <h3 style={{ marginTop: "0px" }} className="test-h3">These rules are your compass in the world of "Rising Revenant," guiding you through a labyrinth of summoning, defense, and cunning trade to claim the crown of the ultimate survivor.</h3>
                     </>)}
 
@@ -112,7 +113,7 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
                     </>)}
                     </div>
                    
-                    <div style={{height: "90%",width:"10%"}} className="center-via-flex">
+                    <div style={{height: "90%",width:"5%"}} className="center-via-flex">
                         {rulesState !== RulesState.FINAL && <img style={{width:"100%", aspectRatio:"1/1"}} onClick={() => {setRulesState(prevState => prevState + 1)}} src="right-arrow.png" className="pointer"></img>}
                     </div>
                 </div>

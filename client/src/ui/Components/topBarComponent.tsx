@@ -138,7 +138,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
                     // if the health is not the same as last saved and its owned this should be mean that someone else accepted the event 
                     if (outpostData.lifes !== lastSavedLifes && clientOutpostData.owned) {
-                        notify(`someone confirmed your outpost ${clientOutpostData.entity_id}`);
+                        notify(`Someone confirmed your outpost ${Number(clientOutpostData.entity_id)}`);
                     }
                 }
             }
@@ -166,7 +166,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                         {clientGameData.guest ? (
                             <div style={{ fontSize: "1.2vw", filter: "brightness(70%) grayscale(70%)" }}>Contribution: Log in</div>
                         ) : (
-                            <Tooltip title={`Tot score game ${gameEntityCounter.score_count} \n Your score count ${playerContribScore}`}>
+                            <Tooltip title={  <><h4 className="no-margin test-h4" style={{textAlign:"center"}}>Total contribution game score: {gameEntityCounter.score_count}</h4> <h4 className="no-margin test-h4" style={{textAlign:"center"}}>Your contribution score count: {playerContribScore}</h4></>}>
                                 <div style={{ fontSize: "1.2vw" }}>Contribution: {playerContribScorePerc}%</div>
                             </Tooltip>
                         )}
@@ -200,7 +200,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                 <div style={{ width: "50%", height: "75%" }} className="center-via-flex">
                     {!clientGameData.guest ?
                         <Tooltip title="Click to copy" placement="bottom">
-                            <h2 onClick={() => navigator.clipboard.writeText(account.address)} className="pointer">
+                            <h2 onClick={() => navigator.clipboard.writeText(account.address)} className=" pointer">
                                 <img src="argent_logo.png" className="chain-logo" alt="Logo" />
                                 {truncateString(account.address, 5)}
                             </h2>

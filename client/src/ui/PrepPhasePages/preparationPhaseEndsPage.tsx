@@ -34,7 +34,7 @@ export const PrepPhaseEndsPage: React.FC<PrepPhaseEndsPageProps> = ({ setMenuSta
         networkLayer: {
           network: { contractComponents, clientComponents }
         },
-      } = useDojo();
+    } = useDojo();
 
     const clientGame = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     
@@ -50,25 +50,24 @@ export const PrepPhaseEndsPage: React.FC<PrepPhaseEndsPageProps> = ({ setMenuSta
         setFreeRevs(Number(gameData.max_amount_of_revenants) - Number(gameEntityCounter.revenant_count));
     }, [gameEntityCounter, gameData]);
 
- 
     return (
         <div className="ppe-page-container">
             <img src="./assets/Page_Bg/PREP_PHASE_WAIT_BG.png"  alt="testPic" />
             <ClickWrapper className="content-space">
-                <h1 style={{textAlign:"center", fontFamily:"Zelda"}} className="">PREPARATION PHASE ENDS IN<br/>
+                <h1 style={{textAlign:"center", fontFamily:"Zelda"}} className="test-h1">PREPARATION PHASE ENDS IN<br/>
                     <span onMouseDown={()=> {setShowBlocks(!showBlocks)}}>{showBlocks ? `BLOCKS LEFT: ${blocksLeft}` : `DD:5 HH5 MM:3 SS:50`}</span>
                 </h1>
-                <h2 className="global-button-style no-margin test=h2" style={{marginBottom:"2%" ,padding:"5px 10px"}} onMouseDown={() => {setMenuState(PrepPhaseStages.PROFILE)}}>Place your Reinforcements</h2>
+                <h2 className="global-button-style no-margin test-h1-5" style={{marginBottom:"2%" ,padding:"5px 10px"}} onMouseDown={() => {setMenuState(PrepPhaseStages.PROFILE)}}>Place your Reinforcements</h2>
                 <div style={{height:"fit-content", display:"flex", gap:"20px", flexDirection:"row", justifyContent:"center", alignItems:"center"}}>
 
                 {freeRevs > 0 ? (
-                        <h2 onMouseDown={() => {setMenuState(PrepPhaseStages.BUY_REVS)}} className="global-button-style no-margin test=h2" style={{padding:"5px 10px"}} >Summon more Revenants</h2>
+                        <h2 onMouseDown={() => {setMenuState(PrepPhaseStages.BUY_REVS)}} className="global-button-style no-margin test-h2" style={{padding:"5px 10px"}} >Summon more Revenants</h2>
                     ) : (
 
-                        <h2  className="global-button-style no-margin test=h2" style={{padding:"5px 10px", opacity:"0.5"}}>Summon more Revenants</h2>
+                        <h2  className="global-button-style no-margin test-h2" style={{padding:"5px 10px", opacity:"0.5"}}>Summon more Revenants</h2>
                     )}
                     
-                    <h2 onMouseDown={() => {setMenuState(PrepPhaseStages.BUY_REIN)}} className="global-button-style no-margin test=h2" style={{padding:"5px 10px"}}>Buy more Reinforcements</h2>
+                    <h2 onMouseDown={() => {setMenuState(PrepPhaseStages.BUY_REIN)}} className="global-button-style no-margin test-h2" style={{padding:"5px 10px"}}>Buy more Reinforcements</h2>
                 </div>
             </ClickWrapper>
         </div>

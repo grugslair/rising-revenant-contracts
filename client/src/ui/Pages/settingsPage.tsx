@@ -7,7 +7,7 @@ import Slider from '@mui/material/Slider';
 
 //styles
 import "./PagesStyles/SettingPageStyle.css";
-import PageTitleElement from "../Elements/pageTitleElement";
+import PageTitleElement, { ImagesPosition } from "../Elements/pageTitleElement";
 import { ClickWrapper } from "../clickWrapper";
 import { Switch } from "@mui/material";
 import { setRefreshOwnOutpostDataTimer } from "../../utils/settingsConstants";
@@ -43,7 +43,8 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
     return (
         <div className="game-page-container">
             <img className="page-img brightness-down" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
-            <PageTitleElement name={"SETTINGS"} rightPicture={"close_icon.svg"} closeFunction={setUIState} />
+
+            <PageTitleElement imagePosition={ImagesPosition.RIGHT} name={"SETTINGS"} rightPicture={"close_icon.png"} rightImageFunction={setUIState} />
 
             <ClickWrapper style={{ position: "relative", width: "100%", height: "90%", display: "flex", flexDirection: "row", padding: "5% 3%", boxSizing: "border-box", color:"white"}} className="center-via-flex">
                 {/* <ClickWrapper style={{ height: "100%", width: "60%", display: "flex", flexDirection: "column", justifyContent: "center", paddingRight:"4%", boxSizing:"border-box" }}>

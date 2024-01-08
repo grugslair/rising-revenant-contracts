@@ -535,15 +535,6 @@ export const fetchAllOutRevData = async (graphSDK_: any, game_id: number, numOfO
     return outpostModels;
 }
 
-export const fetchAllTrades = async (graphSDK_: any, game_id: number, state: number): Promise<any> => {
-
-    const {
-        data: { tradeModels },
-    } = await graphSDK_().getTradesAvailable({ game_id: game_id, tradeStatus: state });
-
-    return tradeModels;
-}
-
 export const fetchSpecificOutRevData = async (graphSDK_: any, game_id: number, entity_id: number): Promise<any> => {
 
     const {
