@@ -12,6 +12,7 @@ const REVENANT_MAX_COUNT: u32 = 2;
 const REINFORCEMENT_INIT_COUNT: u32 = 0;
 
 const EVENT_INIT_RADIUS: u32 = 155;
+const EVENT_INCREASE_RADIUS: u32 = 5;
 
 // The reward score offered for creating a world event
 const EVENT_CREATE_SCORE: u32 = 20;

@@ -1838,7 +1838,7 @@
     {
       "name": "world_event_actions",
       "address": "0xc4bf8a155f0cc61367790347ee38465b2105fcdb782e8b932ff6feee1603dd",
-      "class_hash": "0x136529469d080ddd4ed760eca554cc1025eba37274e7b6e57f38134a884b276",
+      "class_hash": "0x14e22ae62900bab1329d70745de217d46ab8ee2cc6518e8d087f1dd89b5dbee",
       "abi": [
         {
           "type": "impl",
