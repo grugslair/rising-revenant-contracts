@@ -64,24 +64,24 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])); 
 
     // this is only here to call the debug menu
-    // useEffect(() => {
-    //     const handleKeyPress = (event: KeyboardEvent) => {
+    useEffect(() => {
+        const handleKeyPress = (event: KeyboardEvent) => {
 
-    //         if (event.key === 'j') {
-    //             if (prepPhaseStage === PrepPhaseStages.DEBUG) {
-    //                 setPrepPhaseStage(PrepPhaseStages.BUY_REVS);
-    //             } else {
-    //                 setPrepPhaseStage(PrepPhaseStages.DEBUG);
-    //             }
-    //         }
-    //     };
+            if (event.key === 'j') {
+                if (prepPhaseStage === PrepPhaseStages.DEBUG) {
+                    setPrepPhaseStage(PrepPhaseStages.BUY_REVS);
+                } else {
+                    setPrepPhaseStage(PrepPhaseStages.DEBUG);
+                }
+            }
+        };
 
-    //     window.addEventListener('keydown', handleKeyPress);
+        window.addEventListener('keydown', handleKeyPress);
 
-    //     return () => {
-    //         window.removeEventListener('keydown', handleKeyPress);
-    //     };
-    // }, [prepPhaseStage]);
+        return () => {
+            window.removeEventListener('keydown', handleKeyPress);
+        };
+    }, [prepPhaseStage]);
 
     // this useeffect is used so we can save the last state for the navbar retreat
     useEffect(() => {

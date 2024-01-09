@@ -170,15 +170,15 @@ export const DebugPage = () => {
     setEventCheckOutcome(passed);
   }
 
-  const createEvent = () => 
-  {
-    const createEventProps: CreateEventProps = {
-      account: account,
-      game_id: game_id
-    }
+  // const createEvent = () => 
+  // {
+  //   const createEventProps: CreateEventProps = {
+  //     account: account,
+  //     game_id: game_id
+  //   }
 
-    create_event(createEventProps);
-  }
+  //   create_event(createEventProps);
+  // }
 
   const gameId = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])).current_game_id;
 
@@ -233,7 +233,7 @@ export const DebugPage = () => {
           <div className="button-style-debug" onMouseDown={() => { worldEventSanityCheck() }}>Event Section, Click to check for missing data</div>
           <div className="content-holder">
             <h3>There are currently {worldEventEntityQuery.length} events ({gameEntityCounter.event_count}) </h3>
-            <button onMouseDown={() => { createEvent() }}>Manually create Event</button>
+            {/* <button onMouseDown={() => { createEvent() }}>Manually create Event</button> */}
             {eventCheckOutcome === TestResults.NONE && <h3>Run a sanity check...</h3>}
             {eventCheckOutcome === TestResults.PASSED && <h3 style={{ color: 'green' }}>Sanity check Passed</h3>}
             {eventCheckOutcome === TestResults.ERROR && <h3 style={{ color: 'red' }}>Sanity check Failed</h3>}

@@ -92,27 +92,27 @@ export const GamePhaseManager = () => {
   }, [outpostDeadQuery]);
 
   // this only needs to be like this for the debug, once the game ships take out the dependency
-  // useEffect(() => {
-  //   const handleKeyPress = (event: KeyboardEvent) => {
-  //     if (event.key === 'Escape') {
-  //       setCurrentMenuState(MenuState.NONE);
-  //     }
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setCurrentMenuState(MenuState.NONE);
+      }
 
-  //     if (event.key === 'j') {
-  //       if (currentMenuState === MenuState.Debug) {
-  //         setCurrentMenuState(MenuState.NONE);
-  //       } else {
-  //         setCurrentMenuState(MenuState.Debug);
-  //       }
-  //     }
-  //   };
+      if (event.key === 'j') {
+        if (currentMenuState === MenuState.Debug) {
+          setCurrentMenuState(MenuState.NONE);
+        } else {
+          setCurrentMenuState(MenuState.Debug);
+        }
+      }
+    };
 
-  //   window.addEventListener('keydown', handleKeyPress);
+    window.addEventListener('keydown', handleKeyPress);
 
-  //   return () => {
-  //     window.removeEventListener('keydown', handleKeyPress);
-  //   };
-  // }, [currentMenuState]);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [currentMenuState]);
 
 
   // this needs to be delete from demo and only visible locally

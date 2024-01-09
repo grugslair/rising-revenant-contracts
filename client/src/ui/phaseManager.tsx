@@ -41,7 +41,7 @@ export const PhaseManager = () => {
       <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "0.7vw", color: "white" }}>
         Date of Version: 8th Jan<br />
         Branch: main<br />
-        Pull: demo test 7 no debug
+        Pull: demo test 8 half debug
       </div>
 
       <ClickWrapper style={{ position: "absolute", bottom: "10px", right: "10px", fontFamily: "OL", color: "white" }}>
