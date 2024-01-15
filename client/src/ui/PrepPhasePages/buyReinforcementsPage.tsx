@@ -115,34 +115,33 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
 
     return (
         <div className="game-page-container" style={{ display: "flex", flexDirection: "row", color: "white" }}>
-            <img className="page-img brightness-down" src="./assets/Page_Bg/REINFORCEMENTS_PAGE_BG.png" alt="testPic" />
+            <img className="page-img brightness-down" src="./Page_Bg/REINFORCEMENTS_PAGE_BG.png" alt="testPic" />
 
             <div style={{ height: "100%", margin: "0px 5%", width: "90%", position: "relative", display: "flex", flexDirection: "column" }}>
                 <div style={{ height: "20%", width: "100%", position: "relative", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-                    {freeRevs > 0 && <ClickWrapper onMouseDown={() => { setMenuState(PrepPhaseStages.BUY_REVS); }} className="global-button-style"
-                        style={{ padding: "5px 10px", fontSize: "1.3cqw" }}>
-                        <img className="embedded-text-icon" src="Icons/Symbols/left_arrow.svg" alt="Sort Data" />
+                    {freeRevs > 0 && <ClickWrapper onMouseDown={() => { setMenuState(PrepPhaseStages.BUY_REVS); }} className="global-button-style invert-colors  invert-colors no-margin test-h2"
+                        style={{ padding: "5px 10px" }}>
+                        <img className="embedded-text-icon" src="Icons/left-arrow.png" alt="Sort Data" />
                         Summon more Revenants
                     </ClickWrapper>}
                 </div>
-                {/* <ClickWrapper style={{ height: "50%", width: "100%", position: "relative",  display:"flex", justifyContent:"center", flexDirection:"column"}}>
-                <h2 className="main-content-header">BUY REINFORCEMENTS</h2>
-                <CounterElement value={reinforcementNumber} setValue={setReinforcementNumber} containerStyleAddition={{maxWidth:"30%"}}  additionalButtonStyleAdd={{padding:"2px", boxSizing:"border-box"}} textAddtionalStyle={{fontSize:"2cqw"}}/>
-                <div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { buyReinforcements(reinforcementNumber) }}>Summon (Tot: ≈{reinforcementNumber * priceOfReinforcements} $Lords)</div>
-            </ClickWrapper> */}
                 <ClickWrapper style={{ height: "50%", width: "100%", position: "relative", display: "grid", gridTemplateRows: "repeat(5,1fr)", gridTemplateColumns: "repeat(2,1fr)" }}>
                     <div style={{ gridRow: "2/3", gridColumn: "1/2", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
                         <h2 style={{ fontFamily: "Zelda", fontWeight: "100", fontSize: "3vw" }}>BUY REINFORCEMENTS</h2>
                     </div>
                     <div style={{ gridRow: "3/6", gridColumn: "1/2" }}>
-                        <CounterElement value={reinforcementNumber} setValue={setReinforcementNumber} containerStyleAddition={{ maxWidth: "40%" }} additionalButtonStyleAdd={{ padding: "2px", boxSizing: "border-box", width: "15%" }} textAddtionalStyle={{ fontSize: "2cqw" }}/>
-                        <div className="global-button-style" style={{ width: "fit-content", fontSize: "1.3cqw", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { buyReinforcements(reinforcementNumber) }}>Reinforce (Tot: ≈{reinforcementNumber * priceOfReinforcements} $Lords)</div>
+                        <CounterElement value={reinforcementNumber} setValue={setReinforcementNumber} containerStyleAddition={{ maxWidth: "40%" }} additionalButtonStyleAdd={{ padding: "2px", boxSizing: "border-box", width: "15%" }} textAddtionalStyle={{ fontSize: "2cqw" }} />
+                        {priceOfReinforcements !== 0 ?
+                            <h2 className="global-button-style invert-colors  invert-colors no-margin test-h2" style={{ width: "fit-content", padding: "5px 10px", fontWeight: "100" }} onMouseDown={() => { buyReinforcements(reinforcementNumber) }}>Reinforce (Tot: ≈{reinforcementNumber * priceOfReinforcements} $Lords)</h2>
+                            :
+                            <h2 className="global-button-style invert-colors  invert-colors no-margin test-h2" style={{ width: "fit-content", padding: "5px 10px", fontWeight: "100", filter: "grayscale(70%)" }} >Waiting to fetch Price</h2>
+                        }
                     </div>
 
                     <div style={{ gridRow: "2/6", gridColumn: "2/3", display: "flex", flexDirection: "row" }}>
                         <div style={{ height: "100%", width: "30%" }}></div>
                         <div style={{ height: "100%", width: "70%" }}>
-                            <h2 style={{ fontSize: "1.3vw", opacity, transition: "opacity 1s" }}>{text}</h2>
+                            <h2 className="no-margin" style={{ fontSize: "1.3vw", opacity, transition: "opacity 1s" }}>{text}</h2>
                         </div>
                     </div>
                 </ClickWrapper>
@@ -150,11 +149,17 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
                 <div style={{ height: "20%", width: "100%", position: "relative" }}></div>
 
                 <div style={{ height: "10%", width: "100%", position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ fontWeight: "100", fontFamily: "OL", color: "white", fontSize: "1.4rem" }}> 1 Reinforcement ≈ {priceOfReinforcements} $LORDS</div>
-                    <ClickWrapper onMouseDown={() => { setMenuState(PrepPhaseStages.WAIT_PHASE_OVER); }} className="global-button-style"
-                        style={{ padding: "5px 10px", fontSize: "1.3cqw" }}
+
+                    {priceOfReinforcements !== 0 ?
+                        <h2 style={{ fontWeight: "100", fontFamily: "OL", color: "white" }} className="no-margin test-h2"> 1 Reinforcement ≈ {priceOfReinforcements} $LORDS</h2>
+                        :
+                        <h2 style={{ fontWeight: "100", fontFamily: "OL", color: "white" }} className="no-margin test-h2"> Fetching price...</h2>
+                    }
+                    
+                    <ClickWrapper onMouseDown={() => { setMenuState(PrepPhaseStages.WAIT_PHASE_OVER); }} className="global-button-style invert-colors  invert-colors no-margin test-h2"
+                        style={{ padding: "5px 10px" }}
                     > Continue
-                        <img className="embedded-text-icon" src="Icons/Symbols/right_arrow.svg" alt="Right Arrow" onMouseDown={() => { }} />
+                        <img className="embedded-text-icon" src="Icons/right-arrow.png" alt="Right Arrow" onMouseDown={() => { }} />
                     </ClickWrapper>
                 </div>
             </div>

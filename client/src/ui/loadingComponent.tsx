@@ -3,7 +3,7 @@ import { CreateGameProps } from "../dojo/types";
 
 import { Phase } from "./phaseManager";
 import { useDojo } from "../hooks/useDojo";
-import { checkAndSetPhaseClientSide, fetchAllEvents, fetchAllOutRevData, fetchGameData, fetchGameTracker, fetchPlayerInfo, fetchSpecificOutRevData, loadInClientOutpostData, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM } from "../utils";
+import { checkAndSetPhaseClientSide, fetchAllEvents, fetchAllOutRevData, fetchGameData, fetchGameTracker, fetchPlayerInfo, fetchSpecificOutRevData, loadInClientOutpostData, setComponentsFromGraphQlEntitiesHM } from "../utils";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 
 import { getComponentValueStrict, getComponentValue } from "@latticexyz/recs";
@@ -30,7 +30,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
   const {
     account: { account },
     networkLayer: {
-      systemCalls: { create_game, get_current_block   },
+      systemCalls: { create_game, get_current_block},
       network: { contractComponents, clientComponents, graphSdk },
     },
   } = useDojo();
@@ -69,13 +69,13 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
       gameTracker = getComponentValue(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     }
 
-    const game_id = gameTracker.count;
+    const game_id = gameTracker!.count;
 
     //then fetch the game comp
     const gameDataQuery = await fetchGameData(graphSdk, game_id);  // fetching the last game
     setComponentsFromGraphQlEntitiesHM(gameDataQuery, contractComponents, false);
     
-    const blockCount =  await get_current_block ();  //get the current block count
+    const blockCount =  await get_current_block();  //get the current block count
 
     const data = checkAndSetPhaseClientSide(game_id, blockCount!, contractComponents, clientComponents)
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]))
@@ -87,6 +87,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
 
     loadInClientOutpostData(game_id, contractComponents, clientComponents, account);
+
 
     switch (data.phase) {
 
@@ -107,7 +108,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
 
   useEffect(() => {
 
-    if (account.address === "0x66ef6a6982a7e844d3d04f52c7799e41936dfc616f44fe873217a4e6d7e576f") {
+    if (account.address === import.meta.env.VITE_PUBLIC_MASTER_ADDRESS) {
       return;
     }
 
@@ -133,7 +134,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
         muted
         style={{ maxWidth: "100%", maxHeight: "100%" }}
       >
-        <source src="videos/LoadingAnim.webm" type="video/webm" />
+        <source src="Videos/LoadingAnim.webm" type="video/webm" />
       </video>
     </div>
   );

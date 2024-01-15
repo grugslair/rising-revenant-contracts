@@ -15,6 +15,7 @@ import {
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useState } from "react";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
+import { Outpost, Revenant } from "../../generated/graphql";
 
 
 enum TestResults
@@ -185,7 +186,7 @@ export const DebugPage = () => {
   return (
     <ClickWrapper className="game-page-container">
 
-    <img className="page-img" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
+    <img className="page-img" src="./Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
 
       <h1 style={{ color: "white" , position:"relative"}}>Debug Menu (number inside brackets indicate the correct numbers for each comp type)</h1>
       <div className="buttons-holder" style={{position:"relative"}}>
@@ -214,8 +215,8 @@ export const DebugPage = () => {
             <h3>There are currently {gameEntityQuery.length} games (1)</h3>
             <h3>There are currently {gameTrackerEntityQuery.length} game tracker (1)</h3>
             <h3>There are currently {gameEntityCounterEntityQuery.length} game entity counter (1)</h3>
-            <h3>There are currently {clientEntityIndexQuery.length} client outpost data ({getComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(gameId)])).revenant_count|| -1})</h3>
-            <h3>Current Game id is {gameId} and should be {getComponentValue(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])).count  || -1}</h3>
+            <h3>There are currently {clientEntityIndexQuery.length} client outpost data ({getComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(gameId)]))?.revenant_count|| -1})</h3>
+            <h3>Current Game id is {gameId} and should be {getComponentValue(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]))?.count  || -1}</h3>
           </div>
         </div>
 

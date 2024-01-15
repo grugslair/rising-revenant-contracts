@@ -69,7 +69,7 @@ export const VideoComponent: React.FC<VideoComponentProps> = ({ onVideoDone }) =
       )}
 
       <video autoPlay style={{width:"100%", height:"100%"}}>
-        <source src="videos/TrailerVid.webm" type="video/webm"/>
+        <source src="Videos/TrailerVid.webm" type="video/webm"/>
       </video>
     </>
   );

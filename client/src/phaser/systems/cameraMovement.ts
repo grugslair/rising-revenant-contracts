@@ -1,5 +1,5 @@
 
-import {SCALE, getAdjacentIndices } from "../constants";
+import { SCALE, getAdjacentIndices } from "../constants";
 
 import { PhaserLayer } from "..";
 
@@ -11,9 +11,9 @@ import {
   getComponentValueStrict,
   EntityIndex,
   runQuery,
-  HasValue
+  HasValue,
+  updateComponent
 } from "@latticexyz/recs";
-import { setClientOutpostComponent } from "../../utils";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
@@ -34,7 +34,7 @@ export const cameraManager = (layer: PhaserLayer) => {
 
   // this can be threaded
 
-  defineSystem(world, [Has(ClientCameraPosition)], ({ entity }) => {
+  defineSystem(world, [Has(ClientCameraPosition)], async ({ entity }) => {
 
     const clientGameData = getComponentValue(ClientGameData, entity);
     const camPos = getComponentValue(ClientCameraPosition, entity);
@@ -48,11 +48,13 @@ export const cameraManager = (layer: PhaserLayer) => {
 
     const entitiesAtTileIndex = Array.from(runQuery([HasValue(ClientOutpostData, { visible: true })]));
 
+
     for (let index = 0; index < entitiesAtTileIndex.length; index++) {
       const entityId = entitiesAtTileIndex[index];
 
       spriteTransform(entityId, camPos);
     }
+
   });
 
   function spriteTransform(outpostEntityValue: EntityIndex, camPos: any) {
@@ -63,7 +65,7 @@ export const cameraManager = (layer: PhaserLayer) => {
       once: (sprite: any) => {
 
         //get the disatnce from the center cam to the sprite
-        let distanceX = Math.abs(sprite.x - camPos.x);  
+        let distanceX = Math.abs(sprite.x - camPos.x);
         let distanceY = Math.abs(sprite.y - camPos.y);
 
         //get the hypothenuse
@@ -73,8 +75,6 @@ export const cameraManager = (layer: PhaserLayer) => {
 
         let min = 150;
         let max = 600;
-
-        sprite.setScale(SCALE);
 
         if (totDistance < min || clientData.selected) {
           sprite.alpha = 1;
@@ -87,7 +87,6 @@ export const cameraManager = (layer: PhaserLayer) => {
           sprite.setScale(0);
           sprite.setVisible(false);
         }
-
       }
     });
   }
@@ -108,15 +107,16 @@ export const cameraManager = (layer: PhaserLayer) => {
 
 
   //this can be threaded
+  // could use has camere but that would update this everytime for the cam too and we dont want that so for now its ok 
   defineSystem(world, [Has(EntityTileIndex)], ({ entity }) => {
     const camIndex = getComponentValue(EntityTileIndex, entity);
     const clientGameData = getComponentValue(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
-    if (entity !== "0x1") {
+    if (entity !== getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])) {
       return;
     }
 
-    if (!camIndex || !clientGameData || entity !== "0x1") {   //check if its true
+    if (!camIndex || !clientGameData || entity !== getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])) {
       console.error("there is a failure in the cam system for index")
       return;
     }
@@ -124,7 +124,7 @@ export const cameraManager = (layer: PhaserLayer) => {
     const camTileIndex = camIndex.tile_index;
 
     const adjecentData = getAdjacentIndices(camTileIndex);
-
+    // there is something called getEntitiesWithValue to look into HERE
     const visibleOutposts = Array.from(runQuery([HasValue(ClientOutpostData, { visible: true })]));
     const selectedOutpost = Array.from(runQuery([HasValue(ClientOutpostData, { selected: true })]));
 
@@ -137,17 +137,16 @@ export const cameraManager = (layer: PhaserLayer) => {
 
       arrOfEntitiesInIndexes = arrOfEntitiesInIndexes.concat(entitiesAtTileIndex);
     }
-
+    
     const mergedEntities = [...new Set([...arrOfEntitiesInIndexes, ...visibleOutposts, ...selectedOutpost])];
-
+    
     for (let index = 0; index < mergedEntities.length; index++) {
+
       const entityId = mergedEntities[index];
 
       const indexOfEntity = getComponentValueStrict(EntityTileIndex, entityId);
-
       const clientOutpostData = getComponentValueStrict(ClientOutpostData, entityId);
 
-      // i dont really like this if statment like this
       if (selectedOutpost.length > 0) {
         if (selectedOutpost[0] === entityId) {
           continue;
@@ -155,11 +154,14 @@ export const cameraManager = (layer: PhaserLayer) => {
       }
 
       if (adjecentData.includes(indexOfEntity.tile_index)) {
-        setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, clientOutpostData.event_effected, clientOutpostData.selected, true, clientComponents, contractComponents, 1);
+        updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientOutpostData.id)]), { visible: true})
       }
       else {
-        setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, clientOutpostData.event_effected, clientOutpostData.selected, false, clientComponents, contractComponents, 1);
+        updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientOutpostData.id)]), { visible: false})
       }
     }
+
+
+    // console.error(`this si for the per ${end - start}`)
   });
 }

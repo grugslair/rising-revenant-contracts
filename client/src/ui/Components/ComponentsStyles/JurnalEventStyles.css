@@ -1,12 +1,12 @@
 .jurnal-event-container {
   position: absolute;
-  top: 55%;
-  left: 78%;
-  height: 40%;
-  width: 20%;
+  top: 58%;
+  left: 84%;
+  height: 35%;
+  width: 15%;
 
   background-color: rgb(0, 0, 0);
-  border: 5px solid var(--borderColour);
+  border: var(--borderRadius) solid var(--borderColour);
   border-radius: 5px;
   z-index: 2;
 

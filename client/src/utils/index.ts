@@ -1,346 +1,151 @@
 import { getEntityIdFromKeys, parseComponentValueFromGraphQLEntity, setComponentFromGraphQLEntity } from "@dojoengine/utils";
-import { setComponent, Components, ComponentValue, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { setComponent, Components, ComponentValue, getComponentValue, getComponentValueStrict, updateComponent } from "@latticexyz/recs";
 import { getTileIndex } from "../phaser/constants";
 import { GAME_CONFIG_ID } from "./settingsConstants";
+import { Game, GameEntityCounter, Outpost } from "../generated/graphql";
+import { ClientComponents } from "../dojo/createClientComponents";
 
 
 //region Names
 
 export const namesArray: string[] = [
-    "Mireth",
-    "Vexara",
-    "Zorion",
-    "Caelix",
-    "Elyndor",
-    "Tharion",
-    "Sylphren",
-    "Aravax",
-    "Vexil",
-    "Lyrandar",
-    "Nyxen",
-    "Theralis",
-    "Qyra",
-    "Fenrix",
-    "Atheris",
-    "Lorvael",
-    "Xyris",
-    "Zephyron",
-    "Calaer",
-    "Drakos",
-    "Velixar",
-    "Syrana",
-    "Morvran",
-    "Elithran",
-    "Kaelith",
-    "Tyrven",
-    "Ysara",
-    "Vorenth",
-    "Alarix",
-    "Ethrios",
-    "Nyrax",
-    "Thrayce",
-    "Vynora",
-    "Kerith",
-    "Jorvax",
-    "Lysandor",
-    "Eremon",
-    "Xanthe",
-    "Zanther",
-    "Cindris",
-    "Baelor",
-    "Lyvar",
-    "Eryth",
-    "Zalvor",
-    "Gormath",
-    "Sylvanix",
-    "Quorin",
-    "Taryx",
-    "Nyvar",
-    "Oryth",
-    "Valeran",
-    "Myrthil",
-    "Zorvath",
-    "Kyrand",
-    "Thalren",
-    "Vexim",
-    "Aelar",
-    "Grendar",
-    "Xylar",
-    "Zorael",
-    "Calyph",
-    "Vyrak",
-    "Thandor",
-    "Lyrax",
-    "Riven",
-    "Drexel",
-    "Yvaris",
-    "Zenthil",
-    "Aravorn",
-    "Morthil",
-    "Sylvar",
-    "Quinix",
-    "Tharix",
-    "Valthorn",
-    "Nythar",
-    "Lorvax",
-    "Exar",
-    "Zilthar",
-    "Cynthis",
-    "Veldor",
-    "Arix",
-    "Thyras",
-    "Mordran",
-    "Elyx",
-    "Kythor",
-    "Rendal",
-    "Xanor",
-    "Yrthil",
-    "Zarvix",
-    "Caelum",
-    "Lythor",
-    "Qyron",
-    "Thoran",
-    "Vexor",
-    "Nyxil",
-    "Orith",
-    "Valix",
-    "Myrand",
-    "Zorath",
-    "Kaelor"
+    "Mireth", "Vexara", "Zorion", "Caelix",
+    "Elyndor", "Tharion", "Sylphren", "Aravax",
+    "Vexil", "Lyrandar", "Nyxen", "Theralis",
+    "Qyra", "Fenrix", "Atheris", "Lorvael",
+    "Xyris", "Zephyron", "Calaer", "Drakos",
+    "Velixar", "Syrana", "Morvran", "Elithran",
+    "Kaelith", "Tyrven", "Ysara", "Vorenth",
+    "Alarix", "Ethrios", "Nyrax", "Thrayce",
+    "Vynora", "Kerith", "Jorvax", "Lysandor",
+    "Eremon", "Xanthe", "Zanther", "Cindris",
+    "Baelor", "Lyvar", "Eryth", "Zalvor",
+    "Gormath", "Sylvanix", "Quorin", "Taryx",
+    "Nyvar", "Oryth", "Valeran", "Myrthil",
+    "Zorvath", "Kyrand", "Thalren", "Vexim",
+    "Aelar", "Grendar", "Xylar", "Zorael",
+    "Calyph", "Vyrak", "Thandor", "Lyrax",
+    "Riven", "Drexel", "Yvaris", "Zenthil",
+    "Aravorn", "Morthil", "Sylvar", "Quinix",
+    "Tharix", "Valthorn", "Nythar", "Lorvax",
+    "Exar", "Zilthar", "Cynthis", "Veldor",
+    "Arix", "Thyras", "Mordran", "Elyx",
+    "Kythor", "Rendal", "Xanor", "Yrthil",
+    "Zarvix", "Caelum", "Lythor", "Qyron",
+    "Thoran", "Vexor", "Nyxil", "Orith",
+    "Valix", "Myrand", "Zorath", "Kaelor"
 ];
 
 export const surnamesArray: string[] = [
-    "Velindor",
-    "Tharaxis",
-    "Sylphara",
-    "Aelvorn",
-    "Morvath",
-    "Elynara",
-    "Xyreth",
-    "Zephris",
-    "Kaelyth",
-    "Nyraen",
-    "Lorvex",
-    "Quorinax",
-    "Dravys",
-    "Aeryth",
-    "Thundris",
-    "Gryfora",
-    "Luminaer",
-    "Orythus",
-    "Veximyr",
-    "Zanthyr",
-    "Caelarix",
-    "Nythara",
-    "Vaelorix",
-    "Myrendar",
-    "Zorvyn",
-    "Ethrios",
-    "Mordraen",
-    "Xanthara",
-    "Yrthalis",
-    "Zarvixan",
-    "Calarun",
-    "Vyrakar",
-    "Thandoril",
-    "Lyraxin",
-    "Drexis",
-    "Yvarix",
-    "Zenithar",
-    "Aravor",
-    "Morthal",
-    "Sylvoran",
-    "Quinixar",
-    "Tharixan",
-    "Valthornus",
-    "Nytharion",
-    "Lorvax",
-    "Exarion",
-    "Ziltharix",
-    "Cynthara",
-    "Veldoran",
-    "Arxian",
-    "Thyras",
-    "Elyxis",
-    "Kythoran",
-    "Rendalar",
-    "Xanorath",
-    "Yrthilix",
-    "Zarvixar",
-    "Caelumeth",
-    "Lythorix",
-    "Qyronar",
-    "Thoranis",
-    "Vexorath",
-    "Nyxilar",
-    "Orithan",
-    "Valixor",
-    "Myrandar",
-    "Zorathel",
-    "Kaeloran",
-    "Skyrindar",
-    "Nighsearix",
-    "Flamveilar",
-    "Thornvalix",
-    "Stormwieldor",
-    "Emberwindar",
-    "Ironwhisparia",
-    "Ravenfrostix",
-    "Shadowgleamar",
-    "Frostechoar",
-    "Moonriftar",
-    "Starbinderix",
-    "Voidshaperix",
-    "Earthmeldar",
-    "Sunweaverix",
-    "Seablazix",
-    "Wraithbloomar",
-    "Windshardix",
-    "Lightchasar",
-    "Darkwhirlar",
-    "Thornspiritix",
-    "Stormglowar",
-    "Firegazix",
-    "Nightstreamar",
-    "Duskwingar",
-    "Frostrealmar",
-    "Shadowsparkix",
-    "Ironbloomar",
-    "Ravenmistar",
-    "Embermarkix",
-    "Gloomveinar",
-    "Moonshroudar"
+    "Velindor", "Tharaxis", "Sylphara", "Aelvorn",
+    "Morvath", "Elynara", "Xyreth", "Zephris",
+    "Kaelyth", "Nyraen", "Lorvex", "Quorinax",
+    "Dravys", "Aeryth", "Thundris", "Gryfora",
+    "Luminaer", "Orythus", "Veximyr", "Zanthyr",
+    "Caelarix", "Nythara", "Vaelorix", "Myrendar",
+    "Zorvyn", "Ethrios", "Mordraen", "Xanthara",
+    "Yrthalis", "Zarvixan", "Calarun", "Vyrakar",
+    "Thandoril", "Lyraxin", "Drexis", "Yvarix",
+    "Zenithar", "Aravor", "Morthal", "Sylvoran",
+    "Quinixar", "Tharixan", "Valthornus", "Nytharion",
+    "Lorvax", "Exarion", "Ziltharix", "Cynthara",
+    "Veldoran", "Arxian", "Thyras", "Elyxis",
+    "Kythoran", "Rendalar", "Xanorath", "Yrthilix",
+    "Zarvixar", "Caelumeth", "Lythorix", "Qyronar",
+    "Thoranis", "Vexorath", "Nyxilar", "Orithan",
+    "Valixor", "Myrandar", "Zorathel", "Kaeloran",
+    "Skyrindar", "Nighsearix", "Flamveilar", "Thornvalix",
+    "Stormwieldor", "Emberwindar", "Ironwhisparia", "Ravenfrostix",
+    "Shadowgleamar", "Frostechoar", "Moonriftar", "Starbinderix",
+    "Voidshaperix", "Earthmeldar", "Sunweaverix", "Seablazix",
+    "Wraithbloomar", "Windshardix", "Lightchasar", "Darkwhirlar",
+    "Thornspiritix", "Stormglowar", "Firegazix", "Nightstreamar",
+    "Duskwingar", "Frostrealmar", "Shadowsparkix", "Ironbloomar",
+    "Ravenmistar", "Embermarkix", "Gloomveinar", "Moonshroudar"
+];
+
+export const revenantsPicturesLinks: string[] = [
+    "https://imgur.com/p90bt7l.jpg", "https://imgur.com/44nuJJa.jpg", "https://imgur.com/u1v8OSj.jpg", "https://imgur.com/iNe79VQ.jpg",
+    "https://imgur.com/LVzE8Ai.jpg", "https://imgur.com/ASRDy5w.jpg", "https://imgur.com/2lJ8IMg.jpg", "https://imgur.com/3G1tovh.jpg",
+    "https://imgur.com/SGSsvEb.jpg", "https://imgur.com/m2qbrPz.jpg", "https://imgur.com/1zOvm8s.jpg", "https://imgur.com/0H7PcaO.jpg",
+    "https://imgur.com/rkOnduZ.jpg", "https://imgur.com/GgaP64s.jpg", "https://imgur.com/Sy8ZETi.jpg", "https://imgur.com/SAp8S5V.jpg",
+    "https://imgur.com/K3hfQ3I.jpg", "https://imgur.com/mhYmwOI.jpg", "https://imgur.com/UXhqFGI.jpg", "https://imgur.com/E5Czpsb.jpg",
+    "https://imgur.com/nxwWqt9.jpg", "https://imgur.com/441wXgh.jpg", "https://imgur.com/9bn7rJ5.jpg", "https://imgur.com/YjTQ78n.jpg",
+    "https://imgur.com/cPEvihc.jpg"
 ];
 
 //endregion
 
-
-
 //region Setting Components Easy   we can just get the schema instead of doing it manually)
-
-function createComponentStructure(componentSchema: any, keys: string[], componentName: string): any {
-    return {
-        "node": {
-            "keys": keys,
-            "models": [
-                {
-                    "__typename": componentName,
-                    ...componentSchema
-                }
-            ]
-        }
-    };
-}
-
-export const setClientGameComponent = async (phase: number, game_id: number, current_block: number, guest: boolean, event_drawn: number, clientComponents: any) => {
-
-    const componentSchemaClientGameData = {
-        "current_game_state": phase,
-        "current_game_id": game_id,
-        "current_block_number": current_block,
-        "guest": guest,
-        "current_event_drawn": event_drawn
-    };
-
-    const craftedEdgeClientGameComp = createComponentStructure(componentSchemaClientGameData, ["0x1"], "ClientGameData");
-    setComponentFromGraphQLEntity(clientComponents, craftedEdgeClientGameComp);
-}
-
-export const setClientOutpostComponent = async (id: number, owned: boolean, event_effected: boolean, selected: boolean, visible: boolean, clientComponents: any, contractComponents: any, game_id: number) => {
-
-    // EntityTileIndex
-
-    const componentSchemaClientOutpostData = {
-        "id": id,
-        "owned": owned,
-        "event_effected": event_effected,
-        "selected": selected,
-        "visible": visible,
-    };
-
-    const craftedEdgeClientOutpostComp = createComponentStructure(componentSchemaClientOutpostData, [decimalToHexadecimal(game_id), decimalToHexadecimal(id)], "ClientOutpostData");
-    setComponentFromGraphQLEntity(clientComponents, craftedEdgeClientOutpostComp);
+// use the 
 
 
-    const outpostData = getComponentValueStrict(contractComponents.Outpost, getEntityIdFromKeys([BigInt(game_id), BigInt(id)]));
-    const index = getTileIndex(outpostData.x, outpostData.y);
-
-    const componentSchemaEntityTileIndex = {
-        "tile_index": index,
-    };
-
-    const craftedEdgeEntityTileIndex = createComponentStructure(componentSchemaEntityTileIndex, [decimalToHexadecimal(game_id), decimalToHexadecimal(id)], "EntityTileIndex");
-    setComponentFromGraphQLEntity(clientComponents, craftedEdgeEntityTileIndex);
-}
-
-export const loadInClientOutpostData = (game_id: number,contractComponents:any, clientComponents:any, account:any) =>
-{
-  const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
-  const outpostCount = gameEntityCounter.outpost_count;
-
-  for (let index = 1; index <= outpostCount; index++) {
-    const entityId = getEntityIdFromKeys([BigInt(game_id), BigInt(index)]);
-    
-    const outpostData = getComponentValueStrict(contractComponents.Outpost, entityId);
-
-    let owned = false;
-
-    if (outpostData.owner === account.address) {owned = true;}
-    
-    
-    setClientOutpostComponent(Number(outpostData.entity_id), owned, false, false,false,clientComponents,  contractComponents,game_id);
-  }
-}
 
 /**
- * Sets the client click position component based on provided coordinates.
- * 
- * @param xFromOrigin - The x-coordinate from the origin (top left).
- * @param yFromOrigin - The y-coordinate from the origin (top left).
- * @param xFromMiddle - The x-coordinate from the middle of the screen.
- * @param yFromMiddle - The y-coordinate from the middle of the screen.
+ * Set the value for a given entity in a given component.
+ *
+ * @param component {@link defineComponent Component} to be updated.
+ * @param entity {@link Entity} whose value in the given component should be set.
+ * @param value Value to set, schema must match the component schema.
+ *
+ * @example
+ * ```
+ * setComponent(Position, entity, { x: 1, y: 2 });
+ * ```
  */
-export const setClientClickPositionComponent = async (xFromOrigin: number, yFromOrigin: number, xFromMiddle: number, yFromMiddle: number, clientComponents: any) => {
+// export function setComponent<S extends Schema, T = unknown>(
 
-    const componentSchemaClientClickPosition = {
-        "xFromOrigin": xFromOrigin,
-        "yFromOrigin": yFromOrigin,
-        "xFromMiddle": xFromMiddle,
-        "yFromMiddle": yFromMiddle,
-    };
+// from the recs lib instead of this this is all to delete maybe
 
-    const craftedEdgeClientClickPositionComp = createComponentStructure(componentSchemaClientClickPosition, ["0x1"], "ClientClickPosition");
-    setComponentFromGraphQLEntity(clientComponents, craftedEdgeClientClickPositionComp);
+export function generateRandomNumber(from: number, to: number): number {
+    return Math.floor(Math.random() * to) + from;
 }
 
-export const setClientCameraComponent = async (x: number, y: number, clientComponents: any) => {
 
-    const componentSchemaClientCamera = {
-        "x": x,
-        "y": y,
-    };
+export const loadInClientOutpostData = (game_id: number, contractComponents: any, clientComponents: any , account: any) => {
+    const gameEntityCounter: GameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
+    const outpostCount = gameEntityCounter.outpost_count;
 
-    const craftedEdgeClientCameraComp = createComponentStructure(componentSchemaClientCamera, ["0x1"], "ClientCameraPosition");
-    setComponentFromGraphQLEntity(clientComponents, craftedEdgeClientCameraComp);
+    for (let index = 1; index <= outpostCount; index++) {
+        const entityId = getEntityIdFromKeys([BigInt(game_id), BigInt(index)]);
+
+        const outpostData: any = getComponentValueStrict(contractComponents.Outpost, entityId);
+
+        let owned = false;
+
+        if (outpostData.owner === account.address) { owned = true; }
+
+        setComponent(clientComponents.ClientOutpostData, entityId,
+            {
+                id: Number(outpostData.entity_id),
+                owned: owned,
+                event_effected: false,
+                selected: false,
+                visible: false
+            }
+        )
+
+        setComponent(clientComponents.EntityTileIndex, entityId,
+            {
+                tile_index: getTileIndex(outpostData.x, outpostData.y),
+            }
+        )
+    }
 }
 
-export const setClientCameraEntityIndex = async (x: number, y: number, clientComponents: any) => {
-
-    const index = getTileIndex(x, y);
-
-    const componentSchemaEntityTileIndex = {
-        "tile_index": index,
-    };
-
-    const craftedEdgeEntityTileIndex = createComponentStructure(componentSchemaEntityTileIndex, ["0x1"], "EntityTileIndex");
-    setComponentFromGraphQLEntity(clientComponents, craftedEdgeEntityTileIndex);
-
+export function clampPercentage(value: number, min: number, max: number): number {
+    return Math.min(Math.max(value, min), max);
 }
+
 
 //endregion
+export function getCountFromQuery(data: any, nodeName: string): number {
+    return data?.[nodeName]?.total_count || 0;
+}
 
-export function getCount(data: any, nodeName: string): number {
-    return data?.data?.[nodeName]?.totalCount || 0;
+// HERE to do when the outpost trading system is in
+export function checkOutpostOnSale() {
+
 }
 
 export function convertBlockCountToTime(number: number): string {
@@ -353,7 +158,6 @@ export function convertBlockCountToTime(number: number): string {
 
     return `DD: ${days} HH: ${hours} MM: ${minutes} SS: ${seconds}`;
 }
-
 
 export function isValidArray(input: any): input is any[] {
     return Array.isArray(input) && input != null;
@@ -450,10 +254,8 @@ export function setComponentsFromGraphQlEntitiesHM(data: any, components: Compon
 }
 
 export function checkAndSetPhaseClientSide(game_id: number, currentBlockNumber: number, contractComp: any, clientComp: any): { phase: number; blockLeft: number } {
-    const gameData = getComponentValue(contractComp.Game, getEntityIdFromKeys([BigInt(game_id)]));
-
-    const gameClientData = getComponentValue(clientComp.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
-
+    const gameData: Game = getComponentValueStrict(contractComp.Game, getEntityIdFromKeys([BigInt(game_id)]));
+ 
     let phase = 1;
     //30                           //10                         //39
     const blockLeft = (gameData.start_block_number + gameData.preparation_phase_interval) - currentBlockNumber
@@ -462,9 +264,20 @@ export function checkAndSetPhaseClientSide(game_id: number, currentBlockNumber: 
         phase = 2;
     }
 
-    setClientGameComponent(phase, game_id, currentBlockNumber, gameClientData.guest, gameClientData.current_event_drawn, clientComp);
-
+    updateComponent(clientComp.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {current_game_state: phase, current_game_id: game_id, current_block_number: currentBlockNumber});
+    
     return { phase, blockLeft };
+}
+
+export function mapEntityToImage(entityId: number, entityName: string, totalImages: number = 100): number {
+    const combinedStr: string = entityId.toString() + entityName;
+    const hashValue: number = combinedStr.split('').reduce((acc, char) => {
+        acc = (acc << 5) - acc + char.charCodeAt(0);
+        return acc & acc;
+    }, 0);
+
+    const imageNumber: number = (hashValue % totalImages) + 1; // Adding 1 to ensure it's between 1 and 100
+    return imageNumber;
 }
 
 

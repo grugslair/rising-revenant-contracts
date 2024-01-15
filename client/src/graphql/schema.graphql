@@ -8,6 +8,7 @@ query fetchSpecificOutRev($game_id: String!, $entity_id: String!) {
           ... on Revenant {
             game_id
             entity_id
+            outpost_id
             owner
             first_name_idx
             last_name_idx
@@ -17,6 +18,7 @@ query fetchSpecificOutRev($game_id: String!, $entity_id: String!) {
           ... on Outpost {
             game_id
             entity_id
+            revenant_id
             owner
             name_outpost
             x
@@ -44,6 +46,7 @@ query getAllOutRev($game_id: u32!, $outpostCount: Int!) {
             ... on Outpost {
               game_id
               entity_id
+              revenant_id
               owner
               name_outpost
               x
@@ -57,6 +60,7 @@ query getAllOutRev($game_id: u32!, $outpostCount: Int!) {
             ... on Revenant {
               game_id
               entity_id
+              outpost_id
               owner
               first_name_idx
               last_name_idx
@@ -81,6 +85,7 @@ query getAllOwnRevOut($game_id: u32!, $outpostCount: Int!, $owner: ContractAddre
             ... on Outpost {
               game_id
               entity_id
+              revenant_id
               owner
               name_outpost
               x
@@ -94,47 +99,11 @@ query getAllOwnRevOut($game_id: u32!, $outpostCount: Int!, $owner: ContractAddre
             ... on Revenant {
               game_id
               entity_id
+              outpost_id
               owner
               first_name_idx
               last_name_idx
               outpost_count
-              status
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-query getTradesAvailable($game_id: u32!, $tradeStatus: u32!) {
-  tradeModels(where: { game_id: $game_id, status: $tradeStatus }) {
-    edges {
-      node {
-        entity {
-          keys
-          models {
-            __typename
-            ... on Trade {
-              game_id
-              entity_id
-              seller
-              price
-              count
-              buyer
               status
             }
           }
@@ -166,7 +135,9 @@ query getSortedPlayerReinforcements($game_id: u32!, $playersNum: Int!) {
               revenant_count
               outpost_count
               reinforcement_count
+              initiated
               inited
+              player_wallet_amount
             }
           }
         }
@@ -237,7 +208,9 @@ query getPlayerInfo($game_id: String!, $owner: String!) {
             revenant_count
             outpost_count
             reinforcement_count
+            initiated
             inited
+            player_wallet_amount
           }
         }
       }

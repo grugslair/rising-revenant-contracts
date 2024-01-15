@@ -6,8 +6,11 @@ import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
+interface ReinforcementCountElementProps {
+    style?: React.CSSProperties;
+}
 
-export const ReinforcementCountElement: React.FC = () => {
+export const ReinforcementCountElement: React.FC<ReinforcementCountElementProps> = ({ style }) => {
 
     const [reinforcementCount, setReinforcementCount] = useState<number>(0);
 
@@ -29,11 +32,11 @@ export const ReinforcementCountElement: React.FC = () => {
     //HERE bring styles here
 
     return (
-        <div className="title-cart-section">
-            <h1>
-                <img src="reinforcements_logo.png" className="test-embed" alt="" />
+        <div className="title-cart-section" style={style}>
+            <h2 className="test-h2 no-margin" style={{ color:"white"}}>
+                <img src="Icons/reinforcements_logo.png" className="test-embed" alt="" />
                 {reinforcementCount}
-            </h1>
+            </h2>
             <h3>Reinforcement available</h3>
         </div>
     );

@@ -100,12 +100,12 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
 
     useEffect(() => {
         const reloading = async () => {
-          const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+          const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id)]));
       
-          const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData.current_game_id, gameEntityCounter.outpost_count);
+          const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData!.current_game_id, gameEntityCounter.outpost_count);
           setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
             
-          loadInClientOutpostData(clientGameData.current_game_id, contractComponents, clientComponents, account);
+          loadInClientOutpostData(clientGameData!.current_game_id, contractComponents, clientComponents, account);
         };
       
         return () => {
@@ -117,7 +117,7 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
 
     // video stuff
     const onVideoDone = () => {
-        if (clientGameData.guest)
+        if (clientGameData!.guest)
         {
             setPrepPhaseStage(PrepPhaseStages.GUEST);
         }
@@ -141,8 +141,7 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
         setUIState(Phase.GAME);
     }
 
-      
-    if (clientGameData.guest) {
+    if (clientGameData!.guest) {
         return (
         <div className="main-page-container-layout">
           

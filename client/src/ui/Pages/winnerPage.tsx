@@ -1,6 +1,6 @@
 //libs
 import React, { useEffect } from "react";
-import { HasValue, getComponentValueStrict, Has } from "@latticexyz/recs";
+import { HasValue, getComponentValueStrict, Has, EntityIndex } from "@latticexyz/recs";
 import { useEntityQuery } from "@latticexyz/react";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { MenuState } from "./gamePhaseManager";
@@ -51,12 +51,11 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
             return;
         }
 
-        const difference: string[] = totalOutposts.filter(item => !outpostDeadQuery.includes(item));
+        const difference = totalOutposts.filter(item => !outpostDeadQuery.includes(item));
 
         const outpostComp = getComponentValueStrict(contractComponents.Outpost, getEntityIdFromKeys([BigInt(difference[0])]));
-
-        setWinningAddress(outpostComp.owner);
-
+        
+        setWinningAddress("0x"+BigInt(outpostComp.owner).toString(16));
     }, []);
 
     const shareOnTwitter = () => {
@@ -65,23 +64,43 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
         window.open(twitterShareUrl, '_blank');
     };
 
+    const claimEndGameRewards = async () => {
+
+        const props: ClaimEndGameRewards = {
+            account: account,
+            game_id: clientGameData.current_game_id,
+        };
+
+        await claim_endgame_rewards(props);
+    }
+
+    const claimScoreRewards = async () => {
+
+        const props: ClaimScoreRewards = {
+            account: account,
+            game_id: clientGameData.current_game_id,
+        };
+
+        await claim_score_rewards(props);
+    }
+
     return (
         <div className="game-page-container">
-            <img className="page-img brightness-down" src="./revenant_vincitore_image.png" alt="testPic" />
+            <img className="page-img brightness-down" src="Page_Bg/REVENANT_WINNER_PAGE_BG.png" alt="testPic" />
             <div className="content-container" style={{ position: "relative" }}>
 
                 {winningAddress === account.address ?
                     (<>
-                        <h3>Address: {winningAddress}</h3>
-                        <h1>YOU ARE THE RISING REVENANT</h1>
-                        <ClickWrapper className="global-button-style" style={{padding:"5px 10px"}}>Claim your jackpot</ClickWrapper>
-                        <ClickWrapper className="global-button-style" style={{padding:"5px 10px"}}>Claim your contribution award</ClickWrapper>
+                        <h3 className="test-h2">Address: {winningAddress}</h3>
+                        <h1 className="test-h1">YOU ARE THE RISING REVENANT</h1>
+                        <ClickWrapper className="global-button-style invert-colors  invert-colors test-h2" style={{padding:"5px 10px", margin:"1%"}} onClick={claimEndGameRewards}>Claim your jackpot</ClickWrapper>
+                        <ClickWrapper className="global-button-style invert-colors  invert-colors test-h2" style={{padding:"5px 10px", margin:"1%"}} onClick={claimScoreRewards}>Claim your contribution award</ClickWrapper>
                     </>)
                     :
                     (<>
-                        <h3>Address: {winningAddress}</h3>
-                        <h1>IS THE RISING REVENANT</h1>
-                        <ClickWrapper className="global-button-style" style={{padding:"5px 10px"}}>Claim your contribution award</ClickWrapper>
+                        <h3 className="test-h2">Address: {winningAddress}</h3>
+                        <h1 className="test-h1">IS THE RISING REVENANT</h1>
+                        <ClickWrapper className="global-button-style invert-colors  invert-colors test-h2" style={{padding:"5px 10px", margin:"1%"}} onClick={claimScoreRewards}>Claim your contribution award</ClickWrapper>
                     </>)}
 
             </div>
@@ -104,7 +123,7 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
                 >
                     <h1>
                         Share on
-                        <img src="X_logo_white.png" style={{ marginLeft: "10px" }} className="test-embed" alt="" />
+                        <img src="Icons/X_logo_white.png" style={{ marginLeft: "10px" }} className="test-embed" alt="" />
                     </h1>
                 </ClickWrapper>
             )}

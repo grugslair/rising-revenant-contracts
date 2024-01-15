@@ -1,32 +1,44 @@
 import React, { CSSProperties } from "react";
 import { ClickWrapper } from "../clickWrapper";
+import { functionDeclaration } from "@babel/types";
 
-interface CounterElementProps {
-    name: string;
-    rightPicture: string;
+interface PageTitleElementProps {
+    imagePosition: ImagesPosition,
+    name: string,
 
-    closeFunction: () => void;
+    rightPicture?:string,
+    leftPicture?:string,
 
-    left_html_elemt?: JSX.Element;
-    right_html_element?: JSX.Element;
-    picStyle?: JSX.Element;
+    rightImageFunction? : () => void,
+    leftImageFunction? : () => void,
+
+    htmlContentsRight?:any,
+    htmlContentsLeft?:any,
+    styleContainerRight?:any,
+    styleContainerLeft?:any,
 }
 
-const containerStyle: CSSProperties = {
-    width: "100%",
-    height : "10%",
-    
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    
-    position: "relative",
-
-    color: "white",
-
-    boxSizing: "border-box",
+export enum ImagesPosition{
+    LEFT,
+    RIGHT,
+    BOTH,
+    NONE
 }
+
+const size: string = "clamp(1.1rem, 1vw + 0.8rem, 8rem)"; // this is test-h1 size
+
+// const leftContainerStyle: CSSProperties = {    
+//     display: "flex",
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+    
+//     position: "relative",
+
+//     color: "white",
+
+//     boxSizing: "border-box",
+// }
 
 const leftContainerStyle: CSSProperties = {
     flex: "1",
@@ -61,20 +73,50 @@ const titleContainerStyle: CSSProperties = {
     fontFamily: "Zelda",
 }
 
-const PageTitleElement: React.FC<CounterElementProps> = ({ name, rightPicture, closeFunction, left_html_elemt, right_html_element, picStyle}) => {
+const PageTitleElement: React.FC<PageTitleElementProps> = ({ name, rightImageFunction,leftImageFunction,rightPicture,imagePosition, leftPicture, htmlContentsLeft, htmlContentsRight, styleContainerRight, styleContainerLeft}) => {
     return (
-        <ClickWrapper style={containerStyle}>
-            <div style={leftContainerStyle}>
-                {left_html_elemt}
+        <div style={{
+            height: "15%",
+            width: "100%",
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: "row",
+            position: "relative",
+            justifyContent: "space-between",
+            alignItems: "center",
+        }}>
+            <div style={{ width: size}}></div>
+
+            {imagePosition === ImagesPosition.LEFT || imagePosition === ImagesPosition.BOTH ? (
+                <img
+                    src={leftPicture}
+                    style={{ width: size, height: size, cursor: 'pointer',verticalAlign:"middle",paddingBottom:"0.1em" }}
+                    alt="Left Image"
+                    onClick={leftImageFunction}
+                />
+            ) : <div style={{ width: size }} />}
+
+            <div style={{height:"100%", flex:"1", ...styleContainerLeft}}>
+                {htmlContentsLeft}
             </div>
-            <div style={titleContainerStyle}>
-                <h1 style={{fontWeight:"100"}}>{name}</h1>
+
+
+            <h1 className="no-margin test-h1-75" style={{ whiteSpace: "nowrap", fontWeight: "100", fontFamily:"Zelda", color:"white" }}>{name}</h1>
+            
+            <div style={{height:"100%", flex:"1", ...styleContainerRight}}>
+                {htmlContentsRight}
             </div>
-            <div style={rightContainerStyle}>
-                {right_html_element}
-                <img src={rightPicture} alt="" style={{ height:"100%", ...picStyle}} className="pointer" onMouseDown={closeFunction}/>
-            </div>
-        </ClickWrapper>
+
+            {imagePosition === ImagesPosition.RIGHT || imagePosition === ImagesPosition.BOTH ? (
+                <img
+                    src={rightPicture}
+                    style={{ width: size, height: size, cursor: 'pointer', verticalAlign:"middle", paddingBottom:"0.1em" }}
+                    alt="Right Image"
+                    onClick={rightImageFunction}
+                />
+            ) : <div style={{ width: size }} />}
+            <div style={{ width: size}}></div>
+        </div>
     );
 };
 

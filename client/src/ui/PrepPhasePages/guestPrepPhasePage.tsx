@@ -41,8 +41,8 @@ export const GuestPagePrepPhase: React.FC= () => {
 
     const clientGame = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     
-    const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGame.current_game_id)]));
-    const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGame.current_game_id)]));
+    const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGame!.current_game_id)]));
+    const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGame!.current_game_id)]));
 
     useEffect(() => {
         setFreeRevs(Number(gameData.max_amount_of_revenants) - Number(gameEntityCounter.revenant_count));
@@ -53,7 +53,7 @@ export const GuestPagePrepPhase: React.FC= () => {
 
     return (
         <div className="ppe-page-container">
-            <img src="./assets/Page_Bg/CALL_TO_JOIN_BG.png"  alt="testPic " className="brightness-down" />
+            <img src="./Page_Bg/CALL_TO_JOIN_BG.png"  alt="testPic " className="brightness-down" />
             <ClickWrapper className="content-space center-via-flex">
 
                 <div style={{height:"70%", width:"65%", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gridTemplateRows:"repeat(3, 1fr)", position:"relative"}}>
@@ -67,7 +67,7 @@ export const GuestPagePrepPhase: React.FC= () => {
                         {showBlocks ? <h2 style={{textAlign:"center"}} className="pointer" onClick={toggleShowBlocks}>Blocks Left: <br/> {numberValue}</h2> : <h2 style={{textAlign:"center"}} className="pointer" onClick={toggleShowBlocks}>Time Left: <br/> {stringValue}</h2>}
                     </div>
                     <div style={{gridColumn:"1/3", gridRow:"3/4"}} className="center-via-flex">
-                        <div className="global-button-style" onClick={() => window.location.reload()} style={{textAlign:"center", padding:"5px 10px"}}>Log in</div>
+                        <div className="global-button-style invert-colors " onClick={() => window.location.reload()} style={{textAlign:"center", padding:"5px 10px"}}>Log in</div>
                     </div>
                 </div>
 

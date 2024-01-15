@@ -2,16 +2,20 @@ import { useEffect } from "react";
 
 import {
     getComponentValue,
+    updateComponent,
+    setComponent,
   } from "@latticexyz/recs";
 
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID, MAP_HEIGHT, MAP_WIDTH } from "../../utils/settingsConstants";
-import { setClientCameraComponent, setClientCameraEntityIndex } from "../../utils";
 import { useWASDKeys } from "../../phaser/systems/eventSystems/keyPressListener";
 import { getTileIndex } from "../../phaser/constants";
 
 import { MenuState } from "../Pages/gamePhaseManager";
+
+
+// this is a big change HERE to move the component to only use camera.centerOn 
 
 export function useCameraInteraction(menuState: MenuState) {
 
@@ -56,7 +60,7 @@ export function useCameraInteraction(menuState: MenuState) {
             console.log("failed");
             return;
           }
-    
+          
           let newX = camPos.x;
           let newY = camPos.y;
     
@@ -91,9 +95,9 @@ export function useCameraInteraction(menuState: MenuState) {
           }
     
           if (newX !== prevX || newY !== prevY) {
+          
+            setComponent(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {x: newX, y: newY})
             
-            setClientCameraComponent(newX, newY, clientComponents);
-    
             prevX = newX;
             prevY = newY;
     
@@ -104,9 +108,9 @@ export function useCameraInteraction(menuState: MenuState) {
     
             const newIndex = getTileIndex(newX,newY);
     
-            if (newIndex !== camTileIndex.tile_index)
+            if (newIndex !== camTileIndex!.tile_index)
             {
-              setClientCameraEntityIndex(newX, newY, clientComponents)
+              updateComponent(clientComponents.EntityTileIndex, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {tile_index: newIndex });
             }
           }
     
@@ -124,3 +128,4 @@ export function useCameraInteraction(menuState: MenuState) {
     return {
     };
 }
+

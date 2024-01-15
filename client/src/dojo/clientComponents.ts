@@ -40,6 +40,23 @@ export function defineClientComponents(world: World) {
 		);
 	  })(),
 
+	  ClientTransaction: (() => {
+		const name = "ClientTransaction";
+		return defineComponent(
+		  world,
+		  {
+			state: RecsType.Number,
+			message: RecsType.String,
+			txHash: RecsType.String
+		  },
+		  {
+			metadata: {
+			  name: name,
+			},
+		  }
+		);
+	  })(),
+
 	  ClientOutpostData: (() => {
 		const name = "ClientOutpostData";
 		return defineComponent(
@@ -69,6 +86,7 @@ export function defineClientComponents(world: World) {
 			current_block_number : RecsType.Number,
 			guest : RecsType.Boolean,
 			current_event_drawn: RecsType.Number,
+			transaction_count: RecsType.Number,
 		  },
 		  {
 			metadata: {

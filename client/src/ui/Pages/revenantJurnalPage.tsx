@@ -6,15 +6,14 @@ import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 
 //styles
 import "./PagesStyles/RevenantJurnalPageStyles.css";
-import PageTitleElement from "../Elements/pageTitleElement";
+import PageTitleElement, { ImagesPosition } from "../Elements/pageTitleElement";
 import { ClickWrapper } from "../clickWrapper";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
-import { namesArray, surnamesArray, truncateString } from "../../utils";
-import { truncateString } from "../../utils";
-
+import { hexToNumber, namesArray, surnamesArray, truncateString } from "../../utils";
+import { Outpost, Revenant } from "../../generated/graphql";
 
 //elements/components
 
@@ -154,10 +153,11 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
     return (
         <div className="game-page-container">
 
-            <img className="page-img brightness-down" src="./assets/Page_Bg/JOURNAL_PAGE_BG.png" alt="testPic" />
+            <img className="page-img brightness-down" src="./Page_Bg/JOURNAL_PAGE_BG.png" alt="testPic" />
 
-            <PageTitleElement name="REVENANT JUORNAL" closeFunction={closePage} rightPicture="close_icon.svg" />
-            <div style={{ width: "100%", height: "10%", backgroundColor: "red" }}>
+            <PageTitleElement imagePosition={ImagesPosition.RIGHT} name={"REVENANT JOURNAL"} rightPicture={"Icons/close_icon.png"} rightImageFunction={closePage} />
+
+            <div style={{ width: "100%", height: "3%"}}>
             </div>
             <div style={{ width: "100%", height: "80%", position: "relative", display: "flex", flexDirection: "row", color: "white", fontFamily: "OL" }}>
                 <div style={{ width: "4%", height: "100%" }}></div>
@@ -168,11 +168,11 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
                             <div className="rev-jurn-page-grid-event-data-count center-via-flex">
                                 <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1.3vw", textAlign: "center" }}>Event {selectedEventIndex}/{allEvents.length}</div>
                             </div>
-                            <div className="rev-jurn-page-grid-left-arrow ">
-                                <img src="Icons/Symbols/left_arrow.svg" onMouseDown={() => setSelectedEventIndex(selectedEventIndex - 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
+                            <div className="rev-jurn-page-grid-left-arrow center-via-flex">
+                                <img src="Icons/left-arrow.png" onMouseDown={() => setSelectedEventIndex(selectedEventIndex - 1)} className="pointer" alt="" style={{  height: "80%", aspectRatio:"1/1" }} />
                             </div>
-                            <div className="rev-jurn-page-grid-right-arrow">
-                                <img src="Icons/Symbols/right_arrow.svg" onMouseDown={() => setSelectedEventIndex(selectedEventIndex + 1)} className="pointer" alt="" style={{ width: "100%", height: "100%" }} />
+                            <div className="rev-jurn-page-grid-right-arrow center-via-flex">
+                                <img src="Icons/right-arrow.png" onMouseDown={() => setSelectedEventIndex(selectedEventIndex + 1)} className="pointer" alt="" style={{  height: "80%", aspectRatio:"1/1"  }} />
                             </div>
                             <div className="rev-jurn-page-grid-position-data center-via-flex">
                                 <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Position <br /> X:{currentlySelectedEventData.x || 0} || Y:{currentlySelectedEventData.y || 0}</div>
@@ -184,9 +184,9 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
                                 <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Type: <br /> {"Null"} </div>
                             </div>
                             <div className="rev-jurn-page-grid-outpost-hit-table">
-                                <div style={{ width: "100%", height: "100%", marginTop:"20px" }}>
-                                    <div style={{ width: "100%", height: "10%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center", fontSize:"1.7vw"}}>
-                                        OUTPOST HIT LIST
+                                <div style={{ width: "100%", height: "100%", marginTop: "20px" }}>
+                                    <div style={{ width: "100%", height: "10%", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center", fontSize: "1.7vw" }}>
+                                        <h2 className="test-h2">All outposts hit list</h2>
                                     </div>
                                         <ClickWrapper  style={{ width: "100%", height: "80%", overflowY: "auto", scrollbarGutter: "stable both-edges" }}>
                                         {outpostHitList.map((outpostHit, index) => (
@@ -236,22 +236,28 @@ const ListElement: React.FC<{ entityId: EntityIndex}> = ({ entityId }) => {
     //probably doesnt need the fetch to client outpost data     HERE
 
     useEffect(() => {
-        setOutpostId(outpostContractData.entity_id.toString());
+        setOutpostId(outpostContractData?.entity_id.toString());
 
-        const name = namesArray[revenantContractData.first_name_idx] + " " + surnamesArray[revenantContractData.last_name_idx];
+        const name = namesArray[revenantContractData!.first_name_idx] + " " + surnamesArray[revenantContractData!.last_name_idx];
         setOutpostOwner(name);
-       
-        setOutpostCoordinates({ x: outpostContractData.x, y: outpostContractData.y });
+
+        setOutpostCoordinates({ x: outpostContractData!.x, y: outpostContractData!.y });
 
     }, [outpostContractData]);
 
     return (
         <div className="rev-jurn-outpost-element-grid-container">
-            <div style={{gridColumn:"1/3", display:"flex", justifyContent:"flex-end",height:"100%", width:"100%"}}> Outpost Id: {outpostId} </div>
-            <div style={{ height:"100%", width:"100%"}}>| |</div>
-            <div style={{whiteSpace:"nowrap", display:"flex", justifyContent:"center",  height:"100%", width:"100%"}}>X: {outpostCoordinates.x}, Y: {outpostCoordinates.y}</div>
-            <div style={{ height:"100%", width:"100%"}}>| |</div>
-            <div style={{gridColumn:"6/8", whiteSpace:"nowrap", display:"flex", justifyContent:"flex-start",  height:"100%", width:"100%"}}>Owner: {outpostOwner}</div>
+            <div style={{ gridColumn: "1/3", display: "flex", justifyContent: "flex-end", height: "100%", width: "100%",alignItems:"center", }} className="test-h4">
+                <h4 className="test-h4 no-margin" >Outpost Id: {hexToNumber(outpostId)}</h4>
+            </div>
+            <div style={{ height: "100%", width: "100%" }} className="test-h4"><h4 className="test-h4 no-margin" >||<br/>||</h4></div>
+            <div style={{ whiteSpace: "nowrap", display: "flex", justifyContent: "center", height: "100%", width: "100%" }} className="test-h4">
+                <h4 className="test-h4 no-margin" >X: {outpostCoordinates.x}<br/>Y: {outpostCoordinates.y}</h4>
+            </div>
+            <div style={{ height: "100%", width: "100%" }} className="test-h4" ><h4 className="test-h4  no-margin" >||<br/>||</h4></div>
+            <div style={{ gridColumn: "6/8", whiteSpace: "nowrap", display: "flex", justifyContent: "flex-start",alignItems:"center", height: "100%", width: "100%" }}>
+                <h4 className="test-h4 no-margin" >Owner: {outpostOwner} </h4>
+            </div>
         </div>
     );
 };

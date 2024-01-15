@@ -1,15 +1,15 @@
 import { SetupNetworkResult } from "./setupNetwork";
 import { ClientComponents } from "./createClientComponents";
-import { getEntityIdFromKeys, getEvents,  setComponentsFromEvents} from "@dojoengine/utils";
-import {  getComponentValueStrict } from "@latticexyz/recs";
+import { getEntityIdFromKeys, getEvents, setComponentsFromEvents } from "@dojoengine/utils";
+import { getComponentValueStrict, setComponent, updateComponent } from "@latticexyz/recs";
 
-import { CreateGameProps, CreateRevenantProps, ConfirmEventOutpost, CreateEventProps, PurchaseReinforcementProps, ReinforceOutpostProps, CreateTradeFor1Reinf, RevokeTradeReinf, PurchaseTradeReinf, ClaimScoreRewards } from "./types/index"
+import { CreateGameProps, CreateRevenantProps, ConfirmEventOutpost, CreateEventProps, PurchaseReinforcementProps, ReinforceOutpostProps, RevokeTradeReinf, PurchaseTradeReinf, ClaimScoreRewards, CreateTradeForReinf } from "./types/index"
 
 import { toast } from 'react-toastify';
-import { setClientOutpostComponent } from "../utils";
 import { GAME_CONFIG_ID } from "../utils/settingsConstants";
+import { getTileIndex } from "../phaser/constants";
 
-//HERE
+//HERE HCANGE ALL THE NOTIS TO THE RIGHT LAYOUT
 
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
@@ -17,19 +17,19 @@ export function createSystemCalls(
     { execute, contractComponents, clientComponents, call }: SetupNetworkResult,
     {
         GameEntityCounter,
-        
+
         Outpost,
-        ClientGameData
+        ClientGameData,
+        ClientOutpostData
     }: ClientComponents
 ) {
 
-    //HERE SHOULD BE DONE need to fix the notify to actually change if it fails or not
-    // as right now it doesnt detect if it gets rejected only if the transaciton fails
+    const notify = (message: string, transaction: any) => {
+        if (transaction.execution_status == 'REVERTED') {
 
-    const notify = (message: string, succeeded: boolean) => 
-    {
-        if (!succeeded){
-            toast("❌ " + message, {
+            const rejectReason = extractErrorReason(transaction.revert_reason);
+
+            toast("❌ " + rejectReason, {
                 position: "top-left",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -40,7 +40,7 @@ export function createSystemCalls(
                 theme: "dark",
             });
         }
-        else{
+        else {
             toast("✅ " + message, {
                 position: "top-left",
                 autoClose: 5000,
@@ -56,10 +56,10 @@ export function createSystemCalls(
 
 
     //TO DELETE
-    const create_game = async ({ account, preparation_phase_interval, event_interval, erc_addr, reward_pool_addr,revenant_init_price , max_amount_of_revenants}: CreateGameProps) => {
+    const create_game = async ({ account, preparation_phase_interval, event_interval, erc_addr, reward_pool_addr, revenant_init_price, max_amount_of_revenants }: CreateGameProps) => {
 
         try {
-            const tx = await execute(account, "game_actions", "create", [preparation_phase_interval, event_interval, erc_addr, reward_pool_addr,revenant_init_price, max_amount_of_revenants]);
+            const tx = await execute(account, "game_actions", "create", [preparation_phase_interval, event_interval, erc_addr, reward_pool_addr, revenant_init_price, max_amount_of_revenants]);
             const receipt = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
@@ -69,47 +69,63 @@ export function createSystemCalls(
             //     getEvents(receipt)
             // );
 
-            console.log(receipt)
-
-            notify('Game Created!',true)
+            notify('Game Created!', receipt)
         } catch (e) {
             console.log(e)
             notify(`Error creating game ${e}`, false)
         }
     };
 
-    const create_revenant = async ({ account, game_id }: CreateRevenantProps) => {
-
-        try {
-            const tx = await execute(account, "revenant_actions", "create", [game_id]);
-            const receipt = await account.waitForTransaction(
-                tx.transaction_hash,
-                { retryInterval: 100 }
-            )
-
-            setComponentsFromEvents(contractComponents,
-                getEvents(receipt)
-            );
-
-            notify('Revenant Created!', true);
-        } catch (e) {
-
-            console.log(e);
-            notify('Failed to create revenant', false);
-        }
-        finally
+    const create_revenant = async ({ account, game_id, count }: CreateRevenantProps) => {
         {
-            const gameEntityCounter = getComponentValueStrict(GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
-            const outpostData = getComponentValueStrict(Outpost, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count)]));
-            const clientGameData = getComponentValueStrict(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+            try {
+                const tx = await execute(account, "revenant_actions", "create", [game_id, count]);
+                const receipt = await account.waitForTransaction(
+                    tx.transaction_hash,
+                    { retryInterval: 100 }
+                )
 
-            let owned = false;
+                setComponentsFromEvents(contractComponents,
+                    getEvents(receipt)
+                );
 
-            if (outpostData.owner === account.address) {
-                owned = true;
+                notify('Revenant Created!', tx);
+            } catch (e) {
+
+                console.log(e);
+                // notify('Failed to create revenant');
+            }
+            finally {
+                const gameEntityCounter = getComponentValueStrict(GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
+
+                for (let index = 0; index < Number(count); index++) {
+
+                    const outpostData = getComponentValueStrict(Outpost, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]));
+                    const clientGameData = getComponentValueStrict(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+
+                    let owned = false;
+
+                    if (outpostData.owner === account.address) {
+                        owned = true;
+                    }
+
+                    setComponent(ClientOutpostData, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]),
+                        {
+                            id: Number(outpostData.entity_id),
+                            owned: owned,
+                            event_effected: false,
+                            selected: false,
+                            visible: false
+                        }
+                    )
+                    setComponent(clientComponents.EntityTileIndex, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]),
+                        {
+                            tile_index: getTileIndex(outpostData.x, outpostData.y)
+                        }
+                    )
+                }
             }
 
-            setClientOutpostComponent( Number(outpostData.entity_id), owned, false, false, false, clientComponents, contractComponents, clientGameData.current_game_id) 
         }
     };
 
@@ -125,10 +141,10 @@ export function createSystemCalls(
         }
     }
 
-    const get_current_reinforcement_price = async (game_id:number, count:number) => {
+    const get_current_reinforcement_price = async (game_id: number, count: number) => {
         try {
-            const tx: any = await call("revenant_actions", "get_current_price", [game_id,count]);
-                // console.error(`THIS IS FOR THE CURRENT PRICE OF THE REINFORCEMENTS ${tx.result[0]}`)
+            const tx: any = await call("revenant_actions", "get_current_price", [game_id, count]);
+            // console.error(`THIS IS FOR THE CURRENT PRICE OF THE REINFORCEMENTS ${tx.result[0]}`)
             return tx.result[0]
         } catch (e) {
             console.log(e)
@@ -151,7 +167,7 @@ export function createSystemCalls(
         } catch (e) {
             console.log(e)
         }
-      
+
     };
 
     const reinforce_outpost = async ({ account, game_id, count, outpost_id }: ReinforceOutpostProps) => {
@@ -159,7 +175,7 @@ export function createSystemCalls(
         console.error("for the reinforce ", outpost_id, " ", count, " ", game_id);
 
         try {
-            const tx = await execute(account, "revenant_actions", "reinforce_outpost", [game_id,count, outpost_id]);
+            const tx = await execute(account, "revenant_actions", "reinforce_outpost", [game_id, count, outpost_id]);
             const receipt = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
@@ -172,11 +188,11 @@ export function createSystemCalls(
             notify('Reinforced Outpost', true)
         } catch (e) {
             console.log(e)
-            notify("Failed to reinforce outpost", false)
+
         }
     };
 
-    const create_trade_reinf = async ({ account, game_id,count, price }: CreateTradeFor1Reinf) => {
+    const create_trade_reinf = async ({ account, game_id, count, price }: CreateTradeForReinf) => {
 
         try {
             const tx = await execute(account, "trade_actions", "create", [game_id, count, price]);
@@ -214,16 +230,15 @@ export function createSystemCalls(
             console.log(e)
             notify(`Failed to revoke trade ${trade_id}`, false)
         }
-        finally
-        {
+        finally {
 
         }
     };
 
-    const purchase_trade_reinf = async ({ account, game_id, revenant_id ,trade_id }: PurchaseTradeReinf) => {
+    const purchase_trade_reinf = async ({ account, game_id, trade_id }: PurchaseTradeReinf) => {
 
         try {
-            const tx = await execute(account, "trade_actions", "purchase", [game_id, revenant_id, trade_id]);
+            const tx = await execute(account, "trade_actions", "purchase", [game_id, trade_id]);
             const receipt = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
@@ -233,7 +248,7 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify(`purchased Trade ${trade_id}`, true)
+            notify(`purchased Trade ${trade_id}`, receipt)
         } catch (e) {
             console.log(e)
             notify(`Failed to revoke trade ${trade_id}`, false)
@@ -241,10 +256,21 @@ export function createSystemCalls(
     };
 
     const create_event = async ({ account, game_id }: CreateEventProps) => {
-        
+
+        const clientGameData = getClientGameData(ClientGameData);
+        const newAmountOfTxs = clientGameData.transaction_count + 1
+
+        setComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
+            state: 1,
+            message: "trying to create event",
+            txHash: ""
+        });
+
+        updateComponent(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { transaction_count: newAmountOfTxs })
+
         try {
             const tx = await execute(account, "world_event_actions", "create", [game_id]);
-            const receipt = await account.waitForTransaction(
+            const receipt: any = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
             )
@@ -253,10 +279,31 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify('World Event Created!', true);
+            notify('World Event Created!', receipt);
+
+            if (receipt.execution_status! == 'REVERTED') {
+                const rejectReason = extractErrorReason(receipt.revert_reason);
+                updateComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
+                    state: 2,
+                    message: "Creating an Event got rejected, reason: " + rejectReason,
+                    txHash: tx.transaction_hash.toString(),
+                })
+            }
+            else {
+                updateComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
+                    state: 3,
+                    message: "Event was created succesfully",
+                    txHash: tx.transaction_hash.toString(),
+                })
+            }
 
         } catch (e) {
             console.log(e)
+            updateComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
+                state: 4,
+                message: "A major error was received when creating an Event",
+                txHash: "",
+            })
         }
     };
 
@@ -273,16 +320,18 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify('Confirmed the event', true)
+            notify('Confirmed the event', receipt)
         } catch (e) {
             console.log(e)
-            notify('Failed to confirm event', false)
+            // notify('Failed to confirm event', false)
         }
-        finally
-        {
-            const outpostData = getComponentValueStrict(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(game_id), BigInt(outpost_id)]));
+        finally {
+            // might need to fetch back becuase if the tx gets rejected it will still change the colour, altouhg not a massive problem as the loader should set it back but still not good
+            //HERE
 
-            setClientOutpostComponent( Number(outpost_id), outpostData.owned, false, outpostData.selected, outpostData.visible, clientComponents, contractComponents, Number(game_id)) 
+            updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(game_id), BigInt(outpost_id)]), {
+                event_effected: false
+            })
         }
     };
 
@@ -346,7 +395,27 @@ export function createSystemCalls(
     };
 }
 
+function getClientGameData(ClientGameData: any): any {
+    const clientGameData = getComponentValueStrict(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+    return clientGameData;
+}
+
 function hexToDecimal(hexString: string): number {
     const decimalResult: number = parseInt(hexString, 16);
     return decimalResult;
+}
+
+function extractErrorReason(errorMessage: string): string {
+    const startDelimiter = "('";
+    const endDelimiter = "')";
+
+    const startIndex = errorMessage.indexOf(startDelimiter);
+    const endIndex = errorMessage.indexOf(endDelimiter, startIndex + startDelimiter.length);
+
+    if (startIndex !== -1 && endIndex !== -1) {
+        const reason = errorMessage.substring(startIndex + startDelimiter.length, endIndex);
+        return reason;
+    } else {
+        return "Error reason not found";
+    }
 }
