@@ -87,7 +87,7 @@ const MinimapComponent: React.FC = () => {
             width: '15%',
             aspectRatio: '2/1',
             left: '1%',
-            bottom: '15%',
+            bottom: '7%',
             boxSizing: 'border-box',
             border: 'var(--borderRadius) solid var(--borderColour)',
             borderRadius: '5px',

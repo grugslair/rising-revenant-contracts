@@ -63,7 +63,7 @@ export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState
                     </div>
                 </div>
                 <div className="jurnal-event-component-grid-enlarge center-via-flex">
-                    <img className="pointer" onClick={() => openJurnal()} src="Icons/enlarge_icon.png" alt="Enlarge" style={{ height: "clamp(0.8rem, 0.7vw + 0.7rem, 7rem)", aspectRatio: "1/1" }} />
+                    <img className="pointer" onClick={() => openJurnal()} src="Icons/enlarge_icon.png" alt="Enlarge" style={{ height: "clamp(0.5rem, 0.5vw + 0.5rem, 4rem)", aspectRatio: "1/1" }} />
                 </div>
                 <div className="jurnal-event-component-grid-event-data">
                     {lastEvent !== undefined ?

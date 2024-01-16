@@ -156,21 +156,25 @@ export const GamePhaseManager = () => {
     console.log('Dragging ended!');
   };
 
-  const checkIfClickInEvent = (clickX, clickY) => {
-    const currentLoadedEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]));
-    const camPos = getComponentValueStrict(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+  const checkIfClickInEvent = (overEvent: boolean) => {
+    // const currentLoadedEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]));
+    // const camPos = getComponentValueStrict(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
-    if (currentLoadedEvent === undefined) { return; }
+    // if (currentLoadedEvent === undefined) { return; }
 
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
+    // const centerX = window.innerWidth / 2;
+    // const centerY = window.innerHeight / 2;
 
-    const relativeClickX = clickX - centerX + camPos.x;
-    const relativeClickY = clickY - centerY + camPos.y;
+    // const relativeClickX = clickX - centerX + camPos.x;
+    // const relativeClickY = clickY - centerY + camPos.y;
 
-    const distance = Math.sqrt((relativeClickX - currentLoadedEvent.x) ** 2 + (relativeClickY - currentLoadedEvent.y) ** 2);
+    // const distance = Math.sqrt((relativeClickX - currentLoadedEvent.x) ** 2 + (relativeClickY - currentLoadedEvent.y) ** 2);
 
-    if (distance <= currentLoadedEvent.radius) {
+    // if (distance <= currentLoadedEvent.radius) {
+    //   setCurrentMenuState(MenuState.EVENT);
+    // }
+  
+    if (overEvent){
       setCurrentMenuState(MenuState.EVENT);
     }
   };

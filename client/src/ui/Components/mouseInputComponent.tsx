@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ClickWrapper } from '../clickWrapper';
 import { useDojo } from '../../hooks/useDojo';
 
-import { getComponentValueStrict, updateComponent } from "@latticexyz/recs";
+import { getComponentValue, getComponentValueStrict, updateComponent } from "@latticexyz/recs";
 import { getEntityIdFromKeys } from '@dojoengine/utils';
 import { GAME_CONFIG_ID } from '../../utils/settingsConstants';
 
 interface DragAndClickProps {
     onDragStart: () => void;
     onDragEnd: () => void;
-    onNormalClick: (clickX: number, clickY: number) => void;
+    onNormalClick: (overEvent : boolean) => void;
 }
 
 const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
@@ -19,6 +19,7 @@ const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
 }) => {
     const dragRef = useRef<HTMLDivElement>(null);
     const [isDragging, setDragging] = useState(false);
+    const [overEvent, setOverEvent] = useState(false);
     const [startX, setStartX] = useState(0);
     const [startY, setStartY] = useState(0);
 
@@ -29,7 +30,7 @@ const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
 
     const {
         networkLayer: {
-            network: { clientComponents }
+            network: { clientComponents,contractComponents }
         },
         phaserLayer: {
             scenes: {
@@ -40,7 +41,7 @@ const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
 
-        if (e.button !== 0) {return;}
+        if (e.button !== 0) { return; }
 
         setStartX(e.clientX);
         setStartY(e.clientY);
@@ -54,7 +55,7 @@ const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
     const handleMouseUp = () => {
         setDragging(false);
         if (lastDragX === 0 && lastDragY === 0) {
-            onNormalClick(startX, startY);
+            onNormalClick(overEvent);
         } else {
             onDragEnd();
         }
@@ -73,6 +74,29 @@ const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
 
             setStartX(e.clientX);
             setStartY(e.clientY);
+        }
+        else {
+            const currentGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+
+            const currentLoadedEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(currentGameData.current_game_id), BigInt(currentGameData.current_event_drawn)]));
+            const camPos = getComponentValueStrict(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+
+            if (currentLoadedEvent === undefined) { return; }
+
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+
+            const relativeClickX = e.clientX - centerX + camPos.x;
+            const relativeClickY = e.clientY - centerY + camPos.y;
+
+            const distance = Math.sqrt((relativeClickX - currentLoadedEvent.x) ** 2 + (relativeClickY - currentLoadedEvent.y) ** 2);
+
+            if (distance <= currentLoadedEvent.radius) {
+                setOverEvent(true);
+            }
+            else{
+                setOverEvent(false)
+            }
         }
     };
 
@@ -111,8 +135,10 @@ const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
                 onWheel={handleScroll}
-                style={{ cursor: `${isDragging && (lastDragX !== 0 || lastDragY !== 0) ? "grabbing" : "default"}`, 
-                width: "100%", height: "100vh", position: "absolute", left: "0", top: "0" }} 
+                style={{
+                    cursor: `${ overEvent && !isDragging ? "pointer" : isDragging && (lastDragX !== 0 || lastDragY !== 0) ? "grabbing" : "default"}`,
+                    width: "100%", height: "90%", position: "absolute", left: "0", top: "10%"
+                }}
                 className='target-for-mouse'
             >
             </div>
@@ -156,7 +182,7 @@ const useMainPageContentClick = () => {
                 if (event.button === 1) {
                     updateComponent(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
                         x: (camPos.x + pointXRelativeToMiddle / zoomVal),
-                        y: (camPos.y + pointYRelativeToMiddle / zoomVal) 
+                        y: (camPos.y + pointYRelativeToMiddle / zoomVal)
                     })
                 }
                 else if (event.button === 2) {

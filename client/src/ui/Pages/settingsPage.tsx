@@ -15,6 +15,7 @@ import { useDojo } from "../../hooks/useDojo";
 //styles
 import "./PagesStyles/SettingPageStyle.css";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
+import CustomSlider from "../Elements/sliderElement";
 
 
 //elements/components
@@ -41,50 +42,50 @@ interface SettingPageProps {
 
 export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
 
-    const [checkboxChecked, setCheckboxChecked] = useState(true);
-    const [switchChecked, setSwitchChecked] = useState(true);
-    const [sliderValue, setSliderValue] = useState(20);
-
     const {
         networkLayer: {
             network: { clientComponents },
         },
     } = useDojo();
 
-    useEffect(() => {
-        setRefreshOwnOutpostDataTimer(sliderValue);
-    }, [sliderValue])
 
-    // this needs to be custom hooked
     const clientTransactionsQuery = useEntityQuery([Has(clientComponents.ClientTransaction)]);
+
+    // const val = useComponentValue(clientComponents.ClientSettings, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+
+    // useEffect(() => {
+    //    console.error(val)
+    // }, [val])
+
 
     return (
         <div className="game-page-container">
-            <img className="page-img brightness-down" src="Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
+            <img className="page-img brightness-down" src="Page_Bg/SETTINGS_PAGE_BG.png" alt="testPic" />
 
             <PageTitleElement imagePosition={ImagesPosition.RIGHT} name={"SETTINGS"} rightPicture={"Icons/close_icon.png"} rightImageFunction={setUIState} />
 
-            <ClickWrapper style={{ position: "relative", width: "100%", height: "75%", display: "flex", flexDirection: "row", boxSizing: "border-box", color: "white", backgroundColor: "red" }}>
-                <div style={{ flex: "1.5", height: "100%", backgroundColor: "blue" }}></div>
-                <div style={{ flex: "8", height: "100%", backgroundColor: "purple" }}>
+            <ClickWrapper style={{ position: "relative", width: "100%", height: "75%", display: "flex", flexDirection: "row", boxSizing: "border-box", color: "white" }}>
+                <div style={{ flex: "1.5", height: "100%"}}></div>
+                <div style={{ flex: "8", height: "100%"}}>
                     <h1 className="test-h1-5" style={{ textDecoration: "underline", marginTop: "0px" }}>Game</h1>
                     <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" />
+                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100}/>
 
                     <h1 className="test-h1-5" style={{ textDecoration: "underline" }}>Phaser</h1>
                 </div>
-                <div style={{ flex: "1", height: "100%", backgroundColor: "blue" }}></div>
-                <div style={{ flex: "5.5", height: "100%", backgroundColor: "purple" }}>
-                    <div style={{ width: "100%", height: "8%", backgroundColor: "red" }}>
+                <div style={{ flex: "1", height: "100%" }}></div>
+                <div style={{ flex: "5.5", height: "100%" }}>
+                    <div style={{ width: "100%", height: "8%"}}>
                         <h1 className="test-h1-5" style={{ textDecoration: "underline", marginTop: "0px" }}>Transaction Details</h1>
                     </div>
 
-                    <div style={{ height: "92%", width: "100%", padding: "2% 2%", boxSizing: "border-box", overflowY: "auto", scrollbarGutter: "stable both-edges", border: "2px solid var(--borderColour)" }}>
+                    <div style={{ height: "92%", width: "100%", padding: "3% 2%", boxSizing: "border-box", overflowY: "auto", scrollbarGutter: "stable both-edges", border: "2px solid var(--borderColour)" }}>
                         {clientTransactionsQuery.map((transactionId, index) => (
                             <TransactionDataElement key={index} entityId={transactionId} />
                         ))}
                     </div>
                 </div>
-                <div style={{ flex: "0.5", height: "100%", backgroundColor: "blue" }}></div>
+                <div style={{ flex: "0.5", height: "100%" }}></div>
             </ClickWrapper>
         </div>
     );
@@ -106,9 +107,9 @@ export const TransactionDataElement: React.FC<{ entityId }> = ({ entityId }) => 
     };
 
     return (
-        <div style={{ position: "relative", height: "120px", width: "100%", borderRadius: "5px", marginBottom: "10px", padding: "10px 15px", color: "white", border: "2px solid var(--borderColour)", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
+        <div style={{ position: "relative", height: "140px", width: "100%", borderRadius: "5px", marginBottom: "15px", padding: "10px 15px", color: "white", border: "2px solid var(--borderColour)", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
 
-            <div style={{ height: "25%", width: "100%", backgroundColor: "red", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ height: "25%", width: "100%",  display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 
                 {transactionData!.state === 1 && <h2 className="test-h2 no-margin">PENDING</h2>}
                 {transactionData!.state === 2 && <h2 className="test-h2 no-margin">REJECTED</h2>}
@@ -120,12 +121,12 @@ export const TransactionDataElement: React.FC<{ entityId }> = ({ entityId }) => 
                     </div>
                 </Tooltip>
             </div>
-            <div style={{ height: "5%", width: "100%", backgroundColor: "yellow" }}></div>
-            <div style={{ height: "70%", width: "100%", backgroundColor: "red", }}>
+            <div style={{ height: "5%", width: "100%"}}></div>
+            <div style={{ height: "70%", width: "100%"}}>
                 <h3 className="test-h3 no-margin pointer" onClick={() => navigator.clipboard.writeText(transactionData!.txHash)} style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", margin: "2px 0px" }}>
                     {transactionData!.txHash}
                 </h3>
-                <h3 className="test-h3 no-margin" style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                <h3 className="test-h3 no-margin" style={{ overflow: "hidden", textOverflow: "ellipsis",whiteSpace: "pre-line" }}>
                     {transactionData!.message}
                 </h3>
             </div>
@@ -134,25 +135,53 @@ export const TransactionDataElement: React.FC<{ entityId }> = ({ entityId }) => 
     );
 };
 
-export const SettingSliderElement: React.FC = () => {
 
-    const {
-        networkLayer: {
-            network: { clientComponents },
-        },
-    } = useDojo();
+
+
+interface SettingSliderElementProps {
+    component: any,
+    variable: string,
+    minVal: number,
+    maxVal: number,
+}
+
+export const SettingSliderElement: React.FC<SettingSliderElementProps> = ({ component, variable, minVal, maxVal }) => {
+
+    const [sliderValue, setSliderValue] = useState<number>( getComponentValueStrict(component, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]))[variable] as number);
+
+    const handleSliderChange = (value: number) => {
+      setSliderValue(value);
+    };
+
+    useEffect(() => {
+        const updateData: { [key: string]: any } = {};
+        updateData[variable] = sliderValue;
+
+        updateComponent(component, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), updateData);
+    }, [sliderValue])
 
     return (
-        <div style={{}}></div>
+        <ClickWrapper style={{ display: "flex", justifyContent: "space-between", alignItems:"center", flexDirection: "row", height: "fit-content", width: "100%" }}>
+            <h2 className="test-h2 no-margin">{sliderValue}</h2>
+            <CustomSlider minValue={minVal} maxValue={maxVal} startingValue={sliderValue} onChange={handleSliderChange} 
+            containerStyle={{width:"100px", height:"clamp(0.5rem, 0.5vw + 0.5rem, 4rem)", display:"flex", justifyContent:"center", alignItems:"center"}}
+            trackStyle={{ width: "100%", height: "60%", background: "linear-gradient(to bottom, white 25%, gray 100%)", borderRadius: "5px" }}
+            buttonStyle={{height:"100%", width:"15%", backgroundColor:"black", border: "2px solid white",borderRadius:"10px", boxSizing:"border-box" }} 
+            precision={0}/>
+
+        </ClickWrapper>
     );
 };
+
+
+
+
 
 
 interface SettingCheckboxElementProps {
     component: any,
     variable: string,
 }
-
 export const SettingCheckboxElement: React.FC<SettingCheckboxElementProps> = ({ component, variable }) => {
 
     const [checkbox, setCheckbox] = useState<boolean>(() => {
@@ -169,7 +198,9 @@ export const SettingCheckboxElement: React.FC<SettingCheckboxElementProps> = ({ 
     return (
         <ClickWrapper style={{ display: "flex", justifyContent: "space-between", flexDirection: "row", height: "fit-content", width: "100%" }}>
             <h2 className="test-h2 no-margin">Turn off warning system</h2>
-            <div onClick={() => setCheckbox(!checkbox)} className="pointer" style={{ height: "clamp(0.8rem, 0.7vw + 0.7rem, 7rem)", aspectRatio: "1/1", backgroundColor: `${checkbox ? "green" : "red"}` }}></div>
+            <div onClick={() => setCheckbox(!checkbox)} className="pointer center-via-flex" style={{ height: "clamp(0.8rem, 0.7vw + 0.7rem, 7rem)", aspectRatio: "1/1", borderRadius:"5px", background: "linear-gradient(to bottom, white 25%, gray 100%)"}} >
+                <img src="Icons/tick.svg" alt="" style={{width:"100%", height:"100%", margin:"10%", boxSizing:"border-box"}}/>
+            </div>
         </ClickWrapper>
     );
 };

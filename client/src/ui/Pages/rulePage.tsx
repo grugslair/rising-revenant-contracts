@@ -36,24 +36,24 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
             
             <PageTitleElement imagePosition={ImagesPosition.RIGHT} name={"RULES"} rightPicture={"Icons/close_icon.png"} rightImageFunction={setUIState} />
 
-            <ClickWrapper style={{ display: "grid",  gridTemplateColumns:"1fr 1fr", gridTemplateRows:"1fr 1fr", gap: "10px", position: "relative", width: "60%", height: "10%", marginLeft:"20%", boxSizing: "border-box" }}>
-                <div className="global-button-style" style={{ gridRow:"1", gridColumn:"1" }}>
+            <ClickWrapper style={{ display: "grid",  gridTemplateColumns:"1fr 1fr", gridTemplateRows:"1fr 1fr", gap: "10px", position: "relative", width: "60%", height: "15%", marginLeft:"20%", boxSizing: "border-box" }}>
+                <div className="global-button-style center-via-flex" style={{ gridRow:"1", gridColumn:"1" }} >
                     <h2 className="test-h2 no-margin" onClick={() => { setRulesState(RulesState.PREP) }} style={{ opacity: rulesState !== RulesState.PREP ? 0.5 : 1, textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "0px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }}>PREP PHASE</h2>
                 </div >
-                <div className="global-button-style"  style={{ gridRow:"1", gridColumn:"2" }}>
+                <div className="global-button-style center-via-flex"  style={{ gridRow:"1", gridColumn:"2" }}>
                     <h2 className="test-h2 no-margin" onClick={() => { setRulesState(RulesState.GAME) }} style={{ opacity: rulesState !== RulesState.GAME ? 0.5 : 1, textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "0px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }}>GAME PHASE</h2>
                 </div>
-                <div className="global-button-style"  style={{ gridRow:"2", gridColumn:"2" }}>
+                <div className="global-button-style center-via-flex"  style={{ gridRow:"2", gridColumn:"2" }}>
                     <h2 className="test-h2 no-margin" onClick={() => { setRulesState(RulesState.FINAL) }} style={{ opacity: rulesState !== RulesState.FINAL ? 0.5 : 1, textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "0px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }}>FINAL REWARD</h2>
                 </div>
-                <div className="global-button-style"  style={{ gridRow:"2", gridColumn:"1" }}>
+                <div className="global-button-style center-via-flex"  style={{ gridRow:"2", gridColumn:"1" }}>
                     <h2 className="test-h2 no-margin" onClick={() => { setRulesState(RulesState.CONTRIB) }} style={{ opacity: rulesState !== RulesState.CONTRIB ? 0.5 : 1, textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "0px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }}>CONTRIBUTION</h2>
                 </div>
             </ClickWrapper>
 
 
             <div style={{ width: "100%", height: "5%", position: "relative" }}></div>
-            <ClickWrapper style={{ width: "100%", height: "70%", position: "relative"}} className="center-via-flex" >
+            <ClickWrapper style={{ width: "100%", height: "65%", position: "relative"}} className="center-via-flex" >
 
                     <div style={{height: "90%",width:"5%"}} className="center-via-flex">
                         {rulesState !== RulesState.PREP && <img style={{width:"75%", aspectRatio:"1/1"}} onClick={() => {setRulesState(prevState => prevState - 1)}} className="pointer" src="Icons/left-arrow.png"></img>}

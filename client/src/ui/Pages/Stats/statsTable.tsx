@@ -215,10 +215,10 @@ export const StatsTable: React.FC = () => {
                 </div>
 
                 {category === "1" && <>
-                    <Space style={{ flex: "1", height: "100%" }} className="center-via-flex pointer test-h2" onClick={() => { createGraphQlRequest(0, "SCORE", "playerinfoModels"); setSelectedSortingMethod(1); }}> Contribution Score {selectedSortingIndex === 1 && <>{directionSorting ? <DownOutlined /> : <UpOutlined />}</>} </Space>
-                    <Space style={{ flex: "1", height: "100%" }} className="center-via-flex pointer test-h2" onClick={() => { createGraphQlRequest(0, "OUTPOST_COUNT", "playerinfoModels"); setSelectedSortingMethod(2); }}> Revenants Count {selectedSortingIndex === 2 && <>{directionSorting ? <DownOutlined /> : <UpOutlined />}</>} </Space>
-                    <Space style={{ flex: "1", height: "100%" }} className="center-via-flex pointer test-h2" onClick={() => { createGraphQlRequest(0, "REINFORCEMENT_COUNT", "playerinfoModels"); setSelectedSortingMethod(3); }}> Reinforcements in wallet  {selectedSortingIndex === 3 && <>{directionSorting ? <DownOutlined /> : <UpOutlined />}</>} </Space>
-                    <Space style={{ flex: "1", height: "100%" }} className="center-via-flex test-h2"> Trades up </Space>
+                    <Space style={{ flex: "1", height: "100%", whiteSpace:"nowrap"  }} className="center-via-flex pointer test-h2" onClick={() => { createGraphQlRequest(0, "SCORE", "playerinfoModels"); setSelectedSortingMethod(1); }}> Contribution Score {selectedSortingIndex === 1 && <>{directionSorting ? <DownOutlined /> : <UpOutlined />}</>} </Space>
+                    <Space style={{ flex: "1", height: "100%", whiteSpace:"nowrap"  }} className="center-via-flex pointer test-h2" onClick={() => { createGraphQlRequest(0, "OUTPOST_COUNT", "playerinfoModels"); setSelectedSortingMethod(2); }}> Revenants Count {selectedSortingIndex === 2 && <>{directionSorting ? <DownOutlined /> : <UpOutlined />}</>} </Space>
+                    <Space style={{ flex: "1", height: "100%" , whiteSpace:"nowrap" }} className="center-via-flex pointer test-h2" onClick={() => { createGraphQlRequest(0, "REINFORCEMENT_COUNT", "playerinfoModels"); setSelectedSortingMethod(3); }}> Reinforcements  {selectedSortingIndex === 3 && <>{directionSorting ? <DownOutlined /> : <UpOutlined />}</>} </Space>
+                    <Space style={{ flex: "1", height: "100%", whiteSpace:"nowrap" }} className="center-via-flex test-h2"> Trades up </Space>
                 </>}
 
                 {category === "2" && <>

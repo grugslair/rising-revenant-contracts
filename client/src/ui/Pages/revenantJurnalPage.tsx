@@ -169,10 +169,10 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
                                 <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1.3vw", textAlign: "center" }}>Event {selectedEventIndex}/{allEvents.length}</div>
                             </div>
                             <div className="rev-jurn-page-grid-left-arrow center-via-flex">
-                                <img src="Icons/left-arrow.png" onMouseDown={() => setSelectedEventIndex(selectedEventIndex - 1)} className="pointer" alt="" style={{  height: "80%", aspectRatio:"1/1" }} />
+                                <img src="Icons/left-arrow.png" onMouseDown={() => setSelectedEventIndex(selectedEventIndex - 1)} className="pointer" alt="" style={{  height: "40%", aspectRatio:"1/1" }} />
                             </div>
                             <div className="rev-jurn-page-grid-right-arrow center-via-flex">
-                                <img src="Icons/right-arrow.png" onMouseDown={() => setSelectedEventIndex(selectedEventIndex + 1)} className="pointer" alt="" style={{  height: "80%", aspectRatio:"1/1"  }} />
+                                <img src="Icons/right-arrow.png" onMouseDown={() => setSelectedEventIndex(selectedEventIndex + 1)} className="pointer" alt="" style={{  height: "40%", aspectRatio:"1/1"  }} />
                             </div>
                             <div className="rev-jurn-page-grid-position-data center-via-flex">
                                 <div style={{ fontFamily: "OL", fontWeight: "100", fontSize: "1vw", textAlign: "center" }}>Position <br /> X:{currentlySelectedEventData.x || 0} || Y:{currentlySelectedEventData.y || 0}</div>

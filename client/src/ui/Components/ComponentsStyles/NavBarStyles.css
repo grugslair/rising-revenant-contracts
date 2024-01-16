@@ -15,7 +15,7 @@
   align-items: center;
   gap: 0.8em;
 
-  z-index: 2;
+  z-index: 150;
 }
 
 .navbar-icon {

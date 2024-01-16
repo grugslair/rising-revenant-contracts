@@ -58,6 +58,10 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
       transaction_count: 0,
     })
 
+    setComponent(clientComponents.ClientSettings, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
+      volume:50
+    })
+
     setComponent(clientComponents.ClientClickPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
       xFromOrigin: 1,
       yFromOrigin: 1,

@@ -40,6 +40,21 @@ export function defineClientComponents(world: World) {
 		);
 	  })(),
 
+	  ClientSettings: (() => {
+		const name = "ClientSettings";
+		return defineComponent(
+		  world,
+		  {
+			volume: RecsType.Number
+		  },
+		  {
+			metadata: {
+			  name: name,
+			},
+		  }
+		);
+	  })(),
+
 	  ClientTransaction: (() => {
 		const name = "ClientTransaction";
 		return defineComponent(

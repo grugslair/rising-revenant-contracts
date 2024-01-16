@@ -27,7 +27,7 @@ function lerp(start: number, end: number, t: number): number {
 }
 
 export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState }) => {
-    const [transitionState, setTransitionState] = useState(0); // 0 going to event // 1 zooming on event // 2 show map
+    const [transitionState, setTransitionState] = useState(2); // 0 going to event // 1 zooming on event // 2 show map
 
     const { networkLayer: { network: { contractComponents, clientComponents } }, phaserLayer: { scenes: { Main: { camera } } } } = useDojo();
 
@@ -88,16 +88,15 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState }
             }
         };
 
-        if (transitionState === 0) {
-            handleMovementTransition();
-        }
-        else if (transitionState === 1) {
-            handleZoomTransition();
-            console.error("ready for next step")
-        }
-        else if (transitionState === 2) {
-            console.error("even more ready")
-        }
+        // if (transitionState === 0) {
+        //     handleMovementTransition();
+        // }
+        // else if (transitionState === 1) {
+        //     handleZoomTransition();
+        // }
+        // else if (transitionState === 2) {
+
+        // }
     }, [transitionState]);
 
     const onExitMenu = () => {
@@ -110,22 +109,31 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState }
     }
 
     return (
+        <>
+<div style={{position: "absolute", width: "100%", height: "100%", top: "0", left: "0", backgroundColor: "red", zIndex: 1}}></div>
 
-        <div className='page-container'>
 
-            <div className="game-page-container">
 
-                <img className="page-img brightness-down" src="./Page_Bg/RULES_PAGE_BG.png" alt="testPic" />
 
-                <PageTitleElement
-                    imagePosition={ImagesPosition.RIGHT}
-                    name={"EVENT VALIDATION"}
-                    rightPicture={"Icons/close_icon.png"}
-                    rightImageFunction={onExitMenu}
-                />
+
+            <div className='page-container' >
+
+                <div className="game-page-container">
+
+                    <img className="page-img brightness-down" src="./Page_Bg/RULES_PAGE_BG.png" alt="testPic" />
+
+                    <PageTitleElement
+                        imagePosition={ImagesPosition.RIGHT}
+                        name={"EVENT VALIDATION"}
+                        rightPicture={"Icons/close_icon.png"}
+                        rightImageFunction={onExitMenu}
+                    />
+
+                </div>
 
             </div>
+        </>
 
-        </div>
+
     );
 };

@@ -3,7 +3,7 @@ import { ClientComponents } from "./createClientComponents";
 import { getEntityIdFromKeys, getEvents, setComponentsFromEvents } from "@dojoengine/utils";
 import { getComponentValueStrict, setComponent, updateComponent } from "@latticexyz/recs";
 
-import { CreateGameProps, CreateRevenantProps, ConfirmEventOutpost, CreateEventProps, PurchaseReinforcementProps, ReinforceOutpostProps, RevokeTradeReinf, PurchaseTradeReinf, ClaimScoreRewards, CreateTradeForReinf } from "./types/index"
+import { CreateGameProps, CreateRevenantProps, ConfirmEventOutpost, CreateEventProps, PurchaseReinforcementProps, ReinforceOutpostProps, RevokeTradeReinf, PurchaseTradeReinf, ClaimScoreRewards, CreateTradeForReinf, ModifyTradeReinf } from "./types/index"
 
 import { toast } from 'react-toastify';
 import { GAME_CONFIG_ID } from "../utils/settingsConstants";
@@ -101,7 +101,6 @@ export function createSystemCalls(
                 for (let index = 0; index < Number(count); index++) {
 
                     const outpostData = getComponentValueStrict(Outpost, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]));
-                    const clientGameData = getComponentValueStrict(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
                     let owned = false;
 
@@ -255,6 +254,25 @@ export function createSystemCalls(
         }
     };
 
+    const modify_trade_reinf = async ({ account, game_id, trade_id, new_price }: ModifyTradeReinf) => {
+
+        try {
+            const tx = await execute(account, "trade_actions", "modify_price", [game_id, trade_id, new_price]);
+            const receipt = await account.waitForTransaction(
+                tx.transaction_hash,
+                { retryInterval: 100 }
+            )
+
+            setComponentsFromEvents(contractComponents,
+                getEvents(receipt)
+            );
+
+            notify(`Change Trade ${trade_id} price to ${Number(new_price)}`, receipt)
+        } catch (e) {
+            console.log(e)
+        }
+    };
+
     const create_event = async ({ account, game_id }: CreateEventProps) => {
 
         const clientGameData = getClientGameData(ClientGameData);
@@ -285,7 +303,7 @@ export function createSystemCalls(
                 const rejectReason = extractErrorReason(receipt.revert_reason);
                 updateComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
                     state: 2,
-                    message: "Creating an Event got rejected, reason: " + rejectReason,
+                    message: "Creating an Event got rejected \nReason: " + rejectReason,
                     txHash: tx.transaction_hash.toString(),
                 })
             }
@@ -386,6 +404,7 @@ export function createSystemCalls(
         create_trade_reinf,
         revoke_trade_reinf,
         purchase_trade_reinf,
+        modify_trade_reinf,
 
         claim_score_rewards,
         claim_endgame_rewards,
