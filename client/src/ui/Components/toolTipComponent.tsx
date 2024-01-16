@@ -51,9 +51,8 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
     }
 
     updateComponent(clientComponents.ClientOutpostData, clickedOnOutposts[selectedIndex], { selected: false });
-
     updateComponent(clientComponents.ClientOutpostData, clickedOnOutposts[newIndex], { selected: true });
-
+     
     setSelectedIndex(newIndex);
   }
 
@@ -80,7 +79,7 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
     }
 
     setSelectedIndex(0);
-
+     
     updateComponent(clientComponents.ClientOutpostData, selectedOutposts[0], { selected: true });
   }
 
@@ -98,6 +97,7 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
     const entitiesAtTileIndex = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { selected: true })]));
 
     if (entitiesAtTileIndex.length > 0) {
+       
       updateComponent(clientComponents.ClientOutpostData, entitiesAtTileIndex[0], { selected: false });
     }
   }

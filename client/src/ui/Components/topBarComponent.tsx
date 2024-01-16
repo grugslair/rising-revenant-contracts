@@ -119,8 +119,12 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                         const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
 
                         // if the outpost has the same value of last event then dont set it to effectd
-                        if (Number(outpostData.last_affect_event_id) === clientGameData!.current_event_drawn) {
+
+                        if (Number(outpostData.last_affect_event_id) === clientGameData!.current_event_drawn && clientOutpostData.event_effected !== false) {
+
                             updateComponent(clientComponents.ClientOutpostData, entity_id, { event_effected: false });
+                             
+                        
                         } else {
                             // else calc if it is in there which it should be, to check if this is necessary HERE
                             const lastEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id), BigInt(clientGameData!.current_event_drawn)]));
@@ -131,7 +135,10 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                             const eventY = lastEvent!.y;
                             const eventRadius = lastEvent!.radius;
                             const inRadius = Math.sqrt(Math.pow(outpostX - eventX, 2) + Math.pow(outpostY - eventY, 2)) <= eventRadius;
-                            updateComponent(clientComponents.ClientOutpostData, entity_id, { event_effected: inRadius })
+                            if (clientOutpostData.event_effected !== inRadius){
+                                 
+                                updateComponent(clientComponents.ClientOutpostData, entity_id, { event_effected: inRadius })
+                            }
                         }
 
                         if (outpostData.lifes !== lastSavedLifes && clientOutpostData.owned) {
@@ -214,17 +221,17 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
             <div className="top-bar-grid-address" style={{ justifyContent: "space-between", display: "flex", alignItems: "center" }}>
                 <LordsBalanceElement />
 
-                <div style={{ width: "60%", height: "75%" }} className="center-via-flex">
+                <div style={{ width: "70%", height: "75%" }} className="center-via-flex">
                     {!clientGameData!.guest ?
                         <Tooltip title="Click to copy" placement="bottom">
-                            <h2  style={{whiteSpace:"nowrap"}}  onClick={() => navigator.clipboard.writeText(account.address)} className=" pointer">
+                            <h2  style={{whiteSpace:"nowrap"}}  onClick={() => navigator.clipboard.writeText(account.address)} className="pointer test-h2">
                                 <img src="Icons/argent_logo.png" className="chain-logo" alt="Logo" />
                                 {truncateString(account.address, 5)}
                             </h2>
                         </Tooltip>
                         :
-                        <div className="global-button-style" style={{ padding: "5px 10px", fontSize: "1.2vw", cursor: "pointer" }} onClick={() => window.location.reload()}>
-                            LOG IN
+                        <div className="global-button-style center-via-flex" style={{ padding: "5px 10px", cursor: "pointer" }} onClick={() => window.location.reload()}>
+                            <h2 className="test-h2 no-margin">LOG IN</h2>
                         </div>
                     }
                 </div>

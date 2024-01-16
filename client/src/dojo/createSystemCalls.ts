@@ -327,12 +327,16 @@ export function createSystemCalls(
 
     const confirm_event_outpost = async ({ account, game_id, event_id, outpost_id }: ConfirmEventOutpost) => {
 
+        let savedTx:any;
+
         try {
             const tx = await execute(account, "world_event_actions", "destroy_outpost", [game_id, event_id, outpost_id]);
             const receipt = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
             )
+
+            savedTx = receipt;
 
             setComponentsFromEvents(contractComponents,
                 getEvents(receipt)
@@ -347,9 +351,13 @@ export function createSystemCalls(
             // might need to fetch back becuase if the tx gets rejected it will still change the colour, altouhg not a massive problem as the loader should set it back but still not good
             //HERE
 
-            updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(game_id), BigInt(outpost_id)]), {
-                event_effected: false
-            })
+            if (savedTx.execution_status !== 'REVERTED'){
+
+                updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(game_id), BigInt(outpost_id)]), {
+                    event_effected: false
+                })
+            }
+
         }
     };
 

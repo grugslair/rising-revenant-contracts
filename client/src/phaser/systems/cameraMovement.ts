@@ -152,16 +152,16 @@ export const cameraManager = (layer: PhaserLayer) => {
           continue;
         }
       }
-
+      
       if (adjecentData.includes(indexOfEntity.tile_index)) {
+         
         updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientOutpostData.id)]), { visible: true})
       }
       else {
+         
         updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientOutpostData.id)]), { visible: false})
       }
     }
 
-
-    // console.error(`this si for the per ${end - start}`)
   });
 }

@@ -270,14 +270,10 @@ export function checkAndSetPhaseClientSide(game_id: number, currentBlockNumber: 
 }
 
 export function mapEntityToImage(entityId: number, entityName: string, totalImages: number = 100): number {
-    const combinedStr: string = entityId.toString() + entityName;
-    const hashValue: number = combinedStr.split('').reduce((acc, char) => {
-        acc = (acc << 5) - acc + char.charCodeAt(0);
-        return acc & acc;
-    }, 0);
-
-    const imageNumber: number = (hashValue % totalImages) + 1; // Adding 1 to ensure it's between 1 and 100
-    return imageNumber;
+    const seed: number = entityId * 1000 + entityName.length;
+    const randomNum: number = Math.abs(Math.sin(seed) * 10000);
+    const scaledRandom: number = Math.floor(randomNum * totalImages);
+    return scaledRandom % totalImages; 
 }
 
 

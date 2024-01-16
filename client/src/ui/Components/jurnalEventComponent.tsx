@@ -59,7 +59,7 @@ export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState
             <div className="jurnal-event-component-grid">
                 <div className="jurnal-event-component-grid-title">
                     <div style={{ height: "100%", width: "100%", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-                        <h2 style={{ fontFamily: "Zelda", fontWeight: "100"}} className="test-h2 no-margin">REVENANT JOURNAL</h2>
+                        <h2 style={{ fontFamily: "Zelda", fontWeight: "100", whiteSpace:"nowrap"}} className="test-h2 no-margin">REVENANT JOURNAL</h2>
                     </div>
                 </div>
                 <div className="jurnal-event-component-grid-enlarge center-via-flex">

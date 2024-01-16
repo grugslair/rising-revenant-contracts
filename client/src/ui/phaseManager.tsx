@@ -70,15 +70,15 @@ export const PhaseManager = () => {
       {phase === Phase.PREP && <PrepPhaseManager setUIState={setUIState}/>}
       {phase === Phase.GAME && <GamePhaseManager />}
 
-      <ClickWrapper style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "0.7vw", color: "white" }} className="opacity-login-screen">
+      <ClickWrapper style={{ position: "absolute", bottom: "5px", left: "5px", fontFamily: "OL", fontSize: "0.5vw", color: "white" }} className="opacity-login-screen">
         Date of Version: 16th Jan<br />
         Branch: dev<br />
-        Pull: settings menu and some merge fixes<br />
+        Pull: Event System<br />
         FPS: {fps}
       </ClickWrapper>
 
       <ClickWrapper style={{ position: "absolute", bottom: "10px", right: "10px", fontFamily: "OL", color: "white" }}>
-        <h2 className="global-button-style invert-colors no-margin test-h2" style={{ padding: "2px 5px" }} onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSc7HVQCyTLgAgbP1sIDhg7O0Dfz9Lrk9ZYnSGnljPj6lJv1zA/viewform', '_blank')}>
+        <h2 className="global-button-style invert-colors no-margin test-h3" style={{ padding: "2px 5px" }} onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSc7HVQCyTLgAgbP1sIDhg7O0Dfz9Lrk9ZYnSGnljPj6lJv1zA/viewform', '_blank')}>
           Give Feedback
         </h2>
       </ClickWrapper>

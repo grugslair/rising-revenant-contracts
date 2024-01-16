@@ -66,9 +66,11 @@ export const eventManager = (layer: PhaserLayer) => {
       );
 
       if (distance <= dataEvent.radius) {
+         
         updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(outpostClientData.id)]), { event_effected: true })
       }
       else {
+         
         updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(outpostClientData.id)]), { event_effected: false })
       }
     }

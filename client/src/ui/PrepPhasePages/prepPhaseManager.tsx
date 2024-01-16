@@ -49,9 +49,7 @@ interface PrepPhasePageProps {
 export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) => {
 
     const [prepPhaseStage, setPrepPhaseStage] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
-
     const [showBlocks, setShowBlocks] = useState(false);
-
     const [lastSavedState, setLastSavedState] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
 
     const {
@@ -109,7 +107,7 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
         };
       
         return () => {
-            if (account.address !== "0x66ef6a6982a7e844d3d04f52c7799e41936dfc616f44fe873217a4e6d7e576f"){
+            if (account.address !== import.meta.env.VITE_PUBLIC_MASTER_ADDRESS){
                 reloading(); 
             }
         };

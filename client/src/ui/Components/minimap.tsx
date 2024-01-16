@@ -89,7 +89,7 @@ const MinimapComponent: React.FC = () => {
             left: '1%',
             bottom: '7%',
             boxSizing: 'border-box',
-            border: 'var(--borderRadius) solid var(--borderColour)',
+            border: '3px solid var(--borderColour)',
             borderRadius: '5px',
             overflow: 'hidden',
             backgroundImage: 'url("Misc/minimap.png")',

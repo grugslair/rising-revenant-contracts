@@ -272,7 +272,7 @@ h4, h2, h3, h1 {
 }
 
 .test-h5 {
-  font-size: clamp(0.2rem, 0.45vw + 0.3rem, 2rem);
+  font-size: clamp(0.2rem, 0.3vw + 0.3rem, 2rem);
 }
 
 .no-margin {

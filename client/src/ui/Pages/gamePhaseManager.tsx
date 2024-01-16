@@ -65,6 +65,8 @@ export const GamePhaseManager = () => {
   const [currentMenuState, setCurrentMenuState] = useState(MenuState.NONE);
   const [showEventButton, setShowEventButton] = useState(false);
 
+  const [showBackground, setShowBackground] = useState(false);
+
   const {
     account: { account },
     networkLayer: {
@@ -95,7 +97,7 @@ export const GamePhaseManager = () => {
 
   }, [outpostDeadQuery]);
 
-  // this only needs to be like this for the debug, once the game ships take out the dependency
+  // this only needs to be like this for the debug, once the game ships take out the dependency we still need this because of the escape
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -151,30 +153,11 @@ export const GamePhaseManager = () => {
   const handleDragStart = () => {
     console.log('Dragging started!');
   };
-
   const handleDragEnd = () => {
     console.log('Dragging ended!');
   };
-
   const checkIfClickInEvent = (overEvent: boolean) => {
-    // const currentLoadedEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]));
-    // const camPos = getComponentValueStrict(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
-
-    // if (currentLoadedEvent === undefined) { return; }
-
-    // const centerX = window.innerWidth / 2;
-    // const centerY = window.innerHeight / 2;
-
-    // const relativeClickX = clickX - centerX + camPos.x;
-    // const relativeClickY = clickY - centerY + camPos.y;
-
-    // const distance = Math.sqrt((relativeClickX - currentLoadedEvent.x) ** 2 + (relativeClickY - currentLoadedEvent.y) ** 2);
-
-    // if (distance <= currentLoadedEvent.radius) {
-    //   setCurrentMenuState(MenuState.EVENT);
-    // }
-  
-    if (overEvent){
+    if (overEvent) {
       setCurrentMenuState(MenuState.EVENT);
     }
   };
@@ -182,8 +165,14 @@ export const GamePhaseManager = () => {
   return (
     <>
       <DirectionalEventIndicator />
-      <ClickWrapper className="main-page-container-layout" >
-        <div className='main-page-topbar'>
+      <ClickWrapper className="main-page-container-layout">
+
+
+        {currentMenuState === MenuState.EVENT && showBackground &&
+          <img src='Page_Bg/VALIDATE_EVENT_BG.png' className='brightness-down' style={{ position: 'absolute', top: "0", left: "0", aspectRatio: "1.7/1", width: "100%", height: "100%" }}></img>}
+
+
+        <div className='main-page-topbar' style={{ position: "relative" }}>
           <TopBarComponent phaseNum={2} />
         </div>
 
@@ -242,9 +231,7 @@ export const GamePhaseManager = () => {
           }
           {
             currentMenuState === MenuState.EVENT && (
-
-              <EventConfirmPage setUIState={closePage} />
-
+              <EventConfirmPage setUIState={closePage} setBackground={setShowBackground} />
             )
           }
           {
@@ -257,6 +244,7 @@ export const GamePhaseManager = () => {
 
 
         </div>
+
       </ClickWrapper>
 
       {/* pretty sure this is the wrong class as it doesnt make sense */}
@@ -271,7 +259,7 @@ export const GamePhaseManager = () => {
         <MinimapComponent />
       </>}
 
-      {showEventButton && <ClickWrapper className='fire-button pointer' onClick={() => createEvent()}>Summon Event</ClickWrapper>}
+      {/* {showEventButton && currentMenuState === MenuState.NONE && <ClickWrapper className='fire-button pointer' onClick={() => createEvent()}>Summon Event</ClickWrapper>} */}
     </>
   );
 }

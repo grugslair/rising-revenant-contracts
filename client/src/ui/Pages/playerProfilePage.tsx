@@ -172,7 +172,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
                         {clientGameData.current_game_state === 1 ? (<></>) :
                             (
                                 <>
-                                    <div className="global-button-style" style={{ padding: "5px 5px", fontSize: "1cqw" }} onClick={() => { specificSetState(MenuState.TRADES) }}>Go To Trade Section</div>
+                                    <div className="global-button-style" style={{ padding: "5px 5px", fontSize: "1cqw" }} onClick={() => { specificSetState!(MenuState.TRADES) }}>Go To Trade Section</div>
                                     {entsInEvents ? (<div className="global-button-style" style={{ padding: "5px 5px" }} onClick={() => { confirmAllAttackedOutposts() }}>Confirm All</div>) : (<></>)}
                                 </>
                             )}
@@ -256,7 +256,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
     return (
         <div ref={clickWrapperRef} className={`profile-page-grid-container ${clientOutpostData.event_effected && outpostData.lifes > 0 ? ' profile-page-attacked-style' : ''}`} style={clickWrapperStyle} onMouseEnter={() => setButtonIndex(1)} onMouseLeave={() => setButtonIndex(0)}>
             <div className="pfp">
-                <img src={revenantsPicturesLinks[mapEntityToImage(clientOutpostData!.id, namesArray[revenantData.first_name_idx], 25)]} className="child-img " />
+                <img src={revenantsPicturesLinks[mapEntityToImage(clientOutpostData!.id, namesArray[revenantData.first_name_idx], revenantsPicturesLinks.length)]} className="child-img " />
             </div>
 
             <div className="name" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
