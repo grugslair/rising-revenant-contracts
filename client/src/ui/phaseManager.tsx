@@ -71,9 +71,9 @@ export const PhaseManager = () => {
       {phase === Phase.GAME && <GamePhaseManager />}
 
       <ClickWrapper style={{ position: "absolute", bottom: "5px", left: "5px", fontFamily: "OL", fontSize: "0.5vw", color: "white" }} className="opacity-login-screen">
-        Date of Version: 16th Jan<br />
+        Date of Version: 17th Jan<br />
         Branch: dev<br />
-        Pull: Event System<br />
+        Pull: Demo 1<br />
         FPS: {fps}
       </ClickWrapper>
 

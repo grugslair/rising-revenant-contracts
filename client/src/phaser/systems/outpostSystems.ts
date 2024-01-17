@@ -23,60 +23,36 @@ export const spawnOutposts = (layer: PhaserLayer) => {
     scenes: {
       Main: { objectPool },
     },
-  } = layer;
-
-  const {
-    account: { account },
     networkLayer: {
       network: { contractComponents, clientComponents },
     },
-  } = useDojo();
+  } = layer;
 
 
   defineEnterSystem(world, [Has(clientComponents.ClientOutpostData)], ({ entity }) => {
     const outpostData: any = getComponentValueStrict(contractComponents.Outpost, entity);
 
-    let owned = false;
-
-    if (turnBigIntToAddress(outpostData.owner) === account.address) {
-      owned = true;
-    }
-
-    setComponent(clientComponents.ClientOutpostData, entity,
-      {
-        id: Number(outpostData.entity_id),
-        owned: owned,
-        event_effected: false,
-        selected: false,
-        visible: false
-      }
-    )
     setComponent(clientComponents.EntityTileIndex, entity,
       {
         tile_index: getTileIndex(outpostData.x, outpostData.y)
       }
     )
 
-
     const outpostObj = objectPool.get(entity, "Sprite");
 
     outpostObj.setComponent({
       id: "position",
       once: (sprite: any) => {
-        sprite.setPosition(outpostData.x - (sprite.width * SCALE) / 2, outpostData.y - (sprite.height * SCALE) / 2);
+        sprite.setPosition(outpostData.x - (512 * SCALE), outpostData.y  - (512 * SCALE));
       },
     });
-
-
-
-
   });
 
 
-  defineSystem(world, [Has(ClientOutpostData)], ({ entity }) => {
+  defineSystem(world, [Has(clientComponents.ClientOutpostData)], ({ entity }) => {
 
-    const outpostDojoData = getComponentValueStrict(Outpost, entity);
-    const outpostClientData = getComponentValue(ClientOutpostData, entity);
+    const outpostDojoData = getComponentValueStrict(contractComponents.Outpost, entity);
+    const outpostClientData = getComponentValue(clientComponents.ClientOutpostData, entity);
 
     if (outpostClientData === undefined) { return }
 
@@ -168,13 +144,13 @@ export const spawnOutposts = (layer: PhaserLayer) => {
 
 
   // not too sure what this is doing
-  defineSystem(world, [Has(ClientOutpostData)], ({ entity }) => {
-    const outpostClientData = getComponentValue(ClientOutpostData, entity);
-    const entityTileIndex = getComponentValue(EntityTileIndex, entity);
+  defineSystem(world, [Has(clientComponents.ClientOutpostData)], ({ entity }) => {
+    const outpostClientData = getComponentValue(clientComponents.ClientOutpostData, entity);
+    const entityTileIndex = getComponentValue(clientComponents.EntityTileIndex, entity);
 
     if (outpostClientData === undefined || entityTileIndex === undefined) { return }
 
-    const cameraTileIndex = getComponentValueStrict(EntityTileIndex, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+    const cameraTileIndex = getComponentValueStrict(clientComponents.EntityTileIndex, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
     const outpostObj = objectPool.get(entity, "Sprite");
 

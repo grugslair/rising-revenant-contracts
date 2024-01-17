@@ -101,40 +101,18 @@ export function createSystemCalls(
             }
             finally {
                 const gameEntityCounter = getComponentValueStrict(GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
-                console.error("this is where the game ent gets fetchs", gameEntityCounter)
                 for (let index = 0; index < Number(count); index++) {
-                    
-                    const entitiesAtTileIndex = Array.from(runQuery([Has(contractComponents.Outpost)]));
-                    console.log(entitiesAtTileIndex)
-
-                    console.log(getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]))
-
-                    console.log(BigInt(game_id));
-                    console.log(Number(count));
-                    console.log(BigInt(gameEntityCounter.outpost_count - index));
-
-                    const outpostData: any = getComponentValueStrict(Outpost, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]));
-                    console.log("THIS IS WHERE THE ISSUES IS", outpostData)
-                    let owned = false;
-
-                    if (turnBigIntToAddress(outpostData.owner) === account.address) {
-                        owned = true;
-                    }
-
+                   
                     setComponent(ClientOutpostData, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]),
                         {
-                            id: Number(outpostData.entity_id),
-                            owned: owned,
+                            id: gameEntityCounter.outpost_count - index,
+                            owned: true,
                             event_effected: false,
                             selected: false,
                             visible: false
                         }
                     )
-                    setComponent(clientComponents.EntityTileIndex, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]),
-                        {
-                            tile_index: getTileIndex(outpostData.x, outpostData.y)
-                        }
-                    )
+                    
                 }
             }
 

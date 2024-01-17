@@ -101,16 +101,6 @@ export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState
                         }
                     </>}
 
-                    <div className="outpost-hit-list-container" >
-                        {ownOutpost.map((outpostId: EntityIndex) => (
-                            <ListElement
-                                key={outpostId}
-                                entityIndex={outpostId}
-                                contractComponents={contractComponents}
-                            />
-                        ))}
-                    </div>
-
                 </div>
             </div>
         </ClickWrapper>

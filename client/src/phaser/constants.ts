@@ -22,7 +22,7 @@ export enum Assets {
     CaslteSelectedAsset = "CaslteSelectedAsset",
 }
 
-export const SCALE = 0.15;
+export const SCALE = 0.10;
 
 export let OUTPOST_WIDTH = 0;
 export let OUTPOST_HEIGHT = 0;

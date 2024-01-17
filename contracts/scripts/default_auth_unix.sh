@@ -2,7 +2,8 @@
 set -euo pipefail
 pushd $(dirname "$0")/..
 
-export RPC_URL="http://localhost:5050";
+# export RPC_URL="http://localhost:5050";
+export RPC_URL="https://api.cartridge.gg/x/rr-demo/katana";
 
 export WORLD_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.world.address')
 

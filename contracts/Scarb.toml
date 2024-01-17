@@ -19,14 +19,14 @@ initializer_class_hash = "0xbeef"
 [tool.dojo.env]
 
 # local
-rpc_url = "http://localhost:5050"
-account_address = "0x517ececd29116499f4a1b64b094da79ba08dfd54a3edaa316134c41f8160973"
-private_key = "0x1800000000300000180000000000030000000000003006001800006600"
+#rpc_url = "http://localhost:5050"
+#account_address = "0x517ececd29116499f4a1b64b094da79ba08dfd54a3edaa316134c41f8160973"
+#private_key = "0x1800000000300000180000000000030000000000003006001800006600"
 
 # slot
-#rpc_url = "https://api.cartridge.gg/x/rr-demo/katana"
-#account_address = "0x8486e16d2a54c4c73792c43278530173078f2e23f329625a52dfaa860ac03f"
-#private_key = "0x14ed04d4acb4fd0a8c6ae76035a2b3efbe6c429e9bbd5511e7bdb8d2f40009c"
+rpc_url = "https://api.cartridge.gg/x/rr-demo/katana"
+account_address = "0x75b13ad39fe4ce950e8311bf25b06da75021b45a4976a86cb10339a6e68aad3"
+private_key = "0x7ca4fcf4ad04d50168844bf05a24dc792a0d643ea264b193877113b6de88a3d"
 #world_address = "0x4093d0743e76913eb1a6458662c34971e5edfc95aa93b307eaf1b12ffbac397"
 
 

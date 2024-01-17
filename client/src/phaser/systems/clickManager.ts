@@ -12,7 +12,7 @@ import {
 } from "@latticexyz/recs";
 
 import { setTooltipArray } from "./eventSystems/eventEmitter";
-import { OUTPOST_HEIGHT, OUTPOST_WIDTH } from "../constants";
+import { OUTPOST_HEIGHT, OUTPOST_WIDTH, SCALE } from "../constants";
 
 // this can be threaded
 
@@ -58,8 +58,8 @@ export const clickManager = (layer: PhaserLayer) => {
       const minX = outpostData.x;
       const minY = outpostData.y;
 
-      const maxX = minX + OUTPOST_WIDTH;
-      const maxY = minY + OUTPOST_HEIGHT;
+      const maxX = minX + 512 * SCALE;
+      const maxY = minY + 512 * SCALE;
 
       if (
         positionX >= minX &&

@@ -84,13 +84,13 @@ export const TradesPage: React.FC<TradesPageProps> = ({ setMenuState }) => {
             </ClickWrapper>
 
             <div style={{ width: "100%", height: "10%", position: "relative" }}></div>
-            <div style={{ width: "100%", height: "8%", position: "relative", display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <div style={{ width: "100%", height: "8%", position: "relative", display: "flex", justifyContent: "center", alignItems: "center"}}>
                 <div style={{ height: "100%", width: "9%" }}></div>
-                <div style={{ height: "100%", width: "82%" }}></div>
+                <div style={{ height: "100%", width: "82%" }}>
+                    {shopState === ShopState.REINFORCES && <div className="global-button-style invert-colors " style={{  display: "inline-block", padding: "5px 10px", fontSize: "1vw" }} onClick={() => { setShopState(ShopState.SELL_REINF) }}>Sell Reinforcements</div>}
+                    {shopState === ShopState.OUTPOST && <div className="global-button-style invert-colors " style={{ display: "inline-block", padding: "5px 10px", fontSize: "1vw" }} onClick={() => { setShopState(ShopState.SELL_POST) }}>Sell Outposts</div>}
+                </div>
             </div>
-
-            {shopState === ShopState.REINFORCES && <div className="global-button-style invert-colors " style={{backgroundColor:"red",  display: "inline-block", padding: "5px 10px", fontSize: "1vw" }} onClick={() => { setShopState(ShopState.SELL_REINF) }}>Sell Reinforcements</div>}
-            {shopState === ShopState.OUTPOST && <div className="global-button-style invert-colors " style={{backgroundColor:"red", display: "inline-block", padding: "5px 10px", fontSize: "1vw" }} onClick={() => { setShopState(ShopState.SELL_POST) }}>Sell Outposts</div>}
 
         </div>
     )

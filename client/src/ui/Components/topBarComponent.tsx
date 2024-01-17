@@ -5,7 +5,8 @@ import {
     getComponentValueStrict,
     HasValue,
     getComponentValue,
-    updateComponent
+    updateComponent,
+    defineEnterSystem
 } from "@latticexyz/recs";
 import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 import { useDojo } from "../../hooks/useDojo";
@@ -154,8 +155,6 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
         return () => clearInterval(intervalId);
     }, [clientGameData]);
-
-
 
     // to remove
     // const playClickSound = () => {

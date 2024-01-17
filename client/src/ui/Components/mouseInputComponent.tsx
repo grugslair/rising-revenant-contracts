@@ -52,9 +52,9 @@ const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
         onDragStart();
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
         setDragging(false);
-        if (lastDragX === 0 && lastDragY === 0) {
+        if (lastDragX === 0 && lastDragY === 0 && e.button === 0) {
             onNormalClick(overEvent);
         } else {
             onDragEnd();

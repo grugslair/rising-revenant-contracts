@@ -270,7 +270,7 @@ export const GamePhaseManager = () => {
         }
       </>}
 
-      {showEventButton && currentMenuState === MenuState.NONE && <ClickWrapper className='fire-button pointer' onClick={() => createEvent()}>Summon Event</ClickWrapper>}
+      {/* {showEventButton && currentMenuState === MenuState.NONE && <ClickWrapper className='fire-button pointer' onClick={() => createEvent()}>Summon Event</ClickWrapper>} */}
     </>
   );
 }

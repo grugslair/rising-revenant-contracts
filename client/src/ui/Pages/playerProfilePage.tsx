@@ -234,8 +234,6 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
     }, [outpostData]);
 
     useEffect(() => {
-        console.error(currentBalance);
-
         if (currentBalance === 0) {
             setAmountToReinforce(0);
             return;
