@@ -37,7 +37,7 @@ export const phaserConfig = {
                 [Assets.CaslteSelectedAsset]: {
                     type: AssetType.Image,
                     key: Assets.CaslteSelectedAsset,
-                    path: "assets/Outpost_Icons/Green_Outpost.png",
+                    path: "assets/Outpost_Icons/White_Outpost.png",
                 },
                 [Assets.MapPicture]: {
                     type: AssetType.Image,

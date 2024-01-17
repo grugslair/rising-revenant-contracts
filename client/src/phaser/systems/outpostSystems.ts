@@ -43,7 +43,7 @@ export const spawnOutposts = (layer: PhaserLayer) => {
     outpostObj.setComponent({
       id: "position",
       once: (sprite: any) => {
-        sprite.setPosition(outpostData.x - (512 * SCALE), outpostData.y  - (512 * SCALE));
+        sprite.setPosition(outpostData.x - (150 * SCALE), outpostData.y  - (150 * SCALE));
       },
     });
   });

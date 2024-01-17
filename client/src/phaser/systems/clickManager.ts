@@ -55,10 +55,10 @@ export const clickManager = (layer: PhaserLayer) => {
 
       const outpostData = getComponentValueStrict(Outpost, outpostEntityValue);
 
-      const minX = outpostData.x - 512 * SCALE;
-      const minY = outpostData.y - 512 * SCALE;
-      const maxX = outpostData.x + 512 * SCALE;
-      const maxY = outpostData.y + 512 * SCALE;
+      const minX = outpostData.x - 150 * SCALE;
+      const minY = outpostData.y - 150 * SCALE;
+      const maxX = outpostData.x + 150 * SCALE;
+      const maxY = outpostData.y + 150 * SCALE;
 
       if (
         positionX >= minX &&
