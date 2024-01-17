@@ -113,7 +113,7 @@ export const loadInClientOutpostData = (game_id: number, contractComponents: any
 
         let owned = false;
 
-        if (outpostData.owner === account.address) { owned = true; }
+        if (turnBigIntToAddress(outpostData.owner)  === account.address) { owned = true; }
 
         setComponent(clientComponents.ClientOutpostData, entityId,
             {
@@ -274,6 +274,10 @@ export function mapEntityToImage(entityId: number, entityName: string, totalImag
     const randomNum: number = Math.abs(Math.sin(seed) * 10000);
     const scaledRandom: number = Math.floor(randomNum * totalImages);
     return scaledRandom % totalImages; 
+}
+
+export function turnBigIntToAddress(bigint: number): string {
+    return "0x"+ BigInt(bigint).toString(16)
 }
 
 

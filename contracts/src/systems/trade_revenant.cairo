@@ -105,11 +105,11 @@ mod trade_revenant_actions {
             let mut outpost = get!(world, (game_id, trade.outpost_id), Outpost);
             // TODO: Should we consider checking whether the current outpost has been destroyed? 
             // For now, we can handle this logic on the front end.
-            // assert(outpost.lifes > 0, 'outpost has been destoryed');
+            assert(outpost.lifes > 0, 'outpost has been destoryed');
 
             // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
-            // let seller_amount: u256 = trade.price.into() * 90 / 100;
-            // let contract_amount: u256 = trade.price.into() - seller_amount.into();
+            let seller_amount: u128 = trade.price * 95 / 100;
+            let contract_amount: u128 = trade.price - seller_amount.into();
 
             // let result = erc20
             //     .transfer_from(sender: player, recipient: trade.seller, amount: seller_amount);

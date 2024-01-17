@@ -5,40 +5,70 @@ import {
   getComponentValue,
   defineEnterSystem,
   defineEnterQuery,
+  setComponent,
 } from "@latticexyz/recs";
 import { PhaserLayer } from "..";
-import { Assets, SCALE, getAdjacentIndices, setWidthAndHeight } from "../constants";
+import { Assets, SCALE, getAdjacentIndices, getTileIndex, setWidthAndHeight } from "../constants";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { Outpost } from "../../generated/graphql";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
+import { turnBigIntToAddress } from "../../utils";
+import { useDojo } from "../../hooks/useDojo";
 
 export const spawnOutposts = (layer: PhaserLayer) => {
 
   const {
     world,
+    
     scenes: {
       Main: { objectPool },
     },
-    networkLayer: {
-      components: { Outpost, ClientOutpostData, EntityTileIndex },
-    },
   } = layer;
 
+  const {
+    account: { account },
+    networkLayer: {
+      network: { contractComponents, clientComponents },
+    },
+  } = useDojo();
 
-  defineEnterSystem(world, [Has(ClientOutpostData)], ({ entity }) => {
-    const outpostDojoData = getComponentValueStrict(Outpost, entity);
-    const outpostClientData = getComponentValue(ClientOutpostData, entity);
 
-    if (outpostClientData === undefined) { return }
+  defineEnterSystem(world, [Has(clientComponents.ClientOutpostData)], ({ entity }) => {
+    const outpostData: any = getComponentValueStrict(contractComponents.Outpost, entity);
+
+    let owned = false;
+
+    if (turnBigIntToAddress(outpostData.owner) === account.address) {
+      owned = true;
+    }
+
+    setComponent(clientComponents.ClientOutpostData, entity,
+      {
+        id: Number(outpostData.entity_id),
+        owned: owned,
+        event_effected: false,
+        selected: false,
+        visible: false
+      }
+    )
+    setComponent(clientComponents.EntityTileIndex, entity,
+      {
+        tile_index: getTileIndex(outpostData.x, outpostData.y)
+      }
+    )
+
 
     const outpostObj = objectPool.get(entity, "Sprite");
 
     outpostObj.setComponent({
       id: "position",
       once: (sprite: any) => {
-        sprite.setPosition(outpostDojoData.x - (sprite.width * SCALE) / 2, outpostDojoData.y - (sprite.height * SCALE) / 2);
+        sprite.setPosition(outpostData.x - (sprite.width * SCALE) / 2, outpostData.y - (sprite.height * SCALE) / 2);
       },
     });
+
+
+
 
   });
 

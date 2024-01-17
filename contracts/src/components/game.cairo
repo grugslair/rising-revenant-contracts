@@ -6,7 +6,7 @@ struct Game {
     #[key]
     game_id: u32, // increment
     start_block_number: u64,
-    prize: u256,
+    prize: u128,
     preparation_phase_interval: u64,
     event_interval: u64,
     // The ERC20 token address for increasing reinforcement
@@ -15,7 +15,7 @@ struct Game {
     // the revenant_action is located.
     reward_pool_addr: ContractAddress,
     // The initial purchase price of Reinforcement.
-    revenant_init_price: u256,
+    revenant_init_price: u128,
     // if the rewards has been claimed.
     rewards_claim_status: u32,
     status: u32,
@@ -86,4 +86,3 @@ impl GameImpl of GameTrait {
         assert(self.status != GameStatus::not_created, 'Game not exist');
     }
 }
-

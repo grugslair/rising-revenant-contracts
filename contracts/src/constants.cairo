@@ -12,6 +12,7 @@ const REVENANT_MAX_COUNT: u32 = 2;
 const REINFORCEMENT_INIT_COUNT: u32 = 0;
 
 const EVENT_INIT_RADIUS: u32 = 155;
+const EVENT_INCREASE_RADIUS: u32 = 5;
 
 // The reward score offered for creating a world event
 const EVENT_CREATE_SCORE: u32 = 20;
@@ -21,6 +22,5 @@ const DESTORY_OUTPOST_SCORE: u32 = 5;
 const MAP_WIDTH: u32 = 10240;
 const MAP_HEIGHT: u32 = 5164;
 
-const SPAWN_RANGE_X: u32 = 400;   // Alex 
-const SPAWN_RANGE_Y: u32 = 400;
-
+const SPAWN_RANGE_X: u32 = 800; 
+const SPAWN_RANGE_Y: u32 = 800;

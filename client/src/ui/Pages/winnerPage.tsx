@@ -14,6 +14,7 @@ import { ClickWrapper } from "../clickWrapper";
 import { useOutpostAmountData } from "../Hooks/outpostsAmountData";
 import { ClaimEndGameRewards, ClaimScoreRewards } from "../../dojo/types";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
+import { turnBigIntToAddress } from "../../utils";
 
 //pages
 
@@ -59,9 +60,9 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
 
         const difference = outpostAmountData.totalOutpostsQuery.filter(item => !outpostAmountData.outpostDeadQuery.includes(item));
 
-        const outpostComp = getComponentValueStrict(contractComponents.Outpost, getEntityIdFromKeys([BigInt(difference[0])]));
+        const outpostComp: any = getComponentValueStrict(contractComponents.Outpost, getEntityIdFromKeys([BigInt(difference[0])]));
         
-        setWinningAddress("0x"+BigInt(outpostComp.owner).toString(16));
+        setWinningAddress(turnBigIntToAddress(outpostComp.owner));
     }, []);
 
     const shareOnTwitter = () => {

@@ -1,13 +1,14 @@
 import { SetupNetworkResult } from "./setupNetwork";
 import { ClientComponents } from "./createClientComponents";
 import { getEntityIdFromKeys, getEvents, setComponentsFromEvents } from "@dojoengine/utils";
-import { getComponentValueStrict, setComponent, updateComponent } from "@latticexyz/recs";
+import { Has, getComponentValueStrict, runQuery, setComponent, updateComponent } from "@latticexyz/recs";
 
 import { CreateGameProps, CreateRevenantProps, ConfirmEventOutpost, CreateEventProps, PurchaseReinforcementProps, ReinforceOutpostProps, RevokeTradeReinf, PurchaseTradeReinf, ClaimScoreRewards, CreateTradeForReinf, ModifyTradeReinf } from "./types/index"
 
 import { toast } from 'react-toastify';
 import { GAME_CONFIG_ID } from "../utils/settingsConstants";
 import { getTileIndex } from "../phaser/constants";
+import { turnBigIntToAddress } from "../utils";
 
 //HERE HCANGE ALL THE NOTIS TO THE RIGHT LAYOUT
 
@@ -90,7 +91,9 @@ export function createSystemCalls(
                     getEvents(receipt)
                 );
 
-                notify('Revenant Created!', tx);
+                notify('Revenant Created!', receipt);
+
+                console.log(receipt)
             } catch (e) {
 
                 console.log(e);
@@ -98,14 +101,23 @@ export function createSystemCalls(
             }
             finally {
                 const gameEntityCounter = getComponentValueStrict(GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
-
+                console.error("this is where the game ent gets fetchs", gameEntityCounter)
                 for (let index = 0; index < Number(count); index++) {
+                    
+                    const entitiesAtTileIndex = Array.from(runQuery([Has(contractComponents.Outpost)]));
+                    console.log(entitiesAtTileIndex)
 
-                    const outpostData = getComponentValueStrict(Outpost, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]));
+                    console.log(getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]))
 
+                    console.log(BigInt(game_id));
+                    console.log(Number(count));
+                    console.log(BigInt(gameEntityCounter.outpost_count - index));
+
+                    const outpostData: any = getComponentValueStrict(Outpost, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]));
+                    console.log("THIS IS WHERE THE ISSUES IS", outpostData)
                     let owned = false;
 
-                    if (outpostData.owner === account.address) {
+                    if (turnBigIntToAddress(outpostData.owner) === account.address) {
                         owned = true;
                     }
 

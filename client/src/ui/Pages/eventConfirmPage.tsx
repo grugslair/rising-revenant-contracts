@@ -128,10 +128,10 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState,s
         };
     }, []); 
 
-    // useEffect(() => {
-    //     const aliveOutposts = outpostAmountData.outpostsHitQuery.filter(outpost => !outpostAmountData.outpostDeadQuery.includes(outpost));
-    //     setEntityIdsOfOutposts(aliveOutposts);
-    // }, [outpostAmountData.outpostsHitQuery, outpostAmountData.outpostDeadQuery]);
+    useEffect(() => {
+        const aliveOutposts = outpostAmountData.outpostsHitQuery.filter(outpost => !outpostAmountData.outpostDeadQuery.includes(outpost));
+        setEntityIdsOfOutposts(aliveOutposts);
+    }, [outpostAmountData.outpostsHitQuery, outpostAmountData.outpostDeadQuery]);
 
     if (transitionState !== 2) {
         return <></>;
@@ -151,18 +151,18 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState,s
 
                     <div style={{ gridRow: "1", gridColumn: "2", display: "flex", justifyContent: "center", alignItems: "start" }}> <h1 className="no-margin test-h1-75" style={{whiteSpace:"nowrap", fontFamily: "Zelda", fontWeight: "100", color: "white" }}>OUTPOSTS UNDER ATTACK</h1></div>
                     <div style={{ gridRow: "2", gridColumn: "1/4", display: "flex", justifyContent: "center", alignItems: "end" }}>
-                        <h2 className="no-margin test-h2" style={{ color: "white" }}>Validate attacks in order to get rewards</h2>
+                        <h2 className="no-margin test-h2" style={{ color: "white" }} >Validate attacks in order to get rewards</h2>
                     </div>
                 </div>
                 <div style={{ height: "7%", width: "100%", }}></div>
                 <div style={{ height: "65%", width: "100%", display: "grid", gap: "5%", scrollbarGutter: "stable", overflowY: "auto", gridTemplateColumns: "repeat(2, 1fr)", padding: "5px 10px", boxSizing: "border-box" }}>
-                    {outpostAmountData.outpostsHitQuery.map((outpostId: EntityIndex) => (
+                    {entityIdsOfOutposts.map((outpostId: EntityIndex) => (
                         <OutpostEventAttackedElement entityId={outpostId} key={outpostId} />
                     ))}
                 </div>
                 <div style={{ height: "13%", width: "100%", display:"flex", justifyContent: "center", alignItems: "flex-end"}}>
                     <div className="global-button-style" style={{padding:"5px 10px", backgroundColor:"#9d0e0e"}}>
-                        <h2 className="test-h2 no-margin">Validate All</h2>
+                        {/* <h2 className="test-h2 no-margin">Validate All</h2> */}
                     </div>
                 </div>
 

@@ -949,7 +949,7 @@
     {
       "name": "game_actions",
       "address": "0x1a25d0ac9bba57d3053b98a29a3a5794579ad2925587480c3009a7608732b5a",
-      "class_hash": "0x66cfbbc8f2962d9bb8afa72a88e62fe83a0e374a74a0d6c0d1bb9c374e2a765",
+      "class_hash": "0x6af430e1b91e83a50bddae6ffd0809d613905d1fe85e59e0aafb85af297dcb6",
       "abi": [
         {
           "type": "impl",
@@ -989,20 +989,6 @@
           "interface_name": "realmsrisingrevenant::systems::game::IGameActions"
         },
         {
-          "type": "struct",
-          "name": "core::integer::u256",
-          "members": [
-            {
-              "name": "low",
-              "type": "core::integer::u128"
-            },
-            {
-              "name": "high",
-              "type": "core::integer::u128"
-            }
-          ]
-        },
-        {
           "type": "interface",
           "name": "realmsrisingrevenant::systems::game::IGameActions",
           "items": [
@@ -1028,7 +1014,7 @@
                 },
                 {
                   "name": "revenant_init_price",
-                  "type": "core::integer::u256"
+                  "type": "core::integer::u128"
                 },
                 {
                   "name": "max_amount_of_revenants",
@@ -1153,7 +1139,7 @@
     {
       "name": "revenant_actions",
       "address": "0x6a52748df270bba595b115c471f4a963a918a24d8b5312f035a5d0dc2c5bc81",
-      "class_hash": "0x34e57f4ea72c3bc219f94d0d4d6584bd71b0fb0045098c4c54752c1318db496",
+      "class_hash": "0x86e1706cb3a10e172e579ea165bd81a311a94c2c81cbcb856ea555202b9b4f",
       "abi": [
         {
           "type": "impl",
@@ -1203,20 +1189,6 @@
             {
               "name": "True",
               "type": "()"
-            }
-          ]
-        },
-        {
-          "type": "struct",
-          "name": "core::integer::u256",
-          "members": [
-            {
-              "name": "low",
-              "type": "core::integer::u128"
-            },
-            {
-              "name": "high",
-              "type": "core::integer::u128"
             }
           ]
         },
@@ -1271,7 +1243,7 @@
               ],
               "outputs": [
                 {
-                  "type": "core::integer::u256"
+                  "type": "core::integer::u128"
                 }
               ],
               "state_mutability": "view"
@@ -1287,7 +1259,7 @@
               ],
               "outputs": [
                 {
-                  "type": "core::integer::u256"
+                  "type": "core::integer::u128"
                 }
               ],
               "state_mutability": "view"
@@ -1446,7 +1418,7 @@
     {
       "name": "trade_actions",
       "address": "0x592793f25122e1056a1d0d4bd2c9bd593819ef1c9bc1495930e299e966d1df4",
-      "class_hash": "0x235241df45cfa3d0f8b981bc0680b5e0c7746d2b47bdcbd2a954b13ff842f33",
+      "class_hash": "0x25994381e09d5703907539496eb4a9f218091466c2b92afba4647719aec6f3d",
       "abi": [
         {
           "type": "impl",
@@ -1654,7 +1626,7 @@
     {
       "name": "trade_revenant_actions",
       "address": "0xf85faf7d7defe33ff6e0a871aa62c77a5b0224e5adc82d82655a45f9b8fdf6",
-      "class_hash": "0x3f07a0135769ffa4ef923edd16b17a1a1d8fb1e19627c0c729b576c3411e239",
+      "class_hash": "0x301e2b71f06bf49f69e82d52e91deec522f21661bd36a8ba7138ed474af2655",
       "abi": [
         {
           "type": "impl",
@@ -1866,7 +1838,7 @@
     {
       "name": "world_event_actions",
       "address": "0x74474c815d0ef32b59d3d9b43911e27885eb8def34b6d3164f43488e7fb48cc",
-      "class_hash": "0xa7ff5cb8bd59fdcad7463a7d61f4cdb13b6ec9baa1c57b611363f8bc5d51c0",
+      "class_hash": "0x14e22ae62900bab1329d70745de217d46ab8ee2cc6518e8d087f1dd89b5dbee",
       "abi": [
         {
           "type": "impl",
@@ -2104,7 +2076,7 @@
         },
         {
           "name": "prize",
-          "type": "u256",
+          "type": "u128",
           "key": false
         },
         {
@@ -2129,7 +2101,7 @@
         },
         {
           "name": "revenant_init_price",
-          "type": "u256",
+          "type": "u128",
           "key": false
         },
         {
@@ -2148,7 +2120,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x708d085d727360032962389549ccbee6e747fa567f43fe9f17f15bdf1b95656",
+      "class_hash": "0x64bf9b66689c7255099cd4ab808c8484bc21fbc230b951c43dc2ff1025134e3",
       "abi": [
         {
           "type": "function",
@@ -3139,7 +3111,7 @@
         },
         {
           "name": "earned_prize",
-          "type": "u256",
+          "type": "u128",
           "key": false
         },
         {
@@ -3158,12 +3130,22 @@
           "key": false
         },
         {
+          "name": "initiated",
+          "type": "u8",
+          "key": false
+        },
+        {
           "name": "inited",
           "type": "bool",
           "key": false
+        },
+        {
+          "name": "player_wallet_amount",
+          "type": "u128",
+          "key": false
         }
       ],
-      "class_hash": "0x7c7a2f2cb81a7ca0994431d0cb0b7a1051dfb3334307ce3bb75bf8fd42ea17d",
+      "class_hash": "0x53ca25708e3af2f27b24dce71d6e1066e497d8c5831b313eb9591b7935ff10e",
       "abi": [
         {
           "type": "function",

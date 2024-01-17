@@ -199,7 +199,6 @@ interface ListElementProps {
 export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_outpost, currentBalance, goHereFunc, phase, confirmEvent }) => {
     const [buttonIndex, setButtonIndex] = useState<number>(0)
     const [amountToReinforce, setAmountToReinforce] = useState<number>(1)
-    const [heightValue, setHeight] = useState<number>(0)
 
     const [name, setName] = useState<string>("Name")
     const [surname, setSurname] = useState<string>("Surname")
@@ -211,7 +210,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
     const [shieldNum, setShieldNum] = useState<number>(5)
     const [reinforcements, setReinforcements] = useState<number>(20)
 
-    const { clickWrapperRef, clickWrapperStyle } = useResizeableHeight(24, 4, "20%");
+    const { clickWrapperRef, clickWrapperStyle } = useResizeableHeight(24, 4, "100%");
 
     const {
         networkLayer: {
@@ -255,7 +254,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
     return (
         <div ref={clickWrapperRef} className={`profile-page-grid-container ${clientOutpostData.event_effected && outpostData.lifes > 0 ? ' profile-page-attacked-style' : ''}`} style={clickWrapperStyle} onMouseEnter={() => setButtonIndex(1)} onMouseLeave={() => setButtonIndex(0)}>
             <div className="pfp">
-                <img src={revenantsPicturesLinks[mapEntityToImage(clientOutpostData!.id, namesArray[revenantData.first_name_idx], revenantsPicturesLinks.length)]} className="child-img " />
+                <img src={revenantsPicturesLinks[mapEntityToImage(clientOutpostData!.id, namesArray[revenantData.first_name_idx], 25)]} className="child-img " />
             </div>
 
             <div className="name" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
@@ -264,7 +263,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
 
             <div className="otp" style={{ position: "relative" }}>
                 {clientOutpostData.event_effected && <div style={{ position: "absolute", top: "0", left: "0", backgroundColor: "#ff000055", height: "100%", width: "100%" }}></div>}
-                <img src="test_out_pp.png" className="child-img" />
+                <img src="Misc/test_out_pp.png" className="child-img" />
             </div>
 
             <div className="sh shields-grid-container" style={{ boxSizing: "border-box" }}>
@@ -290,12 +289,13 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                 <h4 className="no-margin test-h4 global-button-style info-pp-text-style" style={{ width: "fit-content", height: "fit-content", padding: "2px 5px", boxSizing: "border-box", margin: "0px auto" }} onClick={() => goHereFunc(xCoord, yCoord, entityId)}>Go Here</h4>
             </div>
 
-                <div onMouseEnter={() => { setButtonIndex(3) }} onMouseLeave={() => { setButtonIndex(1) }} style={{ flex: "1", height: "100%", boxSizing: "border-box" }}>
-                    <div style={{ width: "100%", height: "50%", }}> <h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw" }}>Coordinates: <br /><br />X: {xCoord}, Y: {yCoord}</h3>    </div>
-                    <div style={{ width: "100%", height: "50%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                        {buttonIndex === 3 && phase === 2 && <div className="global-button-style" style={{ height: "50%", padding: "5px 10px", boxSizing: "border-box", fontSize: "0.6cqw", display: "flex", justifyContent: "center", alignItems: "center" }} onClick={() => goHereFunc(xCoord, yCoord)}> <h2>Go here</h2></div>}
-                    </div>
-                </div>
+            <div style={{gridRow:"1", gridColumn:"19/22",    display:"flex"}}>
+                <h4 className="no-margin test-h4 info-pp-text-style">Reinforcements:</h4>
+            </div>
+            <div style={{gridRow:"2", gridColumn:"19/22", display:"flex"}}>
+                <h4 className="no-margin test-h4 info-pp-text-style">{reinforcements}</h4>
+            </div>
+           
 
             {outpostData.lifes > 0 &&
                 <>
@@ -309,7 +309,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                                 <div className="action" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gridTemplateRows: "1fr 1fr" }}>
                                     <div style={{ gridRow: "1", gridColumn: "1", display: "flex" }}>
                                         <div className="global-button-style info-pp-text-style" style={{ width: "50%", height: "50%", margin: "0px auto" }} >
-                                            <img src="/minus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce - 1)} />
+                                            <img src="Icons/minus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce - 1)} />
                                         </div>
                                     </div>
                                     <div style={{ gridRow: "1", gridColumn: "2", display: "flex" }}>
@@ -317,7 +317,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                                     </div>
                                     <div style={{ gridRow: "1", gridColumn: "3", display: "flex" }}>
                                         <div className="global-button-style info-pp-text-style" style={{ width: "50%", height: "50%", margin: "0px auto" }} >
-                                            <img src="/plus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce + 1)} />
+                                            <img src="Icons/plus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce + 1)} />
                                         </div>
                                     </div>
                                     <div style={{ gridRow: "2", gridColumn: "1/4", display: "flex", position: "relative" }}>
@@ -329,7 +329,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                         <div className="action" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gridTemplateRows: "1fr 1fr" }}>
                             <div style={{ gridRow: "1", gridColumn: "1", display: "flex" }}>
                                 <div className="global-button-style info-pp-text-style" style={{ width: "50%", height: "50%", margin: "0px auto" }} >
-                                    <img src="/minus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce - 1)} />
+                                    <img src="Icons/minus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce - 1)} />
                                 </div>
                             </div>
                             <div style={{ gridRow: "1", gridColumn: "2", display: "flex" }}>
@@ -337,7 +337,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                             </div>
                             <div style={{ gridRow: "1", gridColumn: "3", display: "flex" }}>
                                 <div className="global-button-style info-pp-text-style" style={{ width: "50%", height: "50%", margin: "0px auto" }} >
-                                    <img src="/plus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce + 1)} />
+                                    <img src="Icons/plus.png" alt="minus" style={{ width: "100%", height: "100%" }} onClick={() => setAmountToReinforce(amountToReinforce + 1)} />
                                 </div>
                             </div>
                             <div style={{ gridRow: "2", gridColumn: "1/4", display: "flex", position: "relative" }}>

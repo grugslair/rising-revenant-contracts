@@ -89,8 +89,8 @@ export const TradesPage: React.FC<TradesPageProps> = ({ setMenuState }) => {
                 <div style={{ height: "100%", width: "82%" }}></div>
             </div>
 
-            {shopState === ShopState.REINFORCES && <div className="global-button-style invert-colors " style={{ display: "inline-block", padding: "5px 10px", fontSize: "1vw" }} onClick={() => { setShopState(ShopState.SELL_REINF) }}>Sell Reinforcements</div>}
-            {shopState === ShopState.OUTPOST && <div className="global-button-style invert-colors " style={{ display: "inline-block", padding: "5px 10px", fontSize: "1vw" }} onClick={() => { setShopState(ShopState.SELL_POST) }}>Sell Outposts</div>}
+            {shopState === ShopState.REINFORCES && <div className="global-button-style invert-colors " style={{backgroundColor:"red",  display: "inline-block", padding: "5px 10px", fontSize: "1vw" }} onClick={() => { setShopState(ShopState.SELL_REINF) }}>Sell Reinforcements</div>}
+            {shopState === ShopState.OUTPOST && <div className="global-button-style invert-colors " style={{backgroundColor:"red", display: "inline-block", padding: "5px 10px", fontSize: "1vw" }} onClick={() => { setShopState(ShopState.SELL_POST) }}>Sell Outposts</div>}
 
         </div>
     )

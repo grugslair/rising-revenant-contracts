@@ -20,7 +20,7 @@ mod world_event_actions {
     use realmsrisingrevenant::components::player::{PlayerInfo, PlayerInfoImpl, PlayerInfoTrait};
     use realmsrisingrevenant::components::world_event::{WorldEvent, WorldEventTracker};
     use realmsrisingrevenant::constants::{
-        EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH, EVENT_CREATE_SCORE, DESTORY_OUTPOST_SCORE,SPAWN_RANGE_X,SPAWN_RANGE_Y
+        EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH, EVENT_CREATE_SCORE, EVENT_INCREASE_RADIUS, DESTORY_OUTPOST_SCORE,SPAWN_RANGE_X,SPAWN_RANGE_Y
     };
     use realmsrisingrevenant::utils::MAX_U32;
     use realmsrisingrevenant::utils::random::{Random, RandomImpl};
@@ -92,7 +92,6 @@ mod world_event_actions {
             // update lifes
             outpost.lifes -= 1;
 
-            // Alex
             let shields_amount = outpost.get_shields_amount();
 
             outpost.shield = shields_amount;
@@ -106,7 +105,7 @@ mod world_event_actions {
             };
 
             let mut owner_info = get!(world, (game_id, outpost.owner), (PlayerInfo));
-            owner_info.check_player_exists(world);  // alex: only people that have bought revenants should be able to interact with the world
+            owner_info.check_player_exists(world); 
             if outpost.lifes == 0 {
                 game_data.outpost_exists_count -= 1;
                 owner_info.revenant_count -= 1;
@@ -143,7 +142,7 @@ mod world_event_actions {
             if entity_id > 1 {
                 let prev_world_event = get!(world, (game_id, entity_id - 1), WorldEvent);
                 if prev_world_event.destroy_count == 0 && prev_world_event.radius < MAX_U32 {
-                    radius = prev_world_event.radius + 1;
+                    radius = prev_world_event.radius + EVENT_INCREASE_RADIUS;
                 } else {
                     radius = prev_world_event.radius;
                 }

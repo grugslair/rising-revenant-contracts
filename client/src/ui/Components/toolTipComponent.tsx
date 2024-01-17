@@ -12,7 +12,7 @@ import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 import { ConfirmEventOutpost } from "../../dojo/types";
 
 import { setTooltipArray } from "../../phaser/systems/eventSystems/eventEmitter";
-import { fetchSpecificOutRevData, namesArray, setComponentsFromGraphQlEntitiesHM, surnamesArray, truncateString } from "../../utils";
+import { fetchSpecificOutRevData, namesArray, setComponentsFromGraphQlEntitiesHM, surnamesArray, truncateString, turnBigIntToAddress } from "../../utils";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
@@ -164,7 +164,7 @@ const RevenantDataElement: React.FC<{ entityId: EntityIndex }> = ({ entityId }) 
 
   useEffect(() => {
 
-    const address = BigInt(revenantData.owner).toString(16)
+    const address = turnBigIntToAddress(revenantData.owner)
 
     if (address === account.address) {
       setOwner("You");

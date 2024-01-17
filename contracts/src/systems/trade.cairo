@@ -47,7 +47,7 @@ mod trade_actions {
             game.assert_is_playing(world);
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            player_info.check_player_exists(world);  // alex: only people that have bought a revenant can create trades
+            player_info.check_player_exists(world); 
             assert(count > 0, 'count must larger than 0');
             assert(player_info.reinforcement_count >= count, 'No reinforcement can sell');
 
@@ -104,26 +104,37 @@ mod trade_actions {
             assert(trade.status != TradeStatus::revoked, 'trade had been revoked');
             assert(trade.seller != player, 'unable purchase your own trade');
 
-            let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
-            let seller_amount: u256 = trade.price.into() * 90 / 100;
-            let contract_amount: u256 = trade.price.into() - seller_amount.into();
+            // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
+            // let seller_amount: u128 = trade.price.into() * 90 / 100;
 
-            let result = erc20
-                .transfer_from(sender: player, recipient: trade.seller, amount: seller_amount);
-            assert(result, 'need approve for erc20');
-            let result = erc20
-                .transfer_from(
-                    sender: player, recipient: game.reward_pool_addr, amount: contract_amount
-                );
-            assert(result, 'need approve for erc20');
 
-            let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            player_info.check_player_exists(world); // alex: only people that have bought revenants can buy trades
-            player_info.reinforcement_count += trade.count;
+
+            // let contract_amount: u128 = trade.price.into() - seller_amount.into();
+
+            // let result = erc20
+            //     .transfer_from(sender: player, recipient: trade.seller, amount: seller_amount);
+            // assert(result, 'need approve for erc20');
+            // let result = erc20
+            //     .transfer_from(
+            //         sender: player, recipient: game.reward_pool_addr, amount: contract_amount
+            //     );
+            // assert(result, 'need approve for erc20');
+
+            let mut player_info_buyer = get!(world, (game_id, player), PlayerInfo);
+            player_info_buyer.check_player_exists(world); 
+            player_info_buyer.reinforcement_count += trade.count;
+
+            assert(player_info_buyer.player_wallet_amount >= trade.price, 'not enough cash');
+
+            let mut player_info_seller = get!(world, (game_id, trade.seller), PlayerInfo);
+
+            player_info_buyer.player_wallet_amount -= trade.price;
+            player_info_seller.player_wallet_amount += trade.price;
+
             trade.status = TradeStatus::sold;
             trade.buyer = player;
 
-            set!(world, (player_info, trade));
+            set!(world, (player_info_buyer,player_info_seller, trade));
         }
 
         fn modify_price(self: @ContractState, game_id: u32, trade_id: u32, new_price: u128) {

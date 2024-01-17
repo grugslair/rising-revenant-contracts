@@ -25,8 +25,8 @@ private_key = "0x1800000000300000180000000000030000000000003006001800006600"
 
 # slot
 #rpc_url = "https://api.cartridge.gg/x/rr-demo/katana"
-#account_address = "0x9e761489c1bfa5a456d812b5828ef04a20dfd563397769a405cbc3790ef080"
-#private_key = "0x44f53ccd1d1cecf85d53d9e92498ddb5fea34dd51e0d933e67db13268103ee6"
+#account_address = "0x8486e16d2a54c4c73792c43278530173078f2e23f329625a52dfaa860ac03f"
+#private_key = "0x14ed04d4acb4fd0a8c6ae76035a2b3efbe6c429e9bbd5511e7bdb8d2f40009c"
 #world_address = "0x4093d0743e76913eb1a6458662c34971e5edfc95aa93b307eaf1b12ffbac397"
 
 
