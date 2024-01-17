@@ -1,6 +1,6 @@
 //libs
-import React, { useEffect, useRef, useState } from "react";
-import { HasValue, getComponentValueStrict, getComponentValue, EntityIndex, Has, updateComponent } from "@latticexyz/recs";
+import React, { useEffect,  useState } from "react";
+import { HasValue, getComponentValueStrict,EntityIndex, updateComponent } from "@latticexyz/recs";
 import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 import { useDojo } from "../../hooks/useDojo";
 import { ConfirmEventOutpost, ReinforceOutpostProps } from "../../dojo/types";
@@ -16,7 +16,7 @@ import PageTitleElement, { ImagesPosition } from "../Elements/pageTitleElement";
 import { mapEntityToImage, namesArray, revenantsPicturesLinks, surnamesArray } from "../../utils";
 import { ReinforcementCountElement } from "../Elements/reinfrocementBalanceElement";
 import { MenuState } from "./gamePhaseManager";
-import { useResizeableHeight } from "../loginComponent";
+import { useResizeableHeight } from "../Hooks/gridResize";
 import { setTooltipArray } from "../../phaser/systems/eventSystems/eventEmitter";
 import { getTileIndex } from "../../phaser/constants";
 
@@ -68,7 +68,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
     }, [playerInfo]);
 
     useEffect(() => {
-        // If you can't use an interface, you can set the type on the arrays directly.
         let numInEvent = 0;
         const updatedArrOfEnt = ownedOutpost.reduce(
             (result: { aliveEntities: EntityIndex[]; deadEntities: EntityIndex[] }, entityId: EntityIndex) => {

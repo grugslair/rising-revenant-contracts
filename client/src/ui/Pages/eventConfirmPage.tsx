@@ -10,10 +10,10 @@ import { EntityIndex, HasValue, getComponentValueStrict, updateComponent } from 
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID, test_3_size, test_4_size, test_5_size } from "../../utils/settingsConstants";
 import { useDojo } from "../../hooks/useDojo";
-import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { useResizeableHeight } from "../loginComponent";
+import { useResizeableHeight } from "../Hooks/gridResize";
 import { mapEntityToImage, namesArray, revenantsPicturesLinks, surnamesArray } from "../../utils";
 import { ConfirmEventOutpost } from "../../dojo/types";
+import { useOutpostAmountData } from "../Hooks/outpostsAmountData";
 
 //elements/components
 
@@ -47,8 +47,9 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState,s
         }
     } = useDojo();
 
-    const outpostsHit = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
-    const deadOutposts = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
+    // const outpostsHit = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
+    // const deadOutposts = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
+    const outpostAmountData = useOutpostAmountData();
 
     useEffect(() => {
         const handleMovementTransition = async () => {
@@ -128,9 +129,9 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState,s
     }, []); 
 
     // useEffect(() => {
-    //     const aliveOutposts = outpostsHit.filter(outpost => !deadOutposts.includes(outpost));
+    //     const aliveOutposts = outpostAmountData.outpostsHitQuery.filter(outpost => !outpostAmountData.outpostDeadQuery.includes(outpost));
     //     setEntityIdsOfOutposts(aliveOutposts);
-    // }, [outpostsHit, deadOutposts]);
+    // }, [outpostAmountData.outpostsHitQuery, outpostAmountData.outpostDeadQuery]);
 
     if (transitionState !== 2) {
         return <></>;
@@ -155,7 +156,7 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState,s
                 </div>
                 <div style={{ height: "7%", width: "100%", }}></div>
                 <div style={{ height: "65%", width: "100%", display: "grid", gap: "5%", scrollbarGutter: "stable", overflowY: "auto", gridTemplateColumns: "repeat(2, 1fr)", padding: "5px 10px", boxSizing: "border-box" }}>
-                    {outpostsHit.map((outpostId: EntityIndex) => (
+                    {outpostAmountData.outpostsHitQuery.map((outpostId: EntityIndex) => (
                         <OutpostEventAttackedElement entityId={outpostId} key={outpostId} />
                     ))}
                 </div>

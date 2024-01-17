@@ -11,6 +11,9 @@ import "./PagesStyles/WinnerPageStyles.css";
 
 //elements/components
 import { ClickWrapper } from "../clickWrapper";
+import { useOutpostAmountData } from "../Hooks/outpostsAmountData";
+import { ClaimEndGameRewards, ClaimScoreRewards } from "../../dojo/types";
+import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 //pages
 
@@ -37,21 +40,24 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
     const {
         account: { account },
         networkLayer: {
-            network: { contractComponents },
+            network: { contractComponents,clientComponents },
+            systemCalls:{claim_endgame_rewards, claim_score_rewards}
         },
     } = useDojo();
 
-    const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
-    const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
+    // const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
+    // const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
+    const outpostAmountData = useOutpostAmountData();
+    const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
     useEffect(() => {
 
-        if (totalOutposts.length === 0) {
+        if (outpostAmountData.totalOutpostsQuery.length === 0) {
             setWinningAddress("No winner");
             return;
         }
 
-        const difference = totalOutposts.filter(item => !outpostDeadQuery.includes(item));
+        const difference = outpostAmountData.totalOutpostsQuery.filter(item => !outpostAmountData.outpostDeadQuery.includes(item));
 
         const outpostComp = getComponentValueStrict(contractComponents.Outpost, getEntityIdFromKeys([BigInt(difference[0])]));
         

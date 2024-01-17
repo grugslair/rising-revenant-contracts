@@ -21,6 +21,7 @@ import "./ComponentsStyles/TopBarStyles.css";
 import Tooltip from '@mui/material/Tooltip';
 import { toast } from "react-toastify";
 import { LordsBalanceElement } from "../Elements/playerLordsBalance";
+import { useOutpostAmountData } from "../Hooks/outpostsAmountData";
 
 //Pages
 
@@ -58,9 +59,10 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
         },
     } = useDojo();
 
-    const outpostQuery = useEntityQuery([Has(contractComponents.Outpost)]);
-    const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
-    const ownOutposts = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
+    // const outpostQuery = useEntityQuery([Has(contractComponents.Outpost)]);
+    // const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
+    // const ownOutposts = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
+    const outpostAmountData = useOutpostAmountData();
 
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
@@ -95,10 +97,8 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     useEffect(() => {
 
         const updateOwnData = async () => {
-            // if (clientGameData === 1) { return; }
-
-            for (let index = 0; index < ownOutposts.length; index++) {
-                const entity_id = ownOutposts[index];
+            for (let index = 0; index < outpostAmountData.ownOutpostsQuery.length; index++) {
+                const entity_id = outpostAmountData.ownOutpostsQuery[index];
 
                 let outpostData = getComponentValueStrict(contractComponents.Outpost, entity_id);
                 const lastSavedLifes = outpostData.lifes;
@@ -205,8 +205,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                     {clientGameData!.current_game_state === 1 ?
                         <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {gameEntityCounter!.revenant_count}/{gameData!.max_amount_of_revenants}</div>
                         :
-                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostQuery.length - outpostDeadQuery.length}/{outpostQuery.length}</div>
-
+                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostAmountData.outpostsLeftNumber}/{outpostAmountData.totalOutpostsQuery.length}</div>
                     }
                 </div>
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">

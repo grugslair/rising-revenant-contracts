@@ -1,13 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect} from "react";
 import { GAME_CONFIG_ID, MAP_HEIGHT, MAP_WIDTH } from "../utils/settingsConstants";
 
 import { ClickWrapper } from "./clickWrapper";
 import { Phase } from "./phaseManager";
 import { useDojo } from "../hooks/useDojo";
 import { truncateString } from "../utils";
-import { getComponentValue, setComponent } from "@latticexyz/recs";
+import { setComponent } from "@latticexyz/recs";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { getTileIndex } from "../phaser/constants";
+import { useResizeableHeight } from "./Hooks/gridResize";
 
 interface LoginPageProps {
   setUIState: React.Dispatch<Phase>;
@@ -174,33 +175,4 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
       </ClickWrapper>
     </>
   );
-};
-
-
-export const useResizeableHeight = (colNum: number, rowNum: number, setWidth: string) => {
-  const clickWrapperRef = useRef<HTMLDivElement>(null);
-  const [heightValue, setHeight] = useState<number>(0);
-
-  useEffect(() => {
-    const updateHeight = () => {
-      if (clickWrapperRef.current) {
-        setHeight((clickWrapperRef.current.offsetWidth / colNum) * rowNum);
-      }
-    };
-
-    window.addEventListener('resize', updateHeight);
-
-    updateHeight();
-
-    return () => {
-      window.removeEventListener('resize', updateHeight);
-    };
-  }, []);
-
-  const clickWrapperStyle: React.CSSProperties = {
-    height: `${heightValue}px`,
-    width: setWidth
-  };
-
-  return { clickWrapperRef, clickWrapperStyle };
 };

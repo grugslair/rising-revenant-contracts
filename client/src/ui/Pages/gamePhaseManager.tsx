@@ -45,6 +45,7 @@ import { DirectionalEventIndicator } from '../Components/warningSystem';
 import MinimapComponent from '../Components/minimap';
 import { EventConfirmPage } from './eventConfirmPage';
 import MouseInputManagerDiv from '../Components/mouseInputComponent';
+import { useOutpostAmountData } from '../Hooks/outpostsAmountData';
 
 export enum MenuState {
   NONE = 0,
@@ -82,20 +83,18 @@ export const GamePhaseManager = () => {
   const clientGameData: any = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
   const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id)]));
-  const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
-  const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
+
+  // const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
+  // const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
 
   useCameraInteraction(currentMenuState);
 
-  //can be custom hooked
+  const outpostData = useOutpostAmountData();
   useEffect(() => {
-    const worldEvents = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { selected: true })]));
-
-    if (totalOutposts.length - outpostDeadQuery.length <= 1 && worldEvents.length > 0) {
+    if (outpostData.outpostsLeftNumber <= 1 && clientGameData.current_event_drawn !== 0) {
       // setCurrentMenuState(MenuState.WINNER);
     }
-
-  }, [outpostDeadQuery]);
+  }, [outpostData.outpostDeadQuery]);
 
   // this only needs to be like this for the debug, once the game ships take out the dependency we still need this because of the escape
   useEffect(() => {
@@ -167,10 +166,8 @@ export const GamePhaseManager = () => {
       <DirectionalEventIndicator />
       <ClickWrapper className="main-page-container-layout">
 
-
         {currentMenuState === MenuState.EVENT && showBackground &&
           <img src='Page_Bg/VALIDATE_EVENT_BG.png' className='brightness-down' style={{ position: 'absolute', top: "0", left: "0", aspectRatio: "1.7/1", width: "100%", height: "100%" }}></img>}
-
 
         <div className='main-page-topbar' style={{ position: "relative" }}>
           <TopBarComponent phaseNum={2} />
@@ -257,6 +254,20 @@ export const GamePhaseManager = () => {
         <JurnalEventComponent setMenuState={setCurrentMenuState} />
         <OutpostTooltipComponent />
         <MinimapComponent />
+
+        {outpostData.outpostsLeftNumber === 1 &&
+          <ClickWrapper style={{ position: 'absolute', width: "40%", height: "20%", transform: "translate(-50%, 0%)", bottom: "4%", left: "50%", zIndex: 20, color: "white" }}>
+            <div style={{ width: "100%", height: "75%", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
+              <h1 className='no-margin test-h1' style={{ fontFamily: "Zelda" }}>GAME HAS ENDED</h1>
+              <h1 className='no-margin test-h1' style={{ fontFamily: "Zelda" }}>ARE YOU THE RISING REVENANT</h1>
+            </div>
+            <div style={{ width: "100%", height: "25%", display: 'flex', justifyContent: "center", alignItems: "flex-start" }}>
+              <div className='global-button-style'>
+                <h2 className='test-h2 no-margin' style={{ padding: "2px 10px" }} onClick={() => setCurrentMenuState(MenuState.WINNER)}>Check it out now</h2>
+              </div>
+            </div>
+          </ClickWrapper>
+        }
       </>}
 
       {/* {showEventButton && currentMenuState === MenuState.NONE && <ClickWrapper className='fire-button pointer' onClick={() => createEvent()}>Summon Event</ClickWrapper>} */}

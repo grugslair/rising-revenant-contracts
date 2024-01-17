@@ -68,6 +68,7 @@ export function createSystemCalls(
             // setComponentsFromEvents(contractComponents,
             //     getEvents(receipt)
             // );
+            console.log(receipt)
 
             notify('Game Created!', receipt)
         } catch (e) {
