@@ -129,11 +129,11 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
             }
           </div>
 
-          <div style={{ flex: "0.5", textAlign: "center", color: "white" }} className="center-via-flex"> <h3 className="no-margin test-h4">or</h3></div>
+          {/* <div style={{ flex: "0.5", textAlign: "center", color: "white" }} className="center-via-flex"> <h3 className="no-margin test-h4">or</h3></div> */}
 
           <div style={{ flex: "1" }} className="center-via-flex">
-            <h2 className="global-button-style invert-colors  invert-colors no-margin test-h2" style={{ fontFamily: "OL", fontWeight: "100", padding: "5px 10px" }}>
-              Guest Login</h2>
+            {/* <h2 className="global-button-style invert-colors  invert-colors no-margin test-h2" style={{ fontFamily: "OL", fontWeight: "100", padding: "5px 10px" }}>
+              Guest Login</h2> */}
           </div>
         </ClickWrapper >
       </div >
