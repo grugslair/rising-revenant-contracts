@@ -108,9 +108,10 @@ export const DebugPage = () => {
       const outpostData = getComponentValue(contractComponents.Outpost, entityId);
       const revenantData = getComponentValue(contractComponents.Revenant, entityId);
       const clientOutpostData = getComponentValue(clientComponents.ClientOutpostData, entityId);
+      const entitiTileIndex = getComponentValue(clientComponents.EntityTileIndex, entityId);
 
-      console.log(`Data for entity ${entityId}`)
-      if (outpostData !== null || outpostData !== undefined) {
+      console.log(entityId)
+      if ( outpostData !== undefined) {
         console.log(outpostData);
       }
       else {
@@ -118,7 +119,7 @@ export const DebugPage = () => {
         passed = TestResults.ERROR;
       }
 
-      if (revenantData !== null || revenantData !== undefined) {
+      if ( revenantData !== undefined) {
         console.log(revenantData);
       }
       else {
@@ -126,18 +127,25 @@ export const DebugPage = () => {
         passed = TestResults.ERROR;
       }
 
-      if (clientOutpostData !== null || clientOutpostData !== undefined) {
+      if (clientOutpostData !== undefined) {
         console.log(clientOutpostData);
       }
       else {
         console.error("ClientOutpostData is non existant for this entity");
         passed = TestResults.ERROR;
       }
+
+      if (entitiTileIndex !== undefined) {
+        console.log(entitiTileIndex);
+      }
+      else {
+        console.error("entitiTileIndex is non existant for this entity");
+        passed = TestResults.ERROR;
+      }
     }
 
     setRevenantCheckOutcome(passed);
   }
-
 
   const worldEventSanityCheck = () => {
     let passed = TestResults.PASSED;
@@ -169,6 +177,26 @@ export const DebugPage = () => {
     }
 
     setEventCheckOutcome(passed);
+  }
+
+  const contractsSanityCheck = () => {
+    for (let index = 0; index < gameEntityCounterEntityQuery.length; index++) {
+      const element = gameEntityCounterEntityQuery[index];
+      console.log(getComponentValueStrict(contractComponents.GameEntityCounter, element) ,element);
+    }
+    console.log("----------------\n")
+
+    for (let index = 0; index < gameTrackerEntityQuery.length; index++) {
+      const element = gameTrackerEntityQuery[index];
+      console.log(getComponentValueStrict(contractComponents.GameTracker, element),element);
+    }
+    console.log("----------------\n")
+
+    for (let index = 0; index < gameEntityQuery.length; index++) {
+      const element = gameEntityQuery[index];
+      console.log(getComponentValueStrict(contractComponents.Game, element),element);
+    }
+    console.log("----------------\n")    
   }
 
   const createEvent = () => 
@@ -210,7 +238,7 @@ export const DebugPage = () => {
         </div>
 
         <div className="data-container">
-          <div className="button-style-debug" onMouseDown={() => { }}>Query Check everthing</div>
+          <div className="button-style-debug" onMouseDown={() => {contractsSanityCheck() }}>Query Check everthing</div>
           <div className="content-holder">
             <h3>There are currently {gameEntityQuery.length} games (1)</h3>
             <h3>There are currently {gameTrackerEntityQuery.length} game tracker (1)</h3>

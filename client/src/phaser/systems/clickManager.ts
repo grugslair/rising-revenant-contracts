@@ -12,7 +12,7 @@ import {
 } from "@latticexyz/recs";
 
 import { setTooltipArray } from "./eventSystems/eventEmitter";
-import { OUTPOST_HEIGHT, OUTPOST_WIDTH, SCALE } from "../constants";
+import {  SCALE } from "../constants";
 
 // this can be threaded
 
@@ -55,10 +55,10 @@ export const clickManager = (layer: PhaserLayer) => {
 
       const outpostData = getComponentValueStrict(Outpost, outpostEntityValue);
 
-      const minX = outpostData.x - 150 * SCALE;
-      const minY = outpostData.y - 150 * SCALE;
-      const maxX = outpostData.x + 150 * SCALE;
-      const maxY = outpostData.y + 150 * SCALE;
+      const minX = outpostData.x - 150 * SCALE ;
+      const minY = outpostData.y - 150 * SCALE ;
+      const maxX = outpostData.x + 150 * SCALE ;
+      const maxY = outpostData.y + 150 * SCALE ;
 
       if (
         positionX >= minX &&

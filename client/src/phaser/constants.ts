@@ -22,14 +22,7 @@ export enum Assets {
     CaslteSelectedAsset = "CaslteSelectedAsset",
 }
 
-export const SCALE = 0.10;
-
-export let OUTPOST_WIDTH = 0;
-export let OUTPOST_HEIGHT = 0;
-export function setWidthAndHeight(widht:number, height: number): void {
-    OUTPOST_WIDTH = widht;
-    OUTPOST_HEIGHT = height;
-}
+export const SCALE = 0.2;
 
 export const TILE_WIDTH = MAP_WIDTH / COLOUMNS_NUMBER;
 export const TILE_HEIGHT = MAP_HEIGHT / ROWS_NUMBER;

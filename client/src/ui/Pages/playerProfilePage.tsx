@@ -1,6 +1,6 @@
 //libs
-import React, { useEffect,  useState } from "react";
-import { HasValue, getComponentValueStrict,EntityIndex, updateComponent } from "@latticexyz/recs";
+import React, { useEffect, useState } from "react";
+import { HasValue, getComponentValueStrict, EntityIndex, updateComponent } from "@latticexyz/recs";
 import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 import { useDojo } from "../../hooks/useDojo";
 import { ConfirmEventOutpost, ReinforceOutpostProps } from "../../dojo/types";
@@ -19,6 +19,7 @@ import { MenuState } from "./gamePhaseManager";
 import { useResizeableHeight } from "../Hooks/gridResize";
 import { setTooltipArray } from "../../phaser/systems/eventSystems/eventEmitter";
 import { getTileIndex } from "../../phaser/constants";
+import { useOutpostAmountData } from "../Hooks/outpostsAmountData";
 
 //pages
 
@@ -30,10 +31,10 @@ import { getTileIndex } from "../../phaser/constants";
 
 interface ProfilePageProps {
     setUIState: () => void;
-    specificSetState?:(number: MenuState) => void;
+    specificSetState?: (number: MenuState) => void;
 }
 
-export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSetState}) => {
+export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSetState }) => {
 
     const [reinforcementCount, setReinforcementCount] = useState(0);
     const [arrOfEnt, setArrOfEnt] = useState<EntityIndex[]>([]);
@@ -49,8 +50,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
 
 
     // this can actaully be merged 
-    const ownedOutpost = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true })]);
+    // const ownedOutpost = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true })]);
     // const ownedAndInEvent = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true, event_effected: true })]);
+    const outpostAmountData = useOutpostAmountData()
 
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
@@ -69,11 +71,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
 
     useEffect(() => {
         let numInEvent = 0;
-        const updatedArrOfEnt = ownedOutpost.reduce(
+        const updatedArrOfEnt = outpostAmountData.ownOutpostsQuery.reduce(
             (result: { aliveEntities: EntityIndex[]; deadEntities: EntityIndex[] }, entityId: EntityIndex) => {
 
                 const clientOutpostEntity = getComponentValueStrict(clientComponents.ClientOutpostData, entityId);
-                if (clientOutpostEntity.event_effected === true){
+                if (clientOutpostEntity.event_effected === true) {
                     numInEvent++;
                 }
 
@@ -88,16 +90,15 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
             { aliveEntities: [] as EntityIndex[], deadEntities: [] as EntityIndex[] }
         );
 
-        if (numInEvent > 0)
-        {
+        if (numInEvent > 0) {
             setEntsInEvents(true);
         }
-        else{
+        else {
             setEntsInEvents(false);
         }
 
         setArrOfEnt([...updatedArrOfEnt.aliveEntities, ...updatedArrOfEnt.deadEntities]);
-    }, [ownedOutpost]);
+    }, [outpostAmountData.ownOutpostsQuery]);
 
     const reinforceOutpost = (outpost_id: any, count: number) => {
 
@@ -112,8 +113,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
     };
 
     const setCameraPos = (x: number, y: number, ent: any) => {
-        updateComponent(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {x: x,y:y});
-        updateComponent(clientComponents.EntityTileIndex, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {tile_index: getTileIndex(x,y)});
+        updateComponent(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { x: x, y: y });
+        updateComponent(clientComponents.EntityTileIndex, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { tile_index: getTileIndex(x, y) });
 
         setUIState();
 
@@ -124,12 +125,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
     };
 
     const confirmAllAttackedOutposts = async () => {
-        for (let index = 0; index < ownedOutpost.length; index++) {
-            const element = ownedOutpost[index];
-            
+        for (let index = 0; index < outpostAmountData.ownOutpostsQuery.length; index++) {
+            const element = outpostAmountData.ownOutpostsQuery[index];
+
             const clientOutpostEntity = getComponentValueStrict(clientComponents.ClientOutpostData, element);
 
-            if (clientOutpostEntity.event_effected === true){
+            if (clientOutpostEntity.event_effected === true) {
                 await callSingularEventConfirm(element);
             }
         }
@@ -162,7 +163,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
                             {arrOfEnt.map((ownedOutID, index) => (
                                 <React.Fragment key={index}>
                                     <ListElement entityId={ownedOutID} reinforce_outpost={reinforceOutpost} currentBalance={reinforcementCount} goHereFunc={setCameraPos} phase={clientGameData.current_game_state} confirmEvent={callSingularEventConfirm} />
-                                    {index < ownedOutpost.length - 1 && dividingLine}
+                                    {index < outpostAmountData.ownOutpostsQuery.length - 1 && dividingLine}
                                 </React.Fragment>
                             ))}
                         </div>
@@ -227,7 +228,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
         setXCoord(outpostData.x);
         setYCoord(outpostData.y);
         setReinforcements(outpostData.lifes);
-        setId(outpostData.entity_id.toString());
+        setId(Number(outpostData.entity_id).toString());
 
         setName(namesArray[revenantData.first_name_idx]);
         setSurname(surnamesArray[revenantData.last_name_idx]);
@@ -287,13 +288,13 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                 <h4 className="no-margin test-h4 global-button-style info-pp-text-style" style={{ width: "fit-content", height: "fit-content", padding: "2px 5px", boxSizing: "border-box", margin: "0px auto" }} onClick={() => goHereFunc(xCoord, yCoord, entityId)}>Go Here</h4>
             </div>
 
-            <div style={{gridRow:"1", gridColumn:"19/22",    display:"flex"}}>
+            <div style={{ gridRow: "1", gridColumn: "19/22", display: "flex" }}>
                 <h4 className="no-margin test-h4 info-pp-text-style">Reinforcements:</h4>
             </div>
-            <div style={{gridRow:"2", gridColumn:"19/22", display:"flex"}}>
+            <div style={{ gridRow: "2", gridColumn: "19/22", display: "flex" }}>
                 <h4 className="no-margin test-h4 info-pp-text-style">{reinforcements}</h4>
             </div>
-           
+
 
             {outpostData.lifes > 0 &&
                 <>
@@ -345,7 +346,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                     }
                 </>
             }
-            
+
         </div>
     );
 };

@@ -131,7 +131,7 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
 
                 <div style={{ height: "10%", width: "100%", position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div style={{ fontWeight: "100", fontFamily: "OL", color: "white", fontSize: "1.4rem" }}> 1 Revenant = {revenantCost} $LORDS</div>
-                    {ownReveants.length === 0 &&
+                    {ownReveants.length >= 1 &&
                         <ClickWrapper onMouseDown={() => { setMenuState(PrepPhaseStages.BUY_REIN); }} className="global-button-style invert-colors  invert-colors no-margin test-h2"
                             style={{ padding: "5px 10px" }}
                         > Buy Reinforcements

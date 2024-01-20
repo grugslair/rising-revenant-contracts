@@ -8,7 +8,7 @@ import PageTitleElement, { ImagesPosition } from "../Elements/pageTitleElement";
 import { ClickWrapper } from "../clickWrapper";
 import { EntityIndex, HasValue, getComponentValueStrict, updateComponent } from "@latticexyz/recs";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
-import { GAME_CONFIG_ID, test_3_size, test_4_size, test_5_size } from "../../utils/settingsConstants";
+import { GAME_CONFIG_ID, test_2_size, test_3_size, test_4_size, test_5_size } from "../../utils/settingsConstants";
 import { useDojo } from "../../hooks/useDojo";
 import { useResizeableHeight } from "../Hooks/gridResize";
 import { mapEntityToImage, namesArray, revenantsPicturesLinks, surnamesArray } from "../../utils";
@@ -150,8 +150,10 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState,s
                     </div>
 
                     <div style={{ gridRow: "1", gridColumn: "2", display: "flex", justifyContent: "center", alignItems: "start" }}> <h1 className="no-margin test-h1-75" style={{whiteSpace:"nowrap", fontFamily: "Zelda", fontWeight: "100", color: "white" }}>OUTPOSTS UNDER ATTACK</h1></div>
-                    <div style={{ gridRow: "2", gridColumn: "1/4", display: "flex", justifyContent: "center", alignItems: "end" }}>
+                    <div style={{ gridRow: "2", gridColumn: "1/4", display: "flex", justifyContent: "space-between", alignItems: "end" }}>
+                        <div style={{height:`${test_2_size}`, aspectRatio:"1/1"}}></div>
                         <h2 className="no-margin test-h2" style={{ color: "white" }} >Validate attacks in order to get rewards</h2>
+                        <img src="close_icon.svg" style={{height:`${test_2_size}`, aspectRatio:"1/1"}}></img>
                     </div>
                 </div>
                 <div style={{ height: "7%", width: "100%", }}></div>

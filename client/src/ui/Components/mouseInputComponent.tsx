@@ -189,8 +189,8 @@ const useMainPageContentClick = () => {
                     updateComponent(clientComponents.ClientClickPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
                         xFromOrigin: event.clientX,
                         yFromOrigin: event.clientY,
-                        xFromMiddle: (pointXRelativeToMiddle / zoomVal),
-                        yFromMiddle: (pointYRelativeToMiddle / zoomVal)
+                        xFromMiddle: ((pointXRelativeToMiddle ) / zoomVal),
+                        yFromMiddle: ((pointYRelativeToMiddle ) / zoomVal)
                     })
                 }
             }

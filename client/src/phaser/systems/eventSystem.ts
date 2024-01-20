@@ -45,7 +45,7 @@ export const eventManager = (layer: PhaserLayer) => {
       destroyGraphicsInContainer(eventCont);
     }
 
-    createCircleOfTriangles(phaserScene, dataEvent.x, dataEvent.y, dataEvent.radius, 30);
+    createCircleOfTriangles(phaserScene, dataEvent.x , dataEvent.y , dataEvent.radius, 30);
 
     const outpostEntities = getComponentEntities(contractComponents.Outpost);
     const outpostArray = Array.from(outpostEntities);
@@ -62,15 +62,13 @@ export const eventManager = (layer: PhaserLayer) => {
       }
 
       const distance = Math.sqrt(
-        (Number(outpostEntityData.x) - dataEvent.x) ** 2 + (Number(outpostEntityData.y) - dataEvent.y) ** 2
+        (Number(outpostEntityData.x) - dataEvent.x) ** 2 + (Number(outpostEntityData.y ) - dataEvent.y ) ** 2
       );
 
       if (distance <= dataEvent.radius) {
-         
         updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(outpostClientData.id)]), { event_effected: true })
       }
       else {
-         
         updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(outpostClientData.id)]), { event_effected: false })
       }
     }
@@ -124,5 +122,4 @@ export const eventManager = (layer: PhaserLayer) => {
       repeat: -1 
     });
   }
-
 };

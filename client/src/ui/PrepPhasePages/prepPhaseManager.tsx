@@ -1,7 +1,7 @@
 //libs
 import { useEffect, useState } from "react";
-import { getComponentValueStrict } from "@latticexyz/recs";
-import {useComponentValue} from "@latticexyz/react";
+import { Has, defineEnterQuery, defineEnterSystem, getComponentValueStrict, setComponent } from "@latticexyz/recs";
+import { useComponentValue } from "@latticexyz/react";
 
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useDojo } from "../../hooks/useDojo";
@@ -53,13 +53,15 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
     const [lastSavedState, setLastSavedState] = useState<PrepPhaseStages>(PrepPhaseStages.VID);
 
     const {
-        account: {account},
+
+        account: { account },
         networkLayer: {
-            network: { clientComponents, contractComponents,graphSdk }
+            world,
+            network: { clientComponents, contractComponents, graphSdk }
         },
     } = useDojo();
 
-    const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])); 
+    const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
     // this is only here to call the debug menu
     useEffect(() => {
@@ -97,30 +99,30 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
     const { numberValue, stringValue } = blocksLeftData;
 
     useEffect(() => {
+
+        console.error(account.address)
         const reloading = async () => {
-          const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id)]));
-      
-          const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData!.current_game_id, gameEntityCounter.outpost_count);
-          setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
-            
-          loadInClientOutpostData(clientGameData!.current_game_id, contractComponents, clientComponents, account);
+            const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id)]));
+
+            const allOutpostsModels = await fetchAllOutRevData(graphSdk, clientGameData!.current_game_id, gameEntityCounter.outpost_count);
+            setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
+
+            loadInClientOutpostData(clientGameData!.current_game_id, contractComponents, clientComponents, account);
         };
-      
+
         return () => {
-            if (account.address !== import.meta.env.VITE_PUBLIC_MASTER_ADDRESS){
-                reloading(); 
+            if (account.address !== import.meta.env.VITE_PUBLIC_MASTER_ADDRESS) {
+                reloading();
             }
         };
     }, [account]);
 
     // video stuff
     const onVideoDone = () => {
-        if (clientGameData!.guest)
-        {
+        if (clientGameData!.guest) {
             setPrepPhaseStage(PrepPhaseStages.GUEST);
         }
-        else
-        {
+        else {
             setPrepPhaseStage(PrepPhaseStages.BUY_REVS);
         }
     }
@@ -141,18 +143,18 @@ export const PrepPhaseManager: React.FC<PrepPhasePageProps> = ({ setUIState }) =
 
     if (clientGameData!.guest) {
         return (
-        <div className="main-page-container-layout">
-          
-            <div className='main-page-content'>
-                <div className='page-container' style={{ backgroundColor: "black" }}>
-                {prepPhaseStage === PrepPhaseStages.GUEST && <GuestPagePrepPhase/>}
-                {prepPhaseStage === PrepPhaseStages.RULES && <RulesPage setUIState={closePage} />}
-                {prepPhaseStage === PrepPhaseStages.SETTINGS && <SettingsPage setUIState={closePage} />}
-                </div>
-            </div>
+            <div className="main-page-container-layout">
 
-            <PrepPhaseNavbarComponent currentMenuState={prepPhaseStage} lastSavedState={lastSavedState} setMenuState={setMenuState} />
-        </div>);
+                <div className='main-page-content'>
+                    <div className='page-container' style={{ backgroundColor: "black" }}>
+                        {prepPhaseStage === PrepPhaseStages.GUEST && <GuestPagePrepPhase />}
+                        {prepPhaseStage === PrepPhaseStages.RULES && <RulesPage setUIState={closePage} />}
+                        {prepPhaseStage === PrepPhaseStages.SETTINGS && <SettingsPage setUIState={closePage} />}
+                    </div>
+                </div>
+
+                <PrepPhaseNavbarComponent currentMenuState={prepPhaseStage} lastSavedState={lastSavedState} setMenuState={setMenuState} />
+            </div>);
     }
 
     return (<div className="main-page-container-layout">

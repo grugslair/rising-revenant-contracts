@@ -27,8 +27,8 @@ export const cameraManager = (layer: PhaserLayer) => {
       Main: { camera, objectPool },
     },
     networkLayer: {
-      network: { clientComponents, contractComponents },
-      components: { ClientOutpostData, ClientGameData, EntityTileIndex, ClientCameraPosition, ClientClickPosition },
+      network: { clientComponents },
+      components: { ClientOutpostData, ClientGameData, EntityTileIndex, ClientCameraPosition},
     },
   } = layer;
 
@@ -47,7 +47,6 @@ export const cameraManager = (layer: PhaserLayer) => {
     camera.centerOn(camPos.x, camPos.y);
 
     const entitiesAtTileIndex = Array.from(runQuery([HasValue(ClientOutpostData, { visible: true })]));
-
 
     for (let index = 0; index < entitiesAtTileIndex.length; index++) {
       const entityId = entitiesAtTileIndex[index];
@@ -74,7 +73,7 @@ export const cameraManager = (layer: PhaserLayer) => {
         const clientData = getComponentValueStrict(ClientOutpostData, outpostEntityValue);
 
         let min = 150;
-        let max = 600;
+        let max = 500;
 
         if (totDistance < min || clientData.selected) {
           sprite.alpha = 1;

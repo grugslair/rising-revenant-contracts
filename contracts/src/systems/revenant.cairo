@@ -49,7 +49,7 @@ mod revenant_actions {
 
     use realmsrisingrevenant::constants::{
         MAP_HEIGHT, MAP_WIDTH, OUTPOST_INIT_LIFE, REVENANT_MAX_COUNT, REINFORCEMENT_INIT_COUNT,
-        SPAWN_RANGE_X, SPAWN_RANGE_Y
+        SPAWN_RANGE_X_MAX, SPAWN_RANGE_Y_MAX, SPAWN_RANGE_X_MIN, SPAWN_RANGE_Y_MIN
     };
     use realmsrisingrevenant::utils::random::{Random, RandomImpl};
     use starknet::{
@@ -121,9 +121,8 @@ mod revenant_actions {
 
             if (player_info.initiated == 0) // here
             {
-                assert(count < 14, 'too many revs');
                 player_info.initiated = 1;
-                player_info.player_wallet_amount = 150;
+                player_info.player_wallet_amount = 10000;
             }
 
             player_info.player_wallet_amount -= game.revenant_init_price * count.into();
@@ -332,15 +331,15 @@ mod revenant_actions {
                 status: RevenantStatus::started
             };
 
-            let mut x = (MAP_WIDTH / 2) - random.next_u32(0, SPAWN_RANGE_X);
-            let mut y = (MAP_HEIGHT / 2) - random.next_u32(0, SPAWN_RANGE_Y);
+            let mut x = random.next_u32(SPAWN_RANGE_X_MIN, SPAWN_RANGE_X_MAX);
+            let mut y =  random.next_u32(SPAWN_RANGE_Y_MIN, SPAWN_RANGE_Y_MAX);
 
             let mut prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
             // avoid multiple outpost appearing in the same position
             if prev_outpost.entity_id > 0 {
                 loop {
-                    x = (MAP_WIDTH / 2) - random.next_u32(0, SPAWN_RANGE_X); // HERE add constants
-                    y = (MAP_HEIGHT / 2) - random.next_u32(0, SPAWN_RANGE_Y);
+                    x =  random.next_u32(SPAWN_RANGE_X_MIN, SPAWN_RANGE_X_MAX);
+                    y = random.next_u32(SPAWN_RANGE_Y_MIN, SPAWN_RANGE_Y_MAX);
                     prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
                     if prev_outpost.entity_id == 0 {
                         break;

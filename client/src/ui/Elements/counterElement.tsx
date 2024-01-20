@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import React, { CSSProperties, useEffect } from "react";
 
 interface CounterElementProps {
     value: number;
@@ -26,6 +26,15 @@ const additionalButtonStyle: CSSProperties = {
 };
 
 const CounterElement: React.FC<CounterElementProps> = ({ value, setValue, containerStyleAddition, additionalButtonStyleAdd, textAddtionalStyle }) => {
+
+    
+    useEffect(() => {
+        if (value < 1){
+            setValue(1);
+        }
+    
+    }, [value]);
+
     return (
         <div style={{ ...containerStyle, ...containerStyleAddition }}>
             <div className="global-button-style invert-colors " onMouseDown={() => { setValue(value - 1) }} style={{ ...additionalButtonStyle, ...additionalButtonStyleAdd }}> 

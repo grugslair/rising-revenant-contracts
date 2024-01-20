@@ -2,8 +2,8 @@
 set -euo pipefail
 pushd $(dirname "$0")/..
 
-# export RPC_URL="http://localhost:5050";
-export RPC_URL="https://api.cartridge.gg/x/rr-demo/katana";
+export RPC_URL="http://localhost:5050";
+# export RPC_URL="https://api.cartridge.gg/x/rr-demo/katana";
 
 export WORLD_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.world.address')
 
@@ -38,7 +38,7 @@ for component in ${COMPONENTS[@]}; do
     sozo auth writer $component $REVENANT_ACTIONS_ADDRESS  --world $WORLD_ADDRESS --rpc-url $RPC_URL
     sozo auth writer $component $WORLD_EVENT_ADDRESS    --world $WORLD_ADDRESS --rpc-url $RPC_URL
     sozo auth writer $component $GAME_ADDRESS   --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sozo auth writer $component $TRADE_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
+    sozo auth writer $component $TRADE_ACTIONS_ADDRESS  --world $WORLD_ADDRESS --rpc-url $RPC_URL
     sozo auth writer $component $TRADE_REV_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
 done
 

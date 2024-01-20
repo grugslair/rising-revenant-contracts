@@ -22,5 +22,7 @@ const DESTORY_OUTPOST_SCORE: u32 = 5;
 const MAP_WIDTH: u32 = 10240;
 const MAP_HEIGHT: u32 = 5164;
 
-const SPAWN_RANGE_X: u32 = 800; 
-const SPAWN_RANGE_Y: u32 = 800;
+const SPAWN_RANGE_X_MIN: u32 = 2000; 
+const SPAWN_RANGE_X_MAX: u32 = 2100; 
+const SPAWN_RANGE_Y_MIN: u32 = 2000;
+const SPAWN_RANGE_Y_MAX: u32 = 2100;
