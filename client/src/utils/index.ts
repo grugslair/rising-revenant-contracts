@@ -66,7 +66,7 @@ export const surnamesArray: string[] = [
 
 export const revenantsPicturesLinks: string[] = [
     "https://imgur.com/p90bt7l.jpg", "https://imgur.com/44nuJJa.jpg", "https://imgur.com/u1v8OSj.jpg", "https://imgur.com/iNe79VQ.jpg",
-    "https://imgur.com/LVzE8Ai.jpg", "https://imgur.com/ASRDy5w.jpg", "https://imgur.com/2lJ8IMg.jpg", "https://imgur.com/3G1tovh.jpg",
+    "https://imgur.com/LVzE8Ai.jpg", "https://imgur.com/44nuJJa.jpg", "https://imgur.com/2lJ8IMg.jpg", "https://imgur.com/3G1tovh.jpg",
     "https://imgur.com/SGSsvEb.jpg", "https://imgur.com/m2qbrPz.jpg", "https://imgur.com/1zOvm8s.jpg", "https://imgur.com/0H7PcaO.jpg",
     "https://imgur.com/rkOnduZ.jpg", "https://imgur.com/GgaP64s.jpg", "https://imgur.com/Sy8ZETi.jpg", "https://imgur.com/SAp8S5V.jpg",
     "https://imgur.com/K3hfQ3I.jpg", "https://imgur.com/mhYmwOI.jpg", "https://imgur.com/UXhqFGI.jpg", "https://imgur.com/E5Czpsb.jpg",
@@ -102,7 +102,7 @@ export function generateRandomNumber(from: number, to: number): number {
 }
 
 
-export const loadInClientOutpostData = (game_id: number, contractComponents: any, clientComponents: any , account: any) => {
+export const loadInClientOutpostData = (game_id: number, contractComponents: any, clientComponents: any, account: any) => {
     const gameEntityCounter: GameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
     const outpostCount = gameEntityCounter.outpost_count;
 
@@ -111,14 +111,10 @@ export const loadInClientOutpostData = (game_id: number, contractComponents: any
 
         const outpostData: any = getComponentValueStrict(contractComponents.Outpost, entityId);
 
-        let owned = false;
-
-        if (turnBigIntToAddress(outpostData.owner)  === account.address) { owned = true; }
-
         setComponent(clientComponents.ClientOutpostData, entityId,
             {
                 id: Number(outpostData.entity_id),
-                owned: owned,
+                owned: turnBigIntToAddress(outpostData.owner) === account.address,
                 event_effected: false,
                 selected: false,
                 visible: false
@@ -246,7 +242,6 @@ export function setComponentsFromGraphQlEntitiesHM(data: any, components: Compon
                     return acc;
                 }, {});
 
-                // console.log(componentValues)
                 setComponent(component, entityIndex, componentValues);
             }
         }
@@ -255,7 +250,7 @@ export function setComponentsFromGraphQlEntitiesHM(data: any, components: Compon
 
 export function checkAndSetPhaseClientSide(game_id: number, currentBlockNumber: number, contractComp: any, clientComp: any): { phase: number; blockLeft: number } {
     const gameData: Game = getComponentValueStrict(contractComp.Game, getEntityIdFromKeys([BigInt(game_id)]));
- 
+
     let phase = 1;
     //30                           //10                         //39
     const blockLeft = (gameData.start_block_number + gameData.preparation_phase_interval) - currentBlockNumber
@@ -264,8 +259,8 @@ export function checkAndSetPhaseClientSide(game_id: number, currentBlockNumber: 
         phase = 2;
     }
 
-    updateComponent(clientComp.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {current_game_state: phase, current_game_id: game_id, current_block_number: currentBlockNumber});
-    
+    updateComponent(clientComp.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { current_game_state: phase, current_game_id: game_id, current_block_number: currentBlockNumber });
+
     return { phase, blockLeft };
 }
 
@@ -273,11 +268,11 @@ export function mapEntityToImage(entityId: number, entityName: string, totalImag
     const seed: number = entityId * 1000 + entityName.length;
     const randomNum: number = Math.abs(Math.sin(seed) * 10000);
     const scaledRandom: number = Math.floor(randomNum * totalImages);
-    return scaledRandom % totalImages; 
+    return scaledRandom % totalImages;
 }
 
 export function turnBigIntToAddress(bigint: number): string {
-    return "0x"+ BigInt(bigint).toString(16)
+    return "0x" + BigInt(bigint).toString(16)
 }
 
 

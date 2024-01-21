@@ -17,16 +17,6 @@ export const useOutpostAmountData = () => {
     const ownOutpostsQuery = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true })]);
     const outpostsHitQuery = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
 
-    useEffect(() => {
-       console.error("\n\n\n\n\n")
-        console.error(outpostDeadQuery.length)
-        console.error(totalOutpostsQuery.length)
-        console.error(ownOutpostsQuery.length)
-        console.error(outpostsHitQuery.length)
-        console.error(outpostsLeftNumber)
-
-    }, [outpostDeadQuery, totalOutpostsQuery, ownOutpostsQuery, outpostsHitQuery, outpostsLeftNumber]);
-
     //can be custom hooked
     useEffect(() => {
         setOutpostsLeft(totalOutpostsQuery.length - outpostDeadQuery.length)

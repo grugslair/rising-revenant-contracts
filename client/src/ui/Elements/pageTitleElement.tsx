@@ -75,7 +75,7 @@ const titleContainerStyle: CSSProperties = {
 
 const PageTitleElement: React.FC<PageTitleElementProps> = ({ name, rightImageFunction,leftImageFunction,rightPicture,imagePosition, leftPicture, htmlContentsLeft, htmlContentsRight, styleContainerRight, styleContainerLeft}) => {
     return (
-        <div style={{
+        <ClickWrapper style={{
             height: "15%",
             width: "100%",
             boxSizing: "border-box",
@@ -100,7 +100,6 @@ const PageTitleElement: React.FC<PageTitleElementProps> = ({ name, rightImageFun
                 {htmlContentsLeft}
             </div>
 
-
             <h1 className="no-margin test-h1-75" style={{ whiteSpace: "nowrap", fontWeight: "100", fontFamily:"Zelda", color:"white" }}>{name}</h1>
             
             <div style={{height:"100%", flex:"1", ...styleContainerRight}}>
@@ -116,7 +115,7 @@ const PageTitleElement: React.FC<PageTitleElementProps> = ({ name, rightImageFun
                 />
             ) : <div style={{ width: size }} />}
             <div style={{ width: size}}></div>
-        </div>
+        </ClickWrapper>
     );
 };
 

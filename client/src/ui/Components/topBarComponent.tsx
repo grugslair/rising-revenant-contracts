@@ -60,13 +60,6 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
         },
     } = useDojo();
 
-    const outpostQuery = useEntityQuery([Has(contractComponents.Outpost)], {
-        updateOnValueChange: false, 
-      });
-      
-    const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
-    const eventEffectedOutposts = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
-
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
     const gameEntityCounter = useComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id)]));
@@ -75,13 +68,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
     //event and player loader
     useEventAndUserDataLoader();
-    // useOutpostAmountData();
-
-    useEffect(() => {
-
-       console.error(outpostQuery.length);
-    }, [outpostQuery]);
-      
+    const  outpostCountData = useOutpostAmountData();
 
     // this should only be getting called when the user is active the moment the game switches from prep to game phase as the other oupost from other people are not loaded in 
     // in the prep phase
@@ -112,8 +99,8 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     useEffect(() => {
 
         const updateAllOutpostHitByEvent = async () => {
-            for (let index = 0; index < eventEffectedOutposts.length; index++) {
-                const entity_id = eventEffectedOutposts[index];
+            for (let index = 0; index < outpostCountData.outpostsHitQuery.length; index++) {
+                const entity_id = outpostCountData.outpostsHitQuery[index];
 
                 let outpostData = getComponentValueStrict(contractComponents.Outpost, entity_id);
                 const lastSavedLifes = outpostData.lifes;
@@ -208,9 +195,9 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
             <div className="top-bar-grid-right-text-section center-via-flex">
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
                     {clientGameData!.current_game_state === 1 ?
-                        <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {outpostQuery.length }/{gameData!.max_amount_of_revenants}</div>
+                        <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {outpostCountData.totalOutpostsQuery.length }/{gameData!.max_amount_of_revenants}</div>
                         :
-                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: { outpostQuery.length - outpostDeadQuery.length}/{outpostQuery.length}</div>
+                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: { outpostCountData.totalOutpostsQuery.length - outpostCountData.outpostDeadQuery.length}/{outpostCountData.totalOutpostsQuery.length}</div>
                     }
                 </div>
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">

@@ -9,19 +9,22 @@ interface SliderProps {
     buttonStyle?: React.CSSProperties;
     containerStyle?: React.CSSProperties;
     precision?: number; // Precision for rounding
+    showVal?: boolean;
+    left?: boolean;
+    gap?: string;
 }
 
-const CustomSlider: React.FC<SliderProps> = ({ minValue, maxValue, startingValue, onChange, trackStyle, buttonStyle, containerStyle, precision = 0 }) => {
+const CustomSlider: React.FC<SliderProps> = ({ minValue, maxValue, startingValue, onChange, trackStyle, buttonStyle, containerStyle, precision = 0, showVal = false, left = true, gap = "10px" }) => {
 
     const [value, setValue] = useState(startingValue);
-    const [buttonPos, setButtonPos] = useState< number >( findPercentageDecimal(minValue, maxValue, startingValue) );
+    const [buttonPos, setButtonPos] = useState<number>(findPercentageDecimal(minValue, maxValue, startingValue));
     const [isDragging, setIsDragging] = useState(false);
     const sliderRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setValue(startingValue);
-        setButtonPos(findPercentageDecimal(minValue, maxValue, startingValue) * 100 );
+        setButtonPos(findPercentageDecimal(minValue, maxValue, startingValue) * 100);
     }, []);
 
     function calculatePercentage(min: number, max: number, percentage: number): number {
@@ -46,16 +49,16 @@ const CustomSlider: React.FC<SliderProps> = ({ minValue, maxValue, startingValue
             const rect = sliderRef.current.getBoundingClientRect();
             const button = buttonRef.current.getBoundingClientRect();
             const leeway = 1.4;
-            
-            if (event.clientX >= rect.x + button.width/2  &&  event.clientX <= rect.x + rect.width- button.width/2){
-                const percentageButtonPos = (event.clientX - rect.x)/ rect.width;
-                setButtonPos(percentageButtonPos*100)
 
-                const percDec = findPercentageDecimal(rect.x + (button.width/2 )* leeway, rect.x + rect.width - (button.width/2 )* leeway, button.x + button.width/2);
+            if (event.clientX >= rect.x + button.width / 2 && event.clientX <= rect.x + rect.width - button.width / 2) {
+                const percentageButtonPos = (event.clientX - rect.x) / rect.width;
+                setButtonPos(percentageButtonPos * 100)
 
-                let val =  Math.round( calculatePercentage(minValue, maxValue, percDec) * Math.pow(10,precision)) / Math.pow(10,precision);
+                const percDec = findPercentageDecimal(rect.x + (button.width / 2) * leeway, rect.x + rect.width - (button.width / 2) * leeway, button.x + button.width / 2);
 
-                if (val < minValue){
+                let val = Math.round(calculatePercentage(minValue, maxValue, percDec) * Math.pow(10, precision)) / Math.pow(10, precision);
+
+                if (val < minValue) {
                     val = minValue
                 }
                 else if (val > maxValue) {
@@ -81,16 +84,20 @@ const CustomSlider: React.FC<SliderProps> = ({ minValue, maxValue, startingValue
     };
 
     return (
-        <div
-            ref={sliderRef}
-            style={{ ...containerStyle, position: 'relative' }}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-        >
-            <div style={{ ...trackStyle }}></div>
-            <div ref={buttonRef} style={{ ...positionOfButton}} className='pointer'></div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: `${gap}` }}>
+            {left && showVal && <h2 className='test-h2 no-margin'>{value}</h2>}
+            <div
+                ref={sliderRef}
+                style={{ ...containerStyle, position: 'relative' }}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+            >
+                <div style={{ ...trackStyle }}></div>
+                <div ref={buttonRef} style={{ ...positionOfButton }} className='pointer'></div>
+            </div>
+            {!left && showVal && <h2 className='test-h2 no-margin' style={{ marginRight: "10px" }}>{value}</h2>}
         </div>
     );
 };

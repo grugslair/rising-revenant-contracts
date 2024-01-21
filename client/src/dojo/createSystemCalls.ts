@@ -1,14 +1,12 @@
 import { SetupNetworkResult } from "./setupNetwork";
 import { ClientComponents } from "./createClientComponents";
 import { getEntityIdFromKeys, getEvents, setComponentsFromEvents } from "@dojoengine/utils";
-import { Has, getComponentValueStrict, runQuery, setComponent, updateComponent } from "@latticexyz/recs";
+import {  getComponentValueStrict,  setComponent, updateComponent } from "@latticexyz/recs";
 
 import { CreateGameProps, CreateRevenantProps, ConfirmEventOutpost, CreateEventProps, PurchaseReinforcementProps, ReinforceOutpostProps, RevokeTradeReinf, PurchaseTradeReinf, ClaimScoreRewards, CreateTradeForReinf, ModifyTradeReinf } from "./types/index"
 
 import { toast } from 'react-toastify';
 import { GAME_CONFIG_ID } from "../utils/settingsConstants";
-import { getTileIndex } from "../phaser/constants";
-import { turnBigIntToAddress } from "../utils";
 
 //HERE HCANGE ALL THE NOTIS TO THE RIGHT LAYOUT
 
@@ -101,21 +99,24 @@ export function createSystemCalls(
             }
             finally {
                 const gameEntityCounter = getComponentValueStrict(GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
-                for (let index = 0; index < Number(count); index++) {
-                   
-                    setComponent(ClientOutpostData, getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]),
-                        {
-                            id: gameEntityCounter.outpost_count - index,
-                            owned: true,
-                            event_effected: false,
-                            selected: false,
-                            visible: false
-                        }
-                    )
-                    
-                }
-            }
 
+                console.log(gameEntityCounter)
+
+                for (let index = 0; index < Number(count); index++) {
+                    const entityId = getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]);
+                    console.log("this is the entity id for the new rev", entityId);
+                
+                    // Make sure the entity id is correctly generated and fits the expected type.
+                    setComponent(clientComponents.ClientOutpostData, entityId, {
+                        id: gameEntityCounter.outpost_count - index,
+                        owned: true,
+                        event_effected: false,
+                        selected: false,
+                        visible: false,
+                    });
+                }
+                
+            }
         }
     };
 

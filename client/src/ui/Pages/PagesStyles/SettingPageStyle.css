@@ -7,3 +7,13 @@
   background-size: cover;
   background-repeat: no-repeat;
 }
+
+
+.settings-option-hover{
+  background-color: none;
+  transition: background-color 0.3s ease;
+}
+
+.settings-option-hover:hover{
+  background-color: grey;
+}

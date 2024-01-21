@@ -1,7 +1,7 @@
 //libs
 import React, { useEffect, useState } from "react";
-import { HasValue, getComponentValueStrict, EntityIndex, updateComponent } from "@latticexyz/recs";
-import { useEntityQuery, useComponentValue } from "@latticexyz/react";
+import { getComponentValueStrict, EntityIndex, updateComponent } from "@latticexyz/recs";
+import { useComponentValue } from "@latticexyz/react";
 import { useDojo } from "../../hooks/useDojo";
 import { ConfirmEventOutpost, ReinforceOutpostProps } from "../../dojo/types";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
@@ -43,18 +43,13 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
     const {
         account: { account },
         networkLayer: {
-            network: { contractComponents, clientComponents, graphSdk },
+            network: { contractComponents, clientComponents },
             systemCalls: { reinforce_outpost, confirm_event_outpost }
         },
     } = useDojo();
 
-
-    // this can actaully be merged 
-    // const ownedOutpost = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true })]);
-    // const ownedAndInEvent = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true, event_effected: true })]);
-    const outpostAmountData = useOutpostAmountData()
-
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+    const outpostAmountData = useOutpostAmountData()
 
     const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]))
 
@@ -186,8 +181,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
 };
 
 
-//this needs to be slimmed down
-
+//HERE this needs to be slimmed down
 interface ListElementProps {
     entityId: EntityIndex
     reinforce_outpost: any
@@ -201,16 +195,6 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
     const [buttonIndex, setButtonIndex] = useState<number>(0)
     const [amountToReinforce, setAmountToReinforce] = useState<number>(1)
 
-    const [name, setName] = useState<string>("Name")
-    const [surname, setSurname] = useState<string>("Surname")
-
-    const [id, setId] = useState<string>("5")
-    const [xCoord, setXCoord] = useState<number>(5)
-    const [yCoord, setYCoord] = useState<number>(5)
-
-    const [shieldNum, setShieldNum] = useState<number>(5)
-    const [reinforcements, setReinforcements] = useState<number>(20)
-
     const { clickWrapperRef, clickWrapperStyle } = useResizeableHeight(24, 4, "100%");
 
     const {
@@ -222,17 +206,6 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
     const outpostData: any = useComponentValue(contractComponents.Outpost, entityId);
     const revenantData: any = getComponentValueStrict(contractComponents.Revenant, entityId);
     const clientOutpostData: any = useComponentValue(clientComponents.ClientOutpostData, entityId);
-
-    useEffect(() => {
-        setShieldNum(outpostData.shield);
-        setXCoord(outpostData.x);
-        setYCoord(outpostData.y);
-        setReinforcements(outpostData.lifes);
-        setId(Number(outpostData.entity_id).toString());
-
-        setName(namesArray[revenantData.first_name_idx]);
-        setSurname(surnamesArray[revenantData.last_name_idx]);
-    }, [outpostData]);
 
     useEffect(() => {
         if (currentBalance === 0) {
@@ -248,8 +221,6 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
 
     }, [amountToReinforce, buttonIndex]);
 
-    // ${clientOutpostData.event_effected && outpostData.lifes > 0 ? ' profile-page-attacked-style' : ''}
-
     return (
         <div ref={clickWrapperRef} className={`profile-page-grid-container ${clientOutpostData.event_effected && outpostData.lifes > 0 ? ' profile-page-attacked-style' : ''}`} style={clickWrapperStyle} onMouseEnter={() => setButtonIndex(1)} onMouseLeave={() => setButtonIndex(0)}>
             <div className="pfp">
@@ -257,7 +228,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
             </div>
 
             <div className="name" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-                <h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw", whiteSpace: "nowrap" }}>{name} {surname} </h3>
+                <h3 style={{ textAlign: "center", fontFamily: "OL", fontWeight: "100", color: "white", fontSize: "0.9cqw", whiteSpace: "nowrap" }}>{namesArray[revenantData.first_name_idx]} {surnamesArray[revenantData.last_name_idx]} </h3>
             </div>
 
             <div className="otp" style={{ position: "relative" }}>
@@ -266,7 +237,7 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
             </div>
 
             <div className="sh shields-grid-container" style={{ boxSizing: "border-box" }}>
-                {Array.from({ length: shieldNum }).map((_, index) => (
+                {Array.from({ length: outpostData.shield }).map((_, index) => (
                     <img key={index} src="Icons/SHIELD.png" className="img-full-style" />
                 ))}
             </div>
@@ -275,26 +246,25 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                 <h4 className="no-margin test-h4 info-pp-text-style">Outpost ID:</h4>
             </div>
             <div className="info-id-value">
-                <h4 className="no-margin test-h4 info-pp-text-style">{id}</h4>
+                <h4 className="no-margin test-h4 info-pp-text-style">{Number(outpostData.entity_id).toString()}</h4>
             </div>
 
             <div className="info-coord-text">
                 <h4 className="no-margin test-h4 info-pp-text-style">Coordinates:</h4>
             </div>
             <div className="info-coord-value">
-                <h4 className="no-margin test-h4 info-pp-text-style">X: {xCoord}, Y: {yCoord}</h4>
+                <h4 className="no-margin test-h4 info-pp-text-style">X: {outpostData.x}, Y: {outpostData.y}</h4>
             </div>
             <div className="info-coord-button">
-                <h4 className="no-margin test-h4 global-button-style info-pp-text-style" style={{ width: "fit-content", height: "fit-content", padding: "2px 5px", boxSizing: "border-box", margin: "0px auto" }} onClick={() => goHereFunc(xCoord, yCoord, entityId)}>Go Here</h4>
+                <h4 className="no-margin test-h4 global-button-style info-pp-text-style" style={{ width: "fit-content", height: "fit-content", padding: "2px 5px", boxSizing: "border-box", margin: "0px auto" }} onClick={() => goHereFunc(outpostData.x, outpostData.y, entityId)}>Go Here</h4>
             </div>
 
             <div style={{ gridRow: "1", gridColumn: "19/22", display: "flex" }}>
                 <h4 className="no-margin test-h4 info-pp-text-style">Reinforcements:</h4>
             </div>
             <div style={{ gridRow: "2", gridColumn: "19/22", display: "flex" }}>
-                <h4 className="no-margin test-h4 info-pp-text-style">{reinforcements}</h4>
+                <h4 className="no-margin test-h4 info-pp-text-style">{outpostData.lifes}</h4>
             </div>
-
 
             {outpostData.lifes > 0 &&
                 <>
@@ -346,16 +316,6 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
                     }
                 </>
             }
-
         </div>
     );
 };
-
-
-// might be an issue with the last part of this component as it might still take space but not render to check HERE
-
-
-
-
-
-
