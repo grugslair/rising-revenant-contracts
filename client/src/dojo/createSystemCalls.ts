@@ -1,14 +1,12 @@
 import { SetupNetworkResult } from "./setupNetwork";
 import { ClientComponents } from "./createClientComponents";
 import { getEntityIdFromKeys, getEvents, setComponentsFromEvents } from "@dojoengine/utils";
-import {  getComponentValueStrict,  setComponent, updateComponent } from "@latticexyz/recs";
+import { getComponentValueStrict, setComponent, updateComponent } from "@latticexyz/recs";
 
 import { CreateGameProps, CreateRevenantProps, ConfirmEventOutpost, CreateEventProps, PurchaseReinforcementProps, ReinforceOutpostProps, RevokeTradeReinf, PurchaseTradeReinf, ClaimScoreRewards, CreateTradeForReinf, ModifyTradeReinf } from "./types/index"
 
 import { toast } from 'react-toastify';
 import { GAME_CONFIG_ID } from "../utils/settingsConstants";
-
-//HERE HCANGE ALL THE NOTIS TO THE RIGHT LAYOUT
 
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
@@ -16,10 +14,7 @@ export function createSystemCalls(
     { execute, contractComponents, clientComponents, call }: SetupNetworkResult,
     {
         GameEntityCounter,
-
-        Outpost,
         ClientGameData,
-        ClientOutpostData
     }: ClientComponents
 ) {
 
@@ -53,6 +48,19 @@ export function createSystemCalls(
         }
     }
 
+    const updateClientTransaction = (entityId, state, message, txHash) => {
+        updateComponent(clientComponents.ClientTransaction, entityId, {
+            state,
+            message,
+            txHash,
+        });
+    };
+
+    function getClientGameData(): any {
+        const clientGameData = getComponentValueStrict(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+        return clientGameData;
+    }
+
 
     //TO DELETE
     const create_game = async ({ account, preparation_phase_interval, event_interval, erc_addr, reward_pool_addr, revenant_init_price, max_amount_of_revenants }: CreateGameProps) => {
@@ -78,9 +86,21 @@ export function createSystemCalls(
 
     const create_revenant = async ({ account, game_id, count }: CreateRevenantProps) => {
         {
+            const clientGameData = getClientGameData();
+            const newAmountOfTxs = clientGameData.transaction_count + 1
+            const txNotiEntId = getEntityIdFromKeys([BigInt(newAmountOfTxs)]);
+
+            setComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
+                state: 1,
+                message: "trying to summon revenants",
+                txHash: ""
+            });
+
+            updateComponent(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { transaction_count: newAmountOfTxs })
+
             try {
                 const tx = await execute(account, "revenant_actions", "create", [game_id, count]);
-                const receipt = await account.waitForTransaction(
+                const receipt: any = await account.waitForTransaction(
                     tx.transaction_hash,
                     { retryInterval: 100 }
                 )
@@ -89,23 +109,25 @@ export function createSystemCalls(
                     getEvents(receipt)
                 );
 
-                notify('Revenant Created!', receipt);
+                notify('Revenants are being summoned!', receipt);
 
-                console.log(receipt)
+                if (receipt.execution_status! == 'REVERTED') {
+                    const rejectReason = extractErrorReason(receipt.revert_reason);
+                    updateClientTransaction(txNotiEntId, 2, "Summoning a Revenant got rejected \nReason: " + rejectReason, tx.transaction_hash.toString());
+                } else {
+                    updateClientTransaction(txNotiEntId, 3, "Summoning a Revenant was succesful", tx.transaction_hash.toString());
+                }
             } catch (e) {
-
                 console.log(e);
-                // notify('Failed to create revenant');
+                updateClientTransaction(txNotiEntId, 4, "A major error was received when summoning an Revenant", "");
             }
             finally {
                 const gameEntityCounter = getComponentValueStrict(GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
 
-                console.log(gameEntityCounter)
-
                 for (let index = 0; index < Number(count); index++) {
                     const entityId = getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]);
                     console.log("this is the entity id for the new rev", entityId);
-                
+
                     // Make sure the entity id is correctly generated and fits the expected type.
                     setComponent(clientComponents.ClientOutpostData, entityId, {
                         id: gameEntityCounter.outpost_count - index,
@@ -115,7 +137,6 @@ export function createSystemCalls(
                         visible: false,
                     });
                 }
-                
             }
         }
     };
@@ -130,7 +151,7 @@ export function createSystemCalls(
         } catch (e) {
             console.log(e)
         }
-    }
+    };
 
     const get_current_reinforcement_price = async (game_id: number, count: number) => {
         try {
@@ -140,13 +161,25 @@ export function createSystemCalls(
         } catch (e) {
             console.log(e)
         }
-    }
+    };
 
     const purchase_reinforcement = async ({ account, game_id, count }: PurchaseReinforcementProps) => {
 
+        const clientGameData = getClientGameData();
+        const newAmountOfTxs = clientGameData.transaction_count + 1
+        const txNotiEntId = getEntityIdFromKeys([BigInt(newAmountOfTxs)]);
+
+        setComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
+            state: 1,
+            message: "trying to purchase reinforcements",
+            txHash: ""
+        });
+
+        updateComponent(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { transaction_count: newAmountOfTxs })
+
         try {
             const tx = await execute(account, "revenant_actions", "purchase_reinforcement", [game_id, count]);
-            const receipt = await account.waitForTransaction(
+            const receipt: any = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
             )
@@ -155,19 +188,38 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
+            notify('Purchasing Reinforcements', receipt);
+
+            if (receipt.execution_status! == 'REVERTED') {
+                const rejectReason = extractErrorReason(receipt.revert_reason);
+                updateClientTransaction(txNotiEntId, 2, "Purchasing Reinforcements got rejected \nReason: " + rejectReason, tx.transaction_hash.toString());
+            } else {
+                updateClientTransaction(txNotiEntId, 3, "Succesfully Purchased Reinforcements", tx.transaction_hash.toString());
+            }
+
         } catch (e) {
             console.log(e)
+            updateClientTransaction(txNotiEntId, 4, "A major error was received when Purchasing Reinforcements", "");
         }
-
     };
 
     const reinforce_outpost = async ({ account, game_id, count, outpost_id }: ReinforceOutpostProps) => {
 
-        console.error("for the reinforce ", outpost_id, " ", count, " ", game_id);
+        const clientGameData = getClientGameData();
+        const newAmountOfTxs = clientGameData.transaction_count + 1
+        const txNotiEntId = getEntityIdFromKeys([BigInt(newAmountOfTxs)]);
+
+        setComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
+            state: 1,
+            message: "trying to reinforce an outpost",
+            txHash: ""
+        });
+
+        updateComponent(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { transaction_count: newAmountOfTxs })
 
         try {
             const tx = await execute(account, "revenant_actions", "reinforce_outpost", [game_id, count, outpost_id]);
-            const receipt = await account.waitForTransaction(
+            const receipt: any = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
             )
@@ -176,18 +228,38 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify('Reinforced Outpost', true)
+            notify('Reinforcing your Outpost...', receipt);
+
+            if (receipt.execution_status! == 'REVERTED') {
+                const rejectReason = extractErrorReason(receipt.revert_reason);
+                updateClientTransaction(txNotiEntId, 2, "Reinforcing an outpost call got rejected \nReason: " + rejectReason, tx.transaction_hash.toString());
+            } else {
+                updateClientTransaction(txNotiEntId, 3, "Succesfully Reinforced your Outpost", tx.transaction_hash.toString());
+            }
+
         } catch (e) {
             console.log(e)
-
+            updateClientTransaction(txNotiEntId, 4, "A major error was received when reinforcing an Outpost", "");
         }
     };
 
     const create_trade_reinf = async ({ account, game_id, count, price }: CreateTradeForReinf) => {
 
+        const clientGameData = getClientGameData();
+        const newAmountOfTxs = clientGameData.transaction_count + 1
+        const txNotiEntId = getEntityIdFromKeys([BigInt(newAmountOfTxs)]);
+
+        setComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
+            state: 1,
+            message: "trying to create a reinforcement trade",
+            txHash: ""
+        });
+
+        updateComponent(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { transaction_count: newAmountOfTxs })
+
         try {
             const tx = await execute(account, "trade_actions", "create", [game_id, count, price]);
-            const receipt = await account.waitForTransaction(
+            const receipt: any = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
             )
@@ -196,18 +268,38 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify(`Created trade`, true)
+            notify('Creating Reinforcement Trades', receipt);
+
+            if (receipt.execution_status! == 'REVERTED') {
+                const rejectReason = extractErrorReason(receipt.revert_reason);
+                updateClientTransaction(txNotiEntId, 2, "Creating a Reinforcement trade got rejected \nReason: " + rejectReason, tx.transaction_hash.toString());
+            } else {
+                updateClientTransaction(txNotiEntId, 3, "Reinforcement Trade was created succesfully", tx.transaction_hash.toString());
+            }
+
         } catch (e) {
             console.log(e)
-            notify(`Failed to create trade`, false)
+            updateClientTransaction(txNotiEntId, 4, "A major error was received when creating a reinforcement trade", "");
         }
     };
 
     const revoke_trade_reinf = async ({ account, game_id, trade_id }: RevokeTradeReinf) => {
 
+        const clientGameData = getClientGameData();
+        const newAmountOfTxs = clientGameData.transaction_count + 1
+        const txNotiEntId = getEntityIdFromKeys([BigInt(newAmountOfTxs)]);
+
+        setComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
+            state: 1,
+            message: "trying to revoke a reinforcement trade",
+            txHash: ""
+        });
+
+        updateComponent(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { transaction_count: newAmountOfTxs })
+
         try {
             const tx = await execute(account, "trade_actions", "revoke", [game_id, trade_id]);
-            const receipt = await account.waitForTransaction(
+            const receipt: any = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
             )
@@ -216,21 +308,38 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify(`Revoked Trade ${trade_id}`, true)
+            notify('Creating Reinforcement Trades', receipt);
+
+            if (receipt.execution_status! == 'REVERTED') {
+                const rejectReason = extractErrorReason(receipt.revert_reason);
+                updateClientTransaction(txNotiEntId, 2, "Revoking a Reinforcement trade got rejected \nReason: " + rejectReason, tx.transaction_hash.toString());
+            } else {
+                updateClientTransaction(txNotiEntId, 3, "Reinforcement Trade was revoked succesfully", tx.transaction_hash.toString());
+            }
+
         } catch (e) {
             console.log(e)
-            notify(`Failed to revoke trade ${trade_id}`, false)
-        }
-        finally {
-
+            updateClientTransaction(txNotiEntId, 4, "A major error was received when revoking a reinforcement trade", "");
         }
     };
 
     const purchase_trade_reinf = async ({ account, game_id, trade_id }: PurchaseTradeReinf) => {
 
+        const clientGameData = getClientGameData();
+        const newAmountOfTxs = clientGameData.transaction_count + 1;
+        const txNotiEntId = getEntityIdFromKeys([BigInt(newAmountOfTxs)]);
+
+        setComponent(clientComponents.ClientTransaction, txNotiEntId, {
+            state: 1,
+            message: "trying to revoke a reinforcement trade",
+            txHash: ""
+        });
+
+        updateComponent(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { transaction_count: newAmountOfTxs });
+
         try {
             const tx = await execute(account, "trade_actions", "purchase", [game_id, trade_id]);
-            const receipt = await account.waitForTransaction(
+            const receipt: any = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
             )
@@ -239,18 +348,38 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify(`purchased Trade ${trade_id}`, receipt)
+            notify('Purchased a Reinforcement Trade!', receipt);
+
+            if (receipt.execution_status! == 'REVERTED') {
+                const rejectReason = extractErrorReason(receipt.revert_reason);
+                updateClientTransaction(txNotiEntId, 2, "buying a reinforcement Trade got rejected \nReason: " + rejectReason, tx.transaction_hash.toString());
+            } else {
+                updateClientTransaction(txNotiEntId, 3, "reinforcement Trade was bought succesfully", tx.transaction_hash.toString());
+            }
+
         } catch (e) {
             console.log(e)
-            notify(`Failed to revoke trade ${trade_id}`, false)
+            updateClientTransaction(txNotiEntId, 4, "A major error was received when buying a reinforcement Trade", "");
         }
     };
 
     const modify_trade_reinf = async ({ account, game_id, trade_id, new_price }: ModifyTradeReinf) => {
 
+        const clientGameData = getClientGameData();
+        const newAmountOfTxs = clientGameData.transaction_count + 1
+        const txNotiEntId = getEntityIdFromKeys([BigInt(newAmountOfTxs)]);
+
+        setComponent(clientComponents.ClientTransaction, txNotiEntId, {
+            state: 1,
+            message: "trying to modify a reinforcement trade",
+            txHash: ""
+        });
+
+        updateComponent(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { transaction_count: newAmountOfTxs })
+
         try {
             const tx = await execute(account, "trade_actions", "modify_price", [game_id, trade_id, new_price]);
-            const receipt = await account.waitForTransaction(
+            const receipt: any = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
             )
@@ -259,16 +388,26 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify(`Change Trade ${trade_id} price to ${Number(new_price)}`, receipt)
+            notify('Reinforcement Trade modified succesfully!', receipt);
+
+            if (receipt.execution_status! == 'REVERTED') {
+                const rejectReason = extractErrorReason(receipt.revert_reason);
+                updateClientTransaction(txNotiEntId, 2, "Modifing a Reinforcement Trade got rejected \nReason: " + rejectReason, tx.transaction_hash.toString());
+            } else {
+                updateClientTransaction(txNotiEntId, 3, "Reinforcement Trade modified succesfully", tx.transaction_hash.toString());
+            }
+
         } catch (e) {
             console.log(e)
+            updateClientTransaction(txNotiEntId, 4, "A major error was received when Modifing a Reinforcement Trade", "");
         }
     };
 
     const create_event = async ({ account, game_id }: CreateEventProps) => {
 
-        const clientGameData = getClientGameData(ClientGameData);
+        const clientGameData = getClientGameData();
         const newAmountOfTxs = clientGameData.transaction_count + 1
+        const txNotiEntId = getEntityIdFromKeys([BigInt(newAmountOfTxs)]);
 
         setComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
             state: 1,
@@ -293,71 +432,74 @@ export function createSystemCalls(
 
             if (receipt.execution_status! == 'REVERTED') {
                 const rejectReason = extractErrorReason(receipt.revert_reason);
-                updateComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
-                    state: 2,
-                    message: "Creating an Event got rejected \nReason: " + rejectReason,
-                    txHash: tx.transaction_hash.toString(),
-                })
-            }
-            else {
-                updateComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
-                    state: 3,
-                    message: "Event was created succesfully",
-                    txHash: tx.transaction_hash.toString(),
-                })
+                updateClientTransaction(txNotiEntId, 2, "Creating an Event got rejected \nReason: " + rejectReason, tx.transaction_hash.toString());
+            } else {
+                updateClientTransaction(txNotiEntId, 3, "Event was created succesfully", tx.transaction_hash.toString());
             }
 
         } catch (e) {
             console.log(e)
-            updateComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
-                state: 4,
-                message: "A major error was received when creating an Event",
-                txHash: "",
-            })
+            updateClientTransaction(txNotiEntId, 4, "A major error was received when creating an Event", "");
         }
     };
 
     const confirm_event_outpost = async ({ account, game_id, event_id, outpost_id }: ConfirmEventOutpost) => {
 
-        let savedTx:any;
+        const clientGameData = getClientGameData();
+        const newAmountOfTxs = clientGameData.transaction_count + 1
+        const txNotiEntId = getEntityIdFromKeys([BigInt(newAmountOfTxs)]);
+
+        setComponent(clientComponents.ClientTransaction, txNotiEntId, {
+            state: 1,
+            message: "trying to claim the jackpot",
+            txHash: ""
+        });
+
+        updateComponent(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { transaction_count: newAmountOfTxs })
 
         try {
             const tx = await execute(account, "world_event_actions", "destroy_outpost", [game_id, event_id, outpost_id]);
-            const receipt = await account.waitForTransaction(
+            const receipt: any = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
             )
-
-            savedTx = receipt;
 
             setComponentsFromEvents(contractComponents,
                 getEvents(receipt)
             );
 
-            notify('Confirmed the event', receipt)
-        } catch (e) {
-            console.log(e)
-            // notify('Failed to confirm event', false)
-        }
-        finally {
-            // might need to fetch back becuase if the tx gets rejected it will still change the colour, altouhg not a massive problem as the loader should set it back but still not good
-            //HERE
+            notify('Confirmed an Event on an Outpost', receipt);
 
-            if (savedTx.execution_status !== 'REVERTED'){
-
-                updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(game_id), BigInt(outpost_id)]), {
-                    event_effected: false
-                })
+            if (receipt.execution_status! == 'REVERTED') {
+                const rejectReason = extractErrorReason(receipt.revert_reason);
+                updateClientTransaction(txNotiEntId, 2, "Confirming an event got rejected \nReason: " + rejectReason, tx.transaction_hash.toString());
+            } else {
+                updateClientTransaction(txNotiEntId, 3, "Event confirmed succesfully", tx.transaction_hash.toString());
             }
 
+        } catch (e) {
+            console.log(e)
+            updateClientTransaction(txNotiEntId, 4, "A major error was received when conferming an Event", "");
         }
     };
 
     const claim_endgame_rewards = async ({ account, game_id }: ClaimScoreRewards) => {
 
+        const clientGameData = getClientGameData();
+        const newAmountOfTxs = clientGameData.transaction_count + 1
+        const txNotiEntId = getEntityIdFromKeys([BigInt(newAmountOfTxs)]);
+
+        setComponent(clientComponents.ClientTransaction, txNotiEntId, {
+            state: 1,
+            message: "trying to create event",
+            txHash: ""
+        });
+
+        updateComponent(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { transaction_count: newAmountOfTxs })
+
         try {
             const tx = await execute(account, "revenant_actions", "claim_endgame_rewards", [game_id]);
-            const receipt = await account.waitForTransaction(
+            const receipt: any = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
             )
@@ -366,18 +508,38 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify(`claiming jackpot welldone!!!`, true)
+            notify('Claiming Jackpot, WELLDONE!', receipt);
+
+            if (receipt.execution_status! == 'REVERTED') {
+                const rejectReason = extractErrorReason(receipt.revert_reason);
+                updateClientTransaction(txNotiEntId, 2, "Claiming jackpot got rejected \nReason: " + rejectReason, tx.transaction_hash.toString());
+            } else {
+                updateClientTransaction(txNotiEntId, 3, "Jackpot was claimed succesfully", tx.transaction_hash.toString());
+            }
+
         } catch (e) {
             console.log(e)
-            notify(`Failed to create trade`, false)
+            updateClientTransaction(txNotiEntId, 4, "A major error was received when claiming a jackpot", "");
         }
     };
 
     const claim_score_rewards = async ({ account, game_id }: ClaimScoreRewards) => {
 
+        const clientGameData = getClientGameData();
+        const newAmountOfTxs = clientGameData.transaction_count + 1
+        const txNotiEntId = getEntityIdFromKeys([BigInt(newAmountOfTxs)]);
+
+        setComponent(clientComponents.ClientTransaction, getEntityIdFromKeys([BigInt(newAmountOfTxs)]), {
+            state: 1,
+            message: "trying to create event",
+            txHash: ""
+        });
+
+        updateComponent(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { transaction_count: newAmountOfTxs })
+
         try {
             const tx = await execute(account, "revenant_actions", "claim_score_rewards", [game_id]);
-            const receipt = await account.waitForTransaction(
+            const receipt: any = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
             )
@@ -386,10 +548,18 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify(`claiming score contribution!!!`, true)
+            notify('Claiming your contribution score!', receipt);
+
+            if (receipt.execution_status! == 'REVERTED') {
+                const rejectReason = extractErrorReason(receipt.revert_reason);
+                updateClientTransaction(txNotiEntId, 2, "Claiming your contribution got rejected \nReason: " + rejectReason, tx.transaction_hash.toString());
+            } else {
+                updateClientTransaction(txNotiEntId, 3, "Contribution was claimed succesfully", tx.transaction_hash.toString());
+            }
+
         } catch (e) {
             console.log(e)
-            notify(`Failed to create trade`, false)
+            updateClientTransaction(txNotiEntId, 4, "A major error was received when Claiming your contribution", "");
         }
     };
 
@@ -414,10 +584,6 @@ export function createSystemCalls(
     };
 }
 
-function getClientGameData(ClientGameData: any): any {
-    const clientGameData = getComponentValueStrict(ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
-    return clientGameData;
-}
 
 function hexToDecimal(hexString: string): number {
     const decimalResult: number = parseInt(hexString, 16);

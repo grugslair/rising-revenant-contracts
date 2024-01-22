@@ -204,7 +204,7 @@ export const SettingCheckboxElement: React.FC<SettingCheckboxElementProps> = ({ 
         <ClickWrapper className="settings-option-hover" style={{ display: "flex", justifyContent: "space-between", flexDirection: "row", height: "fit-content", width: "100%", ...containerStyle }}>
             <h2 className="test-h2 no-margin">{text}</h2>
             <div onClick={() => setCheckbox(!checkbox)} className="pointer center-via-flex" style={{ height: "clamp(0.8rem, 0.7vw + 0.7rem, 7rem)", aspectRatio: "1/1", borderRadius: "5px", background: "linear-gradient(to bottom, white 25%, gray 100%)" }} >
-                <img src="Icons/tick.svg" alt="" style={{ width: "100%", height: "100%", margin: "10%", boxSizing: "border-box" }} />
+                {checkbox && <img src="Icons/tick.svg" alt="" style={{ width: "100%", height: "100%", margin: "10%", boxSizing: "border-box" }} />}  
             </div>
         </ClickWrapper>
     );

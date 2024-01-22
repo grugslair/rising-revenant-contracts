@@ -11,9 +11,10 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID, test_2_size, test_3_size, test_4_size, test_5_size } from "../../utils/settingsConstants";
 import { useDojo } from "../../hooks/useDojo";
 import { useResizeableHeight } from "../Hooks/gridResize";
-import { mapEntityToImage, namesArray, revenantsPicturesLinks, surnamesArray } from "../../utils";
+import { mapEntityToImage, namesArray, revenantsPicturesLinks, surnamesArray, turnBigIntToAddress } from "../../utils";
 import { ConfirmEventOutpost } from "../../dojo/types";
 import { useOutpostAmountData } from "../Hooks/outpostsAmountData";
+import { Tooltip } from "antd";
 
 //elements/components
 
@@ -30,11 +31,15 @@ function lerp(start: number, end: number, t: number): number {
     return start * (1 - t) + end * t;
 }
 
-export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState,setBackground }) => {
+export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, setBackground }) => {
     const [transitionState, setTransitionState] = useState(0); // 0 going to event // 1 zooming on event // 2 show map
     const [entityIdsOfOutposts, setEntityIdsOfOutposts] = useState<EntityIndex[]>([]);
 
+    const [showYours, setShowYours] = useState<boolean>(true);
+    const [showOthers, setShowOther] = useState<boolean>(true);
+
     const {
+        account:{account},
         phaserLayer: {
             scenes: {
                 Main: {
@@ -47,8 +52,6 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState,s
         }
     } = useDojo();
 
-    // const outpostsHit = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
-    // const deadOutposts = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
     const outpostAmountData = useOutpostAmountData();
 
     useEffect(() => {
@@ -98,7 +101,6 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState,s
 
                 camera.setZoom(newZoom);
 
-
                 if (newZoom >= targetZoom * 0.99) {
                     setTransitionState(2);
                     break;
@@ -119,19 +121,28 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState,s
         }
     }, [transitionState]);
 
-
     useEffect(() => {
-    
         return () => {
             camera.setZoom(1);
             setBackground(false)
         };
-    }, []); 
+    }, []);
 
     useEffect(() => {
-        const aliveOutposts = outpostAmountData.outpostsHitQuery.filter(outpost => !outpostAmountData.outpostDeadQuery.includes(outpost));
+        const aliveOutposts = outpostAmountData.outpostsHitQuery.filter(outpost => {
+            const isOwnedByPlayer = turnBigIntToAddress(getComponentValueStrict(contractComponents.Outpost, outpost).owner) === account.address;
+    
+            if (isOwnedByPlayer) {
+                return showYours;
+            } else {
+                return showOthers;
+            }
+        });
+    
         setEntityIdsOfOutposts(aliveOutposts);
-    }, [outpostAmountData.outpostsHitQuery, outpostAmountData.outpostDeadQuery]);
+    }, [outpostAmountData.outpostsHitQuery, outpostAmountData.outpostDeadQuery, showYours, showOthers]);
+    
+    
 
     if (transitionState !== 2) {
         return <></>;
@@ -139,22 +150,40 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState,s
 
     return (
         <>
-            <div style={{ width: "60%", height: "75%"  }} >
+            <div style={{ width: "60%", height: "75%" }} >
 
                 <div style={{ height: "15%", width: "100%", display: "grid", gridTemplateRows: "repeat(2, 1fr)", gridTemplateColumns: "0.5fr 1fr 0.5fr" }}>
 
                     <div style={{ gridRow: "1", gridColumn: "1", display: "flex", justifyContent: "flex-start", alignItems: "start" }}>
                         <h3 className="global-button-style no-margin test-h3" onClick={setUIState} style={{ padding: "5px", boxSizing: "border-box" }}>
-                            <img className="embedded-text-icon" src="Icons/left-arrow.png" alt="Sort Data" style={{ height: `${test_4_size}`, width: `${test_4_size}` }} />
+                            <img className="embedded-text-icon" src="Icons/left-arrow.png" alt="Sort Data" style={{ height: `${test_3_size}`, width: `${test_3_size}` }} />
                             Back to the map</h3>
                     </div>
 
-                    <div style={{ gridRow: "1", gridColumn: "2", display: "flex", justifyContent: "center", alignItems: "start" }}> <h1 className="no-margin test-h1-75" style={{whiteSpace:"nowrap", fontFamily: "Zelda", fontWeight: "100", color: "white" }}>OUTPOSTS UNDER ATTACK</h1></div>
-                    <div style={{ gridRow: "2", gridColumn: "1/4", display: "flex", justifyContent: "space-between", alignItems: "end" }}>
-                        <div style={{height:`${test_2_size}`, aspectRatio:"1/1"}}></div>
+                    <div style={{ gridRow: "1", gridColumn: "2", display: "flex", justifyContent: "center", alignItems: "start" }}> <h1 className="no-margin test-h1-75" style={{ whiteSpace: "nowrap", fontFamily: "Zelda", fontWeight: "100", color: "white" }}>OUTPOSTS UNDER ATTACK</h1></div>
+                    <ClickWrapper style={{ gridRow: "2", gridColumn: "1/4", display: "flex", justifyContent: "space-between", alignItems: "end" }}>
+                        <div style={{ height: `${test_2_size}`, aspectRatio: "1/1" }}></div>
                         <h2 className="no-margin test-h2" style={{ color: "white" }} >Validate attacks in order to get rewards</h2>
-                        <img src="close_icon.svg" style={{height:`${test_2_size}`, aspectRatio:"1/1"}}></img>
-                    </div>
+                        <Tooltip title={
+                            <div style={{ padding: "5px 10px",borderRadius:"5px" ,width: "fit-content", whiteSpace: "nowrap", border: "2px solid var(--borderColour)",  boxSizing: "border-box"}}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <h2 className="test-h2 no-margin" style={{ marginRight: "10px" }}>Your Outposts</h2>
+                                    <div onClick={() => setShowYours(!showYours)} className="pointer center-via-flex" style={{ width: `${test_3_size}`, aspectRatio: "1/1", borderRadius: "5px",  boxSizing: "border-box",background: "linear-gradient(to bottom, white 25%, gray 100%)" }} >
+                                        {showYours && <img src="Icons/tick.svg" alt="" style={{ width: "100%", height: "100%", margin: "10%", boxSizing: "border-box" }} />} 
+                                    </div>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <h2 className="test-h2 no-margin">Others</h2>
+                                    <div onClick={() => setShowOther(!showOthers)} className="pointer center-via-flex" style={{ height: `${test_3_size}`, aspectRatio: "1/1", borderRadius: "5px", boxSizing: "border-box", background: "linear-gradient(to bottom, white 25%, gray 100%)" }} >
+                                        {showOthers && <img src="Icons/tick.svg" alt="" style={{ width: "100%", height: "100%", margin: "10%", boxSizing: "border-box" }}/>} 
+                                    </div>
+                                </div>
+                            </div>
+                        } placement="topRight">
+                            <img src="Icons/filter.png" style={{ height: `${test_2_size}`, aspectRatio: "1/1" }}></img>
+                        </Tooltip>
+
+                    </ClickWrapper>
                 </div>
                 <div style={{ height: "7%", width: "100%", }}></div>
                 <div style={{ height: "65%", width: "100%", display: "grid", gap: "5%", scrollbarGutter: "stable", overflowY: "auto", gridTemplateColumns: "repeat(2, 1fr)", padding: "5px 10px", boxSizing: "border-box" }}>
@@ -162,9 +191,9 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState,s
                         <OutpostEventAttackedElement entityId={outpostId} key={outpostId} />
                     ))}
                 </div>
-                <div style={{ height: "13%", width: "100%", display:"flex", justifyContent: "center", alignItems: "flex-end"}}>
-                    <div className="global-button-style" style={{padding:"5px 10px", backgroundColor:"#9d0e0e"}}>
-                        {/* <h2 className="test-h2 no-margin">Validate All</h2> */}
+                <div style={{ height: "13%", width: "100%", display: "flex", justifyContent: "center", alignItems: "flex-end" }}>
+                    <div className="global-button-style" style={{ padding: "5px 10px", backgroundColor: "#9d0e0e" }}>
+                        <h2 className="test-h2 no-margin">Validate All (WIP)</h2>
                     </div>
                 </div>
 
@@ -234,7 +263,7 @@ export const OutpostEventAttackedElement: React.FC<ItemListingProp> = ({ entityI
                 <h3 className="test-h3 no-margin"> Reinforcements: {outpostData.lifes}</h3>
             </div>
             <div style={{ gridRow: "1/4", gridColumn: "12/15" }} className="center-via-flex">
-                <div onClick={confirmEvent}  style={{backgroundColor:"#202020", padding: "5px 10px", boxSizing:"border-box"}} className="global-button-style center-via-flex">
+                <div onClick={confirmEvent} style={{ backgroundColor: "#202020", padding: "5px 10px", boxSizing: "border-box" }} className="global-button-style center-via-flex">
                     <h2 className="no-margin test-h3">Validate</h2>
                 </div>
             </div>

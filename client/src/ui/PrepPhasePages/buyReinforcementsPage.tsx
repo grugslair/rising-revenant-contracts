@@ -56,7 +56,6 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
             network: { clientComponents, contractComponents },
             systemCalls: { purchase_reinforcement, get_current_reinforcement_price },
         },
-
     } = useDojo();
 
     // need here a useffect for the price of the reinforcements
@@ -64,7 +63,6 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
 
     const gameComponent = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
-
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -80,7 +78,7 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
         }, 10000);
 
         return () => clearInterval(intervalId);
-    }, []); // Empty dependency array ensures the effect runs only once on mount
+    }, []);
 
     useEffect(() => {
         setFreeRevs(Number(gameComponent.max_amount_of_revenants) - Number(gameEntityCounter.revenant_count));
@@ -92,10 +90,7 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
         return () => clearInterval(intervalId);
     }, []);
 
-
     const buyReinforcements = async (num: number) => {
-
-        notify(`Purchasing ${num} Reinforcements...`);
 
         const props: PurchaseReinforcementProps = {
             account: account,
@@ -106,12 +101,10 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
         await purchase_reinforcement(props);
     }
 
-
     const call_price_update = async () => {
         const current_price = await get_current_reinforcement_price(clientGameData.current_game_id, 1);
         setPriceOfReinforcements(hexToNumber(current_price));
     };
-
 
     return (
         <div className="game-page-container" style={{ display: "flex", flexDirection: "row", color: "white" }}>
