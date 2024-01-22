@@ -123,6 +123,7 @@ export function defineClientComponents(world: World) {
 		  {
 			metadata: {
 			  name: name,
+			},
 		  }
 		);
 	  })(),
