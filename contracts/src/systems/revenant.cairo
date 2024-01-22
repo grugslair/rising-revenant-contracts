@@ -170,13 +170,16 @@ mod revenant_actions {
             // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
 
             let prize = game.prize / 100 * 85;
+
+            player_info.player_wallet_amount += prize;
+
             // let result = erc20.transfer(recipient: player, amount: prize);
 
             // assert(result, 'failed to transfer');
 
             game.rewards_claim_status = 1;
 
-            set!(world, (game));
+            set!(world, (game,player_info));
 
             prize
         }
@@ -196,12 +199,17 @@ mod revenant_actions {
                 * 15
                 / game_info.score_count.into()
                 * player_info.score.into();
+
+            player_info.player_wallet_amount += prize;
+
             // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
             // let result = erc20.transfer(recipient: player, amount: prize);
             // assert(result, 'failed to transfer');
 
             player_info.score_claim_status = true;
             player_info.earned_prize = prize;
+
+            set!(world, (player_info));
 
             prize
         }
