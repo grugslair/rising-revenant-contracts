@@ -479,6 +479,10 @@ export function createSystemCalls(
             console.log(e)
             updateClientTransaction(txNotiEntId, 4, "A major error was received when conferming an Event", "");
         }
+        finally
+        {
+            updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(game_id), BigInt(outpost_id)]), {event_effected :false} );
+        }
     };
 
     const claim_endgame_rewards = async ({ account, game_id }: ClaimScoreRewards) => {

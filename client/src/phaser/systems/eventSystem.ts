@@ -22,10 +22,8 @@ export const eventManager = (layer: PhaserLayer) => {
   defineSystem(world, [Has(contractComponents.GameEntityCounter)], ({ entity }) => {
 
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
-
     const game_id = clientGameData.current_game_id;
-
-    const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(1)]));
+    const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]));
 
     if (gameEntityCounter.event_count === clientGameData.current_event_drawn) { return; }
 
@@ -39,11 +37,13 @@ export const eventManager = (layer: PhaserLayer) => {
     updateComponent(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { current_event_drawn: Number(dataEvent.entity_id) });
 
     const phaserScene = layer.scenes.Main.phaserScene;
-    const eventCont = phaserScene.children.getByName('eventCont');
-
-    if (eventCont) {
-      destroyGraphicsInContainer(eventCont);
-    }
+    // Destroy all graphics objects in the scene
+    phaserScene.sys.displayList.each((child) => {
+      if (child instanceof Phaser.GameObjects.Graphics) {
+        child.destroy();
+      }
+    });
+ 
 
     createCircleOfTriangles(phaserScene, dataEvent.x , dataEvent.y , dataEvent.radius, 30);
 
@@ -74,21 +74,19 @@ export const eventManager = (layer: PhaserLayer) => {
     }
   });
 
-  function destroyGraphicsInContainer(container) {
-    container.each(function (child) {
-      if (child instanceof Phaser.GameObjects.Graphics) {
-        child.destroy();
-      }
-    });
-  }
+  // function destroyGraphicsInContainer(container) {
+  //   container.each(function (child) {
+  //     if (child instanceof Phaser.GameObjects.Graphics) {
+  //       child.destroy();
+  //     }
+  //   });
+  // }
 
   function createCircleOfTriangles(scene: any, centerX: number, centerY: number, radius: number, numTriangles: number) {
-    const container = scene.add.container(0, 0);
+    
     var graphics = scene.add.graphics();
 
-    container.add(graphics); // Add the graphics object to the container
     var angleIncrement = (2 * Math.PI) / numTriangles;
-    container.setName("eventCont");
 
     for (var i = 0; i < numTriangles; i++) {
       var angle = i * angleIncrement;

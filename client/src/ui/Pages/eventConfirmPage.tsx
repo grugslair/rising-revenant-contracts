@@ -47,7 +47,9 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
                 }
             }
         },
+        
         networkLayer: {
+            systemCalls: { confirm_event_outpost },
             network: { contractComponents, clientComponents },
         }
     } = useDojo();
@@ -146,6 +148,25 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
         return <></>;
     }
 
+    const confirmAllEvent = async () => {
+        const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+
+        for (let index = 0; index < outpostAmountData.outpostsHitQuery.length; index++) {
+            const element = outpostAmountData.outpostsHitQuery[index];
+            const contractOutpostData = getComponentValueStrict(contractComponents.Outpost, element);
+
+            const confirmEventProps: ConfirmEventOutpost = {
+                account: account,
+                game_id: clientGameData.current_game_id,
+                event_id: clientGameData.current_event_drawn,
+                outpost_id: Number(contractOutpostData.entity_id),
+            };
+    
+            await confirm_event_outpost(confirmEventProps);
+        }
+       
+    }
+
     return (
         <>
             <div style={{ width: "60%", height: "75%" }} >
@@ -189,7 +210,7 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
                 </div>
                 <div style={{ height: "13%", width: "100%", display: "flex", justifyContent: "center", alignItems: "flex-end" }}>
                     <div className="global-button-style" style={{ padding: "5px 10px", backgroundColor: "#9d0e0e" }}>
-                        <h2 className="test-h2 no-margin">Validate All (WIP)</h2>
+                        <h2 className="test-h2 no-margin" onClick={confirmAllEvent}>Validate All</h2>
                     </div>
                 </div>
 
