@@ -1,19 +1,27 @@
 import {
-  Has,
   defineSystem,
-  getComponentValueStrict,
+  Has,
+  Not,
   getComponentValue,
-  defineEnterSystem,
+  getComponentValueStrict,
+  EntityIndex,
+  runQuery,
+  HasValue,
   setComponent,
+  updateComponent,
+  defineEnterSystem,
+  getEntitiesWithValue,
+  getComponentEntities
 } from "@latticexyz/recs";
 import { PhaserLayer } from "..";
-import { Assets, SCALE, getTileIndex } from "../constants";
+import { Assets, SCALE, getAdjacentIndices, getTileIndex } from "../constants";
+import { getEntityIdFromKeys } from "@dojoengine/utils";
+import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 export const spawnOutposts = (layer: PhaserLayer) => {
 
   const {
     world,
-
     scenes: {
       Main: { objectPool },
     },
@@ -21,7 +29,6 @@ export const spawnOutposts = (layer: PhaserLayer) => {
       network: { contractComponents, clientComponents },
     },
   } = layer;
-
 
   defineEnterSystem(world, [Has(clientComponents.ClientOutpostData)], ({ entity }) => {
     const outpostData: any = getComponentValueStrict(contractComponents.Outpost, entity);
@@ -43,7 +50,6 @@ export const spawnOutposts = (layer: PhaserLayer) => {
       },
     });
   });
-
 
   defineSystem(world, [Has(clientComponents.ClientOutpostData)], ({ entity }) => {
 
@@ -92,4 +98,29 @@ export const spawnOutposts = (layer: PhaserLayer) => {
     });
   });
 
+  defineSystem(world, [Has(clientComponents.ClientOutpostViewSettings)], ({ entity }) => {
+    const outpostViewSettings = getComponentValue(clientComponents.ClientOutpostViewSettings, entity);
+    const clientGameData = getComponentValue(clientComponents.ClientGameData, entity);
+
+    const allOutposts = getComponentEntities(clientComponents.ClientOutpostData);
+
+    for (let index = 0; index < allOutposts.length; index++) {
+
+      const entityId = allOutposts[index];
+
+      const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entityId);
+      const contractOutpostData = getComponentValueStrict(contractComponents.Outpost, entityId);
+
+      // this is also messy af
+      if (contractOutpostData.lifes === 0 && outpostViewSettings.hide_dead_ones) {
+        updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientOutpostData.id)]), { visible: false })
+      }
+      else if (clientOutpostData.owned && outpostViewSettings.show_your_everywhere) {
+        updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientOutpostData.id)]), { visible: true })
+      }
+      else if (!clientOutpostData.owned && outpostViewSettings.hide_others_outposts) {
+        updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientOutpostData.id)]), { visible: false })
+      }
+    }
+  });
 };

@@ -12,9 +12,10 @@ interface SliderProps {
     showVal?: boolean;
     left?: boolean;
     gap?: string;
+    onDrag?: (isDragging: boolean) => void;
 }
 
-const CustomSlider: React.FC<SliderProps> = ({ minValue, maxValue, startingValue, onChange, trackStyle, buttonStyle, containerStyle, precision = 0, showVal = false, left = true, gap = "10px" }) => {
+const CustomSlider: React.FC<SliderProps> = ({ minValue, maxValue, startingValue, onChange, trackStyle, buttonStyle, containerStyle,onDrag, precision = 0, showVal = false, left = true, gap = "10px" }) => {
 
     const [value, setValue] = useState(startingValue);
     const [buttonPos, setButtonPos] = useState<number>(findPercentageDecimal(minValue, maxValue, startingValue));
@@ -31,16 +32,12 @@ const CustomSlider: React.FC<SliderProps> = ({ minValue, maxValue, startingValue
         const range: number = max - min;
         const result: number = min + percentage * range;
         return result;
-    }
+    };
 
     function findPercentageDecimal(min: number, max: number, value: number): number {
         const range: number = max - min;
         const percentage: number = (value - min) / range;
         return percentage;
-    }
-
-    const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
-        setIsDragging(true);
     };
 
     const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
@@ -69,10 +66,20 @@ const CustomSlider: React.FC<SliderProps> = ({ minValue, maxValue, startingValue
                 onChange(val);
             }
         }
-    }
+    };
+
+    const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
+        setIsDragging(true);
+        if (onDrag) {
+            onDrag(true);
+        }
+    };
 
     const handleMouseUp = () => {
         setIsDragging(false);
+        if (onDrag) {
+            onDrag(false);
+        }
     };
 
     const positionOfButton: React.CSSProperties = {

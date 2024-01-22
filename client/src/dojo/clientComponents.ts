@@ -111,6 +111,39 @@ export function defineClientComponents(world: World) {
 		);
 	  })(),
 
+	  ClientChunkSettings: (() => {
+		const name = "ClientChunkSettings";
+		return defineComponent(
+		  world,
+		  {
+			chunk_size:  RecsType.Number,
+			view_range_max:  RecsType.Number,
+			view_range_min:  RecsType.Number,
+		  },
+		  {
+			metadata: {
+			  name: name,
+		  }
+		);
+	  })(),
+
+	  ClientOutpostViewSettings: (() => {
+		const name = "ClientOutpostViewSettings";
+		return defineComponent(
+		  world,
+		  {
+			hide_others_outposts:  RecsType.Boolean,
+			hide_dead_ones: RecsType.Boolean,
+			show_your_everywhere: RecsType.Boolean,
+		  },
+		  {
+			metadata: {
+			  name: name,
+			},
+		  }
+		);
+	  })(),
+
 	  EntityTileIndex: (() => {
 		const name = "EntityTileIndex";
 		return defineComponent(

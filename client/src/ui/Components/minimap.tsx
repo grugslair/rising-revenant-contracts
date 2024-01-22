@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ClickWrapper } from '../clickWrapper';
 import { useDojo } from '../../hooks/useDojo';
 
@@ -29,19 +29,23 @@ const MinimapComponent: React.FC = () => {
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     const clientCameraComp = useComponentValue(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
-    const positionOfEvent: React.CSSProperties = {
-        left: `${eventPos.x}%`,
-        top: `${eventPos.y}%`,
-        transform: "translate(-50%, -50%)",
-    };
+    const positionOfEvent: React.CSSProperties = useMemo(() => {
+        return {
+            left: `${eventPos.x}%`,
+            top: `${eventPos.y}%`,
+            transform: "translate(-50%, -50%)",
+        };
+    }, [eventPos]);
 
-    const transformOfCamera: React.CSSProperties = {
-        left: `${cameraTransform.x}%`,
-        top: `${cameraTransform.y}%`,
-        width: `${cameraTransform.w}%`,
-        height: `${cameraTransform.h}%`,
-        transform: "translate(-50%, -50%)",
-    };
+    const transformOfCamera: React.CSSProperties = useMemo(() => {
+        return {
+            left: `${cameraTransform.x}%`,
+            top: `${cameraTransform.y}%`,
+            width: `${cameraTransform.w}%`,
+            height: `${cameraTransform.h}%`,
+            transform: "translate(-50%, -50%)",
+        };
+    }, [cameraTransform]);
 
     useEffect(() => {
 

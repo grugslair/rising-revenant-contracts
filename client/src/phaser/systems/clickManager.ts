@@ -9,6 +9,7 @@ import {
   getComponentValue,
   runQuery,
   HasValue,
+  getEntitiesWithValue,
 } from "@latticexyz/recs";
 
 import { setTooltipArray } from "./eventSystems/eventEmitter";
@@ -40,7 +41,8 @@ export const clickManager = (layer: PhaserLayer) => {
       return;
     }
 
-    const outpostArray = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { visible: true })]));
+    // const outpostArray = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { visible: true })]));
+    const outpostArray = getEntitiesWithValue(clientComponents.ClientOutpostData, {visible: true});
     
     let zoomVal: number = 0;
 

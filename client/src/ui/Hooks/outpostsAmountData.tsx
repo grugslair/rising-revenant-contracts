@@ -13,8 +13,14 @@ export const useOutpostAmountData = () => {
     } = useDojo();
 
     const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
-    const totalOutpostsQuery = useEntityQuery([Has(contractComponents.Outpost)]);
-    const ownOutpostsQuery = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true })]);
+
+    const totalOutpostsQuery = useEntityQuery([Has(contractComponents.Outpost)], {
+        updateOnValueChange: false,
+    });
+    const ownOutpostsQuery = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { owned: true })], {
+        updateOnValueChange: false,
+    });
+
     const outpostsHitQuery = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
 
     //can be custom hooked

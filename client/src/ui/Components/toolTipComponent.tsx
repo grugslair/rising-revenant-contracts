@@ -6,7 +6,7 @@ import { ClickWrapper } from "../clickWrapper";
 
 import { useDojo } from "../../hooks/useDojo";
 
-import { getComponentValueStrict, EntityIndex, runQuery, HasValue, updateComponent } from "@latticexyz/recs";
+import { getComponentValueStrict, EntityIndex, runQuery,getEntitiesWithValue, HasValue, updateComponent } from "@latticexyz/recs";
 import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 
 import { ConfirmEventOutpost } from "../../dojo/types";
@@ -17,10 +17,6 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 interface OutpostTooltipProps { }
-
-//HERE the X on the side is not correct also the size is not correct
-// ALSO on the selected update data THIS SHOULD BE DONE
-// THHERE IS ALSO THE ISSUE THAT THE TOOLTIP DOES NOT GET UPDATE 
 
 export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
   const [clickedOnOutposts, setClickedOnOutposts] = useState<any>([]);
@@ -36,7 +32,7 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
   } = useDojo();
 
   const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
-  const selectedOutpost = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { selected: true })]);
+  const selectedOutpost = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { selected: true })], { updateOnValueChange: false, });
 
   const changeSelectedIndex = (value: number) => {
     if (clickedOnOutposts.length === 0) { return; }
@@ -52,7 +48,7 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
 
     updateComponent(clientComponents.ClientOutpostData, clickedOnOutposts[selectedIndex], { selected: false });
     updateComponent(clientComponents.ClientOutpostData, clickedOnOutposts[newIndex], { selected: true });
-     
+
     setSelectedIndex(newIndex);
   }
 
@@ -79,12 +75,21 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
     }
 
     setSelectedIndex(0);
-     
+
     updateComponent(clientComponents.ClientOutpostData, selectedOutposts[0], { selected: true });
   }
 
-  useEffect(() => {
+  const desmountComponentAction = () => {
+    // const entitiesAtTileIndex = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { selected: true })]));
+    const entitiesAtTileIndex = getEntitiesWithValue(clientComponents.ClientOutpostData, {selected: true});
 
+    if (entitiesAtTileIndex.length > 0) {
+
+      updateComponent(clientComponents.ClientOutpostData, entitiesAtTileIndex[0], { selected: false });
+    }
+  }
+
+  useEffect(() => {
     setTooltipArray.on("setToolTipArray", setArray);
 
     return () => {
@@ -93,14 +98,6 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
 
   }, [clickedOnOutposts]);
 
-  const desmountComponentAction = () => {
-    const entitiesAtTileIndex = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { selected: true })]));
-
-    if (entitiesAtTileIndex.length > 0) {
-       
-      updateComponent(clientComponents.ClientOutpostData, entitiesAtTileIndex[0], { selected: false });
-    }
-  }
 
   useEffect(() => {
 
@@ -180,7 +177,7 @@ const RevenantDataElement: React.FC<{ entityId: EntityIndex }> = ({ entityId }) 
 
   return (
     <div className="revenant-data-container">
-      <h2 className="no-margin test-h2" style={{ fontFamily: "Zelda", marginBottom:"5px" }}>REVENANT DATA</h2>
+      <h2 className="no-margin test-h2" style={{ fontFamily: "Zelda", marginBottom: "5px" }}>REVENANT DATA</h2>
       <h4 className="no-margin test-h4">Owner: {owner === "You" ? "You" : truncateString(owner, 5)}</h4>
       <h4 className="no-margin test-h4">Name: {name}</h4>
     </div>
@@ -266,27 +263,27 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
     await functionEvent(confirmEventProps);
   }
   return (
-    <div className="outpost-data-container-grid" ref={clickWrapperRef} style={{...clickWrapperStyle, gridTemplateRows:`${state !== "In Event" ? "repeat(7, 1fr)" : "repeat(8, 1fr)"}`}}>
-    <div className="outpost-data-title-grid-element outpost-grid-container-text-style">
-      <h2 className="no-margin test-h2" style={{ fontFamily: "Zelda" }}>OUTPOST DATA</h2>
-    </div>
+    <div className="outpost-data-container-grid" ref={clickWrapperRef} style={{ ...clickWrapperStyle, gridTemplateRows: `${state !== "In Event" ? "repeat(7, 1fr)" : "repeat(8, 1fr)"}` }}>
+      <div className="outpost-data-title-grid-element outpost-grid-container-text-style">
+        <h2 className="no-margin test-h2" style={{ fontFamily: "Zelda" }}>OUTPOST DATA</h2>
+      </div>
 
-    <ClickWrapper className="outpost-data-x-grid-element center-via-flex" >
-      <img src="Icons/close_icon.png" className="pointer" onClick={() => { functionClose([]) }} style={{ width: "clamp(0.8rem, 0.7vw + 0.7rem, 7rem)", height: "clamp(0.8rem, 0.7vw + 0.7rem, 7rem)" }}/>
-    </ClickWrapper>
+      <ClickWrapper className="outpost-data-x-grid-element center-via-flex" >
+        <img src="Icons/close_icon.png" className="pointer" onClick={() => { functionClose([]) }} style={{ width: "clamp(0.8rem, 0.7vw + 0.7rem, 7rem)", height: "clamp(0.8rem, 0.7vw + 0.7rem, 7rem)" }} />
+      </ClickWrapper>
 
-    <div className="outpost-data-out-pic-grid-element">
-      <img src="Misc/test_out_pp.png" style={{ width: "100%", height: "100%" }} />
-    </div>
-    <div className="outpost-data-shield-grid-element shields-grid-container" style={{ boxSizing: "border-box" }}>
-      {Array.from({ length: shields }).map((_, index) => (
-        <img key={index} src="SHIELD.png" className="img-full-style" />
-      ))}
-    </div>
+      <div className="outpost-data-out-pic-grid-element">
+        <img src="Misc/test_out_pp.png" style={{ width: "100%", height: "100%" }} />
+      </div>
+      <div className="outpost-data-shield-grid-element shields-grid-container" style={{ boxSizing: "border-box" }}>
+        {Array.from({ length: shields }).map((_, index) => (
+          <img key={index} src="SHIELD.png" className="img-full-style" />
+        ))}
+      </div>
 
       <div className="outpost-data-statistics-grid-element outpost-grid-container-text-style">
-        <h4 className="no-margin test-h4" style={{ whiteSpace:"nowrap"  }} >{id} ID - X:{position.x} || Y:{position.y}</h4>
-        <h4  className="no-margin test-h4" >Reinforcements: {reinforcements}</h4>
+        <h4 className="no-margin test-h4" style={{ whiteSpace: "nowrap" }} >{id} ID - X:{position.x} || Y:{position.y}</h4>
+        <h4 className="no-margin test-h4" >Reinforcements: {reinforcements}</h4>
         <h4 className="no-margin test-h4" >State:
           {state === "Dead" && <span style={{ color: "red" }}> {state}</span>}
           {state === "In Event" && <span style={{ color: "#2A71AA" }}> {state}</span>}
@@ -304,16 +301,4 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
   );
 };
 
-
-/*notes
-  this component should have an event that takes a list of entity ids and start by displaying the first one
-
-  if more it should show a counter like elemnt at the bottom that allows the user to navigate through the list
-
-  the only thing that changes between outposts is the state at whihc they are at
-
-  this component should also deal wiht the setting of the selected outpost and the deselection of the previous one so highlight it
-
-the update of the outpost will be done on demand from the clicking on them so this will be done here, when an outpost is selecet it will query it self to update its data
-*/
 

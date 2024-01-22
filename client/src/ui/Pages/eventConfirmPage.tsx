@@ -39,7 +39,7 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
     const [showOthers, setShowOther] = useState<boolean>(true);
 
     const {
-        account:{account},
+        account: { account },
         phaserLayer: {
             scenes: {
                 Main: {
@@ -131,18 +131,16 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
     useEffect(() => {
         const aliveOutposts = outpostAmountData.outpostsHitQuery.filter(outpost => {
             const isOwnedByPlayer = turnBigIntToAddress(getComponentValueStrict(contractComponents.Outpost, outpost).owner) === account.address;
-    
+
             if (isOwnedByPlayer) {
                 return showYours;
             } else {
                 return showOthers;
             }
         });
-    
+
         setEntityIdsOfOutposts(aliveOutposts);
     }, [outpostAmountData.outpostsHitQuery, outpostAmountData.outpostDeadQuery, showYours, showOthers]);
-    
-    
 
     if (transitionState !== 2) {
         return <></>;
@@ -151,9 +149,7 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
     return (
         <>
             <div style={{ width: "60%", height: "75%" }} >
-
                 <div style={{ height: "15%", width: "100%", display: "grid", gridTemplateRows: "repeat(2, 1fr)", gridTemplateColumns: "0.5fr 1fr 0.5fr" }}>
-
                     <div style={{ gridRow: "1", gridColumn: "1", display: "flex", justifyContent: "flex-start", alignItems: "start" }}>
                         <h3 className="global-button-style no-margin test-h3" onClick={setUIState} style={{ padding: "5px", boxSizing: "border-box" }}>
                             <img className="embedded-text-icon" src="Icons/left-arrow.png" alt="Sort Data" style={{ height: `${test_3_size}`, width: `${test_3_size}` }} />
@@ -165,17 +161,17 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
                         <div style={{ height: `${test_2_size}`, aspectRatio: "1/1" }}></div>
                         <h2 className="no-margin test-h2" style={{ color: "white" }} >Validate attacks in order to get rewards</h2>
                         <Tooltip title={
-                            <div style={{ padding: "5px 10px",borderRadius:"5px" ,width: "fit-content", whiteSpace: "nowrap", border: "2px solid var(--borderColour)",  boxSizing: "border-box"}}>
+                            <div style={{ padding: "5px 10px", borderRadius: "5px", width: "fit-content", whiteSpace: "nowrap", border: "2px solid var(--borderColour)", boxSizing: "border-box" }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <h2 className="test-h2 no-margin" style={{ marginRight: "10px" }}>Your Outposts</h2>
-                                    <div onClick={() => setShowYours(!showYours)} className="pointer center-via-flex" style={{ width: `${test_3_size}`, aspectRatio: "1/1", borderRadius: "5px",  boxSizing: "border-box",background: "linear-gradient(to bottom, white 25%, gray 100%)" }} >
-                                        {showYours && <img src="Icons/tick.svg" alt="" style={{ width: "100%", height: "100%", margin: "10%", boxSizing: "border-box" }} />} 
+                                    <h2 className="test-h2 no-margin" style={{ marginRight: "10px", fontFamily:"OL" }}>Your Outposts</h2>
+                                    <div onClick={() => setShowYours(!showYours)} className="pointer center-via-flex" style={{ width: `${test_3_size}`, aspectRatio: "1/1", borderRadius: "5px", boxSizing: "border-box", background: "linear-gradient(to bottom, white 25%, gray 100%)" }} >
+                                        {showYours && <img src="Icons/tick.svg" style={{ width: "100%", height: "100%", margin: "10%", boxSizing: "border-box" }} />}
                                     </div>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <h2 className="test-h2 no-margin">Others</h2>
+                                    <h2 className="test-h2 no-margin" style={{fontFamily:"OL"}}>Others</h2>
                                     <div onClick={() => setShowOther(!showOthers)} className="pointer center-via-flex" style={{ height: `${test_3_size}`, aspectRatio: "1/1", borderRadius: "5px", boxSizing: "border-box", background: "linear-gradient(to bottom, white 25%, gray 100%)" }} >
-                                        {showOthers && <img src="Icons/tick.svg" alt="" style={{ width: "100%", height: "100%", margin: "10%", boxSizing: "border-box" }}/>} 
+                                        {showOthers && <img src="Icons/tick.svg" style={{ width: "100%", height: "100%", margin: "10%", boxSizing: "border-box" }} />}
                                     </div>
                                 </div>
                             </div>
@@ -203,8 +199,6 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
 };
 
 
-
-
 interface ItemListingProp {
     entityId: EntityIndex
 }
@@ -221,16 +215,12 @@ export const OutpostEventAttackedElement: React.FC<ItemListingProp> = ({ entityI
         },
     } = useDojo();
 
-
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
     const outpostData: any = getComponentValueStrict(contractComponents.Outpost, entityId);
     const revenantData: any = getComponentValueStrict(contractComponents.Revenant, entityId);
 
-    console.log(mapEntityToImage(Number(outpostData.entity_id), namesArray[revenantData.first_name_idx], revenantsPicturesLinks.length), outpostData.entity_id)
-
     const confirmEvent = async () => {
-
         const gameTrackerData = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
 
         const confirmEventProps: ConfirmEventOutpost = {

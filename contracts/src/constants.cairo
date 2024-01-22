@@ -23,6 +23,6 @@ const MAP_WIDTH: u32 = 10240;
 const MAP_HEIGHT: u32 = 5164;
 
 const SPAWN_RANGE_X_MIN: u32 = 2000; 
-const SPAWN_RANGE_X_MAX: u32 = 2100; 
+const SPAWN_RANGE_X_MAX: u32 = 2600; 
 const SPAWN_RANGE_Y_MIN: u32 = 2000;
-const SPAWN_RANGE_Y_MAX: u32 = 2100;
+const SPAWN_RANGE_Y_MAX: u32 = 2600;

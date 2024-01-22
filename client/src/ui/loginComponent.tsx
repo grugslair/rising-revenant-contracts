@@ -50,6 +50,18 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
 
   const createGameClient = (guest: boolean) => {
 
+    setComponent(clientComponents.ClientChunkSettings, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
+      chunk_size: 200,
+      view_range_max: 500,
+      view_range_min: 150,
+    })
+
+    setComponent(clientComponents.ClientOutpostViewSettings, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
+      hide_others_outposts: false,
+      hide_dead_ones: false,
+      show_your_everywhere: false,
+    })
+
     setComponent(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
       current_game_state: 1,
       current_game_id: 1,
@@ -60,7 +72,7 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
     })
 
     setComponent(clientComponents.ClientSettings, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
-      volume:50
+      volume: 50,
     })
 
     setComponent(clientComponents.ClientClickPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {

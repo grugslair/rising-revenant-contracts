@@ -126,9 +126,7 @@ export function createSystemCalls(
 
                 for (let index = 0; index < Number(count); index++) {
                     const entityId = getEntityIdFromKeys([BigInt(game_id), BigInt(gameEntityCounter.outpost_count - index)]);
-                    console.log("this is the entity id for the new rev", entityId);
-
-                    // Make sure the entity id is correctly generated and fits the expected type.
+                    
                     setComponent(clientComponents.ClientOutpostData, entityId, {
                         id: gameEntityCounter.outpost_count - index,
                         owned: true,

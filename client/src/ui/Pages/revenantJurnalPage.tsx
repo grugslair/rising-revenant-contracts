@@ -12,8 +12,7 @@ import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
-import { hexToNumber, namesArray, surnamesArray, truncateString } from "../../utils";
-import { Outpost, Revenant } from "../../generated/graphql";
+import { hexToNumber, namesArray, surnamesArray } from "../../utils";
 
 //elements/components
 
@@ -54,8 +53,12 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));  //get the client game data
     const gameData = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]))  //fetch the entity counter
 
-    const allOutposts = useEntityQuery([Has(contractComponents.Outpost)]); //get all the outpost saved
-    const allEvents = useEntityQuery([Has(contractComponents.WorldEvent)]); //get all the events saved
+    const allOutposts = useEntityQuery([Has(contractComponents.Outpost)], {
+        updateOnValueChange: false,
+    });
+    const allEvents = useEntityQuery([Has(contractComponents.WorldEvent)], {
+        updateOnValueChange: false,
+    }); 
 
     // this should happen at the start
     useEffect(() => {
@@ -223,17 +226,13 @@ const ListElement: React.FC<{ entityId: EntityIndex}> = ({ entityId }) => {
     const [outpostCoordinates, setOutpostCoordinates] = useState<{ x: number, y: number }>({ x: 404, y: 404 });
 
     const {
-        account: {account},
         networkLayer: {
             network: { contractComponents},
         },
     } = useDojo();
 
-    // const outpostClientData = useComponentValue(clientComponents.ClientOutpostData, entityId);
     const outpostContractData = useComponentValue(contractComponents.Outpost, entityId);
     const revenantContractData = useComponentValue(contractComponents.Revenant, entityId);
-
-    //probably doesnt need the fetch to client outpost data     HERE
 
     useEffect(() => {
         setOutpostId(outpostContractData?.entity_id.toString());

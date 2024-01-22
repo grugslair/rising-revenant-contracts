@@ -30,11 +30,7 @@ import CustomSlider from "../Elements/sliderElement";
 
     the other section is a list of setting for the player to deal with camera speed and stuff like that, no real query needed for this one
 */
-{/* <div style={{ height: "100%", width: "40%", padding: "2% 2%", boxSizing: "border-box", overflowY: "auto", scrollbarGutter: "stable both-edges", border: "2px solid var(--borderColour)" }}>
-                    {clientTransactionsQuery.map((transactionId, index) => (
-                        <TransactionDataElement key={index} entityId={transactionId} />
-                    ))}
-                </div> */}
+
 
 interface SettingPageProps {
     setUIState: () => void;
@@ -48,7 +44,9 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
         },
     } = useDojo();
 
-    const clientTransactionsQuery = useEntityQuery([Has(clientComponents.ClientTransaction)]);
+    const clientTransactionsQuery = useEntityQuery([Has(clientComponents.ClientTransaction)], {
+        updateOnValueChange: false, 
+    });
 
     return (
         <div className="game-page-container">
@@ -67,9 +65,9 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
                     <h1 className="test-h1-5" style={{ textDecoration: "underline", height:"110%" }}>Phaser</h1>
                     <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Camera Speed" />
                     <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Zoom Multiplier" />
-                    <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Hide other's outposts" />
-                    <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Hide dead ones" />
-                    <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Show yours everywhere" />
+                    <SettingCheckboxElement component={clientComponents.ClientOutpostViewSettings} variable="hide_others_outposts" text="Hide other's outposts" />
+                    <SettingCheckboxElement component={clientComponents.ClientOutpostViewSettings} variable="hide_dead_ones" text="Hide dead ones" />
+                    <SettingCheckboxElement component={clientComponents.ClientOutpostViewSettings} variable="show_your_everywhere" text="Show yours everywhere" />
                     <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Increase the chunk loading size" />
                     <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Increase view range" />
                     <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Take out anim on outposts" />
@@ -119,7 +117,7 @@ export const TransactionDataElement: React.FC<{ entityId }> = ({ entityId }) => 
                 {transactionData!.state === 2 && <h2 className="test-h2 no-margin">REJECTED</h2>}
                 {transactionData!.state === 3 && <h2 className="test-h2 no-margin">PASSED</h2>}
                 {transactionData!.state === 4 && <h2 className="test-h2 no-margin">ERROR</h2>}
-                <Tooltip title="WEN MAINET!!!!!   (DISABLED)">
+                <Tooltip title="WEN MAINNET!!!!!   (DISABLED)">
                     <div style={{ padding: "0px 5px", height: "100%", backgroundColor: "#909090" }} className="center-via-flex">
                         <h3 className="test-h3 no-margin pointer">See on Voyager</h3>
                     </div>
@@ -154,6 +152,7 @@ interface SettingSliderElementProps {
 export const SettingSliderElement: React.FC<SettingSliderElementProps> = ({ component, variable, minVal, maxVal, text, containerStyle }) => {
 
     const [sliderValue, setSliderValue] = useState<number>(getComponentValueStrict(component, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]))[variable] as number);
+    const [isSliderDragging, setIsSliderDragging] = useState(false);
 
     const handleSliderChange = (value: number) => {
         setSliderValue(value);
@@ -164,17 +163,23 @@ export const SettingSliderElement: React.FC<SettingSliderElementProps> = ({ comp
         updateData[variable] = sliderValue;
 
         updateComponent(component, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), updateData);
-    }, [sliderValue])
+    }, [isSliderDragging])
 
     return (
         <ClickWrapper className="settings-option-hover" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexDirection: "row", height: "fit-content", width: "100%", ...containerStyle }}>
             <h2 className="test-h2 no-margin">{text}</h2>
-            <CustomSlider minValue={minVal} maxValue={maxVal} startingValue={sliderValue} onChange={handleSliderChange}
+            <CustomSlider 
+                minValue={minVal} 
+                maxValue={maxVal} 
+                startingValue={sliderValue} 
+                onChange={handleSliderChange}
                 containerStyle={{ width: "100px", height: "clamp(0.5rem, 0.5vw + 0.5rem, 4rem)", display: "flex", justifyContent: "center", alignItems: "center" }}
                 trackStyle={{ width: "100%", height: "60%", background: "linear-gradient(to bottom, white 25%, gray 100%)", borderRadius: "5px" }}
                 buttonStyle={{ height: "100%", width: "15%", backgroundColor: "black", border: "2px solid white", borderRadius: "10px", boxSizing: "border-box" }}
                 precision={0}
                 showVal={true}
+                onDrag={(isDragging) => setIsSliderDragging(isDragging)}
+         
             />
         </ClickWrapper>
     );

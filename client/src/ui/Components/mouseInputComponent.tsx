@@ -26,8 +26,6 @@ const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
     const [lastDragX, setLastDragX] = useState(0);
     const [lastDragY, setLastDragY] = useState(0);
 
-    useMainPageContentClick();
-
     const {
         networkLayer: {
             network: { clientComponents,contractComponents }
@@ -39,8 +37,47 @@ const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
         }
     } = useDojo();
 
-    const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    useEffect(() => {
+        const handleClick = (event: MouseEvent) => {
+            const clickedElement = event.target as HTMLElement;
 
+            if (
+                clickedElement.classList.contains('target-for-mouse')
+            ) {
+
+                let zoomVal: number = 0;
+                camera.zoom$.subscribe((zoom) => { zoomVal = zoom; });
+
+                const pointXRelativeToMiddle = event.clientX - (window.innerWidth / 2);
+                const pointYRelativeToMiddle = event.clientY - (window.innerHeight / 2);
+
+                const camPos = getComponentValueStrict(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+
+                if (event.button === 1) {
+                    updateComponent(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
+                        x: (camPos.x + pointXRelativeToMiddle / zoomVal),
+                        y: (camPos.y + pointYRelativeToMiddle / zoomVal)
+                    })
+                }
+                else if (event.button === 2) {
+                    updateComponent(clientComponents.ClientClickPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
+                        xFromOrigin: event.clientX,
+                        yFromOrigin: event.clientY,
+                        xFromMiddle: ((pointXRelativeToMiddle) / zoomVal),
+                        yFromMiddle: ((pointYRelativeToMiddle) / zoomVal)
+                    })
+                }
+            }
+        };
+
+        document.addEventListener('mousedown', handleClick);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClick);
+        };
+    }, [camera.zoom$]);
+
+    const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.button !== 0) { return; }
 
         setStartX(e.clientX);
@@ -149,57 +186,57 @@ const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
 export default MouseInputManagerDiv;
 
 
-// this could probably be merge with the thing above
-const useMainPageContentClick = () => {
-    const {
-        networkLayer: {
-            network: { clientComponents },
-        },
-        phaserLayer: {
-            scenes: {
-                Main: { camera },
-            },
-        }
-    } = useDojo();
+// // this could probably be merge with the thing above
+// const useMainPageContentClick = () => {
+//     const {
+//         networkLayer: {
+//             network: { clientComponents },
+//         },
+//         phaserLayer: {
+//             scenes: {
+//                 Main: { camera },
+//             },
+//         }
+//     } = useDojo();
 
-    // here we need to see what sort of click gets registered
-    useEffect(() => {
-        const handleClick = (event: MouseEvent) => {
-            const clickedElement = event.target as HTMLElement;
+//     // here we need to see what sort of click gets registered
+//     useEffect(() => {
+//         const handleClick = (event: MouseEvent) => {
+//             const clickedElement = event.target as HTMLElement;
 
-            if (
-                clickedElement.classList.contains('target-for-mouse')
-            ) {
+//             if (
+//                 clickedElement.classList.contains('target-for-mouse')
+//             ) {
 
-                let zoomVal: number = 0;
-                camera.zoom$.subscribe((zoom) => { zoomVal = zoom; });
+//                 let zoomVal: number = 0;
+//                 camera.zoom$.subscribe((zoom) => { zoomVal = zoom; });
 
-                const pointXRelativeToMiddle = event.clientX - (window.innerWidth / 2);
-                const pointYRelativeToMiddle = event.clientY - (window.innerHeight / 2);
+//                 const pointXRelativeToMiddle = event.clientX - (window.innerWidth / 2);
+//                 const pointYRelativeToMiddle = event.clientY - (window.innerHeight / 2);
 
-                const camPos = getComponentValueStrict(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
+//                 const camPos = getComponentValueStrict(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
-                if (event.button === 1) {
-                    updateComponent(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
-                        x: (camPos.x + pointXRelativeToMiddle / zoomVal),
-                        y: (camPos.y + pointYRelativeToMiddle / zoomVal)
-                    })
-                }
-                else if (event.button === 2) {
-                    updateComponent(clientComponents.ClientClickPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
-                        xFromOrigin: event.clientX,
-                        yFromOrigin: event.clientY,
-                        xFromMiddle: ((pointXRelativeToMiddle ) / zoomVal),
-                        yFromMiddle: ((pointYRelativeToMiddle ) / zoomVal)
-                    })
-                }
-            }
-        };
+//                 if (event.button === 1) {
+//                     updateComponent(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
+//                         x: (camPos.x + pointXRelativeToMiddle / zoomVal),
+//                         y: (camPos.y + pointYRelativeToMiddle / zoomVal)
+//                     })
+//                 }
+//                 else if (event.button === 2) {
+//                     updateComponent(clientComponents.ClientClickPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
+//                         xFromOrigin: event.clientX,
+//                         yFromOrigin: event.clientY,
+//                         xFromMiddle: ((pointXRelativeToMiddle ) / zoomVal),
+//                         yFromMiddle: ((pointYRelativeToMiddle ) / zoomVal)
+//                     })
+//                 }
+//             }
+//         };
 
-        document.addEventListener('mousedown', handleClick);
+//         document.addEventListener('mousedown', handleClick);
 
-        return () => {
-            document.removeEventListener('mousedown', handleClick);
-        };
-    }, [camera.zoom$]);
-};
+//         return () => {
+//             document.removeEventListener('mousedown', handleClick);
+//         };
+//     }, [camera.zoom$]);
+// };

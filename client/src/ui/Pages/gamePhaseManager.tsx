@@ -60,8 +60,6 @@ export enum MenuState {
   Debug = 9
 }
 
-//this needs an event for the gamephase so it redraws this is called form the mapspawn script
-
 export const GamePhaseManager = () => {
   const [currentMenuState, setCurrentMenuState] = useState(MenuState.NONE);
   const [showEventButton, setShowEventButton] = useState(false);
@@ -84,15 +82,12 @@ export const GamePhaseManager = () => {
 
   const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id)]));
 
-  // const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
-  // const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
-
   useCameraInteraction(currentMenuState);
-
   const outpostData = useOutpostAmountData();
+
   useEffect(() => {
     if (outpostData.outpostsLeftNumber <= 1 && clientGameData.current_event_drawn !== 0) {
-      // setCurrentMenuState(MenuState.WINNER);
+      setCurrentMenuState(MenuState.WINNER);
     }
   }, [outpostData.outpostDeadQuery]);
 
@@ -119,6 +114,7 @@ export const GamePhaseManager = () => {
     };
   }, [currentMenuState]);
   // this needs to be delete from demo and only visible locally
+
   useEffect(() => {
 
     const current_block = clientGameData!.current_block_number;
