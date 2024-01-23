@@ -45,20 +45,17 @@ const notify = (message: string) => {
 interface TopBarPageProps {
     phaseNum: number;
     setGamePhase?: () => void;
+    contractComponents: any;
+    clientComponents: any;
+    graphSdk:any;
+    account:any;
 }
 
-export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phaseNum }) => {
+export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phaseNum, account, contractComponents,clientComponents,graphSdk }) => {
 
     const [playerContribScore, setPlayerContribScore] = useState(0);
     const [playerContribScorePerc, setPlayerContribScorePerc] = useState(0);
     const [soundOn, setSoundOn] = useState<Boolean>(true);
-
-    const {
-        account: { account },
-        networkLayer: {
-            network: { contractComponents, clientComponents, graphSdk },
-        },
-    } = useDojo();
 
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
@@ -68,7 +65,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
     //event and player loader
     useEventAndUserDataLoader();
-    const  outpostCountData = useOutpostAmountData();
+    const  outpostCountData = useOutpostAmountData(clientComponents, contractComponents);
 
     // this should only be getting called when the user is active the moment the game switches from prep to game phase as the other oupost from other people are not loaded in 
     // in the prep phase
@@ -82,8 +79,6 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
             }
         }
     }, [clientGameData, gameEntityCounter]);
-
-
 
     // on change this should deal with the contribution value change draw
     useEffect(() => {
@@ -210,7 +205,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                 </div>
             </div>
             <div className="top-bar-grid-address" style={{ justifyContent: "space-between", display: "flex", alignItems: "center" }}>
-                <LordsBalanceElement />
+                <LordsBalanceElement clientComponents={clientComponents} contractComponents={contractComponents} account={account}/>
 
                 <div style={{ width: "70%", height: "75%" }} className="center-via-flex">
                     {!clientGameData!.guest ?

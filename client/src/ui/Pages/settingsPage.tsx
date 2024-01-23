@@ -34,15 +34,12 @@ import CustomSlider from "../Elements/sliderElement";
 
 interface SettingPageProps {
     setUIState: () => void;
+    clientComponents:any;
+    contractComponents:any;
 }
 
-export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
+export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState,clientComponents,contractComponents }) => {
 
-    const {
-        networkLayer: {
-            network: { clientComponents },
-        },
-    } = useDojo();
 
     const clientTransactionsQuery = useEntityQuery([Has(clientComponents.ClientTransaction)], {
         updateOnValueChange: false, 
@@ -83,7 +80,7 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
 
                     <div style={{ height: "92%", width: "100%", padding: "3% 2%", boxSizing: "border-box", overflowY: "auto", scrollbarGutter: "stable both-edges", border: "2px solid var(--borderColour)" }}>
                         {clientTransactionsQuery.map((transactionId, index) => (
-                            <TransactionDataElement key={index} entityId={transactionId} />
+                            <TransactionDataElement key={index} entityId={transactionId} clientComponents={clientComponents}/>
                         ))}
                     </div>
                 </div>
@@ -94,13 +91,7 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState }) => {
 };
 
 
-export const TransactionDataElement: React.FC<{ entityId }> = ({ entityId }) => {
-
-    const {
-        networkLayer: {
-            network: { clientComponents },
-        },
-    } = useDojo();
+export const TransactionDataElement: React.FC<{ entityId, clientComponents }> = ({ entityId,clientComponents }) => {
 
     const transactionData = useComponentValue(clientComponents.ClientTransaction, entityId);
 

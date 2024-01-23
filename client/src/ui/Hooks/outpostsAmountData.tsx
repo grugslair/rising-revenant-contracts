@@ -3,14 +3,8 @@ import { useDojo } from "../../hooks/useDojo";
 import { useEntityQuery } from "@latticexyz/react";
 import { Has, HasValue } from "@latticexyz/recs";
 
-export const useOutpostAmountData = () => {
+export const useOutpostAmountData = (clientComponents, contractComponents) => {
     const [outpostsLeftNumber, setOutpostsLeft] = useState<number>(0);
-
-    const {
-        networkLayer: {
-            network: { contractComponents, clientComponents}
-        }
-    } = useDojo();
 
     const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
 

@@ -30,6 +30,8 @@ import { hexToNumber, namesArray, surnamesArray } from "../../utils";
 
 interface RevenantjurnalPageProps {
     setMenuState: React.Dispatch<React.SetStateAction<MenuState>>;
+    contractComponents:any;
+    clientComponents:any;
 }
 
 interface EventDataState {
@@ -38,17 +40,11 @@ interface EventDataState {
     radius:number;
 }
 
-export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuState }) => {
+export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuState,clientComponents,contractComponents }) => {
 
     const [outpostHitList, setOutpostHitList] = useState<EntityIndex[]>([]);
     const [selectedEventIndex, setSelectedEventIndex] = useState<number>(1);
     const [currentlySelectedEventData, setCurrentlySelectedEventData] = useState<EventDataState>({x:0,y:0,radius:0});
-
-    const {
-        networkLayer: {
-            network: { contractComponents, clientComponents },
-        },
-    } = useDojo();
 
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));  //get the client game data
     const gameData = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]))  //fetch the entity counter
@@ -193,7 +189,7 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
                                     </div>
                                         <ClickWrapper  style={{ width: "100%", height: "80%", overflowY: "auto", scrollbarGutter: "stable both-edges" }}>
                                         {outpostHitList.map((outpostHit, index) => (
-                                            <ListElement key={index} entityId={outpostHit} />
+                                            <ListElement key={index} entityId={outpostHit} contractComponents={contractComponents}/>
                                         ))}
 
                                     </ClickWrapper>
@@ -218,18 +214,12 @@ export const RevenantJurnalPage: React.FC<RevenantjurnalPageProps> = ({ setMenuS
     );
 };
 
-const ListElement: React.FC<{ entityId: EntityIndex}> = ({ entityId }) => {
+const ListElement: React.FC<{ entityId: EntityIndex, contractComponents: any}> = ({ entityId, contractComponents }) => {
   
     const [outpostId, setOutpostId] = useState<string>("404");
     const [outpostOwner, setOutpostOwner] = useState<string>("NaN");
 
     const [outpostCoordinates, setOutpostCoordinates] = useState<{ x: number, y: number }>({ x: 404, y: 404 });
-
-    const {
-        networkLayer: {
-            network: { contractComponents},
-        },
-    } = useDojo();
 
     const outpostContractData = useComponentValue(contractComponents.Outpost, entityId);
     const revenantContractData = useComponentValue(contractComponents.Revenant, entityId);

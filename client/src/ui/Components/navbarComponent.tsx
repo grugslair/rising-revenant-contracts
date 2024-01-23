@@ -14,17 +14,12 @@ import { Tooltip } from "@mui/material";
 interface NavbarProps {
   menuState: MenuState;
   setMenuState: (menuState: MenuState) => void;
+  clientComponents:any;
 }
 
 //Create own tooltip HERE
 
-export const NavbarComponent: React.FC<NavbarProps> = ({ menuState, setMenuState }) => {
-
-  const {
-    networkLayer: {
-      network: { clientComponents }
-    },
-  } = useDojo();
+export const NavbarComponent: React.FC<NavbarProps> = ({ menuState, setMenuState,clientComponents }) => {
 
   const handleIconClick = (selectedState: MenuState) => {
     if (menuState === selectedState) {

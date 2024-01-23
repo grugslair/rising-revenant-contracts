@@ -23,16 +23,12 @@ import { hexToNumber } from "../../utils";
 
 interface JuornalEventProps {
     setMenuState: React.Dispatch<React.SetStateAction<MenuState>>;
+    contractComponents: any;
+    clientComponents: any;
 }
 
 
-export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState }) => {
-
-    const {
-        networkLayer: {
-            network: { contractComponents, clientComponents },
-        },
-    } = useDojo();
+export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState, contractComponents, clientComponents }) => {
 
     const openJurnal = () => {
         setMenuState(MenuState.REV_JURNAL);

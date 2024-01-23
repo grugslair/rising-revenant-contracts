@@ -17,7 +17,7 @@ import { MenuState } from "../Pages/gamePhaseManager";
 
 // this is a big change HERE to move the component to only use camera.centerOn 
 
-export function useCameraInteraction(menuState: MenuState) {
+export function useCameraInteraction(menuState: MenuState, clientComponents, contractComponents, camera) {
 
     const keysDown = useWASDKeys();
 
@@ -25,17 +25,6 @@ export function useCameraInteraction(menuState: MenuState) {
 
     let prevX: number = 0;
     let prevY: number = 0;
-
-    const {
-        networkLayer: {
-          network: { clientComponents }
-        },
-        phaserLayer:{
-          scenes: {
-            Main: { camera },
-          }
-        }
-      } = useDojo();
   
     useEffect(() => {
 

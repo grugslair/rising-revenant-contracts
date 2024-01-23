@@ -48,7 +48,7 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
 
     // const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
     // const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
-    const outpostAmountData = useOutpostAmountData();
+    const outpostAmountData = useOutpostAmountData(clientComponents, contractComponents);
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
     useEffect(() => {

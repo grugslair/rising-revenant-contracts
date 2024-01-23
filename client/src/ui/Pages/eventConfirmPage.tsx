@@ -54,7 +54,7 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
         }
     } = useDojo();
 
-    const outpostAmountData = useOutpostAmountData();
+    const outpostAmountData = useOutpostAmountData(clientComponents, contractComponents);
 
     useEffect(() => {
         const handleMovementTransition = async () => {

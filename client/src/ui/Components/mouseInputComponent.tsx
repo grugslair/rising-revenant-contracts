@@ -10,12 +10,18 @@ interface DragAndClickProps {
     onDragStart: () => void;
     onDragEnd: () => void;
     onNormalClick: (overEvent : boolean) => void;
+    contractComponents: any;
+    clientComponents:any;
+    camera: any;
 }
 
 const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
     onDragStart,
     onDragEnd,
     onNormalClick,
+    contractComponents,
+    clientComponents,
+    camera
 }) => {
     const dragRef = useRef<HTMLDivElement>(null);
     const [isDragging, setDragging] = useState(false);
@@ -26,16 +32,7 @@ const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
     const [lastDragX, setLastDragX] = useState(0);
     const [lastDragY, setLastDragY] = useState(0);
 
-    const {
-        networkLayer: {
-            network: { clientComponents,contractComponents }
-        },
-        phaserLayer: {
-            scenes: {
-                Main: { camera },
-            }
-        }
-    } = useDojo();
+  
 
     useEffect(() => {
         const handleClick = (event: MouseEvent) => {

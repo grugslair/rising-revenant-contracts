@@ -7,19 +7,15 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 interface LordsBalanceElementProps {
+    contractComponents: any;
+    clientComponents:any;
+    account: any;
     style?: React.CSSProperties;
 }
 
-export const LordsBalanceElement: React.FC<LordsBalanceElementProps> = ({ style }) => {
+export const LordsBalanceElement: React.FC<LordsBalanceElementProps> = ({ style,contractComponents,clientComponents,account }) => {
 
     const [reinforcementCount, setReinforcementCount] = useState<number>(150);
-
-    const {
-        account: { account },
-        networkLayer: {
-            network: { contractComponents, clientComponents }
-        },
-    } = useDojo();
 
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]));

@@ -19,7 +19,7 @@ export const WholeGameDataStats: React.FC = () => {
 
     const gameEntityCounter = useComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
 
-    const outpostAmountData = useOutpostAmountData();
+    const outpostAmountData = useOutpostAmountData(clientComponents, contractComponents);
 
     return (
         <div style={{ height: "75%", width: "90%", marginLeft: "5%", display: "flex", gap: "5%", justifyContent: "space-between", color: "white"}}>

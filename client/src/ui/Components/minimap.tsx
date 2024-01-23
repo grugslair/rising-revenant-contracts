@@ -10,21 +10,16 @@ import { WorldEvent } from '../../generated/graphql';
 import { clampPercentage } from '../../utils';
 
 
-const MinimapComponent: React.FC = () => {
+interface MinimapProps {
+    camera:any;
+    contractComponents: any;
+    clientComponents: any;
+}
+
+const MinimapComponent: React.FC<MinimapProps> = ({camera, contractComponents, clientComponents}) => {
 
     const [eventPos, setEventPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [cameraTransform, setCameraTransform] = useState<{ x: number; y: number, w: number, h: number }>({ x: 0, y: 0, w: 0, h: 0 });
-
-    const {
-        networkLayer: {
-            network: { contractComponents, clientComponents },
-        },
-        phaserLayer: {
-            scenes: {
-                Main: { camera },
-            }
-        }
-    } = useDojo();
 
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     const clientCameraComp = useComponentValue(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));

@@ -67,9 +67,14 @@ export const GamePhaseManager = () => {
   const [showBackground, setShowBackground] = useState(false);
 
   const {
+    phaserLayer: {
+      scenes: {
+          Main: { camera },
+      }
+  },
     account: { account },
     networkLayer: {
-      network: { contractComponents, clientComponents },
+      network: { contractComponents, clientComponents, graphSdk },
       systemCalls: { create_event }
     }
   } = useDojo();
@@ -79,11 +84,10 @@ export const GamePhaseManager = () => {
   }
 
   const clientGameData: any = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
-
   const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id)]));
 
-  useCameraInteraction(currentMenuState);
-  const outpostData = useOutpostAmountData();
+  useCameraInteraction(currentMenuState, clientComponents, contractComponents, camera);
+  const outpostData = useOutpostAmountData(clientComponents, contractComponents);
 
   useEffect(() => {
     if (outpostData.outpostsLeftNumber <= 1 && clientGameData.current_event_drawn !== 0) {
@@ -115,6 +119,20 @@ export const GamePhaseManager = () => {
   }, [currentMenuState]);
   // this needs to be delete from demo and only visible locally
 
+  const handleDragStart = () => {
+    console.log('Dragging started!');
+  };
+  const handleDragEnd = () => {
+    console.log('Dragging ended!');
+  };
+  const checkIfClickInEvent = (overEvent: boolean) => {
+    if (overEvent) {
+      setCurrentMenuState(MenuState.EVENT);
+    }
+  };
+
+
+  
   useEffect(() => {
 
     const current_block = clientGameData!.current_block_number;
@@ -145,28 +163,18 @@ export const GamePhaseManager = () => {
     create_event(createEventProps);
   }
 
-  const handleDragStart = () => {
-    console.log('Dragging started!');
-  };
-  const handleDragEnd = () => {
-    console.log('Dragging ended!');
-  };
-  const checkIfClickInEvent = (overEvent: boolean) => {
-    if (overEvent) {
-      setCurrentMenuState(MenuState.EVENT);
-    }
-  };
+
 
   return (
     <>
-      <DirectionalEventIndicator />
+      <DirectionalEventIndicator clientComponents={clientComponents} contractComponents={contractComponents} camera={camera}/>
       <ClickWrapper className="main-page-container-layout">
 
         {currentMenuState === MenuState.EVENT && showBackground &&
           <img src='Page_Bg/VALIDATE_EVENT_BG.png' className='brightness-down' style={{ position: 'absolute', top: "0", left: "0", aspectRatio: "1.7/1", width: "100%", height: "100%" }}></img>}
 
         <div className='main-page-topbar' style={{ position: "relative" }}>
-          <TopBarComponent phaseNum={2} />
+           <TopBarComponent phaseNum={2} clientComponents={clientComponents} contractComponents={contractComponents} graphSdk={graphSdk} account={account}/>
         </div>
 
         {/* enable for middle of the screen crosshair */}
@@ -190,7 +198,7 @@ export const GamePhaseManager = () => {
           {
             currentMenuState === MenuState.SETTINGS && (
               <div className='page-container'>
-                <SettingsPage setUIState={closePage} />
+                <SettingsPage setUIState={closePage} clientComponents={clientComponents} contractComponents={contractComponents}/>
               </div>
             )
           }
@@ -211,7 +219,7 @@ export const GamePhaseManager = () => {
           {
             currentMenuState === MenuState.REV_JURNAL && (
               <div className='page-container'>
-                <RevenantJurnalPage setMenuState={setCurrentMenuState} />
+                <RevenantJurnalPage setMenuState={setCurrentMenuState} contractComponents={contractComponents} clientComponents={clientComponents}/>
               </div>
             )
           }
@@ -234,22 +242,19 @@ export const GamePhaseManager = () => {
               </div>
             )
           }
-
-
         </div>
-
       </ClickWrapper>
 
       {/* pretty sure this is the wrong class as it doesnt make sense */}
       <div className='main-page-topbar'>
-        <NavbarComponent menuState={currentMenuState} setMenuState={setCurrentMenuState} />
+        <NavbarComponent menuState={currentMenuState} setMenuState={setCurrentMenuState} clientComponents={clientComponents}/>
       </div>
 
       {currentMenuState === MenuState.NONE && <>
-        <MouseInputManagerDiv onDragEnd={handleDragEnd} onDragStart={handleDragStart} onNormalClick={checkIfClickInEvent} />
-        <JurnalEventComponent setMenuState={setCurrentMenuState} />
+        <MouseInputManagerDiv onDragEnd={handleDragEnd} onDragStart={handleDragStart} onNormalClick={checkIfClickInEvent} clientComponents={clientComponents} contractComponents={contractComponents} camera={camera}/>
+        <JurnalEventComponent setMenuState={setCurrentMenuState} contractComponents={contractComponents} clientComponents={clientComponents}/>
         <OutpostTooltipComponent />
-        <MinimapComponent />
+        <MinimapComponent camera={camera} clientComponents={clientComponents} contractComponents={contractComponents}/>
 
         {outpostData.outpostsLeftNumber === 1 &&
           <ClickWrapper style={{ position: 'absolute', width: "40%", height: "20%", transform: "translate(-50%, 0%)", bottom: "4%", left: "50%", zIndex: 20, color: "white" }}>

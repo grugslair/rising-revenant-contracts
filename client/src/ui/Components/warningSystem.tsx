@@ -6,9 +6,15 @@ import { useDojo } from '../../hooks/useDojo';
 import { getComponentValueStrict } from "@latticexyz/recs";
 
 
-// this is to check  HERE
 
-export const DirectionalEventIndicator: React.FC = () => {
+
+interface DirectionalWarningProps {
+  contractComponents: any;
+  clientComponents: any;
+  camera: any;
+}
+
+export const DirectionalEventIndicator: React.FC<DirectionalWarningProps> = ({contractComponents, clientComponents, camera}) => {
 
   useEffect(() => {
     // Function to preload images
@@ -40,25 +46,7 @@ export const DirectionalEventIndicator: React.FC = () => {
     preloadImages();
   }, []); // Empty dependency array ensures that the effect runs only once
 
-
-  const direction = useDirectionalEventIndicator();
-
-  if (direction === "") {
-    return <></>;
-  }
-
-  const imageUrl = `/Warning_system/${direction}.png`;
-
-  return (
-    <div style={{ backgroundImage: `url(${imageUrl})` }} className='directional-event-indicator'>
-    </div>
-  );
-};
-
-const useDirectionalEventIndicator = () => {
   const [direction, setDirection] = useState<string>('');
-
-  const { networkLayer: { network: { contractComponents, clientComponents } }, phaserLayer: { scenes: { Main: { camera } } } } = useDojo();
 
   const camTile: any = useComponentValue(clientComponents.EntityTileIndex, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
@@ -109,5 +97,16 @@ const useDirectionalEventIndicator = () => {
 
   }, [camTile, camera.zoom$]);
 
-  return direction;
+  if (direction === "") {
+    return <></>;
+  }
+
+  const imageUrl = `/Warning_system/${direction}.png`;
+
+  return (
+    <div style={{ backgroundImage: `url(${imageUrl})` }} className='directional-event-indicator'>
+    </div>
+  );
 };
+
+
