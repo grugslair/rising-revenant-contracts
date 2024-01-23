@@ -1,15 +1,12 @@
 //libs
 import React, { useEffect, useState } from "react";
-import { MenuState } from "./gamePhaseManager";
 
 //styles
 import "./PagesStyles/RulesPageStyles.css"
-import PageTitleElement, { ImagesPosition } from "../Elements/pageTitleElement";
 import { ClickWrapper } from "../clickWrapper";
 import { EntityIndex, HasValue, getComponentValueStrict, updateComponent } from "@latticexyz/recs";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID, test_2_size, test_3_size, test_4_size, test_5_size } from "../../utils/settingsConstants";
-import { useDojo } from "../../hooks/useDojo";
 import { useResizeableHeight } from "../Hooks/gridResize";
 import { mapEntityToImage, namesArray, revenantsPicturesLinks, surnamesArray, turnBigIntToAddress } from "../../utils";
 import { ConfirmEventOutpost } from "../../dojo/types";
@@ -25,34 +22,23 @@ import { Tooltip } from "antd";
 interface EventConfirmPageProps {
     setBackground: (boolean) => void;
     setUIState: () => void;
+    confirm_event_outpost: any;
+    account: any;
+    contractComponents: any;
+    clientComponents: any;
+    camera: any;
 }
 
 function lerp(start: number, end: number, t: number): number {
     return start * (1 - t) + end * t;
 }
 
-export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, setBackground }) => {
+export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, setBackground, clientComponents, contractComponents, camera, account, confirm_event_outpost }) => {
     const [transitionState, setTransitionState] = useState(0); // 0 going to event // 1 zooming on event // 2 show map
     const [entityIdsOfOutposts, setEntityIdsOfOutposts] = useState<EntityIndex[]>([]);
 
     const [showYours, setShowYours] = useState<boolean>(true);
     const [showOthers, setShowOther] = useState<boolean>(true);
-
-    const {
-        account: { account },
-        phaserLayer: {
-            scenes: {
-                Main: {
-                    camera
-                }
-            }
-        },
-        
-        networkLayer: {
-            systemCalls: { confirm_event_outpost },
-            network: { contractComponents, clientComponents },
-        }
-    } = useDojo();
 
     const outpostAmountData = useOutpostAmountData(clientComponents, contractComponents);
 
@@ -205,7 +191,7 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
                 <div style={{ height: "7%", width: "100%", }}></div>
                 <div style={{ height: "65%", width: "100%", display: "grid", gap: "5%", scrollbarGutter: "stable", overflowY: "auto", gridTemplateColumns: "repeat(2, 1fr)", padding: "5px 10px", boxSizing: "border-box" }}>
                     {entityIdsOfOutposts.map((outpostId: EntityIndex) => (
-                        <OutpostEventAttackedElement entityId={outpostId} key={outpostId} />
+                        <OutpostEventAttackedElement entityId={outpostId} key={outpostId} contractComponents={contractComponents} clientComponents={clientComponents} account={account} confirm_event_outpost={confirm_event_outpost}/>
                     ))}
                 </div>
                 <div style={{ height: "13%", width: "100%", display: "flex", justifyContent: "center", alignItems: "flex-end" }}>
@@ -219,22 +205,17 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
     );
 };
 
-
 interface ItemListingProp {
-    entityId: EntityIndex
+    entityId: EntityIndex;
+    confirm_event_outpost: any;
+    contractComponents: any;
+    clientComponents: any;
+    account: any;
 }
 
-export const OutpostEventAttackedElement: React.FC<ItemListingProp> = ({ entityId }) => {
+export const OutpostEventAttackedElement: React.FC<ItemListingProp> = ({ entityId, confirm_event_outpost, contractComponents, clientComponents, account }) => {
 
     const { clickWrapperRef, clickWrapperStyle } = useResizeableHeight(14, 4, "100%");
-
-    const {
-        account: { account },
-        networkLayer: {
-            systemCalls: { confirm_event_outpost },
-            network: { contractComponents, clientComponents },
-        },
-    } = useDojo();
 
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 

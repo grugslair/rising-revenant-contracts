@@ -31,25 +31,22 @@ import { useOutpostAmountData } from "../Hooks/outpostsAmountData";
 
 interface ProfilePageProps {
     setUIState: () => void;
+    contractComponents: any;
+    clientComponents: any;
+    reinforce_outpost: any;
+    confirm_event_outpost?: any;
+    account: any;
     specificSetState?: (number: MenuState) => void;
 }
 
-export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSetState }) => {
+export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSetState,contractComponents,clientComponents,reinforce_outpost,confirm_event_outpost,account }) => {
 
     const [reinforcementCount, setReinforcementCount] = useState(0);
     const [arrOfEnt, setArrOfEnt] = useState<EntityIndex[]>([]);
     const [entsInEvents, setEntsInEvents] = useState(false);
 
-    const {
-        account: { account },
-        networkLayer: {
-            network: { contractComponents, clientComponents },
-            systemCalls: { reinforce_outpost, confirm_event_outpost }
-        },
-    } = useDojo();
-
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
-    const outpostAmountData = useOutpostAmountData()
+    const outpostAmountData = useOutpostAmountData(clientComponents,contractComponents);
 
     const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]))
 
@@ -106,7 +103,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
 
         reinforce_outpost(reinforceOutpostProps);
     };
-
     const setCameraPos = (x: number, y: number, ent: any) => {
         updateComponent(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { x: x, y: y });
         updateComponent(clientComponents.EntityTileIndex, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), { tile_index: getTileIndex(x, y) });
@@ -118,7 +114,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
             setTooltipArray.emit("setToolTipArray", [ent]);
         }, 750);
     };
-
     const confirmAllAttackedOutposts = async () => {
         for (let index = 0; index < outpostAmountData.ownOutpostsQuery.length; index++) {
             const element = outpostAmountData.ownOutpostsQuery[index];
@@ -130,7 +125,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
             }
         }
     };
-
     const callSingularEventConfirm = async (entity_id: EntityIndex) => {
         const confirmEventOutpost: ConfirmEventOutpost = {
             account: account,
@@ -157,7 +151,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
                         <div className="test-query">
                             {arrOfEnt.map((ownedOutID, index) => (
                                 <React.Fragment key={index}>
-                                    <ListElement entityId={ownedOutID} reinforce_outpost={reinforceOutpost} currentBalance={reinforcementCount} goHereFunc={setCameraPos} phase={clientGameData.current_game_state} confirmEvent={callSingularEventConfirm} />
+                                    <ListElement entityId={ownedOutID} reinforce_outpost={reinforceOutpost} currentBalance={reinforcementCount} goHereFunc={setCameraPos} phase={clientGameData.current_game_state} confirmEvent={callSingularEventConfirm} contractComponents={contractComponents} clientComponents={clientComponents}/>
                                     {index < outpostAmountData.ownOutpostsQuery.length - 1 && dividingLine}
                                 </React.Fragment>
                             ))}
@@ -180,28 +174,23 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ setUIState, specificSe
     );
 };
 
-
 //HERE this needs to be slimmed down
 interface ListElementProps {
-    entityId: EntityIndex
-    reinforce_outpost: any
-    currentBalance: number
-    phase: number
-    goHereFunc: any
-    confirmEvent: any
+    entityId: EntityIndex;
+    reinforce_outpost: any;
+    currentBalance: number;
+    phase: number;
+    goHereFunc: any;
+    confirmEvent: any;
+    contractComponents: any;
+    clientComponents:any;
 }
 
-export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_outpost, currentBalance, goHereFunc, phase, confirmEvent }) => {
+export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_outpost, currentBalance, goHereFunc, phase, confirmEvent, contractComponents, clientComponents}) => {
     const [buttonIndex, setButtonIndex] = useState<number>(0)
     const [amountToReinforce, setAmountToReinforce] = useState<number>(1)
 
     const { clickWrapperRef, clickWrapperStyle } = useResizeableHeight(24, 4, "100%");
-
-    const {
-        networkLayer: {
-            network: { contractComponents, clientComponents }
-        },
-    } = useDojo();
 
     const outpostData: any = useComponentValue(contractComponents.Outpost, entityId);
     const revenantData: any = getComponentValueStrict(contractComponents.Revenant, entityId);

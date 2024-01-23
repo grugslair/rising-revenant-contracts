@@ -18,30 +18,18 @@ import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
 //pages
 
-/*notes
-    mostly finished just need to bring in the VRGDA so there is that to query
-    maybe the space between the counter and the button should be a little smaller
-
-    THERE IS ALSO THE FACT THAT IT DOESNT SCALE WELL AT ALL
-*/
 
 
 interface BuyReinforcementsPageProps {
     setMenuState: React.Dispatch<PrepPhaseStages>;
+    clientComponents: any;
+    contractComponents: any;
+    account: any;
+    purchase_reinforcement: any;
+    get_current_reinforcement_price: any;
 }
 
-const notify = (message: string) => toast(message, {
-    position: "top-left",
-    autoClose: 5000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-    theme: "dark",
-});
-
-export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ setMenuState }) => {
+export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({setMenuState, clientComponents, contractComponents, account, purchase_reinforcement, get_current_reinforcement_price}) => {
     const [reinforcementNumber, setReinforcementNumber] = useState(2);
     const [priceOfReinforcements, setPriceOfReinforcements] = useState<number>(5);
 
@@ -49,14 +37,6 @@ export const BuyReinforcementPage: React.FC<BuyReinforcementsPageProps> = ({ set
 
     const [text, setText] = useState("Reinforcements provide an additional extra life to your outpost, enhancing the player's ability to withstand hostile attacks");
     const [opacity, setOpacity] = useState(1);
-
-    const {
-        account: { account },
-        networkLayer: {
-            network: { clientComponents, contractComponents },
-            systemCalls: { purchase_reinforcement, get_current_reinforcement_price },
-        },
-    } = useDojo();
 
     // need here a useffect for the price of the reinforcements
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));

@@ -41,7 +41,6 @@ const notify = (message: string) => {
     });
 }
 
-
 interface TopBarPageProps {
     phaseNum: number;
     setGamePhase?: () => void;
@@ -49,9 +48,10 @@ interface TopBarPageProps {
     clientComponents: any;
     graphSdk:any;
     account:any;
+    get_current_block:any;
 }
 
-export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phaseNum, account, contractComponents,clientComponents,graphSdk }) => {
+export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phaseNum, account, contractComponents, clientComponents, graphSdk ,get_current_block}) => {
 
     const [playerContribScore, setPlayerContribScore] = useState(0);
     const [playerContribScorePerc, setPlayerContribScorePerc] = useState(0);
@@ -64,7 +64,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     const gameData = useComponentValue(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id)]));
 
     //event and player loader
-    useEventAndUserDataLoader();
+    useEventAndUserDataLoader(account, contractComponents, clientComponents, graphSdk, get_current_block);
     const  outpostCountData = useOutpostAmountData(clientComponents, contractComponents);
 
     // this should only be getting called when the user is active the moment the game switches from prep to game phase as the other oupost from other people are not loaded in 
@@ -226,18 +226,8 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     );
 };
 
-
-
 // this loads in the event and the specific player data
-const useEventAndUserDataLoader = (updateInterval = 5000) => {
-
-    const {
-        account: { account },
-        networkLayer: {
-            network: { contractComponents, clientComponents, graphSdk },
-            systemCalls: { get_current_block }
-        },
-    } = useDojo();
+const useEventAndUserDataLoader = ( account:any, contractComponents: any, clientComponents: any, graphSdk:any, get_current_block:any, updateInterval = 5000 ) => {
 
     useEffect(() => {
 

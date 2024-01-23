@@ -29,25 +29,20 @@ import { turnBigIntToAddress } from "../../utils";
 
 interface WinnerPageProps {
     setMenuState: React.Dispatch<React.SetStateAction<MenuState>>;
+    clientComponents: any;
+    contractComponents: any;
+    account: any;
+    claim_endgame_rewards: any;
+    claim_score_rewards: any;
 }
 
-export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
+export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState, clientComponents, contractComponents, account, claim_endgame_rewards, claim_score_rewards }) => {
     const [winningAddress, setWinningAddress] = React.useState<string>("");
 
     const closePage = () => {
         setMenuState(MenuState.NONE);
     };
 
-    const {
-        account: { account },
-        networkLayer: {
-            network: { contractComponents,clientComponents },
-            systemCalls:{claim_endgame_rewards, claim_score_rewards}
-        },
-    } = useDojo();
-
-    // const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
-    // const totalOutposts = useEntityQuery([Has(contractComponents.Outpost)]);
     const outpostAmountData = useOutpostAmountData(clientComponents, contractComponents);
     const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
@@ -80,7 +75,6 @@ export const WinnerPage: React.FC<WinnerPageProps> = ({ setMenuState }) => {
 
         await claim_endgame_rewards(props);
     }
-
     const claimScoreRewards = async () => {
 
         const props: ClaimScoreRewards = {

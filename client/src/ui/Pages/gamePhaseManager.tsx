@@ -75,7 +75,7 @@ export const GamePhaseManager = () => {
     account: { account },
     networkLayer: {
       network: { contractComponents, clientComponents, graphSdk },
-      systemCalls: { create_event }
+      systemCalls: { create_event, reinforce_outpost, confirm_event_outpost, claim_endgame_rewards, claim_score_rewards, get_current_block }
     }
   } = useDojo();
 
@@ -120,10 +120,8 @@ export const GamePhaseManager = () => {
   // this needs to be delete from demo and only visible locally
 
   const handleDragStart = () => {
-    console.log('Dragging started!');
   };
   const handleDragEnd = () => {
-    console.log('Dragging ended!');
   };
   const checkIfClickInEvent = (overEvent: boolean) => {
     if (overEvent) {
@@ -174,7 +172,7 @@ export const GamePhaseManager = () => {
           <img src='Page_Bg/VALIDATE_EVENT_BG.png' className='brightness-down' style={{ position: 'absolute', top: "0", left: "0", aspectRatio: "1.7/1", width: "100%", height: "100%" }}></img>}
 
         <div className='main-page-topbar' style={{ position: "relative" }}>
-           <TopBarComponent phaseNum={2} clientComponents={clientComponents} contractComponents={contractComponents} graphSdk={graphSdk} account={account}/>
+           <TopBarComponent phaseNum={2} clientComponents={clientComponents} contractComponents={contractComponents} graphSdk={graphSdk} account={account} get_current_block={get_current_block}/>
         </div>
 
         {/* enable for middle of the screen crosshair */}
@@ -184,7 +182,7 @@ export const GamePhaseManager = () => {
           {
             currentMenuState === MenuState.PROFILE && (
               <div className='page-container'>
-                <ProfilePage setUIState={closePage} specificSetState={setCurrentMenuState} />
+                <ProfilePage setUIState={closePage} specificSetState={setCurrentMenuState} clientComponents={clientComponents} contractComponents={contractComponents} account={account} reinforce_outpost={reinforce_outpost}/>
               </div>
             )
           }
@@ -226,13 +224,13 @@ export const GamePhaseManager = () => {
           {
             currentMenuState === MenuState.WINNER && (
               <div className='page-container'>
-                <WinnerPage setMenuState={setCurrentMenuState} />
+                <WinnerPage setMenuState={setCurrentMenuState} clientComponents={clientComponents} contractComponents={contractComponents} claim_endgame_rewards={claim_endgame_rewards} claim_score_rewards={claim_score_rewards} account={account}/>
               </div>
             )
           }
           {
             currentMenuState === MenuState.EVENT && (
-              <EventConfirmPage setUIState={closePage} setBackground={setShowBackground} />
+              <EventConfirmPage setUIState={closePage} setBackground={setShowBackground} clientComponents={clientComponents} contractComponents={contractComponents} confirm_event_outpost={confirm_event_outpost} account={account} camera={camera}/>
             )
           }
           {
@@ -253,7 +251,7 @@ export const GamePhaseManager = () => {
       {currentMenuState === MenuState.NONE && <>
         <MouseInputManagerDiv onDragEnd={handleDragEnd} onDragStart={handleDragStart} onNormalClick={checkIfClickInEvent} clientComponents={clientComponents} contractComponents={contractComponents} camera={camera}/>
         <JurnalEventComponent setMenuState={setCurrentMenuState} contractComponents={contractComponents} clientComponents={clientComponents}/>
-        <OutpostTooltipComponent />
+        <OutpostTooltipComponent clientComponents={clientComponents} contractComponents={contractComponents} confirm_event_outpost={confirm_event_outpost} account={account} graphSdk={graphSdk}/>
         <MinimapComponent camera={camera} clientComponents={clientComponents} contractComponents={contractComponents}/>
 
         {outpostData.outpostsLeftNumber === 1 &&
@@ -271,7 +269,7 @@ export const GamePhaseManager = () => {
         }
       </>}
 
-      {showEventButton && currentMenuState === MenuState.NONE && <ClickWrapper className='fire-button pointer' onClick={() => createEvent()}>Summon Event</ClickWrapper>}
+      {/* {showEventButton && currentMenuState === MenuState.NONE && <ClickWrapper className='fire-button pointer' onClick={() => createEvent()}>Summon Event</ClickWrapper>} */}
     </>
   );
 }

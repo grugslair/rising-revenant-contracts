@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { getComponentValueStrict } from "@latticexyz/recs";
 
 import { useComponentValue } from "@latticexyz/react";
-import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 

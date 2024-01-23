@@ -19,10 +19,13 @@ import { generateRandomNumber } from "../../utils";
 
 interface BuyRevenantPageProps {
     setMenuState: React.Dispatch<PrepPhaseStages>;
+    clientComponents: any;
+    contractComponents: any;
+    account: any;
+    create_revenant: any;
 }
 
-
-export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }) => {
+export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState, clientComponents, contractComponents, account, create_revenant }) => {
     const [revenantNumber, setRevenantNumber] = useState(5);
     const [revenantCost, setRevenantCost] = useState(10);
 
@@ -31,14 +34,6 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState }
     const [backgroundImage, setBackgroundImage] = useState(1);
     const [text, setText] = useState("Summoning a Revenant will allow you to call forth a powerful ally from the realm of the undead");
     const [opacity, setOpacity] = useState(1);
-
-    const {
-        account: { account },
-        networkLayer: {
-            network: { contractComponents, clientComponents },
-            systemCalls: { create_revenant },
-        },
-    } = useDojo();
 
     const ownReveants = useEntityQuery([HasValue(contractComponents.Outpost, { owner: account.address })]);
 

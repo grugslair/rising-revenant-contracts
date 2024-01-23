@@ -16,20 +16,17 @@ import { fetchSpecificOutRevData, namesArray, setComponentsFromGraphQlEntitiesHM
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
 
-interface OutpostTooltipProps { }
+interface OutpostTooltipProps { 
+  confirm_event_outpost:any;
+  contractComponents: any;
+  clientComponents: any;
+  graphSdk: any;
+  account: any;
+}
 
-export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
+export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({contractComponents, clientComponents, graphSdk, account, confirm_event_outpost }) => {
   const [clickedOnOutposts, setClickedOnOutposts] = useState<any>([]);
   const [selectedIndex, setSelectedIndex] = useState<any>(0);
-
-  const {
-    networkLayer: {
-      systemCalls: {
-        confirm_event_outpost
-      },
-      network: { contractComponents, clientComponents, graphSdk },
-    },
-  } = useDojo();
 
   const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
   const selectedOutpost = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { selected: true })], { updateOnValueChange: false, });
@@ -51,7 +48,6 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
 
     setSelectedIndex(newIndex);
   }
-
   const setArray = async (selectedOutposts: any[]) => {
 
     for (let index = 0; index < clickedOnOutposts.length; index++) {
@@ -78,9 +74,7 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
 
     updateComponent(clientComponents.ClientOutpostData, selectedOutposts[0], { selected: true });
   }
-
   const desmountComponentAction = () => {
-    // const entitiesAtTileIndex = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { selected: true })]));
     const entitiesAtTileIndex = getEntitiesWithValue(clientComponents.ClientOutpostData, {selected: true});
 
     if (entitiesAtTileIndex.length > 0) {
@@ -98,7 +92,6 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
 
   }, [clickedOnOutposts]);
 
-
   useEffect(() => {
 
     return () => {
@@ -115,12 +108,19 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
         <OutpostDataElement
           entityId={selectedOutpost[0]}
           functionEvent={confirm_event_outpost}
-          functionClose={setArray} />
+          functionClose={setArray} 
+          clientComponents={clientComponents}
+          contractComponents={contractComponents}
+          account={account}
+          />
       )}
 
       {selectedOutpost[0] !== undefined && (
         <RevenantDataElement
-          entityId={selectedOutpost[0]} />
+          entityId={selectedOutpost[0]}
+          contractComponents={contractComponents}
+          account={account} 
+        />
       )}
 
       {clickedOnOutposts.length > 1 && (
@@ -145,17 +145,10 @@ export const OutpostTooltipComponent: React.FC<OutpostTooltipProps> = ({ }) => {
   );
 };
 
-const RevenantDataElement: React.FC<{ entityId: EntityIndex }> = ({ entityId }) => {
+const RevenantDataElement: React.FC<{ entityId: EntityIndex, account :any, contractComponents :any }> = ({ entityId, account, contractComponents }) => {
 
   const [owner, setOwner] = useState<string>("");
   const [name, setName] = useState<string>("");
-
-  const {
-    account: { account },
-    networkLayer: {
-      network: { contractComponents },
-    },
-  } = useDojo();
 
   const revenantData: any = useComponentValue(contractComponents.Revenant, entityId);
 
@@ -184,7 +177,7 @@ const RevenantDataElement: React.FC<{ entityId: EntityIndex }> = ({ entityId }) 
   );
 };
 
-const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, functionClose }> = ({ entityId, functionEvent, functionClose }) => {
+const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, functionClose, clientComponents, contractComponents, account  }> = ({ entityId, functionEvent, functionClose, clientComponents, contractComponents, account }) => {
 
   const [position, setPosition] = useState<any>({ x: 0, y: 0 });
   const [reinforcements, setReinforcements] = useState<number>(0);
@@ -195,13 +188,6 @@ const OutpostDataElement: React.FC<{ entityId: EntityIndex, functionEvent, funct
   const [heightValue, setHeight] = useState<number>(0)
 
   const clickWrapperRef = useRef<HTMLDivElement>(null);
-
-  const {
-    account: { account },
-    networkLayer: {
-      network: { contractComponents, clientComponents },
-    },
-  } = useDojo();
 
   const clientOutpostData = useComponentValue(clientComponents.ClientOutpostData, entityId);
   const contractOutpostData = useComponentValue(contractComponents.Outpost, entityId);

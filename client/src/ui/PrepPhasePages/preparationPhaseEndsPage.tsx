@@ -4,7 +4,6 @@ import { PrepPhaseStages } from "./prepPhaseManager";
 import { getComponentValueStrict } from "@latticexyz/recs";
 
 import { ClickWrapper } from "../clickWrapper";
-import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 
 //styles
@@ -17,23 +16,15 @@ import { useLeftBlockCounter } from "../Elements/leftBlockCounterElement";
 
 //pages
 
-/*notes
-    this page is fine 
-*/
-
 interface PrepPhaseEndsPageProps {
     setMenuState: React.Dispatch<PrepPhaseStages>;
+    contractComponents: any;
+    clientComponents: any;
 }
 
-export const PrepPhaseEndsPage: React.FC<PrepPhaseEndsPageProps> = ({ setMenuState }) => {
+export const PrepPhaseEndsPage: React.FC<PrepPhaseEndsPageProps> = ({setMenuState, contractComponents, clientComponents}) => {
     const [showBlocks, setShowBlocks] = useState(true);
     const [freeRevs, setFreeRevs] = useState<number>(10);
-
-    const {
-        networkLayer: {
-          network: { contractComponents, clientComponents }
-        },
-      } = useDojo();
 
     const clientGame = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     
