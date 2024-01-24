@@ -19,15 +19,17 @@ enum SortingMethods {
   SELLER_ADDR,
 };
 
+//THE PRICE QUERY STOPED WORKING FOR SOME REASON
+
 const items = [
   {
     label: 'Latest',
     key: "1",
   },
-  {
-    label: 'Price',
-    key: "2",
-  },
+  // {
+  //   label: 'Price',
+  //   key: "2",
+  // },
   {
     label: 'Reinforcement',
     key: "3",
@@ -39,7 +41,7 @@ const items = [
 ];
 
 
-// first index is for the price or reinf
+// first index is for the price or reinf count
 // second is for the address DOESNT WORK
 // third is the latest
 
@@ -86,7 +88,7 @@ const graphqlStructureForReinforcements = [
       where: { 
         game_id: GAME_ID,
         status:1,
-        sellet: SELLER
+        seller: SELLER
       }
     ) {
       edges {
@@ -161,8 +163,10 @@ export const ReinforcementTradeWindow: React.FC = () => {
   const [lastGraphQLQuery, setLastGraphQLQuery] = useState<string>("");
 
   const {
+    account:{account},
     networkLayer: {
-      network: { clientComponents }
+      network: { clientComponents },
+      systemCalls: { revoke_trade_reinf, modify_trade_reinf, purchase_reinforcement},
     },
   } = useDojo();
 
@@ -182,7 +186,7 @@ export const ReinforcementTradeWindow: React.FC = () => {
     }, 10000);
 
     return () => clearInterval(intervalId);
-  }, [lastGraphQLQuery]);
+  }, [lastGraphQLQuery,refresh]);
 
   // this gets called when the new sorting method is called
   const onClick = ({ key }) => {
@@ -209,10 +213,11 @@ export const ReinforcementTradeWindow: React.FC = () => {
       throw error;
     }
   }
+
   const createGraphQlRequestGTELTE = (nameOfVar: string, maxVal: number, minVal: number) => {
     // Extract the GraphQL structure at the specified index
     if (maxVal! <= minVal!) { return; }
-
+    setRefresh(!refresh);
     const selectedStructure = graphqlStructureForReinforcements[0];
 
     let graphqlRequest = "";
@@ -231,13 +236,15 @@ export const ReinforcementTradeWindow: React.FC = () => {
 
     setLastGraphQLQuery(graphqlRequest);
   };
-
   const createGraphQlRequestLATEST = () => {
+    setRefresh(!refresh);
+
     const selectedStructure = graphqlStructureForReinforcements[2];
 
     const graphqlRequest = selectedStructure
       .replace('NUM_DATA', "25")
-      .replace('GAME_ID', clientGameData.current_game_id.toString())
+      .replace('GAME_ID', clientGameData.current_game_id.toString());
+
     setLastGraphQLQuery(graphqlRequest);
   };
 
@@ -279,7 +286,7 @@ export const ReinforcementTradeWindow: React.FC = () => {
           </div>
 
           {selectedSortingMethod === "1" && <>
-            <h4 className="global-button-style invert-colors  invert-colors no-margin test-h4" style={{ gridRow: "9", gridColumn: "1/3", height: "fit-content", width: "fit-content", marginLeft: "auto", marginTop: "auto", padding: "2px 5px" }} onClick={() => setRefresh(!refresh)}>Refresh latest trades</h4>
+            <h4 className="global-button-style invert-colors  invert-colors no-margin test-h4" style={{boxSizing:"border-box", gridRow: "9", gridColumn: "1/3", height: "fit-content", width: "fit-content", marginLeft: "auto", marginTop: "auto", padding: "2px 5px" }} onClick={() => createGraphQlRequestLATEST()}>Refresh latest trades</h4>
           </>}
 
           {selectedSortingMethod === "2" && <>
@@ -300,7 +307,7 @@ export const ReinforcementTradeWindow: React.FC = () => {
               <InputNumber min={minValue!} max={1000} value={maxValue} onChange={setMaxValue} placeholder="Max price" style={{ backgroundColor: "white", height: "70%", width: "100%", fontSize: "1rem" }} />
             </div>
 
-            <h4 className="global-button-style invert-colors  invert-colors no-margin test-h4" style={{ gridRow: "9", gridColumn: "1/3", height: "fit-content", width: "fit-content", marginLeft: "auto", marginTop: "auto", padding: "2px 5px" }} onClick={() => createGraphQlRequestGTELTE("price", maxValue!, minValue!)}>Refresh latest trades</h4>
+            <h4 className="global-button-style invert-colors  invert-colors no-margin test-h4" style={{boxSizing:"border-box", gridRow: "9", gridColumn: "1/3", height: "fit-content", width: "fit-content", marginLeft: "auto", marginTop: "auto", padding: "2px 5px" }} onClick={() => createGraphQlRequestGTELTE("price", maxValue!, minValue!)}>Refresh latest trades</h4>
           </>}
 
           {selectedSortingMethod === "3" && <>
@@ -321,7 +328,7 @@ export const ReinforcementTradeWindow: React.FC = () => {
                 <Slider range value={sliderValue} min={1} max={20} onChange={onSliderChange} style={{}} />
               </>
             </div>
-            <h4 className="global-button-style invert-colors  invert-colors no-margin test-h4" style={{ gridRow: "9", gridColumn: "1/3", height: "fit-content", width: "fit-content", marginLeft: "auto", marginTop: "auto", padding: "2px 5px" }} onClick={() => createGraphQlRequestGTELTE("count", sliderValue[1], sliderValue[0])}>Refresh latest trades</h4>
+            <h4 className="global-button-style invert-colors  invert-colors no-margin test-h4" style={{boxSizing:"border-box", gridRow: "9", gridColumn: "1/3", height: "fit-content", width: "fit-content", marginLeft: "auto", marginTop: "auto", padding: "2px 5px" }} onClick={() => createGraphQlRequestGTELTE("count", sliderValue[1], sliderValue[0])}>Refresh latest trades</h4>
           </>}
         </div>
 
@@ -329,7 +336,12 @@ export const ReinforcementTradeWindow: React.FC = () => {
       <div style={{ height: "100%", width: "2%" }}></div>
       <div style={{ height: "100%", width: "60%", overflowY: "auto" }}>
         {tradeList.map((trade: TradeEdge, index: number) => {
-          return <ReinforcementListingElement trade={trade.node?.entity} showOthers={!showOthersTrades} showOwn={!showYourTrades} key={index} />;
+          return <ReinforcementListingElement trade={trade.node?.entity} showOthers={!showOthersTrades} 
+          showOwn={!showYourTrades} playerWalletAmount={4} 
+          account={account} revoke_trade_reinf={revoke_trade_reinf}
+          modify_trade_reinf={modify_trade_reinf} clientComponents={clientComponents} 
+          purchase_trade_reinf={purchase_reinforcement}
+          key={index} />;
         })}
 
       </div>

@@ -34,32 +34,32 @@ import CustomSlider from "../Elements/sliderElement";
 
 interface SettingPageProps {
     setUIState: () => void;
-    clientComponents:any;
-    contractComponents:any;
+    clientComponents: any;
+    contractComponents: any;
 }
 
-export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState,clientComponents,contractComponents }) => {
+export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState, clientComponents, contractComponents }) => {
 
 
     const clientTransactionsQuery = useEntityQuery([Has(clientComponents.ClientTransaction)], {
-        updateOnValueChange: false, 
+        updateOnValueChange: false,
     });
 
     return (
         <div className="game-page-container">
             <img className="page-img brightness-down" src="Page_Bg/SETTINGS_PAGE_BG.png" alt="testPic" />
 
-            <PageTitleElement imagePosition={ImagesPosition.RIGHT} name={"SETTINGS"} rightPicture={"close_icon.svg"} rightImageFunction={setUIState} />
+            <PageTitleElement imagePosition={ImagesPosition.RIGHT} name={"SETTINGS"} rightPicture={"Icons/close_icon.png"} rightImageFunction={setUIState} />
 
             <ClickWrapper style={{ position: "relative", width: "100%", height: "75%", display: "flex", flexDirection: "row", boxSizing: "border-box", color: "white" }}>
                 <div style={{ flex: "1.5", height: "100%" }}></div>
-                {/* this should really be a grid this margin 10px is dumb */}
+
                 <div style={{ flex: "8", display: "grid", gridTemplateColumns: "1fr", gridGap: "30px", height: "100%", overflowY: "auto", scrollbarGutter: "stable both-edges", paddingRight: "1%" }}>
-                    <h1 className="test-h1-5" style={{ textDecoration: "underline", height:"110%", marginTop:"0px" }}>Game</h1>
+                    <h1 className="test-h1-5" style={{ textDecoration: "underline", height: "fit-content", marginTop:"0px", marginBottom: "10px", gridRow: "span 1" }}>Game</h1>
                     <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Turn off warning system" />
                     <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Volume" />
                     <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Update interval" />
-                    <h1 className="test-h1-5" style={{ textDecoration: "underline", height:"110%" }}>Phaser</h1>
+                    <h1 className="test-h1-5" style={{ textDecoration: "underline", height: "110%", marginBottom: "10px", gridRow: "span 2" }}>Phaser</h1>
                     <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Camera Speed" />
                     <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Zoom Multiplier" />
                     <SettingCheckboxElement component={clientComponents.ClientOutpostViewSettings} variable="hide_others_outposts" text="Hide other's outposts" />
@@ -80,7 +80,7 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState,clientComp
 
                     <div style={{ height: "92%", width: "100%", padding: "3% 2%", boxSizing: "border-box", overflowY: "auto", scrollbarGutter: "stable both-edges", border: "2px solid var(--borderColour)" }}>
                         {clientTransactionsQuery.map((transactionId, index) => (
-                            <TransactionDataElement key={index} entityId={transactionId} clientComponents={clientComponents}/>
+                            <TransactionDataElement key={index} entityId={transactionId} clientComponents={clientComponents} />
                         ))}
                     </div>
                 </div>
@@ -91,7 +91,7 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState,clientComp
 };
 
 
-export const TransactionDataElement: React.FC<{ entityId, clientComponents }> = ({ entityId,clientComponents }) => {
+export const TransactionDataElement: React.FC<{ entityId, clientComponents }> = ({ entityId, clientComponents }) => {
 
     const transactionData = useComponentValue(clientComponents.ClientTransaction, entityId);
 
@@ -157,12 +157,13 @@ export const SettingSliderElement: React.FC<SettingSliderElementProps> = ({ comp
     }, [isSliderDragging])
 
     return (
-        <ClickWrapper className="settings-option-hover" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexDirection: "row", height: "fit-content", width: "100%", ...containerStyle }}>
+        // settings-option-hover
+        <ClickWrapper className="" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexDirection: "row", height: "fit-content", width: "100%", ...containerStyle }}>
             <h2 className="test-h2 no-margin">{text}</h2>
-            <CustomSlider 
-                minValue={minVal} 
-                maxValue={maxVal} 
-                startingValue={sliderValue} 
+            <CustomSlider
+                minValue={minVal}
+                maxValue={maxVal}
+                startingValue={sliderValue}
                 onChange={handleSliderChange}
                 containerStyle={{ width: "100px", height: "clamp(0.5rem, 0.5vw + 0.5rem, 4rem)", display: "flex", justifyContent: "center", alignItems: "center" }}
                 trackStyle={{ width: "100%", height: "60%", background: "linear-gradient(to bottom, white 25%, gray 100%)", borderRadius: "5px" }}
@@ -170,7 +171,7 @@ export const SettingSliderElement: React.FC<SettingSliderElementProps> = ({ comp
                 precision={0}
                 showVal={true}
                 onDrag={(isDragging) => setIsSliderDragging(isDragging)}
-         
+
             />
         </ClickWrapper>
     );
@@ -197,10 +198,11 @@ export const SettingCheckboxElement: React.FC<SettingCheckboxElementProps> = ({ 
     }, [checkbox]);
 
     return (
-        <ClickWrapper className="settings-option-hover" style={{ display: "flex", justifyContent: "space-between", flexDirection: "row", height: "fit-content", width: "100%", ...containerStyle }}>
-            <h2 className="test-h2 no-margin">{text}</h2>
+        // settings-option-hover
+        <ClickWrapper className="" style={{ display: "flex", justifyContent: "space-between", alignItems:"center", flexDirection: "row", height: "fit-content", width: "100%", ...containerStyle }}>
+            <h2 className="test-h2 no-margin" >{text}</h2>
             <div onClick={() => setCheckbox(!checkbox)} className="pointer center-via-flex" style={{ height: "clamp(0.8rem, 0.7vw + 0.7rem, 7rem)", aspectRatio: "1/1", borderRadius: "5px", background: "linear-gradient(to bottom, white 25%, gray 100%)" }} >
-                {checkbox && <img src="Icons/tick.svg" alt="" style={{ width: "100%", height: "100%", margin: "10%", boxSizing: "border-box" }} />}  
+                {checkbox && <img src="Icons/tick.svg" alt="" style={{ width: "100%", height: "100%", margin: "10%", boxSizing: "border-box" }} />}
             </div>
         </ClickWrapper>
     );

@@ -144,7 +144,7 @@ export const SellReinforcementTradeWindow: React.FC = () => {
                 <div style={{ gridRow: "4/5", gridColumn: "1/6" }}>
                     <h2 className="test-h2 no-margin">Set a Price</h2>
                 </div>
-                <div style={{ gridRow: "5/6", gridColumn: "1/6" }}>
+                <div style={{ gridRow: "5/8", gridColumn: "1/6" }}>
 
                     <ConfigProvider
                         theme={{
@@ -156,11 +156,11 @@ export const SellReinforcementTradeWindow: React.FC = () => {
                     >
                         <InputNumber min={1} max={50} value={priceValue} onChange={setPriceValue} style={{ backgroundColor: "#131313", borderColor: "#2D2D2D", width: "60%", height: "fit-content" }} />
                     </ConfigProvider>
-
-                </div>
-                <div style={{ gridRow: "6/7", gridColumn: "1/6", width: "100%", height: "100%", display: "flex", justifyContent: "center" }}>
                     <h4 className="no-margin test-h4" style={{ marginTop: "auto", marginRight: "auto" }}> current Active Trades: {numberOfCurrentTrades}</h4>
                 </div>
+                {/* <div style={{ gridRow: "7/8", gridColumn: "1/6", width: "100%", height: "100%", display: "flex", justifyContent: "center" }}>
+                    
+                </div> */}
 
                 <div style={{ gridRow: "9/10", gridColumn: "1/6", display: "flex", justifyContent: "flex-end" }}>
                     <div className="global-button-style invert-colors " style={{ marginTop: "auto", padding:"2px 5px" }} onClick={confirmCreationOfOrder}>Confirm</div>

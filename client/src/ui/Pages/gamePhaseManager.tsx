@@ -258,7 +258,7 @@ export const GamePhaseManager = () => {
           <ClickWrapper style={{ position: 'absolute', width: "40%", height: "20%", transform: "translate(-50%, 0%)", bottom: "4%", left: "50%", zIndex: 20, color: "white" }}>
             <div style={{ width: "100%", height: "75%", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
               <h1 className='no-margin test-h1' style={{ fontFamily: "Zelda" }}>GAME HAS ENDED</h1>
-              <h1 className='no-margin test-h1' style={{ fontFamily: "Zelda" }}>ARE YOU THE RISING REVENANT</h1>
+              <h1 className='no-margin test-h1' style={{ fontFamily: "Zelda" }}>ARE YOU THE RISING REVENANT?</h1>
             </div>
             <div style={{ width: "100%", height: "25%", display: 'flex', justifyContent: "center", alignItems: "flex-start" }}>
               <div className='global-button-style'>

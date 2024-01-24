@@ -209,9 +209,10 @@ export const ListElement: React.FC<ListElementProps> = ({ entityId, reinforce_ou
         }
 
     }, [amountToReinforce, buttonIndex]);
+    // ${clientOutpostData.event_effected && outpostData.lifes > 0 ? ' profile-page-attacked-style' : ''}
 
     return (
-        <div ref={clickWrapperRef} className={`profile-page-grid-container ${clientOutpostData.event_effected && outpostData.lifes > 0 ? ' profile-page-attacked-style' : ''}`} style={clickWrapperStyle} onMouseEnter={() => setButtonIndex(1)} onMouseLeave={() => setButtonIndex(0)}>
+        <div ref={clickWrapperRef} className={`profile-page-grid-container `} style={clickWrapperStyle} onMouseEnter={() => setButtonIndex(1)} onMouseLeave={() => setButtonIndex(0)}>
             <div className="pfp">
                 <img src={revenantsPicturesLinks[mapEntityToImage(clientOutpostData!.id, namesArray[revenantData.first_name_idx], 25)]} className="child-img " />
             </div>

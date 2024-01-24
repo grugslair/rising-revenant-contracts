@@ -306,7 +306,7 @@ export function createSystemCalls(
                 getEvents(receipt)
             );
 
-            notify('Creating Reinforcement Trades', receipt);
+            notify('Revoking Reinforcement Trade', receipt);
 
             if (receipt.execution_status! == 'REVERTED') {
                 const rejectReason = extractErrorReason(receipt.revert_reason);

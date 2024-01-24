@@ -181,7 +181,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                                         <h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Total contribution game score: {gameEntityCounter!.score_count}</h4>
                                         <h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Your contribution score count: {playerContribScore}</h4></>}>
 
-                                        <div style={{ fontSize: "1.2vw" }}>Contribution: {playerContribScorePerc}%</div>
+                                        <div style={{ fontSize: "1.2vw" }}>Contribution: {((playerContribScore / gameEntityCounter!.score_count) * 100).toFixed(2)}%</div>
                                     </Tooltip>
                                 )} </>)}
                         </div>
