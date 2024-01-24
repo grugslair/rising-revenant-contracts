@@ -73,7 +73,7 @@ export const PhaseManager = () => {
       <ClickWrapper style={{ position: "absolute", bottom: "5px", left: "5px", fontFamily: "OL", fontSize: "0.5vw", color: "white" }} className="opacity-login-screen">
         Date of Version: 24th Jan<br />
         Branch: dev<br />
-        Pull: query fixes and more settings fixes<br />
+        Pull: Demo 1<br />
         FPS: {fps}
       </ClickWrapper>
 
