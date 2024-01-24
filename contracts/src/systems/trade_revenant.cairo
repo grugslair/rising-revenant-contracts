@@ -108,15 +108,15 @@ mod trade_revenant_actions {
             assert(outpost.lifes > 0, 'outpost has been destoryed');
 
             // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
-            let seller_amount: u128 = trade.price * 95 / 100;
-            let contract_amount: u128 = trade.price - seller_amount.into();
+            let fee_amount: u128 = trade.price / 100 * game.transaction_fee_percent.into();
+            let seller_amount: u128 = trade.price - fee_amount.into();
 
             // let result = erc20
             //     .transfer_from(sender: player, recipient: trade.seller, amount: seller_amount);
             // assert(result, 'need approve for erc20');
             // let result = erc20
             //     .transfer_from(
-            //         sender: player, recipient: game.reward_pool_addr, amount: contract_amount
+            //         sender: player, recipient: game.reward_pool_addr, amount: fee_amount
             //     );
             // assert(result, 'need approve for erc20');
 
@@ -179,7 +179,6 @@ mod trade_revenant_tests {
         Revenant, RevenantStatus, RevenantImpl, RevenantTrait
     };
     use realmsrisingrevenant::components::trade_revenant::{TradeRevenant, TradeStatus};
-
 
     #[test]
     #[available_gas(3000000000)]

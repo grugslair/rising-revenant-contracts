@@ -7,8 +7,8 @@ version = "0.2.3"
 sierra-replace-ids = true
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.3.15" }
-origami = { git = "https://github.com/dojoengine/origami.git", rev = "eb52cb6c4cc3ab86fa695606d269bc9143ae8a29" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.5.0" }
+origami = { git = "https://github.com/dojoengine/origami.git" }
 openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", rev = "a8edfb80987c9b2e758e5e4d6763b8f8789d3e94" }
 
 [[target.dojo]]
@@ -19,9 +19,9 @@ initializer_class_hash = "0xbeef"
 [tool.dojo.env]
 
 # local
-#rpc_url = "http://localhost:5050"
-#account_address = "0x517ececd29116499f4a1b64b094da79ba08dfd54a3edaa316134c41f8160973"
-#private_key = "0x1800000000300000180000000000030000000000003006001800006600"
+# rpc_url = "http://localhost:5050"
+# account_address = "0x6162896d1d7ab204c7ccac6dd5f8e9e7c25ecd5ae4fcb4ad32e57786bb46e03"
+# private_key = "0x1800000000300000180000000000030000000000003006001800006600"
 #world_address = ""
 
 # slot

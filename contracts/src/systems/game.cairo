@@ -10,6 +10,10 @@ trait IGameActions<TContractState> {
         reward_pool_addr: ContractAddress,
         revenant_init_price: u128,
         max_amount_of_revenants: u32,
+        // The percentage of the transaction fee charged during a trade. 5 means 95% trades goes to the player and 5% to the jackpot
+        transaction_fee_percent: u32,
+        // The percentage of the prize pool allocated to the champion. 85 means 85% to jackpot and 15% to contribution
+        champion_prize_percent: u32,
     ) -> u32;
     fn get_current_block(self: @TContractState) -> u64;
     fn refresh_status(self: @TContractState, game_id: u32);
@@ -35,10 +39,15 @@ mod game_actions {
             reward_pool_addr: ContractAddress,
             revenant_init_price: u128,
             max_amount_of_revenants: u32,
+            transaction_fee_percent: u32,
+            champion_prize_percent: u32,
         ) -> u32 {
             let world = self.world_dispatcher.read();
             let mut game_tracker = get!(world, GAME_CONFIG, (GameTracker));
             let game_id = game_tracker.count + 1; // game id increment
+
+            assert(transaction_fee_percent < 100, 'invalid transaction fee');
+            assert(champion_prize_percent < 100, 'invalid champion prize');
 
             let start_block_number = get_block_info().unbox().block_number; // blocknumber
             let prize = 0; // total prize
@@ -54,6 +63,8 @@ mod game_actions {
                 reward_pool_addr,
                 revenant_init_price,
                 status,
+                transaction_fee_percent,
+                champion_prize_percent,
                 rewards_claim_status: 0,
                 max_amount_of_revenants: max_amount_of_revenants,
             };
@@ -88,7 +99,7 @@ mod game_actions {
             game.assert_existed();
             game.refresh_status(world);
         }
-        
+
 
         fn get_current_block(self: @ContractState) -> u64 {
             let start_block_number = get_block_info().unbox().block_number; // blocknumber

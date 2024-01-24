@@ -36,6 +36,8 @@ use starknet::{ContractAddress, syscalls::deploy_syscall};
 const EVENT_BLOCK_INTERVAL: u64 = 3;
 const PREPARE_PHRASE_INTERVAL: u64 = 10;
 const REVENENT_INIT_PRICE: u128 = 0;
+const TRANSACTION_FEE_PERCENT: u32 = 5;
+const CHAMPION_PRIZE_PERCENT: u32 = 85;
 
 #[derive(Copy, Drop)]
 struct DefaultWorld {
@@ -141,6 +143,8 @@ fn _init_game() -> (DefaultWorld, u32) {
             world.revenant_action.contract_address,
             REVENENT_INIT_PRICE,
             1000,
+            TRANSACTION_FEE_PERCENT,
+            CHAMPION_PRIZE_PERCENT,
         );
 
     (world, game_id)

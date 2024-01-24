@@ -20,6 +20,10 @@ struct Game {
     rewards_claim_status: u32,
     status: u32,
     max_amount_of_revenants: u32,
+    // The percentage of the transaction fee charged during a trade. 5 means 95% trades goes to the player and 5% to the jackpot
+    transaction_fee_percent: u32,
+    // The percentage of the prize pool allocated to the champion. 85 means 85% to jackpot and 15% to contribution
+    champion_prize_percent: u32,
 }
 
 // Config Components ---------------------------------------------------------------------

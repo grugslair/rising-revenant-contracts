@@ -8,10 +8,10 @@ procs:
       http_proxy:
       https_proxy:
       all_proxy:
-    shell: sozo build && sozo migrate --rpc-url http://localhost:5050 --private-key 0x1800000000300000180000000000030000000000003006001800006600 --account-address 0x517ececd29116499f4a1b64b094da79ba08dfd54a3edaa316134c41f8160973 && torii --world $(cat ./target/dev/manifest.json | jq -r '.world.address')
+    shell: sozo build && sozo migrate --rpc-url http://localhost:5050 --private-key 0x1800000000300000180000000000030000000000003006001800006600 --account-address 0x6162896d1d7ab204c7ccac6dd5f8e9e7c25ecd5ae4fcb4ad32e57786bb46e03 && torii --world $(cat ./target/dev/manifest.json | jq -r '.world.address')
   create_game:
-    shell: sozo execute $(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "game_actions" ).address') create --calldata 100,10,0,0,0,1000
+    shell: sozo execute $(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "realmsrisingrevenant::systems::game::game_actions" ).address') create --calldata 100,10,0,0,0,1000,5,85
     autostart: false
   create_revenant:
-    shell: sozo execute $(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "revenant_actions" ).address') create --calldata 1,5
+    shell: sozo execute $(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "realmsrisingrevenant::systems::revenant::revenant_actions" ).address') create --calldata 1,5
     autostart: false 
