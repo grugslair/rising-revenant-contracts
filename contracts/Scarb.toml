@@ -25,10 +25,9 @@ initializer_class_hash = "0xbeef"
 
 # slot
 rpc_url = "https://api.cartridge.gg/x/rr-demo/katana"
-account_address = "0x514a4f8042a60d8107244c83afb71b1030d18293512e725fb126abed4d507c"
-private_key = "0x1ccd4cd49cc4d511ca10f4890ba4a9f19b48a55ac22840ca206dbbc3fd97e92"
+account_address = "0x2182b210ac4d3fc316ffda7022f1a577fb62826bf7b3c9542cc5be528793e40"
+private_key = "0x24ecf51cfcbd152ea0a9c844624b1713c23dd9897f25d094560edf1bbb1815d"
 #world_address = "0x4093d0743e76913eb1a6458662c34971e5edfc95aa93b307eaf1b12ffbac397"
-
 
 [tool.fmt]
 sort-module-level-items = true
