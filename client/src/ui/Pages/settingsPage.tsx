@@ -10,7 +10,6 @@ import PageTitleElement, { ImagesPosition } from "../Elements/pageTitleElement";
 import { ClickWrapper } from "../clickWrapper";
 import { Tooltip } from "@mui/material";
 import { GAME_CONFIG_ID, setRefreshOwnOutpostDataTimer } from "../../utils/settingsConstants";
-import { useDojo } from "../../hooks/useDojo";
 
 //styles
 import "./PagesStyles/SettingPageStyle.css";
@@ -55,22 +54,22 @@ export const SettingsPage: React.FC<SettingPageProps> = ({ setUIState, clientCom
                 <div style={{ flex: "1.5", height: "100%" }}></div>
 
                 <div style={{ flex: "8", display: "grid", gridTemplateColumns: "1fr", gridGap: "30px", height: "100%", overflowY: "auto", scrollbarGutter: "stable both-edges", paddingRight: "1%" }}>
-                    <h1 className="test-h1-5" style={{ textDecoration: "underline", height: "fit-content", marginTop:"0px", marginBottom: "10px", gridRow: "span 1" }}>Game</h1>
-                    <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Turn off warning system" />
-                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Volume" />
-                    <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Update interval" />
+                    <h1 className="test-h1-5" style={{ textDecoration: "underline", height: "fit-content", marginTop: "0px", marginBottom: "10px", gridRow: "span 1" }}>Game</h1>
+                    <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Turn off warning system" disabled={true} />
+                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Volume" disabled={true} />
+                    <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Update interval" disabled={true} />
                     <h1 className="test-h1-5" style={{ textDecoration: "underline", height: "110%", marginBottom: "10px", gridRow: "span 2" }}>Phaser</h1>
-                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Camera Speed" />
-                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Zoom Multiplier" />
-                    <SettingCheckboxElement component={clientComponents.ClientOutpostViewSettings} variable="hide_others_outposts" text="Hide other's outposts" />
-                    <SettingCheckboxElement component={clientComponents.ClientOutpostViewSettings} variable="hide_dead_ones" text="Hide dead ones" />
-                    <SettingCheckboxElement component={clientComponents.ClientOutpostViewSettings} variable="show_your_everywhere" text="Show yours everywhere" />
-                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Increase the chunk loading size" />
-                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Increase view range" />
-                    <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Take out anim on outposts" />
-                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Max amount of revs visible" />
-                    <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Invert drag" />
-                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Drag speed" />
+                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Camera Speed" disabled={true} />
+                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Zoom Multiplier" disabled={true} />
+                    <SettingCheckboxElement component={clientComponents.ClientOutpostViewSettings} variable="hide_others_outposts" text="Hide other's outposts" disabled={false} />
+                    <SettingCheckboxElement component={clientComponents.ClientOutpostViewSettings} variable="hide_dead_ones" text="Hide dead ones" disabled={false} />
+                    <SettingCheckboxElement component={clientComponents.ClientOutpostViewSettings} variable="show_your_everywhere" text="Show yours everywhere" disabled={false} />
+                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Increase the chunk loading size" disabled={true} />
+                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Increase view range" disabled={true} />
+                    <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Take out anim on outposts" disabled={true} />
+                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Max amount of revs visible" disabled={true} />
+                    <SettingCheckboxElement component={clientComponents.ClientGameData} variable="guest" text="Invert drag" disabled={true} />
+                    <SettingSliderElement component={clientComponents.ClientSettings} variable="volume" minVal={0} maxVal={100} text="Drag speed" disabled={true} />
                 </div>
                 <div style={{ flex: "1", height: "100%" }}></div>
                 <div style={{ flex: "5.5", height: "100%" }}>
@@ -138,9 +137,10 @@ interface SettingSliderElementProps {
     minVal: number,
     maxVal: number,
     text: string,
+    disabled: boolean,
 }
 
-export const SettingSliderElement: React.FC<SettingSliderElementProps> = ({ component, variable, minVal, maxVal, text, containerStyle }) => {
+export const SettingSliderElement: React.FC<SettingSliderElementProps> = ({ component, variable, minVal, maxVal, text, containerStyle, disabled }) => {
 
     const [sliderValue, setSliderValue] = useState<number>(getComponentValueStrict(component, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]))[variable] as number);
     const [isSliderDragging, setIsSliderDragging] = useState(false);
@@ -157,8 +157,11 @@ export const SettingSliderElement: React.FC<SettingSliderElementProps> = ({ comp
     }, [isSliderDragging])
 
     return (
-        // settings-option-hover
-        <ClickWrapper className="" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexDirection: "row", height: "fit-content", width: "100%", ...containerStyle }}>
+        <div className="" style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center", flexDirection: "row", height: "fit-content", width: "100%",
+            opacity: disabled ? 0.5 : 1,
+            pointerEvents: disabled ? "none" : "auto", ...containerStyle
+        }}>
             <h2 className="test-h2 no-margin">{text}</h2>
             <CustomSlider
                 minValue={minVal}
@@ -171,9 +174,8 @@ export const SettingSliderElement: React.FC<SettingSliderElementProps> = ({ comp
                 precision={0}
                 showVal={true}
                 onDrag={(isDragging) => setIsSliderDragging(isDragging)}
-
             />
-        </ClickWrapper>
+        </div>
     );
 };
 
@@ -183,29 +185,53 @@ interface SettingCheckboxElementProps {
     component: any,
     variable: string,
     text: string,
+    disabled: boolean,
 }
-export const SettingCheckboxElement: React.FC<SettingCheckboxElementProps> = ({ component, variable, text, containerStyle }) => {
+export const SettingCheckboxElement: React.FC<SettingCheckboxElementProps & { disabled?: boolean }> = ({ component, variable, text, containerStyle, disabled }) => {
 
     const [checkbox, setCheckbox] = useState<boolean>(() => {
         return getComponentValueStrict(component, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]))[variable] as boolean;
     });
 
     useEffect(() => {
-        const updateData: { [key: string]: any } = {};
-        updateData[variable] = checkbox;
-
-        updateComponent(component, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), updateData);
-    }, [checkbox]);
+        if (!disabled) {
+            const updateData: { [key: string]: any } = {};
+            updateData[variable] = checkbox;
+            updateComponent(component, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), updateData);
+        }
+    }, [checkbox, disabled]);
 
     return (
-        // settings-option-hover
-        <ClickWrapper className="" style={{ display: "flex", justifyContent: "space-between", alignItems:"center", flexDirection: "row", height: "fit-content", width: "100%", ...containerStyle }}>
-            <h2 className="test-h2 no-margin" >{text}</h2>
-            <div onClick={() => setCheckbox(!checkbox)} className="pointer center-via-flex" style={{ height: "clamp(0.8rem, 0.7vw + 0.7rem, 7rem)", aspectRatio: "1/1", borderRadius: "5px", background: "linear-gradient(to bottom, white 25%, gray 100%)" }} >
+        <div
+            className=""
+            style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexDirection: "row",
+                height: "fit-content",
+                width: "100%",
+                opacity: disabled ? 0.5 : 1, 
+                pointerEvents: disabled ? "none" : "auto", 
+                ...containerStyle
+            }}
+        >
+            <h2 className="test-h2 no-margin">{text}</h2>
+            <div
+                onClick={() => !disabled && setCheckbox(!checkbox)}
+                className="pointer center-via-flex"
+                style={{
+                    height: "clamp(0.8rem, 0.7vw + 0.7rem, 7rem)",
+                    aspectRatio: "1/1",
+                    borderRadius: "5px",
+                    background: disabled ? "gray" : "linear-gradient(to bottom, white 25%, gray 100%)"
+                }}
+            >
                 {checkbox && <img src="Icons/tick.svg" alt="" style={{ width: "100%", height: "100%", margin: "10%", boxSizing: "border-box" }} />}
             </div>
-        </ClickWrapper>
+        </div>
     );
 };
+
 
 

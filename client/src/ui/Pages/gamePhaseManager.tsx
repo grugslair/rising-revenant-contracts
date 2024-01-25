@@ -169,7 +169,7 @@ export const GamePhaseManager = () => {
       <ClickWrapper className="main-page-container-layout">
 
         {currentMenuState === MenuState.EVENT && showBackground &&
-          <img src='Page_Bg/VALIDATE_EVENT_BG.png' className='brightness-down' style={{ position: 'absolute', top: "0", left: "0", aspectRatio: "1.7/1", width: "100%", height: "100%" }}></img>}
+          <img src='Page_Bg/VALIDATE_EVENT_BG.png' style={{ position: 'absolute', top: "0", left: "0", aspectRatio: "1.7/1", width: "100%", height: "100%", filter: "brightness(20%)" }}></img>}
 
         <div className='main-page-topbar' style={{ position: "relative" }}>
            <TopBarComponent phaseNum={2} clientComponents={clientComponents} contractComponents={contractComponents} graphSdk={graphSdk} account={account} get_current_block={get_current_block}/>

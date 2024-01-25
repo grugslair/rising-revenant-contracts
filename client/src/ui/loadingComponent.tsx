@@ -101,7 +101,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
         const allEventsModels = await fetchAllEvents(graphSdk, game_id, gameEntityCounter.event_count);
         setComponentsFromGraphQlEntitiesHM(allEventsModels, contractComponents, true);
 
-        setUIState(Phase.GAME);
+        setUIState(Phase.PREP);
         break;
     }
   }

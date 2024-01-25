@@ -46,9 +46,9 @@ export const StatsPage: React.FC<StatsPageProps> = ({ setMenuState }) => {
                     <div className="global-button-style invert-colors " style={{ textAlign: "center", backgroundColor: "#2C2C2C", display: "flex", justifyContent: "center", alignItems: "center", padding: "2px 20px",  boxSizing: "border-box",width:"fit-content",  height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }}><h2 className="test-h2 no-margin"> TABLE OF DATA</h2></div>
                 </div>
 
-                <div onClick={() => setStatsState(StatsState.SPECIFIC)} style={{ opacity: statsState !== StatsState.SPECIFIC ? 0.5 : 1, display: "flex", justifyContent: "center", width:"fit-content"}}>
+                {/* <div onClick={() => setStatsState(StatsState.SPECIFIC)} style={{ opacity: statsState !== StatsState.SPECIFIC ? 0.5 : 1, display: "flex", justifyContent: "center", width:"fit-content"}}>
                     <div className="global-button-style invert-colors" style={{ textAlign: "center",whiteSpace:"nowrap", backgroundColor: "#2C2C2C", display: "flex", justifyContent: "center", alignItems: "center", padding: "2px 20px",  boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }}> <h2 className="test-h2 no-margin"> SPECIFIC PLAYER</h2></div>
-                </div>
+                </div> */}
 
                 <div onClick={() => setStatsState(StatsState.OVERALL)} style={{ opacity: statsState !== StatsState.OVERALL ? 0.5 : 1, display: "flex", justifyContent: "flex-start", flex: "1" }}>
                     <div className="global-button-style invert-colors " style={{ textAlign: "center", backgroundColor: "#2C2C2C", display: "flex", justifyContent: "center", alignItems: "center", padding: "2px 20px", width:"fit-content", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }}> <h2 className="test-h2 no-margin">OVERALL GAME DATA </h2></div>

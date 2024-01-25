@@ -48,6 +48,7 @@ export const eventManager = (layer: PhaserLayer) => {
     createCircleOfTriangles(phaserScene, dataEvent.x , dataEvent.y , dataEvent.radius, 30);
 
     const outpostEntities = getComponentEntities(contractComponents.Outpost);
+    //below not needed
     const outpostArray = Array.from(outpostEntities);
     // this can be indexed
 

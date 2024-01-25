@@ -51,8 +51,8 @@ export const LoginComponent: React.FC<LoginPageProps> = ({ setUIState }) => {
   const createGameClient = (guest: boolean) => {
 
     setComponent(clientComponents.ClientChunkSettings, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {
-      chunk_size: 200,
-      view_range_max: 500,
+      chunk_size: 424,
+      view_range_max: 600,
       view_range_min: 150,
     })
 

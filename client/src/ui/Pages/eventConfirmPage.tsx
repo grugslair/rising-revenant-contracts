@@ -195,9 +195,9 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
                     ))}
                 </div>
                 <div style={{ height: "13%", width: "100%", display: "flex", justifyContent: "center", alignItems: "flex-end" }}>
-                    <div className="global-button-style" style={{ padding: "5px 10px", backgroundColor: "#9d0e0e" }}>
+                    {/* <div className="global-button-style" style={{ padding: "5px 10px", backgroundColor: "#9d0e0e" }}>
                         <h2 className="test-h2 no-margin" onClick={confirmAllEvent}>Validate All</h2>
-                    </div>
+                    </div> */}
                 </div>
 
             </div>

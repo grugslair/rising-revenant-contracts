@@ -14,9 +14,11 @@ import {
   HasValue,
   updateComponent,
   getEntitiesWithValue,
+  getComponentEntities,
 } from "@latticexyz/recs";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
+import { log } from "console";
 
 //too many for loops in this place this all needs to be rewritten
 // HERE
@@ -197,7 +199,47 @@ export const cameraManager = (layer: PhaserLayer) => {
           updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientOutpostData.id)]), { visible: false })
         }
       }
+    }
+  });
 
+
+
+
+
+
+
+
+
+
+
+
+  defineSystem(world, [Has(clientComponents.ClientOutpostViewSettings)], ({ entity }) => {
+
+    const settings = getComponentValue(clientComponents.ClientOutpostViewSettings, entity);
+    const clientGameData = getComponentValue(clientComponents.ClientGameData, entity);
+
+    if (settings === undefined || clientGameData === undefined){return;}
+
+    const outpostEntitiesAll = getComponentEntities(contractComponents.Outpost);
+    const outpostArray = Array.from(outpostEntitiesAll);
+
+    if (outpostArray.length === 0) {return;}
+
+    for (let index = 0; index < outpostArray.length; index++) {
+      const entityId = outpostArray[index];
+
+      const contractOutpostData = getComponentValueStrict(contractComponents.Outpost, entityId);
+      const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entityId);
+
+      if (contractOutpostData.lifes === 0 && settings.hide_dead_ones) {
+        updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientOutpostData.id)]), { visible: false })
+      }
+      else if (clientOutpostData.owned && settings.show_your_everywhere) {
+        updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientOutpostData.id)]), { visible: true })
+      }
+      else if (!clientOutpostData.owned && settings.hide_others_outposts) {
+        updateComponent(clientComponents.ClientOutpostData, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientOutpostData.id)]), { visible: false })
+      }
     }
   });
 }

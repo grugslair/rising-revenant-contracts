@@ -21,7 +21,7 @@ export function useCameraInteraction(menuState: MenuState, clientComponents, con
 
     const keysDown = useWASDKeys();
 
-    const CAMERA_SPEED = 10;   ///needs to be global in the settings so it cna be changed
+    const CAMERA_SPEED = 10;   ///needs to be global in the settings so it can be changed
 
     let prevX: number = 0;
     let prevY: number = 0;
@@ -89,6 +89,8 @@ export function useCameraInteraction(menuState: MenuState, clientComponents, con
             
             prevX = newX;
             prevY = newY;
+
+            //HERE we dont want the entity tile index to change all the time this is to change
     
             const camTileIndex = getComponentValue(
               clientComponents.EntityTileIndex,

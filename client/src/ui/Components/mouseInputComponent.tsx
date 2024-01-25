@@ -115,22 +115,28 @@ const MouseInputManagerDiv: React.FC<DragAndClickProps> = ({
             const currentLoadedEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(currentGameData.current_game_id), BigInt(currentGameData.current_event_drawn)]));
             const camPos = getComponentValueStrict(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
-            if (currentLoadedEvent === undefined) { return; }
+            if (currentLoadedEvent   === undefined) { setOverEvent(false); return; }
 
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
+            let currentZoomValue = 0;
 
-            const relativeClickX = e.clientX - centerX + camPos.x;
-            const relativeClickY = e.clientY - centerY + camPos.y;
-
-            const distance = Math.sqrt((relativeClickX - currentLoadedEvent.x) ** 2 + (relativeClickY - currentLoadedEvent.y) ** 2);
-
-            if (distance <= currentLoadedEvent.radius) {
-                setOverEvent(true);
-            }
-            else{
-                setOverEvent(false)
-            }
+            const zoomSubscription = camera.zoom$.subscribe((currentZoom: any) => {
+                currentZoomValue = currentZoom;
+    
+                const centerX = (window.innerWidth / 2);
+                const centerY = (window.innerHeight / 2);
+    
+                const relativeClickX = e.clientX - centerX + camPos.x; 
+                const relativeClickY = e.clientY - centerY + camPos.y;
+    
+                const distance = Math.sqrt((relativeClickX - currentLoadedEvent.x) ** 2 + (relativeClickY - currentLoadedEvent.y) ** 2);
+    
+                if (distance <= currentLoadedEvent.radius * currentZoomValue) {
+                    setOverEvent(true);
+                }
+                else{
+                    setOverEvent(false)
+                }
+            });
         }
     };
 

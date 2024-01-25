@@ -16,8 +16,8 @@ export const test_4_size = "clamp(0.3rem, 0.4vw + 0.4rem, 3rem)";
 export const test_5_size = "clamp(0.2rem, 0.3vw + 0.3rem, 2rem)";
 
 //HERE should this be based on the range of sight instead
-export const COLOUMNS_NUMBER = 50;
-export const ROWS_NUMBER = 25;
+export const COLOUMNS_NUMBER = 24;
+export const ROWS_NUMBER = 12;
 
 let refreshOwnOutpostDataTimer: number = 90;
 export function setRefreshOwnOutpostDataTimer(newFOV: number): void {

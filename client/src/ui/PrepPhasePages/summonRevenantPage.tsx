@@ -101,7 +101,7 @@ export const BuyRevenantPage: React.FC<BuyRevenantPageProps> = ({ setMenuState, 
                     <div style={{ gridRow: "3/6", gridColumn: "1/2" }}>
                         {freeRevs > 0 ? (
                             <>
-                                <CounterElement value={revenantNumber} setValue={setRevenantNumber} containerStyleAddition={{ maxWidth: "40%" }} additionalButtonStyleAdd={{ padding: "2px", boxSizing: "border-box", width: "15%" }} textAddtionalStyle={{ fontSize: "2cqw" }} />
+                                <CounterElement value={revenantNumber} setValue={setRevenantNumber} containerStyleAddition={{ maxWidth: "40%" }} additionalButtonStyleAdd={{ padding: "2px", boxSizing: "border-box", width: "15%" }} textAddtionalStyle={{ fontSize: "2cqw" }} maxVal={5}/>
                                 <h2 className="global-button-style invert-colors  invert-colors no-margin test-h2" style={{ width: "fit-content", padding: "5px 10px" }} onMouseDown={() => { summonRev(revenantNumber) }}>Summon (Tot: {revenantNumber * revenantCost} $Lords)</h2>
                             </>)
                             :
