@@ -158,7 +158,7 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
             <div style={{ width: "60%", height: "75%" }} >
                 <div style={{ height: "15%", width: "100%", display: "grid", gridTemplateRows: "repeat(2, 1fr)", gridTemplateColumns: "0.5fr 1fr 0.5fr" }}>
                     <div style={{ gridRow: "1", gridColumn: "1", display: "flex", justifyContent: "flex-start", alignItems: "start" }}>
-                        <h3 className="global-button-style no-margin test-h3" onClick={setUIState} style={{ padding: "5px", boxSizing: "border-box" }}>
+                        <h3 className="global-button-style no-margin test-h3 invert-colors" onClick={setUIState} style={{ padding: "5px", boxSizing: "border-box" }}>
                             <img className="embedded-text-icon" src="Icons/left-arrow.png" alt="Sort Data" style={{ height: `${test_3_size}`, width: `${test_3_size}` }} />
                             Back to the map</h3>
                     </div>
