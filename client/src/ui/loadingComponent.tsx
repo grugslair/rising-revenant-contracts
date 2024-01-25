@@ -53,12 +53,12 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
       const create_game_prop: CreateGameProps =
       {
         account: account,
-        preparation_phase_interval: 100,
+        preparation_phase_interval: 150,
         event_interval: 5,
         erc_addr: account.address,
         reward_pool_addr: account.address,
         revenant_init_price: 10,
-        max_amount_of_revenants: 100,
+        max_amount_of_revenants: 125,
       }
 
       await create_game(create_game_prop)

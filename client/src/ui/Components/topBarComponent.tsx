@@ -164,13 +164,13 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                 {clientGameData?.current_game_state === 1 ?
                     <>
                         <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                            <div style={{ fontSize: "1.2vw" }}>Jackpot: {Number(gameData!.prize)} $LORDS </div>
+                            <div style={{ fontSize: "1.2vw" }}>Jackpot: {Number(gameData!.prize) * 0.85} $LORDS </div>
                         </div>
                     </>
                     :
                     <>
                         <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                            <div style={{ fontSize: "1.2vw" }}>Jackpot: {Number(gameData!.prize)} $LORDS </div>
+                            <div style={{ fontSize: "1.2vw" }}>Jackpot: {Number(gameData!.prize) * 0.85} $LORDS </div>
                         </div>
                         <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
                             {clientGameData!.current_game_state === 2 && (<>
@@ -178,8 +178,8 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                                     <div style={{ fontSize: "1.2vw", filter: "brightness(70%) grayscale(70%)" }}>Contribution: Log in</div>
                                 ) : (
                                     <Tooltip title={<>
-                                        <h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Total contribution game score: {gameEntityCounter!.score_count}</h4>
-                                        <h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Your contribution score count: {playerContribScore}</h4></>}>
+                                        <h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Total contribution pot: {Number(gameData!.prize) * 0.15} $LORDS</h4>
+                                        <h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Your share: {(Number(gameData!.prize) * 0.15) *  (Number(((playerContribScore / gameEntityCounter!.score_count) * 100 || 0).toFixed(2))/100)} $LORDS</h4></>}>
 
                                         <div style={{ fontSize: "1.2vw" }}>
                                             Contribution: {((playerContribScore / gameEntityCounter!.score_count) * 100 || 0).toFixed(2)}%
