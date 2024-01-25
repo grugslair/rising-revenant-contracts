@@ -201,12 +201,12 @@ export const DebugPage = () => {
 
   const createEvent = () => 
   {
-    const createEventProps: CreateEventProps = {
-      account: account,
-      game_id: game_id
-    }
+    // const createEventProps: CreateEventProps = {
+    //   account: account,
+    //   game_id: game_id
+    // }
 
-    create_event(createEventProps);
+    // create_event(createEventProps);
   }
 
   const gameId = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])).current_game_id;
