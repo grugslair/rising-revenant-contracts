@@ -166,7 +166,7 @@ export const ReinforcementTradeWindow: React.FC = () => {
     account:{account},
     networkLayer: {
       network: { clientComponents },
-      systemCalls: { revoke_trade_reinf, modify_trade_reinf, purchase_reinforcement},
+      systemCalls: { revoke_trade_reinf, modify_trade_reinf, purchase_trade_reinf},
     },
   } = useDojo();
 
@@ -340,7 +340,7 @@ export const ReinforcementTradeWindow: React.FC = () => {
           showOwn={!showYourTrades} playerWalletAmount={4} 
           account={account} revoke_trade_reinf={revoke_trade_reinf}
           modify_trade_reinf={modify_trade_reinf} clientComponents={clientComponents} 
-          purchase_trade_reinf={purchase_reinforcement}
+          purchase_trade_reinf={purchase_trade_reinf}
           key={index} />;
         })}
 

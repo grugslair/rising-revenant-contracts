@@ -327,6 +327,9 @@ export function createSystemCalls(
         const newAmountOfTxs = clientGameData.transaction_count + 1;
         const txNotiEntId = getEntityIdFromKeys([BigInt(newAmountOfTxs)]);
 
+        console.log(game_id);
+        console.log(trade_id);
+
         setComponent(clientComponents.ClientTransaction, txNotiEntId, {
             state: 1,
             message: "trying to revoke a reinforcement trade",

@@ -32,21 +32,6 @@ export const SellReinforcementTradeWindow: React.FC = () => {
 
         if (playerInfo === undefined) { return; }
 
-        if (amountToSell < 1) {
-            setAmountToSell(1)
-            return;
-        }
-
-        if (amountToSell > playerInfo.reinforcement_count) {
-            setAmountToSell(playerInfo.reinforcement_count);
-        }
-
-    }, [account, playerInfo, amountToSell])
-
-    useEffect(() => {
-
-        if (playerInfo === undefined) { return; }
-
         if (amountToSell < 0) {
             setAmountToSell(0)
             return;
@@ -106,6 +91,11 @@ export const SellReinforcementTradeWindow: React.FC = () => {
 
     const confirmCreationOfOrder = async () => {
 
+        if (amountToSell === 0 || priceValue === 0){
+            
+            return;
+        }
+
         const createTradeProp: CreateTradeForReinf = {
             account: account,
             game_id: clientGameData.current_game_id,
@@ -163,7 +153,12 @@ export const SellReinforcementTradeWindow: React.FC = () => {
                 </div> */}
 
                 <div style={{ gridRow: "9/10", gridColumn: "1/6", display: "flex", justifyContent: "flex-end" }}>
+                    {amountToSell === 0 || priceValue === 0 ? 
+                    <div className="global-button-style invert-colors" style={{ marginTop: "auto", padding: "2px 5px", filter: "grayscale(100%)", pointerEvents: "none" }}>Confirm</div>
+                    :
                     <div className="global-button-style invert-colors " style={{ marginTop: "auto", padding:"2px 5px" }} onClick={confirmCreationOfOrder}>Confirm</div>
+                    }
+                   
                 </div>
             </div>
 

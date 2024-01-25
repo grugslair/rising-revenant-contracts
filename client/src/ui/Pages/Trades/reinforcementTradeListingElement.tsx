@@ -60,9 +60,9 @@ export const ReinforcementListingElement = ({ trade, showOwn, showOthers, player
 
     const buyTrade = () => {
 
-        if (playerWalletAmount! >= Number(BigInt(trade_model?.price))) {
-            setInteractedWith(true);
-        }
+        // if (playerWalletAmount! >= Number(BigInt(trade_model?.price))) {
+        //     setInteractedWith(true);
+        // }
 
         const buyTradeProp: PurchaseTradeReinf = {
             account: account,

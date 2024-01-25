@@ -193,7 +193,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
             <div className="top-bar-grid-right-text-section center-via-flex">
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
                     {clientGameData!.current_game_state === 1 ?
-                        <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {outpostCountData.totalOutpostsQuery.length}/{gameData!.max_amount_of_revenants}</div>
+                        <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {gameEntityCounter.outpost_count}/{gameData!.max_amount_of_revenants}</div>
                         :
                         <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostCountData.totalOutpostsQuery.length - outpostCountData.outpostDeadQuery.length}/{outpostCountData.totalOutpostsQuery.length}</div>
                     }
