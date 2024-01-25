@@ -68,7 +68,7 @@ export const JurnalEventComponent: React.FC<JuornalEventProps> = ({ setMenuState
                             <h4 className="no-margin test-h4">Radius: {lastEvent.radius} km</h4>
                             <h4 className="no-margin test-h4 pointer" onClick={() => setCameraPos(lastEvent.x, lastEvent.y)}>Position: X: {lastEvent.x}  || Y: {lastEvent.y}</h4>
                             {/* <h4 style={{ margin: "0px", fontSize: "1.1vw" }}>Type: {"null"}</h4> */}
-                            <h4 className="no-margin test-h4">Next attack {lastEvent.block_number - clientGameData!.current_block_number <= 0 ? "IMMINENT!!" : `in ${lastEvent.block_number - clientGameData!.current_block_number} blocks`}</h4>
+                            <h4 className="no-margin test-h4">Next attack { clientGameData!.current_block_number <= 0 ? "Coming!!" : `in approximately${clientGameData!.current_block_number - lastEvent.block_number} blocks`}</h4>
                             <h4 className="no-margin test-h4"></h4>
                         </>)
                         :
