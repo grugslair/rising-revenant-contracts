@@ -122,7 +122,7 @@ mod revenant_actions {
             if (player_info.initiated == 0) // here
             {
                 player_info.initiated = 1;
-                player_info.player_wallet_amount = 150;
+                player_info.player_wallet_amount = 1500;
             }
 
             player_info.player_wallet_amount -= game.revenant_init_price * count.into();
