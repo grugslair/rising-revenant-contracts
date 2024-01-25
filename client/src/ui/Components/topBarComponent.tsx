@@ -70,15 +70,15 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     // this should only be getting called when the user is active the moment the game switches from prep to game phase as the other oupost from other people are not loaded in 
     // in the prep phase
 
-    // useEffect(() => {
+    useEffect(() => {
 
-    //     if (phaseNum === 1 && setGamePhase !== undefined) {   // this should only be getting called when the phase goes from prep to game
-    //         if (clientGameData!.current_game_state === 2) {
+        if (phaseNum === 1 && setGamePhase !== undefined) {   // this should only be getting called when the phase goes from prep to game
+            if (clientGameData!.current_game_state === 2) {
 
-    //             setGamePhase();
-    //         }
-    //     }
-    // }, [clientGameData, gameEntityCounter]);
+                setGamePhase();
+            }
+        }
+    }, [clientGameData, gameEntityCounter]);
 
     // on change this should deal with the contribution value change draw
     useEffect(() => {
