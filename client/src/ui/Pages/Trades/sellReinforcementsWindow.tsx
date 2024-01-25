@@ -32,8 +32,8 @@ export const SellReinforcementTradeWindow: React.FC = () => {
 
         if (playerInfo === undefined) { return; }
 
-        if (amountToSell < 0) {
-            setAmountToSell(0)
+        if (amountToSell < 1) {
+            setAmountToSell(1)
             return;
         }
 

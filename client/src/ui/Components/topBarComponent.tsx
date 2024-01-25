@@ -46,12 +46,12 @@ interface TopBarPageProps {
     setGamePhase?: () => void;
     contractComponents: any;
     clientComponents: any;
-    graphSdk:any;
-    account:any;
-    get_current_block:any;
+    graphSdk: any;
+    account: any;
+    get_current_block: any;
 }
 
-export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phaseNum, account, contractComponents, clientComponents, graphSdk ,get_current_block}) => {
+export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phaseNum, account, contractComponents, clientComponents, graphSdk, get_current_block }) => {
 
     const [playerContribScore, setPlayerContribScore] = useState(0);
     const [playerContribScorePerc, setPlayerContribScorePerc] = useState(0);
@@ -65,7 +65,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 
     //event and player loader
     useEventAndUserDataLoader(account, contractComponents, clientComponents, graphSdk, get_current_block);
-    const  outpostCountData = useOutpostAmountData(clientComponents, contractComponents);
+    const outpostCountData = useOutpostAmountData(clientComponents, contractComponents);
 
     // this should only be getting called when the user is active the moment the game switches from prep to game phase as the other oupost from other people are not loaded in 
     // in the prep phase
@@ -169,7 +169,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                     </>
                     :
                     <>
-                    <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
+                        <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
                             <div style={{ fontSize: "1.2vw" }}>Jackpot: {Number(gameData!.prize)} $LORDS </div>
                         </div>
                         <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
@@ -181,7 +181,10 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                                         <h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Total contribution game score: {gameEntityCounter!.score_count}</h4>
                                         <h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Your contribution score count: {playerContribScore}</h4></>}>
 
-                                        <div style={{ fontSize: "1.2vw" }}>Contribution: {((playerContribScore / gameEntityCounter!.score_count) * 100).toFixed(2)}%</div>
+                                        <div style={{ fontSize: "1.2vw" }}>
+                                            Contribution: {((playerContribScore / gameEntityCounter!.score_count) * 100 || 0).toFixed(2)}%
+                                        </div>
+
                                     </Tooltip>
                                 )} </>)}
                         </div>
@@ -190,9 +193,9 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
             <div className="top-bar-grid-right-text-section center-via-flex">
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
                     {clientGameData!.current_game_state === 1 ?
-                        <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {outpostCountData.totalOutpostsQuery.length }/{gameData!.max_amount_of_revenants}</div>
+                        <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {outpostCountData.totalOutpostsQuery.length}/{gameData!.max_amount_of_revenants}</div>
                         :
-                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: { outpostCountData.totalOutpostsQuery.length - outpostCountData.outpostDeadQuery.length}/{outpostCountData.totalOutpostsQuery.length}</div>
+                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostCountData.totalOutpostsQuery.length - outpostCountData.outpostDeadQuery.length}/{outpostCountData.totalOutpostsQuery.length}</div>
                     }
                 </div>
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
@@ -205,7 +208,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                 </div>
             </div>
             <div className="top-bar-grid-address" style={{ justifyContent: "space-between", display: "flex", alignItems: "center" }}>
-                <LordsBalanceElement clientComponents={clientComponents} contractComponents={contractComponents} account={account}/>
+                <LordsBalanceElement clientComponents={clientComponents} contractComponents={contractComponents} account={account} />
 
                 <div style={{ width: "70%", height: "75%" }} className="center-via-flex">
                     {!clientGameData!.guest ?
@@ -227,7 +230,7 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
 };
 
 // this loads in the event and the specific player data
-const useEventAndUserDataLoader = ( account:any, contractComponents: any, clientComponents: any, graphSdk:any, get_current_block:any, updateInterval = 5000 ) => {
+const useEventAndUserDataLoader = (account: any, contractComponents: any, clientComponents: any, graphSdk: any, get_current_block: any, updateInterval = 5000) => {
 
     useEffect(() => {
 
