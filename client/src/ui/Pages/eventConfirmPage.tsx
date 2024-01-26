@@ -118,18 +118,21 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
 
     useEffect(() => {
         const aliveOutposts = outpostAmountData.outpostsHitQuery.filter(outpost => {
+           
+            const isOutpostDead = outpostAmountData.outpostDeadQuery.includes(outpost);
+    
             const isOwnedByPlayer = turnBigIntToAddress(getComponentValueStrict(contractComponents.Outpost, outpost).owner) === account.address;
-
-            if (isOwnedByPlayer) {
+    
+            if (isOwnedByPlayer && !isOutpostDead) {
                 return showYours;
-            } else {
+            } else if (!isOutpostDead) {
                 return showOthers;
             }
         });
-
+    
         setEntityIdsOfOutposts(aliveOutposts);
     }, [outpostAmountData.outpostsHitQuery, outpostAmountData.outpostDeadQuery, showYours, showOthers]);
-
+    
     if (transitionState !== 2) {
         return <></>;
     }
@@ -137,8 +140,8 @@ export const EventConfirmPage: React.FC<EventConfirmPageProps> = ({ setUIState, 
     const confirmAllEvent = async () => {
         const clientGameData = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
-        for (let index = 0; index < outpostAmountData.outpostsHitQuery.length; index++) {
-            const element = outpostAmountData.outpostsHitQuery[index];
+        for (let index = 0; index < entityIdsOfOutposts.length; index++) {
+            const element = entityIdsOfOutposts[index];
             const contractOutpostData = getComponentValueStrict(contractComponents.Outpost, element);
 
             const confirmEventProps: ConfirmEventOutpost = {

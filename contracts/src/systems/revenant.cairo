@@ -49,7 +49,7 @@ mod revenant_actions {
 
     use realmsrisingrevenant::constants::{
         MAP_HEIGHT, MAP_WIDTH, OUTPOST_INIT_LIFE, REVENANT_MAX_COUNT, REINFORCEMENT_INIT_COUNT,
-        SPAWN_RANGE_X_MAX, SPAWN_RANGE_Y_MAX, SPAWN_RANGE_X_MIN, SPAWN_RANGE_Y_MIN
+        SPAWN_RANGE_X_MAX, SPAWN_RANGE_Y_MAX, SPAWN_RANGE_X_MIN, SPAWN_RANGE_Y_MIN,PLAYER_STARTING_AMOUNT
     };
     use realmsrisingrevenant::utils::random::{Random, RandomImpl};
     use starknet::{
@@ -122,7 +122,7 @@ mod revenant_actions {
             if (player_info.initiated == 0) // here
             {
                 player_info.initiated = 1;
-                player_info.player_wallet_amount = 150;
+                player_info.player_wallet_amount = PLAYER_STARTING_AMOUNT;
             }
 
             player_info.player_wallet_amount -= game.revenant_init_price * count.into();
