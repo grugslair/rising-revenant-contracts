@@ -63,10 +63,10 @@ export function createSystemCalls(
 
 
     //TO DELETE
-    const create_game = async ({ account, preparation_phase_interval, event_interval, erc_addr, reward_pool_addr, revenant_init_price, max_amount_of_revenants }: CreateGameProps) => {
+    const create_game = async ({ account, preparation_phase_interval, event_interval, erc_addr, reward_pool_addr, revenant_init_price, max_amount_of_revenants, champion_prize_percent, transaction_fee_percent }: CreateGameProps) => {
 
         try {
-            const tx = await execute(account, "game_actions", "create", [preparation_phase_interval, event_interval, erc_addr, reward_pool_addr, revenant_init_price, max_amount_of_revenants]);
+            const tx = await execute(account, "game_actions", "create", [preparation_phase_interval, event_interval, erc_addr, reward_pool_addr, revenant_init_price, max_amount_of_revenants,transaction_fee_percent, champion_prize_percent]);
             const receipt = await account.waitForTransaction(
                 tx.transaction_hash,
                 { retryInterval: 100 }
@@ -596,6 +596,8 @@ function hexToDecimal(hexString: string): number {
 }
 
 function extractErrorReason(errorMessage: string): string {
+
+    console.log(errorMessage);
     const startDelimiter = "('";
     const endDelimiter = "')";
 

@@ -32,18 +32,33 @@ echo trade actions : $TRADE_REV_ACTIONS_ADDRESS
 echo "---------------------------------------------------------------------------"
 
 # enable system -> component authorizations
-COMPONENTS=("Game" "GameTracker"  "GameEntityCounter"   "WorldEvent" "WorldEventTracker"   "Trade"    "Revenant"    "ReinforcementBalance"   "PlayerInfo"   "Outpost" "OutpostPosition" "TradeRevenant" )
+COMPONENTS=("WorldEvent" "Trade" "TradeRevenant" "Revenant" "ReinforcementBalance" "PlayerInfo" "Outpost" "OutpostPosition" "Game" "GameTracker" "GameEntityCounter")
+
+
 
 for component in ${COMPONENTS[@]}; do
     sozo auth writer $component $REVENANT_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 1
-    sozo auth writer $component $WORLD_EVENT_ADDRESS    --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 1
-    sozo auth writer $component $GAME_ADDRESS   --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 1
-    sozo auth writer $component $TRADE_ACTIONS_ADDRESS  --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 1
+    sleep 1 
+done
+
+for component in ${COMPONENTS[@]}; do
+    sozo auth writer $component $WORLD_EVENT_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
+    sleep 1 
+done
+
+for component in ${COMPONENTS[@]}; do
+    sozo auth writer $component $GAME_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
+    sleep 1 
+done
+
+for component in ${COMPONENTS[@]}; do
+    sozo auth writer $component $TRADE_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
+    sleep 1 
+done
+
+for component in ${COMPONENTS[@]}; do
     sozo auth writer $component $TRADE_REV_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
+    sleep 1 
 done
 
 echo "Default authorizations have been successfully set."

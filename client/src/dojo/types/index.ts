@@ -11,6 +11,8 @@ export interface CreateGameProps extends SystemSigner {
     reward_pool_addr: num.BigNumberish;
     revenant_init_price: num.BigNumberish;
     max_amount_of_revenants: num.BigNumberish;
+    transaction_fee_percent: num.BigNumberish;
+    champion_prize_percent: num.BigNumberish;
 }
 
 export interface CreateRevenantProps extends SystemSigner {

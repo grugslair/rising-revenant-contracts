@@ -59,6 +59,8 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
         reward_pool_addr: account.address,
         revenant_init_price: 10,
         max_amount_of_revenants: 125,
+        champion_prize_percent: 85,
+        transaction_fee_percent: 5,
       }
 
       await create_game(create_game_prop)
