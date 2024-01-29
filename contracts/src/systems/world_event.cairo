@@ -152,7 +152,7 @@ mod world_event_actions {
 
             let seed = starknet::get_tx_info().unbox().transaction_hash;
             let mut random = RandomImpl::new(seed);
-            let x =  random.next_u32(SPAWN_RANGE_X_MIN, SPAWN_RANGE_X_MAX);    // HERE add constant
+            let x =  random.next_u32(SPAWN_RANGE_X_MIN, SPAWN_RANGE_X_MAX);
             let y = random.next_u32(SPAWN_RANGE_Y_MIN, SPAWN_RANGE_Y_MAX);
 
             WorldEvent { game_id, entity_id, x, y, radius, destroy_count: 0, block_number }

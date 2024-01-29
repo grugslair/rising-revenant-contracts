@@ -62,6 +62,7 @@ export const VideoComponent: React.FC<VideoComponentProps> = ({ onVideoDone }) =
             opacity: "0.8",
             transition: "opacity 1s ease-in-out",
             zIndex: "100",
+            borderRadius:"2px"
           }}
         >
           Skip By Pressing the Space Bar

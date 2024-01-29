@@ -15,7 +15,7 @@ const EVENT_INIT_RADIUS: u32 = 155;
 const EVENT_INCREASE_RADIUS: u32 = 15;
 
 // The reward score offered for creating a world event
-const EVENT_CREATE_SCORE: u32 = 20;
+const EVENT_CREATE_SCORE: u32 = 0; // prev is 20
 // The reward score offered for destory a outpost
 const DESTORY_OUTPOST_SCORE: u32 = 5;
 

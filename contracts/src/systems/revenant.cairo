@@ -169,8 +169,7 @@ mod revenant_actions {
 
             // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
 
-            let prize = game.prize / 100 * 85;
-
+            let prize = game.prize / 100 * game.champion_prize_percent.into();
             player_info.player_wallet_amount += prize;
 
             // let result = erc20.transfer(recipient: player, amount: prize);
@@ -196,7 +195,7 @@ mod revenant_actions {
 
             let prize = game.prize
                 / 100
-                * 15
+                * (100 - game.champion_prize_percent).into()
                 / game_info.score_count.into()
                 * player_info.score.into();
 
