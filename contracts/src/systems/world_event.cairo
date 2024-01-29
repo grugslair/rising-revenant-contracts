@@ -20,8 +20,7 @@ mod world_event_actions {
     use realmsrisingrevenant::components::player::{PlayerInfo, PlayerInfoImpl, PlayerInfoTrait};
     use realmsrisingrevenant::components::world_event::{WorldEvent, WorldEventTracker};
     use realmsrisingrevenant::constants::{
-        EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH, EVENT_CREATE_SCORE, EVENT_INCREASE_RADIUS,
-        DESTORY_OUTPOST_SCORE, SPAWN_RANGE_X, SPAWN_RANGE_Y
+        EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH, EVENT_CREATE_SCORE, EVENT_INCREASE_RADIUS, DESTORY_OUTPOST_SCORE,SPAWN_RANGE_Y_MAX, SPAWN_RANGE_Y_MIN, SPAWN_RANGE_X_MAX, SPAWN_RANGE_X_MIN
     };
     use realmsrisingrevenant::utils::MAX_U32;
     use realmsrisingrevenant::utils::random::{Random, RandomImpl};
@@ -106,7 +105,7 @@ mod world_event_actions {
             };
 
             let mut owner_info = get!(world, (game_id, outpost.owner), (PlayerInfo));
-            owner_info.check_player_exists(world);
+            owner_info.check_player_exists(world); 
             if outpost.lifes == 0 {
                 game_data.outpost_exists_count -= 1;
                 owner_info.revenant_count -= 1;
@@ -153,8 +152,8 @@ mod world_event_actions {
 
             let seed = starknet::get_tx_info().unbox().transaction_hash;
             let mut random = RandomImpl::new(seed);
-            let x = (MAP_WIDTH / 2) - random.next_u32(0, SPAWN_RANGE_X); // HERE add constant
-            let y = (MAP_HEIGHT / 2) - random.next_u32(0, SPAWN_RANGE_Y);
+            let x =  random.next_u32(SPAWN_RANGE_X_MIN, SPAWN_RANGE_X_MAX);
+            let y = random.next_u32(SPAWN_RANGE_Y_MIN, SPAWN_RANGE_Y_MAX);
 
             WorldEvent { game_id, entity_id, x, y, radius, destroy_count: 0, block_number }
         }

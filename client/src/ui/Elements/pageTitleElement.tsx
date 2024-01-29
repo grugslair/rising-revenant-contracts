@@ -1,46 +1,81 @@
 import React, { CSSProperties } from "react";
 import { ClickWrapper } from "../clickWrapper";
-
-export enum ImagesPosition {
-    NONE,
-    LEFT,
-    RIGHT,
-    BOTH
-}
+import { functionDeclaration } from "@babel/types";
 
 interface PageTitleElementProps {
-    name: string;
-    imagePosition?: ImagesPosition;
+    imagePosition: ImagesPosition,
+    name: string,
 
-    rightPicture?: string;
-    leftPicture?: string;
-    rightImageFunction?: () => void;
-    leftImageFunction?: () => void;
+    rightPicture?:string,
+    leftPicture?:string,
 
-    htmlContentsLeft?: any;
-    htmlContentsRight?: any;
-    styleContainerLeft?: any;
-    styleContainerRight?: any;
+    rightImageFunction? : () => void,
+    leftImageFunction? : () => void,
+
+    htmlContentsRight?:any,
+    htmlContentsLeft?:any,
+    styleContainerRight?:any,
+    styleContainerLeft?:any,
 }
 
-const size: string = "clamp(1.1rem, 1.6vw + 0.9rem, 10rem)"; // this is test-h1 size
+export enum ImagesPosition{
+    LEFT,
+    RIGHT,
+    BOTH,
+    NONE
+}
 
-const PageTitleElement: React.FC<PageTitleElementProps> = ({ name, imagePosition = ImagesPosition.NONE, rightPicture, leftPicture, rightImageFunction, leftImageFunction, htmlContentsLeft, htmlContentsRight, styleContainerLeft, styleContainerRight }) => {
+const size: string = "clamp(1.1rem, 1vw + 0.8rem, 8rem)"; // this is test-h1 size
+
+// const leftContainerStyle: CSSProperties = {    
+//     display: "flex",
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
     
-    const handleLeftImageClick = () => {
-        if (leftImageFunction) {
-            leftImageFunction();
-        }
-    };
+//     position: "relative",
 
-    const handleRightImageClick = () => {
-        if (rightImageFunction) {
-            rightImageFunction();
-        }
-    };
+//     color: "white",
 
+//     boxSizing: "border-box",
+// }
+
+const leftContainerStyle: CSSProperties = {
+    flex: "1",
+    height: "100%",
+
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+}
+
+const rightContainerStyle: CSSProperties = {
+    flex: "1",
+    height: "100%",
+
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+}
+
+const titleContainerStyle: CSSProperties = {
+    flex: "1",
+    height: "100%",
+
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+
+    fontSize: "1cqw",
+    fontFamily: "Zelda",
+}
+
+const PageTitleElement: React.FC<PageTitleElementProps> = ({ name, rightImageFunction,leftImageFunction,rightPicture,imagePosition, leftPicture, htmlContentsLeft, htmlContentsRight, styleContainerRight, styleContainerLeft}) => {
     return (
-        <div style={{
+        <ClickWrapper style={{
             height: "15%",
             width: "100%",
             boxSizing: "border-box",
@@ -55,9 +90,9 @@ const PageTitleElement: React.FC<PageTitleElementProps> = ({ name, imagePosition
             {imagePosition === ImagesPosition.LEFT || imagePosition === ImagesPosition.BOTH ? (
                 <img
                     src={leftPicture}
-                    style={{ width: size, height: size, cursor: 'pointer',verticalAlign:"middle",paddingBottom:"0.3em" }}
+                    style={{ width: size, height: size, cursor: 'pointer',verticalAlign:"middle",paddingBottom:"0.1em" }}
                     alt="Left Image"
-                    onClick={handleLeftImageClick}
+                    onClick={leftImageFunction}
                 />
             ) : <div style={{ width: size }} />}
 
@@ -65,8 +100,7 @@ const PageTitleElement: React.FC<PageTitleElementProps> = ({ name, imagePosition
                 {htmlContentsLeft}
             </div>
 
-
-            <h1 className="no-margin test-h1" style={{ whiteSpace: "nowrap", fontWeight: "100", fontFamily:"Zelda", color:"white" }}>{name}</h1>
+            <h1 className="no-margin test-h1-75" style={{ whiteSpace: "nowrap", fontWeight: "100", fontFamily:"Zelda", color:"white" }}>{name}</h1>
             
             <div style={{height:"100%", flex:"1", ...styleContainerRight}}>
                 {htmlContentsRight}
@@ -75,14 +109,16 @@ const PageTitleElement: React.FC<PageTitleElementProps> = ({ name, imagePosition
             {imagePosition === ImagesPosition.RIGHT || imagePosition === ImagesPosition.BOTH ? (
                 <img
                     src={rightPicture}
-                    style={{ width: size, height: size, cursor: 'pointer', verticalAlign:"middle", paddingBottom:"0.3em" }}
+                    style={{ width: size, height: size, cursor: 'pointer', verticalAlign:"middle", paddingBottom:"0.1em" }}
                     alt="Right Image"
-                    onClick={handleRightImageClick}
+                    onClick={rightImageFunction}
                 />
             ) : <div style={{ width: size }} />}
             <div style={{ width: size}}></div>
-        </div>
+        </ClickWrapper>
     );
 };
 
 export default PageTitleElement;
+
+

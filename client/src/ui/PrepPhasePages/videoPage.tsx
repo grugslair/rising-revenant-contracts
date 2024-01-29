@@ -62,7 +62,6 @@ export const VideoComponent: React.FC<VideoComponentProps> = ({ onVideoDone }) =
             opacity: "0.8",
             transition: "opacity 1s ease-in-out",
             zIndex: "100",
-            borderRadius:"2px"
           }}
         >
           Skip By Pressing the Space Bar
@@ -70,7 +69,7 @@ export const VideoComponent: React.FC<VideoComponentProps> = ({ onVideoDone }) =
       )}
 
       <video autoPlay style={{width:"100%", height:"100%"}}>
-        <source src="videos/TrailerVid.webm" type="video/webm"/>
+        <source src="Videos/TrailerVid.webm" type="video/webm"/>
       </video>
     </>
   );

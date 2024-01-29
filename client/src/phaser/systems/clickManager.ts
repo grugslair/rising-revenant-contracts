@@ -9,13 +9,11 @@ import {
   getComponentValue,
   runQuery,
   HasValue,
+  getEntitiesWithValue,
 } from "@latticexyz/recs";
 
 import { setTooltipArray } from "./eventSystems/eventEmitter";
-import { OUTPOST_HEIGHT, OUTPOST_WIDTH } from "../constants";
-import { setClientCameraComponent, setClientClickPositionComponent } from "../../utils";
-import { getEntityIdFromKeys } from "@dojoengine/utils";
-import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
+import {  SCALE } from "../constants";
 
 // this can be threaded
 
@@ -43,28 +41,26 @@ export const clickManager = (layer: PhaserLayer) => {
       return;
     }
 
-    // setClientCameraComponent(camPos.x + positionClick.xFromMiddle, camPos.y+ positionClick.yFromMiddle,clientComponents);
-
-    const outpostArray = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { visible: true })]));
+    // const outpostArray = Array.from(runQuery([HasValue(clientComponents.ClientOutpostData, { visible: true })]));
+    const outpostArray = getEntitiesWithValue(clientComponents.ClientOutpostData, {visible: true});
     
     let zoomVal: number = 0;
 
     camera.zoom$.subscribe((zoom) => { zoomVal = zoom; });
 
-    let positionX = (positionClick.xFromMiddle / zoomVal) + camPos.x;
-    let positionY = (positionClick.yFromMiddle / zoomVal) + camPos.y;
-
+    let positionX = positionClick.xFromMiddle + camPos.x;
+    let positionY = positionClick.yFromMiddle + camPos.y;
+    
     let foundEntity: EntityIndex[] = []; 
 
     for (const outpostEntityValue of outpostArray) {
 
       const outpostData = getComponentValueStrict(Outpost, outpostEntityValue);
 
-      const minX = outpostData.x - (OUTPOST_WIDTH / 2);
-      const minY = outpostData.y - (OUTPOST_HEIGHT / 2);
-
-      const maxX = minX + OUTPOST_WIDTH;
-      const maxY = minY + OUTPOST_HEIGHT;
+      const minX = outpostData.x - 150 * SCALE ;
+      const minY = outpostData.y - 150 * SCALE ;
+      const maxX = outpostData.x + 150 * SCALE ;
+      const maxY = outpostData.y + 150 * SCALE ;
 
       if (
         positionX >= minX &&
@@ -79,7 +75,6 @@ export const clickManager = (layer: PhaserLayer) => {
     if (foundEntity.length > 0) {
       setTooltipArray.emit("setToolTipArray", foundEntity);
     }
-
   });
 
 };

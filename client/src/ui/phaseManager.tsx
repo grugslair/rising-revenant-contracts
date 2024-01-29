@@ -8,15 +8,6 @@ import { PrepPhaseManager } from "./PrepPhasePages/prepPhaseManager";
 import { GamePhaseManager } from "./Pages/gamePhaseManager";
 import { ClickWrapper } from "./clickWrapper";
 
-//notes
-/*
-    This component will render different pages based on the current phase.
-    It may involve loading screens for certain phases.
-
-    // i think this should have a timer if in the prep phase to see if it should go in the next phase
-    something along the lines of checking the block count anyway
-*/
-
 export enum Phase {
   LOGIN,
   LOADING,
@@ -31,21 +22,63 @@ export const PhaseManager = () => {
     setPhase(state);
   }
 
+  //fps counter
+  const [fps, setFPS] = useState<number>(0);
+  useEffect(() => {
+    let frames = 0;
+    let lastTimestamp = performance.now();
+
+    const updateFPS = () => {
+      const currentTimestamp = performance.now();
+      const elapsed = currentTimestamp - lastTimestamp;
+
+      frames += 1;
+
+      if (elapsed >= 1000) {
+        const newFPS = Math.round((frames * 1000) / elapsed);
+        setFPS(newFPS);
+        frames = 0;
+        lastTimestamp = currentTimestamp;
+      }
+
+      requestAnimationFrame(updateFPS);
+    };
+
+    const animationFrameId = requestAnimationFrame(updateFPS);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
+  // this makes sure the context menu doesnt pop up
+  useEffect(() => {
+    const disableContextMenu = (e: Event) => {
+      e.preventDefault();
+    };
+
+    document.addEventListener('contextmenu', disableContextMenu);
+
+    return () => {
+      document.removeEventListener('contextmenu', disableContextMenu);
+    };
+  }, []);
+
+
   return (
     <>
-      {phase === Phase.LOGIN && <LoginComponent setUIState={setUIState} />}
-      {phase === Phase.LOADING && <LoadingComponent setUIState={setUIState} />}
-      {phase === Phase.PREP && <PrepPhaseManager setUIState={setUIState} />}
+      {phase === Phase.LOGIN && <LoginComponent setUIState={setUIState}/>}
+      {phase === Phase.LOADING && <LoadingComponent setUIState={setUIState}/>}
+      {phase === Phase.PREP && <PrepPhaseManager setUIState={setUIState}/>}
       {phase === Phase.GAME && <GamePhaseManager />}
 
-      <div style={{ position: "absolute", bottom: "10px", left: "10px", fontFamily: "OL", fontSize: "0.7vw", color: "white" }}>
-        Date of Version: 8th Jan<br />
-        Branch: main<br />
-        Pull: demo test 8 half debug
-      </div>
+      <ClickWrapper style={{ position: "absolute", bottom: "5px", left: "5px", fontFamily: "OL", fontSize: "0.5vw", color: "white" }} className="opacity-login-screen">
+        Date of Version: 25th Jan<br />
+        Branch: dev<br />
+        Pull: demo 4 no debug<br />
+        FPS: {fps}
+      </ClickWrapper>
 
       <ClickWrapper style={{ position: "absolute", bottom: "10px", right: "10px", fontFamily: "OL", color: "white" }}>
-        <h2 className="global-button-style no-margin test-h2" style={{ padding: "2px 5px" }} onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSc7HVQCyTLgAgbP1sIDhg7O0Dfz9Lrk9ZYnSGnljPj6lJv1zA/viewform', '_blank')}>
+        <h2 className="global-button-style invert-colors no-margin test-h3" style={{ padding: "2px 5px" }} onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSc7HVQCyTLgAgbP1sIDhg7O0Dfz9Lrk9ZYnSGnljPj6lJv1zA/viewform', '_blank')}>
           Give Feedback
         </h2>
       </ClickWrapper>

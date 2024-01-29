@@ -66,10 +66,9 @@ h4, h2, h3, h1 {
 
 .directional-event-indicator {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   position: absolute;
   background-size: cover;
-  background-position: center;
   background-repeat: no-repeat;
   z-index: -1;
   animation: opacityLoop 5s linear infinite; 
@@ -83,18 +82,18 @@ h4, h2, h3, h1 {
 
 /* Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
-  width: 10px;
+  width: 12px;
 }
 
 *::-webkit-scrollbar-track {
-  background: #1a1e236b;
-  border-radius: 10px;
+  background: #1a1e23;
+  border-radius: 12px;
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #dddfdc54;
-  border-radius: 10px;
-  border: 0px solid #ffffff5e;
+  background-color: #dddfdc;
+  border-radius: 12px;
+  border: 0px solid #ffffff;
 }
 
 .phaser-layer-substitute {
@@ -146,6 +145,20 @@ h4, h2, h3, h1 {
 {
 	cursor: pointer;
 }
+
+.invert-colors {
+  transition: background-color 0.3s ease, color 0.3s ease,  border-color 0.3s ease;
+}
+.invert-colors:hover {
+  background-color: white;
+  color: black;
+  border-color: black;
+}
+.invert-colors:active{
+  scale: 0.95;
+}
+
+
 
 .game-page-container {
   width: 100%;
@@ -238,6 +251,10 @@ h4, h2, h3, h1 {
   font-size: clamp(1.1rem, 2.2vw + 0.9rem, 10rem);
 }
 
+.test-h1-75 {
+  font-size: clamp(1.1rem, 1.4vw + 0.8rem, 8rem);
+}
+
 .test-h1-5 {
   font-size: clamp(1.1rem, 1vw + 0.8rem, 8rem);
 }
@@ -255,7 +272,7 @@ h4, h2, h3, h1 {
 }
 
 .test-h5 {
-  font-size: clamp(0.2rem, 0.45vw + 0.3rem, 2rem);
+  font-size: clamp(0.2rem, 0.3vw + 0.3rem, 2rem);
 }
 
 .no-margin {
@@ -273,4 +290,16 @@ h4, h2, h3, h1 {
   content: "";
   display: inline-block;
   width: 100%;
+}
+
+
+
+
+.opacity-login-screen{
+  opacity: 0;
+  transition: opacity 1s ease
+}
+
+.opacity-login-screen:hover{
+  opacity: 1;
 }

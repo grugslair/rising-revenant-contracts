@@ -40,6 +40,38 @@ export function defineClientComponents(world: World) {
 		);
 	  })(),
 
+	  ClientSettings: (() => {
+		const name = "ClientSettings";
+		return defineComponent(
+		  world,
+		  {
+			volume: RecsType.Number
+		  },
+		  {
+			metadata: {
+			  name: name,
+			},
+		  }
+		);
+	  })(),
+
+	  ClientTransaction: (() => {
+		const name = "ClientTransaction";
+		return defineComponent(
+		  world,
+		  {
+			state: RecsType.Number,
+			message: RecsType.String,
+			txHash: RecsType.String
+		  },
+		  {
+			metadata: {
+			  name: name,
+			},
+		  }
+		);
+	  })(),
+
 	  ClientOutpostData: (() => {
 		const name = "ClientOutpostData";
 		return defineComponent(
@@ -69,6 +101,41 @@ export function defineClientComponents(world: World) {
 			current_block_number : RecsType.Number,
 			guest : RecsType.Boolean,
 			current_event_drawn: RecsType.Number,
+			transaction_count: RecsType.Number,
+		  },
+		  {
+			metadata: {
+			  name: name,
+			},
+		  }
+		);
+	  })(),
+
+	  ClientChunkSettings: (() => {
+		const name = "ClientChunkSettings";
+		return defineComponent(
+		  world,
+		  {
+			chunk_size:  RecsType.Number,
+			view_range_max:  RecsType.Number,
+			view_range_min:  RecsType.Number,
+		  },
+		  {
+			metadata: {
+			  name: name,
+			},
+		  }
+		);
+	  })(),
+
+	  ClientOutpostViewSettings: (() => {
+		const name = "ClientOutpostViewSettings";
+		return defineComponent(
+		  world,
+		  {
+			hide_others_outposts:  RecsType.Boolean,
+			hide_dead_ones: RecsType.Boolean,
+			show_your_everywhere: RecsType.Boolean,
 		  },
 		  {
 			metadata: {

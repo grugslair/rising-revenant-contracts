@@ -23,10 +23,10 @@ export function useLeftBlockCounter() {
     } = useDojo();
 
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
-    const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+    const gameData = getComponentValueStrict(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id)]));
 
     useEffect(() => {
-        const blocksLeft = (gameData.start_block_number + gameData.preparation_phase_interval) - clientGameData.current_block_number!;
+        const blocksLeft = (gameData.start_block_number + gameData.preparation_phase_interval) - clientGameData!.current_block_number!;
 
         setData({numberValue: blocksLeft, stringValue: convertBlockCountToTime(blocksLeft)});
     }, [clientGameData]);

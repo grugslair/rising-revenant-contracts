@@ -15,6 +15,7 @@ import {
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useState } from "react";
 import { GAME_CONFIG_ID } from "../../utils/settingsConstants";
+import { Outpost, Revenant } from "../../generated/graphql";
 
 
 enum TestResults
@@ -107,9 +108,10 @@ export const DebugPage = () => {
       const outpostData = getComponentValue(contractComponents.Outpost, entityId);
       const revenantData = getComponentValue(contractComponents.Revenant, entityId);
       const clientOutpostData = getComponentValue(clientComponents.ClientOutpostData, entityId);
+      const entitiTileIndex = getComponentValue(clientComponents.EntityTileIndex, entityId);
 
-      console.log(`Data for entity ${entityId}`)
-      if (outpostData !== null || outpostData !== undefined) {
+      console.log(entityId)
+      if ( outpostData !== undefined) {
         console.log(outpostData);
       }
       else {
@@ -117,7 +119,7 @@ export const DebugPage = () => {
         passed = TestResults.ERROR;
       }
 
-      if (revenantData !== null || revenantData !== undefined) {
+      if ( revenantData !== undefined) {
         console.log(revenantData);
       }
       else {
@@ -125,18 +127,25 @@ export const DebugPage = () => {
         passed = TestResults.ERROR;
       }
 
-      if (clientOutpostData !== null || clientOutpostData !== undefined) {
+      if (clientOutpostData !== undefined) {
         console.log(clientOutpostData);
       }
       else {
         console.error("ClientOutpostData is non existant for this entity");
         passed = TestResults.ERROR;
       }
+
+      if (entitiTileIndex !== undefined) {
+        console.log(entitiTileIndex);
+      }
+      else {
+        console.error("entitiTileIndex is non existant for this entity");
+        passed = TestResults.ERROR;
+      }
     }
 
     setRevenantCheckOutcome(passed);
   }
-
 
   const worldEventSanityCheck = () => {
     let passed = TestResults.PASSED;
@@ -170,22 +179,42 @@ export const DebugPage = () => {
     setEventCheckOutcome(passed);
   }
 
-  // const createEvent = () => 
-  // {
-  //   const createEventProps: CreateEventProps = {
-  //     account: account,
-  //     game_id: game_id
-  //   }
+  const contractsSanityCheck = () => {
+    for (let index = 0; index < gameEntityCounterEntityQuery.length; index++) {
+      const element = gameEntityCounterEntityQuery[index];
+      console.log(getComponentValueStrict(contractComponents.GameEntityCounter, element) ,element);
+    }
+    console.log("----------------\n")
 
-  //   create_event(createEventProps);
-  // }
+    for (let index = 0; index < gameTrackerEntityQuery.length; index++) {
+      const element = gameTrackerEntityQuery[index];
+      console.log(getComponentValueStrict(contractComponents.GameTracker, element),element);
+    }
+    console.log("----------------\n")
+
+    for (let index = 0; index < gameEntityQuery.length; index++) {
+      const element = gameEntityQuery[index];
+      console.log(getComponentValueStrict(contractComponents.Game, element),element);
+    }
+    console.log("----------------\n")    
+  }
+
+  const createEvent = () => 
+  {
+    // const createEventProps: CreateEventProps = {
+    //   account: account,
+    //   game_id: game_id
+    // }
+
+    // create_event(createEventProps);
+  }
 
   const gameId = getComponentValueStrict(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])).current_game_id;
 
   return (
     <ClickWrapper className="game-page-container">
 
-    <img className="page-img" src="./assets/Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
+    <img className="page-img" src="./Page_Bg/PROFILE_PAGE_BG.png" alt="testPic" />
 
       <h1 style={{ color: "white" , position:"relative"}}>Debug Menu (number inside brackets indicate the correct numbers for each comp type)</h1>
       <div className="buttons-holder" style={{position:"relative"}}>
@@ -209,13 +238,13 @@ export const DebugPage = () => {
         </div>
 
         <div className="data-container">
-          <div className="button-style-debug" onMouseDown={() => { }}>Query Check everthing</div>
+          <div className="button-style-debug" onMouseDown={() => {contractsSanityCheck() }}>Query Check everthing</div>
           <div className="content-holder">
             <h3>There are currently {gameEntityQuery.length} games (1)</h3>
             <h3>There are currently {gameTrackerEntityQuery.length} game tracker (1)</h3>
             <h3>There are currently {gameEntityCounterEntityQuery.length} game entity counter (1)</h3>
-            <h3>There are currently {clientEntityIndexQuery.length} client outpost data ({getComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(gameId)])).revenant_count|| -1})</h3>
-            <h3>Current Game id is {gameId} and should be {getComponentValue(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)])).count  || -1}</h3>
+            <h3>There are currently {clientEntityIndexQuery.length} client outpost data ({getComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(gameId)]))?.revenant_count|| -1})</h3>
+            <h3>Current Game id is {gameId} and should be {getComponentValue(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]))?.count  || -1}</h3>
           </div>
         </div>
 
@@ -233,7 +262,7 @@ export const DebugPage = () => {
           <div className="button-style-debug" onMouseDown={() => { worldEventSanityCheck() }}>Event Section, Click to check for missing data</div>
           <div className="content-holder">
             <h3>There are currently {worldEventEntityQuery.length} events ({gameEntityCounter.event_count}) </h3>
-            {/* <button onMouseDown={() => { createEvent() }}>Manually create Event</button> */}
+            <button onMouseDown={() => { createEvent() }}>Manually create Event</button>
             {eventCheckOutcome === TestResults.NONE && <h3>Run a sanity check...</h3>}
             {eventCheckOutcome === TestResults.PASSED && <h3 style={{ color: 'green' }}>Sanity check Passed</h3>}
             {eventCheckOutcome === TestResults.ERROR && <h3 style={{ color: 'red' }}>Sanity check Failed</h3>}

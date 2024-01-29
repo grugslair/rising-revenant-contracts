@@ -2,36 +2,29 @@ import { useEffect } from "react";
 
 import {
     getComponentValue,
+    updateComponent,
+    setComponent,
   } from "@latticexyz/recs";
 
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { GAME_CONFIG_ID, MAP_HEIGHT, MAP_WIDTH } from "../../utils/settingsConstants";
-import { setClientCameraComponent, setClientCameraEntityIndex } from "../../utils";
 import { useWASDKeys } from "../../phaser/systems/eventSystems/keyPressListener";
 import { getTileIndex } from "../../phaser/constants";
 
 import { MenuState } from "../Pages/gamePhaseManager";
 
-export function useCameraInteraction(menuState: MenuState) {
+
+// this is a big change HERE to move the component to only use camera.centerOn 
+
+export function useCameraInteraction(menuState: MenuState, clientComponents, contractComponents, camera) {
 
     const keysDown = useWASDKeys();
 
-    const CAMERA_SPEED = 10;   ///needs to be global in the settings so it cna be changed
+    const CAMERA_SPEED = 10;   ///needs to be global in the settings so it can be changed
 
     let prevX: number = 0;
     let prevY: number = 0;
-
-    const {
-        networkLayer: {
-          network: { clientComponents }
-        },
-        phaserLayer:{
-          scenes: {
-            Main: { camera },
-          }
-        }
-      } = useDojo();
   
     useEffect(() => {
 
@@ -56,7 +49,7 @@ export function useCameraInteraction(menuState: MenuState) {
             console.log("failed");
             return;
           }
-    
+          
           let newX = camPos.x;
           let newY = camPos.y;
     
@@ -91,11 +84,13 @@ export function useCameraInteraction(menuState: MenuState) {
           }
     
           if (newX !== prevX || newY !== prevY) {
+          
+            setComponent(clientComponents.ClientCameraPosition, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {x: newX, y: newY})
             
-            setClientCameraComponent(newX, newY, clientComponents);
-    
             prevX = newX;
             prevY = newY;
+
+            //HERE we dont want the entity tile index to change all the time this is to change
     
             const camTileIndex = getComponentValue(
               clientComponents.EntityTileIndex,
@@ -104,9 +99,9 @@ export function useCameraInteraction(menuState: MenuState) {
     
             const newIndex = getTileIndex(newX,newY);
     
-            if (newIndex !== camTileIndex.tile_index)
+            if (newIndex !== camTileIndex!.tile_index)
             {
-              setClientCameraEntityIndex(newX, newY, clientComponents)
+              updateComponent(clientComponents.EntityTileIndex, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]), {tile_index: newIndex });
             }
           }
     
@@ -124,3 +119,4 @@ export function useCameraInteraction(menuState: MenuState) {
     return {
     };
 }
+

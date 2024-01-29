@@ -32,35 +32,35 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
 
     return (
         <div className="game-page-container">
-            <img className="page-img brightness-down" src="./assets/Page_Bg/RULES_PAGE_BG.png" alt="testPic" />
+            <img className="page-img brightness-down" src="./Page_Bg/RULES_PAGE_BG.png" alt="testPic" />
             
-            <PageTitleElement imagePosition={ImagesPosition.RIGHT} name={"RULES"} rightPicture={"close_icon.png"} rightImageFunction={setUIState} />
+            <PageTitleElement imagePosition={ImagesPosition.RIGHT} name={"RULES"} rightPicture={"Icons/close_icon.png"} rightImageFunction={setUIState} />
 
-            <ClickWrapper style={{ display: "grid",  gridTemplateColumns:"1fr 1fr", gridTemplateRows:"1fr 1fr", gap: "10px", position: "relative", width: "60%", height: "10%", marginLeft:"20%", boxSizing: "border-box" }}>
-                <div className="global-button-style" style={{ gridRow:"1", gridColumn:"1" }}>
+            <ClickWrapper style={{ display: "grid",  gridTemplateColumns:"1fr 1fr", gridTemplateRows:"1fr 1fr", gap: "10px", position: "relative", width: "60%", height: "15%", marginLeft:"20%", boxSizing: "border-box" }}>
+                <div className="global-button-style center-via-flex" style={{ gridRow:"1", gridColumn:"1" }} >
                     <h2 className="test-h2 no-margin" onClick={() => { setRulesState(RulesState.PREP) }} style={{ opacity: rulesState !== RulesState.PREP ? 0.5 : 1, textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "0px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }}>PREP PHASE</h2>
                 </div >
-                <div className="global-button-style"  style={{ gridRow:"1", gridColumn:"2" }}>
+                <div className="global-button-style center-via-flex"  style={{ gridRow:"1", gridColumn:"2" }}>
                     <h2 className="test-h2 no-margin" onClick={() => { setRulesState(RulesState.GAME) }} style={{ opacity: rulesState !== RulesState.GAME ? 0.5 : 1, textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "0px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }}>GAME PHASE</h2>
                 </div>
-                <div className="global-button-style"  style={{ gridRow:"2", gridColumn:"2" }}>
+                <div className="global-button-style center-via-flex"  style={{ gridRow:"2", gridColumn:"2" }}>
                     <h2 className="test-h2 no-margin" onClick={() => { setRulesState(RulesState.FINAL) }} style={{ opacity: rulesState !== RulesState.FINAL ? 0.5 : 1, textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "0px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }}>FINAL REWARD</h2>
                 </div>
-                <div className="global-button-style"  style={{ gridRow:"2", gridColumn:"1" }}>
+                <div className="global-button-style center-via-flex"  style={{ gridRow:"2", gridColumn:"1" }}>
                     <h2 className="test-h2 no-margin" onClick={() => { setRulesState(RulesState.CONTRIB) }} style={{ opacity: rulesState !== RulesState.CONTRIB ? 0.5 : 1, textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", padding: "0px 20px", boxSizing: "border-box", height: "fit-content", fontFamily: "Zelda", fontWeight: "100" }}>CONTRIBUTION</h2>
                 </div>
             </ClickWrapper>
 
 
             <div style={{ width: "100%", height: "5%", position: "relative" }}></div>
-            <ClickWrapper style={{ width: "100%", height: "70%", position: "relative"}} className="center-via-flex" >
-                <div style={{ width: "60%", height: "100%", color: "white", fontFamily: "OL", display:"flex", flexDirection:"row",gap:"1%"}}>
+            <ClickWrapper style={{ width: "100%", height: "65%", position: "relative"}} className="center-via-flex" >
 
                     <div style={{height: "90%",width:"5%"}} className="center-via-flex">
-                        {rulesState !== RulesState.PREP && <img style={{width:"100%", aspectRatio:"1/1"}} onClick={() => {setRulesState(prevState => prevState - 1)}} className="pointer" src="left-arrow.png"></img>}
+                        {rulesState !== RulesState.PREP && <img style={{width:"75%", aspectRatio:"1/1"}} onClick={() => {setRulesState(prevState => prevState - 1)}} className="pointer" src="Icons/left-arrow.png"></img>}
                     </div>
+                <div style={{ width: "60%", height: "100%", color: "white", fontFamily: "OL", display:"flex", flexDirection:"row", justifyContent:"center"}}>
 
-                    <div style={{height: "90%",width:"88%", color: "white", fontFamily: "OL", overflowY: "auto", scrollbarGutter: "stable", paddingRight: "5px"}}>
+                    <div style={{height: "90%",width:"90%", color: "white", fontFamily: "OL", overflowY: "auto", scrollbarGutter: "stable", paddingRight: "5px"}}>
                     {rulesState === RulesState.PREP && (<>
                         <h2 style={{ marginBottom: "0px", fontWeight: "bold", textDecoration:"underline"  }} className="test-h2">Summoning the Revenants:</h2>
                         <h3 style={{ marginTop: "0px" }} className="test-h3"> Players begin by summoning Revenants, powerful entities, through a mystical expenditure of $LORDS. Each successful summoning not only brings forth a Revenant but also establishes an Outpost around the game map.</h3>
@@ -113,10 +113,11 @@ export const RulesPage: React.FC<RulesPageProps> = ({ setUIState }) => {
                     </>)}
                     </div>
                    
-                    <div style={{height: "90%",width:"5%"}} className="center-via-flex">
-                        {rulesState !== RulesState.FINAL && <img style={{width:"100%", aspectRatio:"1/1"}} onClick={() => {setRulesState(prevState => prevState + 1)}} src="right-arrow.png" className="pointer"></img>}
-                    </div>
+                  
                 </div>
+                <div style={{height: "90%",width:"5%"}} className="center-via-flex">
+                        {rulesState !== RulesState.FINAL && <img style={{width:"75%", aspectRatio:"1/1"}} onClick={() => {setRulesState(prevState => prevState + 1)}} src="Icons/right-arrow.png" className="pointer"></img>}
+                    </div>
             </ClickWrapper>
             <div style={{ width: "100%", height: "5%", position: "relative" }}></div>
         </div>

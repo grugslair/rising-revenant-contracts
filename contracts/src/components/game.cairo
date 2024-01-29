@@ -90,4 +90,3 @@ impl GameImpl of GameTrait {
         assert(self.status != GameStatus::not_created, 'Game not exist');
     }
 }
-

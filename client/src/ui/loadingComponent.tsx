@@ -3,7 +3,7 @@ import { CreateGameProps } from "../dojo/types";
 
 import { Phase } from "./phaseManager";
 import { useDojo } from "../hooks/useDojo";
-import { checkAndSetPhaseClientSide, fetchAllEvents, fetchAllOutRevData, fetchGameData, fetchGameTracker, fetchPlayerInfo, fetchSpecificOutRevData, loadInClientOutpostData, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM } from "../utils";
+import { checkAndSetPhaseClientSide, fetchAllEvents, fetchAllOutRevData, fetchGameData, fetchGameTracker, fetchPlayerInfo, fetchSpecificOutRevData, loadInClientOutpostData, setComponentsFromGraphQlEntitiesHM } from "../utils";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 
 import { getComponentValueStrict, getComponentValue } from "@latticexyz/recs";
@@ -30,7 +30,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
   const {
     account: { account },
     networkLayer: {
-      systemCalls: { create_game, get_current_block   },
+      systemCalls: { create_game, get_current_block},
       network: { contractComponents, clientComponents, graphSdk },
     },
   } = useDojo();
@@ -53,12 +53,12 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
       const create_game_prop: CreateGameProps =
       {
         account: account,
-        preparation_phase_interval: 100,
+        preparation_phase_interval: 150,
         event_interval: 5,
         erc_addr: account.address,
         reward_pool_addr: account.address,
         revenant_init_price: 10,
-        max_amount_of_revenants: 60,
+        max_amount_of_revenants: 125,
       }
 
       await create_game(create_game_prop)
@@ -69,13 +69,13 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
       gameTracker = getComponentValue(contractComponents.GameTracker, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
     }
 
-    const game_id = gameTracker.count;
+    const game_id = gameTracker!.count;
 
     //then fetch the game comp
     const gameDataQuery = await fetchGameData(graphSdk, game_id);  // fetching the last game
     setComponentsFromGraphQlEntitiesHM(gameDataQuery, contractComponents, false);
     
-    const blockCount =  await get_current_block ();  //get the current block count
+    const blockCount =  await get_current_block();  //get the current block count
 
     const data = checkAndSetPhaseClientSide(game_id, blockCount!, contractComponents, clientComponents)
     const gameEntityCounter = getComponentValueStrict(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(game_id)]))
@@ -87,6 +87,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
     setComponentsFromGraphQlEntitiesHM(allOutpostsModels, contractComponents, true);
 
     loadInClientOutpostData(game_id, contractComponents, clientComponents, account);
+
 
     switch (data.phase) {
 
@@ -107,12 +108,23 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
 
   useEffect(() => {
 
-    if (account.address === import.meta.env.VITE_PUBLIC_MASTER_ADDRESS ) {   // to delete
+    if (account.address === import.meta.env.VITE_PUBLIC_MASTER_ADDRESS) {
       return;
     }
 
     loadingFunction();
   }, [account]);
+
+  // // this is just a test do delete when in actual build
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setUIState(Phase.PREP);
+  //   }, 5000);
+
+  //   return () => {
+  //     clearTimeout(timer);
+  //   };
+  // }, []);
 
   return (
     <div className="centered-div" style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center",backgroundColor:"black" }}>
@@ -122,7 +134,7 @@ export const LoadingComponent: React.FC<LoadingPageProps> = ({ setUIState }) => 
         muted
         style={{ maxWidth: "100%", maxHeight: "100%" }}
       >
-        <source src="videos/LoadingAnim.webm" type="video/webm" />
+        <source src="Videos/LoadingAnim.webm" type="video/webm" />
       </video>
     </div>
   );

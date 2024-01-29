@@ -25,6 +25,7 @@ export function createClientComponents({ contractComponents, clientComponents }:
         ClientOutpostData: overridableComponent(clientComponents.ClientOutpostData),
         ClientGameData: overridableComponent(clientComponents.ClientGameData),
         EntityTileIndex: overridableComponent(clientComponents.EntityTileIndex),
+        ClientTransaction: overridableComponent(clientComponents.ClientTransaction),
     };
 }
 

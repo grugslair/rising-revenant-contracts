@@ -25,26 +25,20 @@
   grid-row: 1;
 }
 
-.rev-jurn-page-grid-test-data
-{
-  grid-column: 1/4;
+.rev-jurn-page-grid-position-data{
+  grid-column: 2;
   grid-row: 2;
 }
 
-/* .rev-jurn-page-grid-position-data{
-  grid-column: 1/2.5;
+.rev-jurn-page-grid-type-data{
+  grid-column: 1;
   grid-row: 2;
-} */
+}
 
-/* .rev-jurn-page-grid-type-data{
-  grid-column: 2;
+.rev-jurn-page-grid-radius-data{
+  grid-column: 3;
   grid-row: 2;
-} */
-
-/* .rev-jurn-page-grid-radius-data{
-  grid-column: 2.5/3;
-  grid-row: 2;
-} */
+}
 
 .rev-jurn-page-grid-outpost-hit-table{
   grid-column: 1/4;
@@ -56,6 +50,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   width: 100%;
+  margin-bottom: 10px;
   height: fit-content;
   font-family: "OL";
   font-weight: 100;

@@ -15,14 +15,14 @@ export const OutpostListingElement: React.FC<ItemListingProp> = ({ guest, entity
     return (
         <div className="outpost-sale-element-container">
             <div className="outpost-grid-pic">
-                <img src="test_out_pp.png" className="test-embed" alt="" style={{ width: "100%", height: "100%" }} />
+                <img src="Misc/test_out_pp.png" className="test-embed" alt="" style={{ width: "100%", height: "100%" }} />
             </div>
 
             <div className="outpost-grid-shield center-via-flex">
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "2px", width: "100%", height: "50%" }}>
                     {Array.from({ length: 5 }, (_, index) => (
                         index < shieldsAmount ? (
-                            <img key={index} src="SHIELD.png" alt={`Shield ${index + 1}`} style={{ width: "100%", height: "100%" }} />
+                            <img key={index} src="Icons/SHIELD.png" alt={`Shield ${index + 1}`} style={{ width: "100%", height: "100%" }} />
                         ) : (
                             <div key={index} style={{ width: "100%", height: "100%" }} />
                         )

@@ -4,31 +4,32 @@ import {
     Has,
     getComponentValueStrict,
     HasValue,
-    getComponentValue
+    getComponentValue,
+    updateComponent,
+    defineEnterSystem
 } from "@latticexyz/recs";
 import { useEntityQuery, useComponentValue } from "@latticexyz/react";
 import { useDojo } from "../../hooks/useDojo";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
-import { checkAndSetPhaseClientSide, fetchAllOutRevData, fetchGameData, fetchPlayerInfo, fetchSpecificEvent, fetchSpecificOutRevData, loadInClientOutpostData, setClientOutpostComponent, setComponentsFromGraphQlEntitiesHM, truncateString } from "../../utils";
+import { checkAndSetPhaseClientSide, fetchGameData, fetchPlayerInfo, fetchSpecificEvent, fetchSpecificOutRevData, setComponentsFromGraphQlEntitiesHM, truncateString } from "../../utils";
 import { ClickWrapper } from "../clickWrapper";
 import { GAME_CONFIG_ID, getRefreshOwnOutpostDataTimer } from "../../utils/settingsConstants";
-import { toast } from 'react-toastify';
 
 //styles
 import "./ComponentsStyles/TopBarStyles.css";
 
 //Comps
 import Tooltip from '@mui/material/Tooltip';
+import { toast } from "react-toastify";
 import { LordsBalanceElement } from "../Elements/playerLordsBalance";
+import { useOutpostAmountData } from "../Hooks/outpostsAmountData";
 
 //Pages
 
 
 
-// this is all to redo
-
 const notify = (message: string) => {
-    toast(message, {
+    toast("✅ " + message, {
         position: "top-left",
         autoClose: 5000,
         hideProgressBar: false,
@@ -40,45 +41,40 @@ const notify = (message: string) => {
     });
 }
 
-
 interface TopBarPageProps {
     phaseNum: number;
     setGamePhase?: () => void;
+    contractComponents: any;
+    clientComponents: any;
+    graphSdk: any;
+    account: any;
+    get_current_block: any;
 }
 
-export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phaseNum }) => {
+export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phaseNum, account, contractComponents, clientComponents, graphSdk, get_current_block }) => {
 
     const [playerContribScore, setPlayerContribScore] = useState(0);
     const [playerContribScorePerc, setPlayerContribScorePerc] = useState(0);
-
-    const [soundOn, setSoundOn] = useState<boolean>(true);
-
-    const {
-        account: { account },
-        networkLayer: {
-            network: { contractComponents, clientComponents, graphSdk },
-        },
-    } = useDojo();
-
-
-    // this needs to be custom hooked
-    const outpostQuery = useEntityQuery([Has(contractComponents.Outpost)]);
-    const outpostDeadQuery = useEntityQuery([HasValue(contractComponents.Outpost, { lifes: 0 })]);
-    const allOutpostsEffected = useEntityQuery([HasValue(clientComponents.ClientOutpostData, { event_effected: true })]);
+    const [soundOn, setSoundOn] = useState<Boolean>(true);
 
     const clientGameData = useComponentValue(clientComponents.ClientGameData, getEntityIdFromKeys([BigInt(GAME_CONFIG_ID)]));
 
-    const gameEntityCounter = useComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
-    const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(account.address)]))
-    const gameData = useComponentValue(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData.current_game_id)]));
+    const gameEntityCounter = useComponentValue(contractComponents.GameEntityCounter, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id)]));
+    const playerInfo = useComponentValue(contractComponents.PlayerInfo, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id), BigInt(account.address)]))
+    const gameData = useComponentValue(contractComponents.Game, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id)]));
 
-    useEventAndUserDataLoader();
+    //event and player loader
+    useEventAndUserDataLoader(account, contractComponents, clientComponents, graphSdk, get_current_block);
+    const outpostCountData = useOutpostAmountData(clientComponents, contractComponents);
 
     // this should only be getting called when the user is active the moment the game switches from prep to game phase as the other oupost from other people are not loaded in 
     // in the prep phase
+
     useEffect(() => {
+
         if (phaseNum === 1 && setGamePhase !== undefined) {   // this should only be getting called when the phase goes from prep to game
-            if (clientGameData.current_game_state === 2) {
+            if (clientGameData!.current_game_state === 2) {
+
                 setGamePhase();
             }
         }
@@ -88,122 +84,122 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
     useEffect(() => {
 
         if (playerInfo === null || playerInfo === undefined) { return; }
+
         setPlayerContribScore(playerInfo.score);
-        setPlayerContribScorePerc(Number.isNaN((playerInfo.score / gameEntityCounter.score_count) * 100) ? 0 : Number(((playerInfo.score / gameEntityCounter.score_count) * 100).toFixed(2)));
+        setPlayerContribScorePerc(Number.isNaN((playerInfo.score / gameEntityCounter!.score_count) * 100) ? 0 : Number(((playerInfo.score / gameEntityCounter!.score_count) * 100).toFixed(2)));
 
-    }, [playerInfo, gameData]);
+    }, [playerInfo]);
 
-    //PRETTY SURE THIS IS BROKEN CLIENTGAMEDATA === 1?
+    // this should update all the outpost that have been hit by the current event, as those are the ones with the most likely change of data
     useEffect(() => {
-        const updateOwnData = async () => {
-            if (clientGameData === 1) { return; }
 
-            for (let index = 0; index < allOutpostsEffected.length; index++) {
-                const entity_id = allOutpostsEffected[index];
+        const updateAllOutpostHitByEvent = async () => {
+            for (let index = 0; index < outpostCountData.outpostsHitQuery.length; index++) {
+                const entity_id = outpostCountData.outpostsHitQuery[index];
 
-                //get the current entity
                 let outpostData = getComponentValueStrict(contractComponents.Outpost, entity_id);
                 const lastSavedLifes = outpostData.lifes;
 
-                // if its already dead skip it
                 if (outpostData.lifes === 0) {
                     continue;
                 }
 
                 // if there is at least on event being drawn then
-                if (clientGameData.current_event_drawn !== 0) {
+                if (clientGameData!.current_event_drawn !== 0) {
                     // create the query
-                    const outpostModelQuery = await fetchSpecificOutRevData(graphSdk, clientGameData.current_game_id, Number(outpostData.entity_id));
+                    const outpostModelQuery = await fetchSpecificOutRevData(graphSdk, clientGameData!.current_game_id, Number(outpostData.entity_id));
                     // set the query
                     setComponentsFromGraphQlEntitiesHM(outpostModelQuery, contractComponents, false);
                     outpostData = getComponentValueStrict(contractComponents.Outpost, entity_id);
 
-                    const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
+                    if (clientGameData!.current_event_drawn !== 0) {
+                        const clientOutpostData = getComponentValueStrict(clientComponents.ClientOutpostData, entity_id);
 
-                    // if the outpost has the same value of last event then dont set it to effectd
-                    if (Number(outpostData.last_affect_event_id) === clientGameData.current_event_drawn) {
-                        setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, false, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
-                    } else {
-                        // else calc if it is in there which it should be, to check if this is necessary HERE
-                        const lastEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData.current_game_id), BigInt(clientGameData.current_event_drawn)]));
+                        // if the outpost has the same value of last event then dont set it to effectd
 
-                        const outpostX = outpostData.x;
-                        const outpostY = outpostData.y;
-                        const eventX = lastEvent.x;
-                        const eventY = lastEvent.y;
-                        const eventRadius = lastEvent.radius;
-                        const inRadius = Math.sqrt(Math.pow(outpostX - eventX, 2) + Math.pow(outpostY - eventY, 2)) <= eventRadius;
+                        if (Number(outpostData.last_affect_event_id) === clientGameData!.current_event_drawn && clientOutpostData.event_effected !== false) {
 
-                        setClientOutpostComponent(clientOutpostData.id, clientOutpostData.owned, inRadius, clientOutpostData.selected, clientOutpostData.visible, clientComponents, contractComponents, 1);
-                    }
+                            updateComponent(clientComponents.ClientOutpostData, entity_id, { event_effected: false });
 
-                    // if the health is not the same as last saved and its owned this should be mean that someone else accepted the event 
-                    if (outpostData.lifes !== lastSavedLifes && clientOutpostData.owned) {
-                        notify(`Someone confirmed your outpost ${clientOutpostData.id}`);
+                        } else {
+                            // else calc if it is in there which it should be, to check if this is necessary HERE
+                            const lastEvent = getComponentValue(contractComponents.WorldEvent, getEntityIdFromKeys([BigInt(clientGameData!.current_game_id), BigInt(clientGameData!.current_event_drawn)]));
+
+                            const outpostX = outpostData.x;
+                            const outpostY = outpostData.y;
+                            const eventX = lastEvent!.x;
+                            const eventY = lastEvent!.y;
+                            const eventRadius = lastEvent!.radius;
+                            const inRadius = Math.sqrt(Math.pow(outpostX - eventX, 2) + Math.pow(outpostY - eventY, 2)) <= eventRadius;
+                            if (clientOutpostData.event_effected !== inRadius) {
+
+                                updateComponent(clientComponents.ClientOutpostData, entity_id, { event_effected: inRadius })
+                            }
+                        }
+
+                        if (outpostData.lifes !== lastSavedLifes && clientOutpostData.owned) {
+                            notify(`Someone confirmed your outpost ${clientOutpostData.id}`);
+                        }
                     }
                 }
             }
-        };
+        }
 
-        updateOwnData();
-        const intervalId = setInterval(updateOwnData, getRefreshOwnOutpostDataTimer() * 1000);
+        updateAllOutpostHitByEvent();
+        const intervalId = setInterval(updateAllOutpostHitByEvent, getRefreshOwnOutpostDataTimer() * 1000);
 
         return () => clearInterval(intervalId);
     }, [clientGameData]);
 
-    const playClickSound = () => {
-        if (soundOn) {
-            const audio = new Audio("/sounds/click.wav");
-            audio.currentTime = 0;
-            audio.play();
-        }
-    };
 
-    useEffect(() => {
-        document.addEventListener('click', playClickSound);
-        return () => {
-            document.removeEventListener('click', playClickSound);
-        };
-    }, [soundOn]);
 
     return (
         <ClickWrapper className="top-bar-grid-container">
             <div className="top-bar-grid-game-logo" style={{ display: "flex", justifyContent: "space-evenly", alignItems: "center" }}>
-                <img src="LOGO_WHITE.png" style={{ height: "100%", aspectRatio: "1/1" }}></img>
-                <img src={soundOn === true ? "soundon.png" : "soundoff.png"} className="pointer" style={{ height: "50%", aspectRatio: "1/1" }} onClick={() => setSoundOn(!soundOn)}></img>
+                <img src="Icons/LOGO_WHITE.png" style={{ height: "100%", aspectRatio: "1/1" }}></img>
+                <img src={soundOn === true ? "Icons/soundon.png" : "Icons/soundoff.png"} className="pointer" style={{ height: "50%", aspectRatio: "1/1" }} onClick={() => setSoundOn(!soundOn)}></img>
             </div>
 
             <div className="top-bar-grid-left-text-section center-via-flex">
-                <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                    <div style={{ fontSize: "1.2vw" }}>Jackpot: {Number(gameData.prize)} $LORDS </div>
-                </div>
-                <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-
-                    {clientGameData.current_game_state === 2 && (<>
-                        {clientGameData.guest ? (
-                            <div style={{ fontSize: "1.2vw", filter: "brightness(70%) grayscale(70%)" }}>Contribution: Log in</div>
-                        ) : (
-                            <Tooltip title={<><h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Total contribution game score: {gameEntityCounter.score_count}</h4> <h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Your contribution score count: {playerContribScore}</h4></>}>
-                                <div style={{ fontSize: "1.2vw" }}>Contribution: {playerContribScorePerc}%</div>
-                            </Tooltip>
-                        )}
+                {clientGameData?.current_game_state === 1 ?
+                    <>
+                        <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
+                            <div style={{ fontSize: "1.2vw" }}>Jackpot: {Number(gameData!.prize) * 0.85} $LORDS </div>
+                        </div>
                     </>
-                    )}
+                    :
+                    <>
+                        <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
+                            <div style={{ fontSize: "1.2vw" }}>Jackpot: {Number(gameData!.prize) * 0.85} $LORDS </div>
+                        </div>
+                        <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
+                            {clientGameData!.current_game_state === 2 && (<>
+                                {clientGameData!.guest ? (
+                                    <div style={{ fontSize: "1.2vw", filter: "brightness(70%) grayscale(70%)" }}>Contribution: Log in</div>
+                                ) : (
+                                    <Tooltip title={<>
+                                        <h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Total contribution pot: {Number(gameData!.prize) * 0.15} $LORDS</h4>
+                                        <h4 className="no-margin test-h4" style={{ textAlign: "center" }}>Your share: {(Number(gameData!.prize) * 0.15) *  (Number(((playerContribScore / gameEntityCounter!.score_count) * 100 || 0).toFixed(2))/100)} $LORDS</h4></>}>
 
-                </div>
+                                        <div style={{ fontSize: "1.2vw" }}>
+                                            Contribution: {((playerContribScore / gameEntityCounter!.score_count) * 100 || 0).toFixed(2)}%
+                                        </div>
+
+                                    </Tooltip>
+                                )} </>)}
+                        </div>
+                    </>}
             </div>
-
             <div className="top-bar-grid-right-text-section center-via-flex">
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                    {clientGameData.current_game_state === 1 ?
-                        <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {gameEntityCounter.revenant_count}/{gameData.max_amount_of_revenants}</div>
+                    {clientGameData!.current_game_state === 1 ?
+                        <div style={{ fontSize: "1.2vw" }}>Revenants Summoned: {gameEntityCounter.outpost_count}/{gameData!.max_amount_of_revenants}</div>
                         :
-                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostQuery.length - outpostDeadQuery.length}/{outpostQuery.length}</div>
-
+                        <div style={{ fontSize: "1.2vw" }}>Revenants Alive: {outpostCountData.totalOutpostsQuery.length - outpostCountData.outpostDeadQuery.length}/{outpostCountData.totalOutpostsQuery.length}</div>
                     }
                 </div>
                 <div style={{ width: "100%", flex: "1" }} className="center-via-flex">
-                    <div style={{ fontSize: "1.2vw" }}>Reinforcements in game: {gameEntityCounter.remain_life_count + gameEntityCounter.reinforcement_count}</div>
+                    <div style={{ fontSize: "1.2vw" }}>Reinforcements in game: {gameEntityCounter!.remain_life_count + gameEntityCounter!.reinforcement_count}</div>
                 </div>
             </div>
             <div className="top-bar-grid-game-written-logo">
@@ -211,47 +207,30 @@ export const TopBarComponent: React.FC<TopBarPageProps> = ({ setGamePhase, phase
                     <h2 style={{ fontFamily: "Zelda", fontWeight: "100", fontSize: "2.8vw", whiteSpace: "nowrap" }}>Rising Revenant</h2>
                 </div>
             </div>
-            <div className="top-bar-grid-address" style={{ gap: "4px", justifyContent: "space-around", display: "flex", alignItems: "center" }}>
-                <LordsBalanceElement />
+            <div className="top-bar-grid-address" style={{ justifyContent: "space-between", display: "flex", alignItems: "center" }}>
+                <LordsBalanceElement clientComponents={clientComponents} contractComponents={contractComponents} account={account} />
 
-                <div style={{ width: "50%", height: "75%" }} className="center-via-flex">
-                    {!clientGameData.guest ?
+                <div style={{ width: "70%", height: "75%" }} className="center-via-flex">
+                    {!clientGameData!.guest ?
                         <Tooltip title="Click to copy" placement="bottom">
-                            <h2 onClick={() => navigator.clipboard.writeText(account.address)} className=" pointer">
-                                <img src="argent_logo.png" className="chain-logo" alt="Logo" />
+                            <h2 style={{ whiteSpace: "nowrap" }} onClick={() => navigator.clipboard.writeText(account.address)} className="pointer test-h2">
+                                <img src="Icons/argent_logo.png" className="chain-logo" alt="Logo" />
                                 {truncateString(account.address, 5)}
                             </h2>
                         </Tooltip>
                         :
-                        <div className="global-button-style" style={{ padding: "5px 10px", fontSize: "1.2vw", cursor: "pointer" }} onClick={() => window.location.reload()}>
-                            LOG IN
+                        <div className="global-button-style center-via-flex" style={{ padding: "5px 10px", cursor: "pointer" }} onClick={() => window.location.reload()}>
+                            <h2 className="test-h2 no-margin">LOG IN</h2>
                         </div>
                     }
                 </div>
-
-                {/* <div className="global-button-style" style={{ padding: "5px 10px" }} onClick={() => window.open('https://forms.gle/mpmYp4CdLJxk6nLx7', '_blank')}>
-                    
-                </div> */}
-
-
             </div>
         </ClickWrapper>
     );
 };
 
-
-
-
-// i think this should be in the gamePhaseManager HERE no point in doing checks whilst in the prepPhase 
-const useEventAndUserDataLoader = (updateInterval = 5000) => {
-
-    const {
-        account: { account },
-        networkLayer: {
-            network: { contractComponents, clientComponents, graphSdk },
-            systemCalls: { get_current_block }
-        },
-    } = useDojo();
+// this loads in the event and the specific player data
+const useEventAndUserDataLoader = (account: any, contractComponents: any, clientComponents: any, graphSdk: any, get_current_block: any, updateInterval = 5000) => {
 
     useEffect(() => {
 
@@ -263,7 +242,6 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
         }
 
         const getGameData = async (clientGameData: any) => {
-
             // fetch new game data from chain
             const gameDataQuery = await fetchGameData(graphSdk, clientGameData.current_game_id);
             setComponentsFromGraphQlEntitiesHM(gameDataQuery, contractComponents, false);
@@ -291,7 +269,6 @@ const useEventAndUserDataLoader = (updateInterval = 5000) => {
         }
 
         const checkBlockCount = async (clientGameData: any) => {
-
             const blockCount = await get_current_block();
             checkAndSetPhaseClientSide(clientGameData.current_game_id, blockCount!, contractComponents, clientComponents);
         };
