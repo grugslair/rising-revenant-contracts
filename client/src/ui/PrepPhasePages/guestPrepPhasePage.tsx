@@ -25,6 +25,7 @@ import { useLeftBlockCounter } from "../Elements/leftBlockCounterElement";
 
 export const GuestPagePrepPhase: React.FC= () => {
     const [showBlocks, setShowBlocks] = useState(true);
+    const [blocksLeft, setBlocksLeft] = useState<string>("");
 
     const [freeRevs, setFreeRevs] = useState<number>(10);
 
