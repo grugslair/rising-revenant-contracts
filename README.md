@@ -109,17 +109,22 @@ After cloning the project:
 
 1. **Terminal 1 - Katana:**
 
+``` cd contracts && katana --disable-fee --block-time 1000 ```
+or to have control of the block time
 ``` cd contracts && katana --disable-fee ```
 
 2. **Terminal 2 - Contract build:**
 
-``` cd contracts && sozo build && sozo migrate && torii --world  0x6c0ee063cd0fcc64c8faec57c3f29563f374eccbee76e25aafc9cdc86d7dffc ```
+``` cd contracts && sozo build && sozo migrate && torii --world 0x203899821810220c68f542e1bcd6e5c8db44ab378556bab4460a9b2694919ca ```
 
 3. **Terminal 3 - Burner accounts:**
 
 ``` bash ./contracts/scripts/default_auth.sh ```
 or (depends on OS)
 ``` sh ./contracts/scripts/default_auth.sh ```
+
+if on WSL you get an issue about a pipeline look into this thread
+https://askubuntu.com/questions/1497926/set-pipefail-failing-on-wsl-windows-11-ubuntu-22-04-3
 
 4. **Terminal 4 - Client Front end:**
 
