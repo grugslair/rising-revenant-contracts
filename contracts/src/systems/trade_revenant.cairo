@@ -1,7 +1,7 @@
 #[starknet::interface]
 trait ITradeRevenantActions<TContractState> {
     // Create a new trade
-    fn create(self: @TContractState, game_id: u32, revenant_id: u128, price: u128) -> u32;
+    fn create(self: @TContractState, game_id: u32, outpost_id: u128, price: u128) -> u32;
 
     // Revoke an initiated trade
     fn revoke(self: @TContractState, game_id: u32, trade_id: u32);
@@ -22,22 +22,22 @@ mod trade_revenant_actions {
         IERC20, IERC20Dispatcher, IERC20DispatcherImpl, IERC20DispatcherTrait
     };
 
-    use realmsrisingrevenant::components::game::{
-        Game, GameStatus, GameTracker, GameEntityCounter, GameTrait, GameImpl,
+    use risingrevenant::components::game::{
+        Game, GameStatus, GameCountTracker, GameEntityCounter, GameTrait, GameImpl,
     };
 
-    use realmsrisingrevenant::components::outpost::{Outpost, OutpostStatus};
+    use risingrevenant::components::outpost::{Outpost, OutpostStatus};
 
-    use realmsrisingrevenant::components::player::PlayerInfo;
-    use realmsrisingrevenant::components::revenant::{Revenant, RevenantStatus,};
+    use risingrevenant::components::player::PlayerInfo;
+    use risingrevenant::components::revenant::{Revenant, RevenantStatus,};
 
-    use realmsrisingrevenant::components::trade_revenant::{TradeRevenant, TradeStatus};
+    use risingrevenant::components::trade_revenant::{TradeRevenant, TradeStatus};
 
     use starknet::{ContractAddress, get_block_info, get_caller_address};
 
     #[external(v0)]
     impl TradeRevenantActionImpl of ITradeRevenantActions<ContractState> {
-        fn create(self: @ContractState, game_id: u32, revenant_id: u128, price: u128) -> u32 {
+        fn create(self: @ContractState, game_id: u32, outpost_id: u128, price: u128) -> u32 {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
 
@@ -45,10 +45,10 @@ mod trade_revenant_actions {
             game.assert_is_playing(world);
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            let mut revenant = get!(world, (game_id, revenant_id), Revenant);
+            let mut revenant = get!(world, (game_id, outpost_id), Revenant);
             assert(revenant.status != RevenantStatus::not_start, 'revenant not exists');
             assert(revenant.owner == player, 'not owner');
-            let mut outpost = get!(world, (game_id, revenant.outpost_id), Outpost);
+            let mut outpost = get!(world, (game_id, outpost_id), Outpost);
             assert(outpost.lifes > 0, 'outpost has been destroyed');
 
             game_data.trade_count += 1;
@@ -58,8 +58,7 @@ mod trade_revenant_actions {
                 game_id,
                 entity_id,
                 price,
-                revenant_id,
-                outpost_id: revenant.outpost_id,
+                outpost_id,
                 seller: player,
                 buyer: starknet::contract_address_const::<0x0>(),
                 status: TradeStatus::selling,
@@ -101,7 +100,7 @@ mod trade_revenant_actions {
             assert(trade.status != TradeStatus::revoked, 'trade had been revoked');
             assert(trade.seller != player, 'unable purchase your own trade');
 
-            let mut revenant = get!(world, (game_id, trade.revenant_id), Revenant);
+            let mut revenant = get!(world, (game_id, trade.outpost_id), Revenant);
             let mut outpost = get!(world, (game_id, trade.outpost_id), Outpost);
             // TODO: Should we consider checking whether the current outpost has been destroyed? 
             // For now, we can handle this logic on the front end.
@@ -159,26 +158,26 @@ mod trade_revenant_actions {
 #[cfg(test)]
 mod trade_revenant_tests {
     use dojo::world::{IWorldDispatcherTrait, IWorldDispatcher};
-    use realmsrisingrevenant::tests::test_utils::{
+    use risingrevenant::tests::test_utils::{
         DefaultWorld, EVENT_BLOCK_INTERVAL, PREPARE_PHRASE_INTERVAL, _init_world, _init_game,
         _create_revenant, _add_block_number,
     };
-    use realmsrisingrevenant::systems::trade_revenant::{
+    use risingrevenant::systems::trade_revenant::{
         trade_revenant_actions, ITradeRevenantActionsDispatcher,
         ITradeRevenantActionsDispatcherTrait
     };
 
-    use realmsrisingrevenant::components::game::{
-        Game, game_tracker, GameTracker, GameStatus, GameEntityCounter, GameImpl, GameTrait
+    use risingrevenant::components::game::{
+        Game, GameCountTracker, GameStatus, GameEntityCounter, GameImpl, GameTrait
     };
-    use realmsrisingrevenant::components::outpost::{
+    use risingrevenant::components::outpost::{
         Outpost, OutpostStatus, OutpostImpl, OutpostTrait
     };
-    use realmsrisingrevenant::components::player::PlayerInfo;
-    use realmsrisingrevenant::components::revenant::{
+    use risingrevenant::components::player::PlayerInfo;
+    use risingrevenant::components::revenant::{
         Revenant, RevenantStatus, RevenantImpl, RevenantTrait
     };
-    use realmsrisingrevenant::components::trade_revenant::{TradeRevenant, TradeStatus};
+    use risingrevenant::components::trade_revenant::{TradeRevenant, TradeStatus};
 
     #[test]
     #[available_gas(3000000000)]
@@ -192,7 +191,7 @@ mod trade_revenant_tests {
         let trade_id = trade_revenant_action.create(game_id, revenant_id, price);
         let trade = get!(world, (game_id, trade_id), TradeRevenant);
         assert(trade.price == price, 'wrong trade trade');
-        assert(trade.revenant_id == revenant_id, 'wrong revenant id');
+        assert(trade.outpost_id == revenant_id, 'wrong revenant id');
         assert(trade.outpost_id == 1, 'wrong outpost id');
     }
 

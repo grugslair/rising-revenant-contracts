@@ -1,4 +1,4 @@
-use realmsrisingrevenant::components::world_event::WorldEvent;
+use risingrevenant::components::world_event::WorldEvent;
 
 #[starknet::interface]
 trait IWorldEventActions<TContractState> {
@@ -11,20 +11,20 @@ trait IWorldEventActions<TContractState> {
 
 #[dojo::contract]
 mod world_event_actions {
-    use realmsrisingrevenant::components::game::{
+    use risingrevenant::components::game::{
         Game, GameEntityCounter, GameStatus, GameTrait, GameImpl
     };
-    use realmsrisingrevenant::components::outpost::{
+    use risingrevenant::components::outpost::{
         Outpost, OutpostPosition, OutpostStatus, OutpostImpl, OutpostTrait
     };
-    use realmsrisingrevenant::components::player::{PlayerInfo, PlayerInfoImpl, PlayerInfoTrait};
-    use realmsrisingrevenant::components::world_event::{WorldEvent, WorldEventTracker};
-    use realmsrisingrevenant::constants::{
-        EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH, EVENT_CREATE_SCORE, EVENT_INCREASE_RADIUS, DESTORY_OUTPOST_SCORE,SPAWN_RANGE_Y_MAX, SPAWN_RANGE_Y_MIN, SPAWN_RANGE_X_MAX, SPAWN_RANGE_X_MIN
+    use risingrevenant::components::player::{PlayerInfo, PlayerInfoImpl, PlayerInfoTrait};
+    use risingrevenant::components::world_event::{WorldEvent, WorldEventTracker};
+    use risingrevenant::constants::{
+        EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH,  EVENT_INCREASE_RADIUS, DESTORY_OUTPOST_SCORE,SPAWN_RANGE_Y_MAX, SPAWN_RANGE_Y_MIN, SPAWN_RANGE_X_MAX, SPAWN_RANGE_X_MIN
     };
-    use realmsrisingrevenant::utils::MAX_U32;
-    use realmsrisingrevenant::utils::random::{Random, RandomImpl};
-    use realmsrisingrevenant::utils;
+    use risingrevenant::utils::MAX_U32;
+    use risingrevenant::utils::random::{Random, RandomImpl};
+    use risingrevenant::utils;
     use starknet::{ContractAddress, get_block_info, get_caller_address};
     use super::IWorldEventActions;
 
@@ -54,7 +54,7 @@ mod world_event_actions {
             let mut caller_info = get!(world, (game_id, player), (PlayerInfo));
             let world_event = self._new_world_event(world, game_id, player, entity_id);
             // caller_info.score += EVENT_CREATE_SCORE;    
-            // game_data.score_count += EVENT_CREATE_SCORE;
+            // game_data.contribution_score_count += EVENT_CREATE_SCORE;
             set!(world, (world_event, game_data, caller_info));
             world_event
         }
@@ -115,7 +115,7 @@ mod world_event_actions {
                 }
             }
 
-            game_data.score_count += DESTORY_OUTPOST_SCORE;
+            game_data.contribution_score_count += DESTORY_OUTPOST_SCORE;
             set!(world, (outpost, world_event, event_tracker, game_data, game, owner_info));
 
             // caller_info may be the same as owner_info. In this case, it is not possible to 
@@ -163,11 +163,11 @@ mod world_event_actions {
 
 #[cfg(test)]
 mod world_tests {
-    use realmsrisingrevenant::systems::world_event::{
+    use risingrevenant::systems::world_event::{
         IWorldEventActionsDispatcher, IWorldEventActionsDispatcherTrait
     };
 
-    use realmsrisingrevenant::tests::test_utils::{
+    use risingrevenant::tests::test_utils::{
         DefaultWorld, EVENT_BLOCK_INTERVAL, PREPARE_PHRASE_INTERVAL, _init_world, _init_game,
         _create_revenant, _add_block_number,
     };

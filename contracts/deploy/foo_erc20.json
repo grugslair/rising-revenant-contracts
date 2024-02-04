@@ -2060,15 +2060,15 @@
       ],
       [
         18,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::Transfer"
+        "risingrevenant::tests::foo_erc::FooErc20::Transfer"
       ],
       [
         19,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::Approval"
+        "risingrevenant::tests::foo_erc::FooErc20::Approval"
       ],
       [
         20,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::Event"
+        "risingrevenant::tests::foo_erc::FooErc20::Event"
       ],
       [
         21,
@@ -2156,63 +2156,63 @@
       ],
       [
         42,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState"
+        "risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState"
       ],
       [
         43,
-        "Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, Unit>"
+        "Tuple<risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, Unit>"
       ],
       [
         44,
-        "core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, ())>"
+        "core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, ())>"
       ],
       [
         45,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState"
+        "risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState"
       ],
       [
         46,
-        "Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, Unit>"
+        "Tuple<risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, Unit>"
       ],
       [
         47,
-        "core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, ())>"
+        "core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, ())>"
       ],
       [
         48,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState"
+        "risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState"
       ],
       [
         49,
-        "Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, Unit>"
+        "Tuple<risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, Unit>"
       ],
       [
         50,
-        "core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, ())>"
+        "core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, ())>"
       ],
       [
         51,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState"
+        "risingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState"
       ],
       [
         52,
-        "Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, Unit>"
+        "Tuple<risingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, Unit>"
       ],
       [
         53,
-        "core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, ())>"
+        "core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, ())>"
       ],
       [
         54,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState"
+        "risingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState"
       ],
       [
         55,
-        "Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, Unit>"
+        "Tuple<risingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, Unit>"
       ],
       [
         56,
-        "core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, ())>"
+        "core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, ())>"
       ],
       [
         57,
@@ -2236,23 +2236,23 @@
       ],
       [
         62,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState"
+        "risingrevenant::tests::foo_erc::FooErc20::ContractState"
       ],
       [
         63,
-        "Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, Unit>"
+        "Tuple<risingrevenant::tests::foo_erc::FooErc20::ContractState, Unit>"
       ],
       [
         64,
-        "core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, ())>"
+        "core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::ContractState, ())>"
       ],
       [
         65,
-        "Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool>"
+        "Tuple<risingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool>"
       ],
       [
         66,
-        "core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool)>"
+        "core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool)>"
       ],
       [
         67,
@@ -2414,43 +2414,43 @@
       ],
       [
         25,
-        "struct_construct<realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState>"
+        "struct_construct<risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState>"
       ],
       [
         26,
-        "struct_construct<realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState>"
+        "struct_construct<risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState>"
       ],
       [
         27,
-        "struct_construct<realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState>"
+        "struct_construct<risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState>"
       ],
       [
         28,
-        "struct_construct<realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState>"
+        "struct_construct<risingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState>"
       ],
       [
         29,
-        "struct_construct<realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState>"
+        "struct_construct<risingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState>"
       ],
       [
         30,
-        "struct_construct<realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState>"
+        "struct_construct<risingrevenant::tests::foo_erc::FooErc20::ContractState>"
       ],
       [
         31,
-        "snapshot_take<realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState>"
+        "snapshot_take<risingrevenant::tests::foo_erc::FooErc20::ContractState>"
       ],
       [
         32,
-        "drop<realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState>"
+        "drop<risingrevenant::tests::foo_erc::FooErc20::ContractState>"
       ],
       [
         33,
-        "store_temp<realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState>"
+        "store_temp<risingrevenant::tests::foo_erc::FooErc20::ContractState>"
       ],
       [
         34,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::name>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::name>"
       ],
       [
         35,
@@ -2510,7 +2510,7 @@
       ],
       [
         49,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::symbol>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::symbol>"
       ],
       [
         50,
@@ -2534,7 +2534,7 @@
       ],
       [
         55,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::total_supply>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::total_supply>"
       ],
       [
         56,
@@ -2586,7 +2586,7 @@
       ],
       [
         68,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::balance_of>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::balance_of>"
       ],
       [
         69,
@@ -2594,7 +2594,7 @@
       ],
       [
         70,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::allowance>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::allowance>"
       ],
       [
         71,
@@ -2610,15 +2610,15 @@
       ],
       [
         74,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::transfer>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::transfer>"
       ],
       [
         75,
-        "enum_match<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool)>>"
+        "enum_match<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool)>>"
       ],
       [
         76,
-        "struct_deconstruct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool>>"
+        "struct_deconstruct<Tuple<risingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool>>"
       ],
       [
         77,
@@ -2638,7 +2638,7 @@
       ],
       [
         81,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::transfer_from>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::transfer_from>"
       ],
       [
         82,
@@ -2646,47 +2646,47 @@
       ],
       [
         83,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::approve>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::approve>"
       ],
       [
         84,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::constructor>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::constructor>"
       ],
       [
         85,
-        "enum_match<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, ())>>"
+        "enum_match<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::ContractState, ())>>"
       ],
       [
         86,
-        "drop<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, Unit>>"
+        "drop<Tuple<risingrevenant::tests::foo_erc::FooErc20::ContractState, Unit>>"
       ],
       [
         87,
-        "struct_deconstruct<realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState>"
+        "struct_deconstruct<risingrevenant::tests::foo_erc::FooErc20::ContractState>"
       ],
       [
         88,
-        "drop<realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState>"
+        "drop<risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState>"
       ],
       [
         89,
-        "drop<realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState>"
+        "drop<risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState>"
       ],
       [
         90,
-        "drop<realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState>"
+        "drop<risingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState>"
       ],
       [
         91,
-        "drop<realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState>"
+        "drop<risingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState>"
       ],
       [
         92,
-        "store_temp<realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState>"
+        "store_temp<risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState>"
       ],
       [
         93,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::_name::InternalContractMemberStateImpl::read>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::_name::InternalContractMemberStateImpl::read>"
       ],
       [
         94,
@@ -2718,15 +2718,15 @@
       ],
       [
         101,
-        "drop<realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState>"
+        "drop<risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState>"
       ],
       [
         102,
-        "store_temp<realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState>"
+        "store_temp<risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState>"
       ],
       [
         103,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::InternalContractMemberStateImpl::read>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::_symbol::InternalContractMemberStateImpl::read>"
       ],
       [
         104,
@@ -2738,11 +2738,11 @@
       ],
       [
         106,
-        "store_temp<realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState>"
+        "store_temp<risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState>"
       ],
       [
         107,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::InternalContractMemberStateImpl::read>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::_total_supply::InternalContractMemberStateImpl::read>"
       ],
       [
         108,
@@ -2814,11 +2814,11 @@
       ],
       [
         125,
-        "store_temp<realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState>"
+        "store_temp<risingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState>"
       ],
       [
         126,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::InternalContractMemberStateImpl::read>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::_balances::InternalContractMemberStateImpl::read>"
       ],
       [
         127,
@@ -2826,7 +2826,7 @@
       ],
       [
         128,
-        "store_temp<realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState>"
+        "store_temp<risingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState>"
       ],
       [
         129,
@@ -2834,7 +2834,7 @@
       ],
       [
         130,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::InternalContractMemberStateImpl::read>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::_allowances::InternalContractMemberStateImpl::read>"
       ],
       [
         131,
@@ -2870,7 +2870,7 @@
       ],
       [
         139,
-        "snapshot_take<realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState>"
+        "snapshot_take<risingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState>"
       ],
       [
         140,
@@ -2886,15 +2886,15 @@
       ],
       [
         143,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::InternalContractMemberStateImpl::write>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::_balances::InternalContractMemberStateImpl::write>"
       ],
       [
         144,
-        "enum_match<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, ())>>"
+        "enum_match<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, ())>>"
       ],
       [
         145,
-        "struct_deconstruct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, Unit>>"
+        "struct_deconstruct<Tuple<risingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, Unit>>"
       ],
       [
         146,
@@ -2902,19 +2902,19 @@
       ],
       [
         147,
-        "struct_construct<realmsrisingrevenant::tests::foo_erc::FooErc20::Transfer>"
+        "struct_construct<risingrevenant::tests::foo_erc::FooErc20::Transfer>"
       ],
       [
         148,
-        "store_temp<realmsrisingrevenant::tests::foo_erc::FooErc20::Transfer>"
+        "store_temp<risingrevenant::tests::foo_erc::FooErc20::Transfer>"
       ],
       [
         149,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::ContractStateEventEmitter::emit::<realmsrisingrevenant::tests::foo_erc::FooErc20::Transfer, realmsrisingrevenant::tests::foo_erc::FooErc20::EventTransferIntoEvent>>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::ContractStateEventEmitter::emit::<risingrevenant::tests::foo_erc::FooErc20::Transfer, risingrevenant::tests::foo_erc::FooErc20::EventTransferIntoEvent>>"
       ],
       [
         150,
-        "struct_deconstruct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, Unit>>"
+        "struct_deconstruct<Tuple<risingrevenant::tests::foo_erc::FooErc20::ContractState, Unit>>"
       ],
       [
         151,
@@ -2922,19 +2922,19 @@
       ],
       [
         152,
-        "struct_construct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool>>"
+        "struct_construct<Tuple<risingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool>>"
       ],
       [
         153,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool)>, 0>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool)>, 0>"
       ],
       [
         154,
-        "store_temp<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool)>>"
+        "store_temp<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool)>>"
       ],
       [
         155,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool)>, 1>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::ContractState, core::bool)>, 1>"
       ],
       [
         156,
@@ -2958,7 +2958,7 @@
       ],
       [
         161,
-        "snapshot_take<realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState>"
+        "snapshot_take<risingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState>"
       ],
       [
         162,
@@ -2970,27 +2970,27 @@
       ],
       [
         164,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::InternalContractMemberStateImpl::write>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::_allowances::InternalContractMemberStateImpl::write>"
       ],
       [
         165,
-        "enum_match<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, ())>>"
+        "enum_match<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, ())>>"
       ],
       [
         166,
-        "struct_deconstruct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, Unit>>"
+        "struct_deconstruct<Tuple<risingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, Unit>>"
       ],
       [
         167,
-        "struct_construct<realmsrisingrevenant::tests::foo_erc::FooErc20::Approval>"
+        "struct_construct<risingrevenant::tests::foo_erc::FooErc20::Approval>"
       ],
       [
         168,
-        "store_temp<realmsrisingrevenant::tests::foo_erc::FooErc20::Approval>"
+        "store_temp<risingrevenant::tests::foo_erc::FooErc20::Approval>"
       ],
       [
         169,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::ContractStateEventEmitter::emit::<realmsrisingrevenant::tests::foo_erc::FooErc20::Approval, realmsrisingrevenant::tests::foo_erc::FooErc20::EventApprovalIntoEvent>>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::ContractStateEventEmitter::emit::<risingrevenant::tests::foo_erc::FooErc20::Approval, risingrevenant::tests::foo_erc::FooErc20::EventApprovalIntoEvent>>"
       ],
       [
         170,
@@ -2998,11 +2998,11 @@
       ],
       [
         171,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::_name::InternalContractMemberStateImpl::write>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::_name::InternalContractMemberStateImpl::write>"
       ],
       [
         172,
-        "enum_match<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, ())>>"
+        "enum_match<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, ())>>"
       ],
       [
         173,
@@ -3010,15 +3010,15 @@
       ],
       [
         174,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::InternalContractMemberStateImpl::write>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::_symbol::InternalContractMemberStateImpl::write>"
       ],
       [
         175,
-        "enum_match<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, ())>>"
+        "enum_match<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, ())>>"
       ],
       [
         176,
-        "snapshot_take<realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState>"
+        "snapshot_take<risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState>"
       ],
       [
         177,
@@ -3030,11 +3030,11 @@
       ],
       [
         179,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::InternalContractMemberStateImpl::write>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::_total_supply::InternalContractMemberStateImpl::write>"
       ],
       [
         180,
-        "enum_match<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, ())>>"
+        "enum_match<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, ())>>"
       ],
       [
         181,
@@ -3042,43 +3042,43 @@
       ],
       [
         182,
-        "struct_deconstruct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, Unit>>"
+        "struct_deconstruct<Tuple<risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, Unit>>"
       ],
       [
         183,
-        "struct_deconstruct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, Unit>>"
+        "struct_deconstruct<Tuple<risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, Unit>>"
       ],
       [
         184,
-        "struct_deconstruct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, Unit>>"
+        "struct_deconstruct<Tuple<risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, Unit>>"
       ],
       [
         185,
-        "struct_construct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, Unit>>"
+        "struct_construct<Tuple<risingrevenant::tests::foo_erc::FooErc20::ContractState, Unit>>"
       ],
       [
         186,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, ())>, 0>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::ContractState, ())>, 0>"
       ],
       [
         187,
-        "store_temp<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, ())>>"
+        "store_temp<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::ContractState, ())>>"
       ],
       [
         188,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::ContractState, ())>, 1>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::ContractState, ())>, 1>"
       ],
       [
         189,
-        "drop<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, Unit>>"
+        "drop<Tuple<risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, Unit>>"
       ],
       [
         190,
-        "drop<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, Unit>>"
+        "drop<Tuple<risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, Unit>>"
       ],
       [
         191,
-        "drop<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, Unit>>"
+        "drop<Tuple<risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, Unit>>"
       ],
       [
         192,
@@ -3198,11 +3198,11 @@
       ],
       [
         221,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::InternalContractMemberStateImpl::address>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::_balances::InternalContractMemberStateImpl::address>"
       ],
       [
         222,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::InternalContractMemberStateImpl::address>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::_allowances::InternalContractMemberStateImpl::address>"
       ],
       [
         223,
@@ -3294,19 +3294,19 @@
       ],
       [
         245,
-        "struct_construct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, Unit>>"
+        "struct_construct<Tuple<risingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, Unit>>"
       ],
       [
         246,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, ())>, 0>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, ())>, 0>"
       ],
       [
         247,
-        "store_temp<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, ())>>"
+        "store_temp<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, ())>>"
       ],
       [
         248,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, ())>, 1>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_balances::ContractMemberState, ())>, 1>"
       ],
       [
         249,
@@ -3318,23 +3318,23 @@
       ],
       [
         251,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::EventTransferIntoEvent::into>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::EventTransferIntoEvent::into>"
       ],
       [
         252,
-        "snapshot_take<realmsrisingrevenant::tests::foo_erc::FooErc20::Event>"
+        "snapshot_take<risingrevenant::tests::foo_erc::FooErc20::Event>"
       ],
       [
         253,
-        "drop<realmsrisingrevenant::tests::foo_erc::FooErc20::Event>"
+        "drop<risingrevenant::tests::foo_erc::FooErc20::Event>"
       ],
       [
         254,
-        "store_temp<realmsrisingrevenant::tests::foo_erc::FooErc20::Event>"
+        "store_temp<risingrevenant::tests::foo_erc::FooErc20::Event>"
       ],
       [
         255,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::EventIsEvent::append_keys_and_data>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::EventIsEvent::append_keys_and_data>"
       ],
       [
         256,
@@ -3362,27 +3362,27 @@
       ],
       [
         262,
-        "struct_construct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, Unit>>"
+        "struct_construct<Tuple<risingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, Unit>>"
       ],
       [
         263,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, ())>, 0>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, ())>, 0>"
       ],
       [
         264,
-        "store_temp<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, ())>>"
+        "store_temp<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, ())>>"
       ],
       [
         265,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, ())>, 1>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_allowances::ContractMemberState, ())>, 1>"
       ],
       [
         266,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::EventApprovalIntoEvent::into>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::EventApprovalIntoEvent::into>"
       ],
       [
         267,
-        "snapshot_take<realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState>"
+        "snapshot_take<risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState>"
       ],
       [
         268,
@@ -3390,55 +3390,55 @@
       ],
       [
         269,
-        "struct_construct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, Unit>>"
+        "struct_construct<Tuple<risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, Unit>>"
       ],
       [
         270,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, ())>, 0>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, ())>, 0>"
       ],
       [
         271,
-        "store_temp<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, ())>>"
+        "store_temp<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, ())>>"
       ],
       [
         272,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, ())>, 1>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_name::ContractMemberState, ())>, 1>"
       ],
       [
         273,
-        "snapshot_take<realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState>"
+        "snapshot_take<risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState>"
       ],
       [
         274,
-        "struct_construct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, Unit>>"
+        "struct_construct<Tuple<risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, Unit>>"
       ],
       [
         275,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, ())>, 0>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, ())>, 0>"
       ],
       [
         276,
-        "store_temp<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, ())>>"
+        "store_temp<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, ())>>"
       ],
       [
         277,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, ())>, 1>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_symbol::ContractMemberState, ())>, 1>"
       ],
       [
         278,
-        "struct_construct<Tuple<realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, Unit>>"
+        "struct_construct<Tuple<risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, Unit>>"
       ],
       [
         279,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, ())>, 0>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, ())>, 0>"
       ],
       [
         280,
-        "store_temp<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, ())>>"
+        "store_temp<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, ())>>"
       ],
       [
         281,
-        "enum_init<core::panics::PanicResult::<(realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, ())>, 1>"
+        "enum_init<core::panics::PanicResult::<(risingrevenant::tests::foo_erc::FooErc20::_total_supply::ContractMemberState, ())>, 1>"
       ],
       [
         282,
@@ -3630,11 +3630,11 @@
       ],
       [
         329,
-        "enum_init<realmsrisingrevenant::tests::foo_erc::FooErc20::Event, 0>"
+        "enum_init<risingrevenant::tests::foo_erc::FooErc20::Event, 0>"
       ],
       [
         330,
-        "enum_match<realmsrisingrevenant::tests::foo_erc::FooErc20::Event>"
+        "enum_match<risingrevenant::tests::foo_erc::FooErc20::Event>"
       ],
       [
         331,
@@ -3642,7 +3642,7 @@
       ],
       [
         332,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::TransferIsEvent::append_keys_and_data>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::TransferIsEvent::append_keys_and_data>"
       ],
       [
         333,
@@ -3650,7 +3650,7 @@
       ],
       [
         334,
-        "function_call<user@realmsrisingrevenant::tests::foo_erc::FooErc20::ApprovalIsEvent::append_keys_and_data>"
+        "function_call<user@risingrevenant::tests::foo_erc::FooErc20::ApprovalIsEvent::append_keys_and_data>"
       ],
       [
         335,
@@ -3666,7 +3666,7 @@
       ],
       [
         338,
-        "enum_init<realmsrisingrevenant::tests::foo_erc::FooErc20::Event, 1>"
+        "enum_init<risingrevenant::tests::foo_erc::FooErc20::Event, 1>"
       ],
       [
         339,
@@ -3734,11 +3734,11 @@
       ],
       [
         355,
-        "dup<realmsrisingrevenant::tests::foo_erc::FooErc20::Transfer>"
+        "dup<risingrevenant::tests::foo_erc::FooErc20::Transfer>"
       ],
       [
         356,
-        "struct_deconstruct<realmsrisingrevenant::tests::foo_erc::FooErc20::Transfer>"
+        "struct_deconstruct<risingrevenant::tests::foo_erc::FooErc20::Transfer>"
       ],
       [
         357,
@@ -3746,11 +3746,11 @@
       ],
       [
         358,
-        "dup<realmsrisingrevenant::tests::foo_erc::FooErc20::Approval>"
+        "dup<risingrevenant::tests::foo_erc::FooErc20::Approval>"
       ],
       [
         359,
-        "struct_deconstruct<realmsrisingrevenant::tests::foo_erc::FooErc20::Approval>"
+        "struct_deconstruct<risingrevenant::tests::foo_erc::FooErc20::Approval>"
       ],
       [
         360,
@@ -3764,47 +3764,47 @@
     "user_func_names": [
       [
         0,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::__wrapper_name"
+        "risingrevenant::tests::foo_erc::FooErc20::__wrapper_name"
       ],
       [
         1,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::__wrapper_symbol"
+        "risingrevenant::tests::foo_erc::FooErc20::__wrapper_symbol"
       ],
       [
         2,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::__wrapper_decimals"
+        "risingrevenant::tests::foo_erc::FooErc20::__wrapper_decimals"
       ],
       [
         3,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::__wrapper_total_supply"
+        "risingrevenant::tests::foo_erc::FooErc20::__wrapper_total_supply"
       ],
       [
         4,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::__wrapper_balance_of"
+        "risingrevenant::tests::foo_erc::FooErc20::__wrapper_balance_of"
       ],
       [
         5,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::__wrapper_allowance"
+        "risingrevenant::tests::foo_erc::FooErc20::__wrapper_allowance"
       ],
       [
         6,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::__wrapper_transfer"
+        "risingrevenant::tests::foo_erc::FooErc20::__wrapper_transfer"
       ],
       [
         7,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::__wrapper_transfer_from"
+        "risingrevenant::tests::foo_erc::FooErc20::__wrapper_transfer_from"
       ],
       [
         8,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::__wrapper_approve"
+        "risingrevenant::tests::foo_erc::FooErc20::__wrapper_approve"
       ],
       [
         9,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::__wrapper_constructor"
+        "risingrevenant::tests::foo_erc::FooErc20::__wrapper_constructor"
       ],
       [
         10,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::name"
+        "risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::name"
       ],
       [
         11,
@@ -3812,7 +3812,7 @@
       ],
       [
         12,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::symbol"
+        "risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::symbol"
       ],
       [
         13,
@@ -3820,7 +3820,7 @@
       ],
       [
         14,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::total_supply"
+        "risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::total_supply"
       ],
       [
         15,
@@ -3832,11 +3832,11 @@
       ],
       [
         17,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::balance_of"
+        "risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::balance_of"
       ],
       [
         18,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::allowance"
+        "risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::allowance"
       ],
       [
         19,
@@ -3844,7 +3844,7 @@
       ],
       [
         20,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::transfer"
+        "risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::transfer"
       ],
       [
         21,
@@ -3852,27 +3852,27 @@
       ],
       [
         22,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::transfer_from"
+        "risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::transfer_from"
       ],
       [
         23,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::ERC20Impl::approve"
+        "risingrevenant::tests::foo_erc::FooErc20::ERC20Impl::approve"
       ],
       [
         24,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::constructor"
+        "risingrevenant::tests::foo_erc::FooErc20::constructor"
       ],
       [
         25,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_name::InternalContractMemberStateImpl::read"
+        "risingrevenant::tests::foo_erc::FooErc20::_name::InternalContractMemberStateImpl::read"
       ],
       [
         26,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::InternalContractMemberStateImpl::read"
+        "risingrevenant::tests::foo_erc::FooErc20::_symbol::InternalContractMemberStateImpl::read"
       ],
       [
         27,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::InternalContractMemberStateImpl::read"
+        "risingrevenant::tests::foo_erc::FooErc20::_total_supply::InternalContractMemberStateImpl::read"
       ],
       [
         28,
@@ -3884,11 +3884,11 @@
       ],
       [
         30,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::InternalContractMemberStateImpl::read"
+        "risingrevenant::tests::foo_erc::FooErc20::_balances::InternalContractMemberStateImpl::read"
       ],
       [
         31,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::InternalContractMemberStateImpl::read"
+        "risingrevenant::tests::foo_erc::FooErc20::_allowances::InternalContractMemberStateImpl::read"
       ],
       [
         32,
@@ -3904,7 +3904,7 @@
       ],
       [
         35,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::InternalContractMemberStateImpl::write"
+        "risingrevenant::tests::foo_erc::FooErc20::_balances::InternalContractMemberStateImpl::write"
       ],
       [
         36,
@@ -3912,7 +3912,7 @@
       ],
       [
         37,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::ContractStateEventEmitter::emit::<realmsrisingrevenant::tests::foo_erc::FooErc20::Transfer, realmsrisingrevenant::tests::foo_erc::FooErc20::EventTransferIntoEvent>"
+        "risingrevenant::tests::foo_erc::FooErc20::ContractStateEventEmitter::emit::<risingrevenant::tests::foo_erc::FooErc20::Transfer, risingrevenant::tests::foo_erc::FooErc20::EventTransferIntoEvent>"
       ],
       [
         38,
@@ -3920,23 +3920,23 @@
       ],
       [
         39,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::InternalContractMemberStateImpl::write"
+        "risingrevenant::tests::foo_erc::FooErc20::_allowances::InternalContractMemberStateImpl::write"
       ],
       [
         40,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::ContractStateEventEmitter::emit::<realmsrisingrevenant::tests::foo_erc::FooErc20::Approval, realmsrisingrevenant::tests::foo_erc::FooErc20::EventApprovalIntoEvent>"
+        "risingrevenant::tests::foo_erc::FooErc20::ContractStateEventEmitter::emit::<risingrevenant::tests::foo_erc::FooErc20::Approval, risingrevenant::tests::foo_erc::FooErc20::EventApprovalIntoEvent>"
       ],
       [
         41,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_name::InternalContractMemberStateImpl::write"
+        "risingrevenant::tests::foo_erc::FooErc20::_name::InternalContractMemberStateImpl::write"
       ],
       [
         42,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_symbol::InternalContractMemberStateImpl::write"
+        "risingrevenant::tests::foo_erc::FooErc20::_symbol::InternalContractMemberStateImpl::write"
       ],
       [
         43,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_total_supply::InternalContractMemberStateImpl::write"
+        "risingrevenant::tests::foo_erc::FooErc20::_total_supply::InternalContractMemberStateImpl::write"
       ],
       [
         44,
@@ -3952,11 +3952,11 @@
       ],
       [
         47,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_balances::InternalContractMemberStateImpl::address"
+        "risingrevenant::tests::foo_erc::FooErc20::_balances::InternalContractMemberStateImpl::address"
       ],
       [
         48,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::_allowances::InternalContractMemberStateImpl::address"
+        "risingrevenant::tests::foo_erc::FooErc20::_allowances::InternalContractMemberStateImpl::address"
       ],
       [
         49,
@@ -3984,11 +3984,11 @@
       ],
       [
         55,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::EventTransferIntoEvent::into"
+        "risingrevenant::tests::foo_erc::FooErc20::EventTransferIntoEvent::into"
       ],
       [
         56,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::EventIsEvent::append_keys_and_data"
+        "risingrevenant::tests::foo_erc::FooErc20::EventIsEvent::append_keys_and_data"
       ],
       [
         57,
@@ -3996,7 +3996,7 @@
       ],
       [
         58,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::EventApprovalIntoEvent::into"
+        "risingrevenant::tests::foo_erc::FooErc20::EventApprovalIntoEvent::into"
       ],
       [
         59,
@@ -4016,11 +4016,11 @@
       ],
       [
         63,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::TransferIsEvent::append_keys_and_data"
+        "risingrevenant::tests::foo_erc::FooErc20::TransferIsEvent::append_keys_and_data"
       ],
       [
         64,
-        "realmsrisingrevenant::tests::foo_erc::FooErc20::ApprovalIsEvent::append_keys_and_data"
+        "risingrevenant::tests::foo_erc::FooErc20::ApprovalIsEvent::append_keys_and_data"
       ],
       [
         65,
@@ -4271,7 +4271,7 @@
     },
     {
       "type": "event",
-      "name": "realmsrisingrevenant::tests::foo_erc::FooErc20::Transfer",
+      "name": "risingrevenant::tests::foo_erc::FooErc20::Transfer",
       "kind": "struct",
       "members": [
         {
@@ -4293,7 +4293,7 @@
     },
     {
       "type": "event",
-      "name": "realmsrisingrevenant::tests::foo_erc::FooErc20::Approval",
+      "name": "risingrevenant::tests::foo_erc::FooErc20::Approval",
       "kind": "struct",
       "members": [
         {
@@ -4315,17 +4315,17 @@
     },
     {
       "type": "event",
-      "name": "realmsrisingrevenant::tests::foo_erc::FooErc20::Event",
+      "name": "risingrevenant::tests::foo_erc::FooErc20::Event",
       "kind": "enum",
       "variants": [
         {
           "name": "Transfer",
-          "type": "realmsrisingrevenant::tests::foo_erc::FooErc20::Transfer",
+          "type": "risingrevenant::tests::foo_erc::FooErc20::Transfer",
           "kind": "nested"
         },
         {
           "name": "Approval",
-          "type": "realmsrisingrevenant::tests::foo_erc::FooErc20::Approval",
+          "type": "risingrevenant::tests::foo_erc::FooErc20::Approval",
           "kind": "nested"
         }
       ]

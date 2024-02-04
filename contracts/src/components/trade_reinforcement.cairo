@@ -2,7 +2,7 @@ use starknet::ContractAddress;
 
 // Trade for reinforcement
 #[derive(Model, Copy, Drop, Serde, SerdeLen)]
-struct Trade {
+struct TradeReinforcement {
     #[key]
     game_id: u32,
     #[key]
@@ -11,12 +11,12 @@ struct Trade {
     price: u128,
     count: u32,
     buyer: ContractAddress,
-    status: u32,
+    status: u8,
 }
 
 mod TradeStatus {
-    const not_created: u32 = 0;
-    const selling: u32 = 1;
-    const sold: u32 = 2;
-    const revoked: u32 = 3;
+    const not_created: u8 = 0;
+    const selling: u8 = 1;
+    const sold: u8 = 2;
+    const revoked: u8 = 3;
 }

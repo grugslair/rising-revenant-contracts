@@ -5,32 +5,32 @@ use dojo::world::{IWorldDispatcherTrait, IWorldDispatcher};
 use openzeppelin::token::erc20::interface::{
     IERC20, IERC20Dispatcher, IERC20DispatcherImpl, IERC20DispatcherTrait
 };
-use realmsrisingrevenant::components::game::{game, game_tracker};
-use realmsrisingrevenant::components::outpost::outpost;
-use realmsrisingrevenant::components::player::player_info;
-use realmsrisingrevenant::components::revenant::revenant;
-use realmsrisingrevenant::components::trade::trade;
-use realmsrisingrevenant::components::trade_revenant::trade_revenant;
-use realmsrisingrevenant::components::world_event::world_event;
+use risingrevenant::components::game::{game, game_count_tracker};
+use risingrevenant::components::outpost::outpost;
+use risingrevenant::components::player::player_info;
+use risingrevenant::components::revenant::revenant;
+use risingrevenant::components::trade_reinforcement::trade_reinforcement;
+use risingrevenant::components::trade_revenant::trade_revenant;
+use risingrevenant::components::world_event::world_event;
 
-use realmsrisingrevenant::constants::{EVENT_INIT_RADIUS, GAME_CONFIG, OUTPOST_INIT_LIFE};
+use risingrevenant::constants::{EVENT_INIT_RADIUS, GAME_CONFIG, OUTPOST_INIT_LIFE};
 
-use realmsrisingrevenant::systems::game::{
+use risingrevenant::systems::game::{
     game_actions, IGameActionsDispatcher, IGameActionsDispatcherTrait
 };
-use realmsrisingrevenant::systems::revenant::{
+use risingrevenant::systems::revenant::{
     revenant_actions, IRevenantActionsDispatcher, IRevenantActionsDispatcherTrait
 };
-use realmsrisingrevenant::systems::trade::{
-    trade_actions, ITradeActionsDispatcher, ITradeActionsDispatcherTrait
+use risingrevenant::systems::trade_reinforcement::{
+    trade_reinforcement_actions, ITradeActionsDispatcher, ITradeActionsDispatcherTrait
 };
-use realmsrisingrevenant::systems::trade_revenant::{
+use risingrevenant::systems::trade_revenant::{
     trade_revenant_actions, ITradeRevenantActionsDispatcher, ITradeRevenantActionsDispatcherTrait
 };
-use realmsrisingrevenant::systems::world_event::{
+use risingrevenant::systems::world_event::{
     world_event_actions, IWorldEventActionsDispatcher, IWorldEventActionsDispatcherTrait
 };
-use realmsrisingrevenant::tests::foo_erc::FooErc20;
+use risingrevenant::tests::foo_erc::FooErc20;
 use starknet::{ContractAddress, syscalls::deploy_syscall};
 
 const EVENT_BLOCK_INTERVAL: u64 = 3;
@@ -59,11 +59,11 @@ fn _init_world() -> DefaultWorld {
     // components
     let mut models = array![
         game::TEST_CLASS_HASH,
-        game_tracker::TEST_CLASS_HASH,
+        game_count_tracker::TEST_CLASS_HASH,
         player_info::TEST_CLASS_HASH,
         outpost::TEST_CLASS_HASH,
         revenant::TEST_CLASS_HASH,
-        trade::TEST_CLASS_HASH,
+        trade_reinforcement::TEST_CLASS_HASH,
         trade_revenant::TEST_CLASS_HASH,
         world_event::TEST_CLASS_HASH
     ];
@@ -83,7 +83,7 @@ fn _init_world() -> DefaultWorld {
 
     let trade_action = ITradeActionsDispatcher {
         contract_address: world
-            .deploy_contract('salt', trade_actions::TEST_CLASS_HASH.try_into().unwrap())
+            .deploy_contract('salt', trade_reinforcement_actions::TEST_CLASS_HASH.try_into().unwrap())
     };
 
     let trade_revenant_action = ITradeRevenantActionsDispatcher {
@@ -105,7 +105,7 @@ fn _init_world() -> DefaultWorld {
     // init admin user
     let admin = starknet::contract_address_const::<0xABCD>();
     world.grant_owner(admin, 'Game');
-    world.grant_owner(admin, 'GameTracker');
+    world.grant_owner(admin, 'GameCountTracker');
     world.grant_owner(admin, 'GameEntityCounter');
     world.grant_owner(admin, 'PlayerInfo');
     world.grant_owner(admin, 'Outpost');
@@ -152,7 +152,7 @@ fn _init_game() -> (DefaultWorld, u32) {
 
 fn _create_revenant(revenant_action: IRevenantActionsDispatcher, game_id: u32) -> (u128, u128) {
     let (revenant_id, outpost_id) = revenant_action.create(game_id, 1);
-    revenant_action.claim_initial_rewards(game_id);
+    // revenant_action.claim_initial_rewards(game_id);
     (revenant_id, outpost_id)
 }
 

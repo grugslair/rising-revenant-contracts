@@ -1,5 +1,5 @@
 use starknet::ContractAddress;
-use realmsrisingrevenant::constants::OUTPOST_MAX_REINFORCEMENT;
+use risingrevenant::constants::OUTPOST_MAX_REINFORCEMENT;
 
 #[derive(Model, Copy, Drop, Serde, SerdeLen)]
 struct Outpost {
@@ -7,13 +7,12 @@ struct Outpost {
     game_id: u32,
     #[key]
     entity_id: u128,
-    revenant_id: u128,
     owner: ContractAddress,
     name_outpost: felt252,
     x: u32,
     y: u32,
     lifes: u32,
-    shield: u8, //Alex
+    shield: u8,
     reinforcement_count: u32,
     status: u32,
     last_affect_event_id: u128
@@ -34,7 +33,6 @@ struct OutpostPosition {
 mod OutpostStatus {
     const not_created: u32 = 0;
     const created: u32 = 1;
-// const destroyed: u32 = 2;
 }
 
 #[generate_trait]
@@ -45,12 +43,11 @@ impl OutpostImpl of OutpostTrait {
     }
 
     fn assert_can_reinforcement(self: Outpost) {
-        self.assert_existed(); //Alex
+        self.assert_existed(); 
         assert(self.reinforcement_count <= OUTPOST_MAX_REINFORCEMENT, 'reach reinforce limit');
     }
 
-    //Alex
-    // does cairo have else if?
+  
     fn get_shields_amount(self: Outpost) -> u8 {
         let reinforcements = self.lifes;
 
@@ -67,7 +64,7 @@ impl OutpostImpl of OutpostTrait {
         } else if (reinforcements == 20) {
             return 5;
         } else {
-            return 7; //error 
+            return 7;
         }
     }
 }

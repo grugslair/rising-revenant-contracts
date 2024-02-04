@@ -15,25 +15,25 @@ trait ITradeActions<TContractState> {
 
 // Trade for reinforcement
 #[dojo::contract]
-mod trade_actions {
+mod trade_reinforcement_actions {
     use super::ITradeActions;
 
     use openzeppelin::token::erc20::interface::{
         IERC20, IERC20Dispatcher, IERC20DispatcherImpl, IERC20DispatcherTrait
     };
 
-    use realmsrisingrevenant::components::game::{
-        Game, GameStatus, GameTracker, GameEntityCounter, GameTrait, GameImpl,
+    use risingrevenant::components::game::{
+        Game, GameStatus, GameCountTracker, GameEntityCounter, GameTrait, GameImpl,
     };
 
-    use realmsrisingrevenant::components::reinforcement::{
+    use risingrevenant::components::reinforcement::{
         ReinforcementBalance, ReinforcementBalanceImpl, ReinforcementBalanceTrait
     };
 
-    use realmsrisingrevenant::components::player::{PlayerInfo, PlayerInfoImpl, PlayerInfoTrait};
-    use realmsrisingrevenant::components::revenant::{Revenant, RevenantStatus,};
+    use risingrevenant::components::player::{PlayerInfo, PlayerInfoImpl, PlayerInfoTrait};
+    use risingrevenant::components::revenant::{Revenant, RevenantStatus,};
 
-    use realmsrisingrevenant::components::trade::{Trade, TradeStatus};
+    use risingrevenant::components::trade_reinforcement::{TradeReinforcement, TradeStatus};
 
     use starknet::{ContractAddress, get_block_info, get_caller_address};
 
@@ -49,13 +49,13 @@ mod trade_actions {
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
             player_info.check_player_exists(world); 
             assert(count > 0, 'count must larger than 0');
-            assert(player_info.reinforcement_count >= count, 'No reinforcement can sell');
+            assert(player_info.reinforcements_available_count >= count, 'No reinforcement can sell');
 
-            player_info.reinforcement_count -= count;
+            player_info.reinforcements_available_count -= count;
             game_data.trade_count += 1;
 
             let entity_id = game_data.trade_count;
-            let trade = Trade {
+            let trade = TradeReinforcement {
                 game_id,
                 entity_id,
                 price,
@@ -77,7 +77,7 @@ mod trade_actions {
             let (mut game, mut game_data) = get!(world, game_id, (Game, GameEntityCounter));
             game.assert_is_playing(world);
 
-            let mut trade = get!(world, (game_id, entity_id), Trade);
+            let mut trade = get!(world, (game_id, entity_id), TradeReinforcement);
             assert(trade.status != TradeStatus::not_created, 'trade not exist');
             assert(trade.status != TradeStatus::sold, 'trade had been sold');
             assert(trade.status != TradeStatus::revoked, 'trade had been revoked');
@@ -86,7 +86,7 @@ mod trade_actions {
             trade.status = TradeStatus::revoked;
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
-            player_info.reinforcement_count += trade.count;
+            player_info.reinforcements_available_count += trade.count;
 
             set!(world, (player_info, trade, game_data));
         }
@@ -98,7 +98,7 @@ mod trade_actions {
             let mut game = get!(world, game_id, Game); // get the game struct
             game.assert_is_playing(world); // check if the game is on going
 
-            let mut trade = get!(world, (game_id, trade_id), Trade);
+            let mut trade = get!(world, (game_id, trade_id), TradeReinforcement);
             assert(trade.status != TradeStatus::not_created, 'trade not exist');
             assert(trade.status != TradeStatus::sold, 'trade had been sold');
             assert(trade.status != TradeStatus::revoked, 'trade had been revoked');
@@ -122,7 +122,7 @@ mod trade_actions {
 
             let mut player_info_buyer = get!(world, (game_id, player), PlayerInfo);
             player_info_buyer.check_player_exists(world); 
-            player_info_buyer.reinforcement_count += trade.count;
+            player_info_buyer.reinforcements_available_count += trade.count;
 
             assert(player_info_buyer.player_wallet_amount >= trade.price, 'not enough cash');
 
@@ -144,7 +144,7 @@ mod trade_actions {
             let mut game = get!(world, game_id, (Game));
             game.assert_is_playing(world);
 
-            let mut trade = get!(world, (game_id, trade_id), Trade);
+            let mut trade = get!(world, (game_id, trade_id), TradeReinforcement);
             assert(trade.status != TradeStatus::not_created, 'trade not exist');
             assert(trade.status != TradeStatus::sold, 'trade had been sold');
             assert(trade.status != TradeStatus::revoked, 'trade had been revoked');

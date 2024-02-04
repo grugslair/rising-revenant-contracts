@@ -7,15 +7,15 @@ export RPC_URL="http://localhost:5050";
 
 export WORLD_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.world.address')
 
-export GAME_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "realmsrisingrevenant::systems::game::game_actions").address')
+export GAME_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::systems::game::game_actions").address')
 
-export WORLD_EVENT_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "realmsrisingrevenant::systems::world_event::world_event_actions").address')
+export WORLD_EVENT_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::systems::world_event::world_event_actions").address')
 
-export REVENANT_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "realmsrisingrevenant::systems::revenant::revenant_actions").address')
+export REVENANT_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::systems::revenant::revenant_actions").address')
 
-export TRADE_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "realmsrisingrevenant::systems::trade::trade_actions").address')
+export TRADE_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::systems::trade_reinforcement::trade_reinforcement_actions").address')
 
-export TRADE_REV_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "realmsrisingrevenant::systems::trade_revenant::trade_revenant_actions").address')
+export TRADE_REV_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::systems::trade_revenant::trade_revenant_actions").address')
 
 echo "---------------------------------------------------------------------------"
 echo world : $WORLD_ADDRESS 
@@ -32,7 +32,7 @@ echo trade actions : $TRADE_REV_ACTIONS_ADDRESS
 echo "---------------------------------------------------------------------------"
 
 # enable system -> component authorizations
-COMPONENTS=("WorldEvent" "Trade" "TradeRevenant" "Revenant" "ReinforcementBalance" "PlayerInfo" "Outpost" "OutpostPosition" "Game" "GameTracker" "GameEntityCounter")
+COMPONENTS=("WorldEvent" "TradeReinforcement" "TradeRevenant" "Revenant" "ReinforcementBalance" "PlayerInfo" "Outpost" "OutpostPosition" "Game" "GameCountTracker" "GameEntityCounter")
 
 
 

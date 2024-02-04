@@ -34,7 +34,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "realmsrisingrevenant"
+name = "risingrevenant"
 version = "0.2.3"
 dependencies = [
  "dojo",

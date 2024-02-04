@@ -6,9 +6,6 @@ trait IRevenantActions<TContractState> {
     // If multiple are created at once, then the ID of the first one will be returned.
     fn create(self: @TContractState, game_id: u32, count: u32) -> (u128, u128);
 
-    // Claim the initial game rewards.
-    fn claim_initial_rewards(self: @TContractState, game_id: u32) -> bool;
-
     // Claim the endgame rewards.
     fn claim_endgame_rewards(self: @TContractState, game_id: u32) -> u128;
 
@@ -29,29 +26,29 @@ mod revenant_actions {
         IERC20, IERC20Dispatcher, IERC20DispatcherImpl, IERC20DispatcherTrait
     };
 
-    use realmsrisingrevenant::components::game::{
-        Game, GameStatus, GameTracker, GameEntityCounter, GameTrait, GameImpl,
+    use risingrevenant::components::game::{
+        Game, GameStatus, GameCountTracker, GameEntityCounter, GameTrait, GameImpl,
     };
-    use realmsrisingrevenant::components::outpost::{
+    use risingrevenant::components::outpost::{
         Outpost, OutpostPosition, OutpostStatus, OutpostImpl, OutpostTrait
     };
-    use realmsrisingrevenant::components::reinforcement::{
+    use risingrevenant::components::reinforcement::{
         ReinforcementBalance, ReinforcementBalanceImpl, ReinforcementBalanceTrait
     };
-    use realmsrisingrevenant::components::player::{PlayerInfo, PlayerInfoImpl, PlayerInfoTrait};
-    use realmsrisingrevenant::components::revenant::{
+    use risingrevenant::components::player::{PlayerInfo, PlayerInfoImpl, PlayerInfoTrait};
+    use risingrevenant::components::revenant::{
         Revenant, RevenantStatus, RevenantImpl, RevenantTrait,
     };
 
-    use realmsrisingrevenant::utils;
+    use risingrevenant::utils;
 
-    use realmsrisingrevenant::components::world_event::{WorldEvent, WorldEventTracker};
+    use risingrevenant::components::world_event::{WorldEvent, WorldEventTracker};
 
-    use realmsrisingrevenant::constants::{
-        MAP_HEIGHT, MAP_WIDTH, OUTPOST_INIT_LIFE, REVENANT_MAX_COUNT, REINFORCEMENT_INIT_COUNT,
+    use risingrevenant::constants::{
+        MAP_HEIGHT, MAP_WIDTH, OUTPOST_INIT_LIFE, REINFORCEMENT_INIT_COUNT,
         SPAWN_RANGE_X_MAX, SPAWN_RANGE_Y_MAX, SPAWN_RANGE_X_MIN, SPAWN_RANGE_Y_MIN,PLAYER_STARTING_AMOUNT
     };
-    use realmsrisingrevenant::utils::random::{Random, RandomImpl};
+    use risingrevenant::utils::random::{Random, RandomImpl};
     use starknet::{
         ContractAddress, get_block_info, get_caller_address, get_contract_address,
         get_block_timestamp
@@ -83,7 +80,7 @@ mod revenant_actions {
             //             amount: game.revenant_init_price,
             //         );
             //     assert(result, 'need approve for erc20');
-            //     game.prize += game.revenant_init_price;
+            //     game.jackpot += game.revenant_init_price;
             // }
 
             let seed = starknet::get_tx_info().unbox().transaction_hash;
@@ -119,15 +116,14 @@ mod revenant_actions {
             player_info.revenant_count += count;
             player_info.outpost_count += count;
 
-            if (player_info.initiated == 0) // here
+            if (player_info.revenant_count == 0) // here
             {
-                player_info.initiated = 1;
                 player_info.player_wallet_amount = PLAYER_STARTING_AMOUNT;
             }
 
             player_info.player_wallet_amount -= game.revenant_init_price * count.into();
 
-            game.prize += count.into() * game.revenant_init_price; // here 
+            game.jackpot += count.into() * game.revenant_init_price; // here 
 
             game_data.remain_life_count += OUTPOST_INIT_LIFE * count;
 
@@ -136,47 +132,26 @@ mod revenant_actions {
             (first_revenant_id, first_outpost_id)
         }
 
-
-        // this function if not necessary needs to be deleted
-        fn claim_initial_rewards(self: @ContractState, game_id: u32) -> bool {
-            let world = self.world_dispatcher.read();
-            let player = get_caller_address();
-            let (mut game, mut game_data) = get!(world, game_id, (Game, GameEntityCounter));
-            game.assert_existed();
-
-            let mut player_info = get!(world, (game_id, player), PlayerInfo);
-
-            if (!player_info.inited) {
-                player_info.inited = true;
-                player_info.reinforcement_count += REINFORCEMENT_INIT_COUNT;
-                game_data.reinforcement_count += REINFORCEMENT_INIT_COUNT;
-                set!(world, (game_data, player_info));
-                return true;
-            } else {
-                return false;
-            }
-        }
-
         fn claim_endgame_rewards(self: @ContractState, game_id: u32) -> u128 {
             let world = self.world_dispatcher.read();
             let player = get_caller_address();
             let mut game = get!(world, game_id, (Game));
             assert(game.status == GameStatus::ended, 'game not ended');
-            assert(game.rewards_claim_status == 0, 'rewards has been claimed');
+            assert(game.jackpot_claim_status == 0, 'rewards has been claimed');
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
             assert(player_info.outpost_count > 0, 'not winner');
 
             // let erc20 = IERC20Dispatcher { contract_address: game.erc_addr };
 
-            let prize = game.prize / 100 * game.champion_prize_percent.into();
+            let prize = game.jackpot / 100 * game.winner_prize_percent.into();
             player_info.player_wallet_amount += prize;
 
             // let result = erc20.transfer(recipient: player, amount: prize);
 
             // assert(result, 'failed to transfer');
 
-            game.rewards_claim_status = 1;
+            game.jackpot_claim_status = 1;
 
             set!(world, (game,player_info));
 
@@ -193,10 +168,10 @@ mod revenant_actions {
             assert(player_info.score_claim_status == false, 'rewards has been claimed');
             assert(player_info.score > 0, 'you have no score');
 
-            let prize = game.prize
+            let prize = game.jackpot
                 / 100
-                * (100 - game.champion_prize_percent).into()
-                / game_info.score_count.into()
+                * (100 - game.winner_prize_percent).into()
+                / game_info.contribution_score_count.into()
                 * player_info.score.into();
 
             player_info.player_wallet_amount += prize;
@@ -248,11 +223,11 @@ mod revenant_actions {
             //     );
             // assert(result, 'need approve for erc20');
 
-            game.prize += current_price.into();
+            game.jackpot += current_price.into();
 
             player_info.player_wallet_amount -= current_price;
 
-            player_info.reinforcement_count += count;
+            player_info.reinforcements_available_count += count;
             reinforcement_balance.count += count;
             game_counter.reinforcement_count += count;
 
@@ -291,7 +266,7 @@ mod revenant_actions {
             assert(player == outpost.owner, 'not owner');
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo); // get player data
-            assert(player_info.reinforcement_count >= count, 'no reinforcement'); //Alex
+            assert(player_info.reinforcements_available_count >= count, 'no reinforcement'); //Alex
 
             assert((count + outpost.reinforcement_count <= 20), 'cant add more'); //Alex
 
@@ -303,7 +278,7 @@ mod revenant_actions {
 
             game_counter.remain_life_count += count;
 
-            player_info.reinforcement_count -= count;
+            player_info.reinforcements_available_count -= count;
             game_counter.reinforcement_count -= count;
 
             set!(world, (outpost, player_info, game_counter));
@@ -332,9 +307,7 @@ mod revenant_actions {
                 entity_id: revenant_id,
                 first_name_idx,
                 last_name_idx,
-                outpost_id,
                 owner: player,
-                outpost_count: 1,
                 status: RevenantStatus::started
             };
 
@@ -358,7 +331,6 @@ mod revenant_actions {
                 game_id,
                 x,
                 y,
-                revenant_id,
                 entity_id: outpost_id,
                 owner: player,
                 name_outpost: 'Outpost',

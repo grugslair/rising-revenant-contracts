@@ -6,14 +6,14 @@ trait IGameActions<TContractState> {
         self: @TContractState,
         preparation_phase_interval: u64,
         event_interval: u64,
-        erc_addr: ContractAddress,
-        reward_pool_addr: ContractAddress,
+        coin_erc_address: ContractAddress,
+        jackpot_pool_addr: ContractAddress,
         revenant_init_price: u128,
         max_amount_of_revenants: u32,
         // The percentage of the transaction fee charged during a trade. 5 means 95% trades goes to the player and 5% to the jackpot
         transaction_fee_percent: u32,
         // The percentage of the prize pool allocated to the champion. 85 means 85% to jackpot and 15% to contribution
-        champion_prize_percent: u32,
+        winner_prize_percent: u32,
     ) -> u32;
     fn get_current_block(self: @TContractState) -> u64;
     fn refresh_status(self: @TContractState, game_id: u32);
@@ -21,11 +21,11 @@ trait IGameActions<TContractState> {
 
 #[dojo::contract]
 mod game_actions {
-    use realmsrisingrevenant::components::game::{
-        Game, GameStatus, GameTracker, GameEntityCounter, GameTrait, GameImpl
+    use risingrevenant::components::game::{
+        Game, GameStatus, GameCountTracker, GameEntityCounter, GameTrait, GameImpl
     };
-    use realmsrisingrevenant::components::reinforcement::{ReinforcementBalance, target_price};
-    use realmsrisingrevenant::constants::GAME_CONFIG;
+    use risingrevenant::components::reinforcement::{ReinforcementBalance, target_price};
+    use risingrevenant::constants::GAME_CONFIG;
     use starknet::{ContractAddress, get_block_info, get_block_timestamp, get_caller_address};
     use super::IGameActions;
 
@@ -35,37 +35,37 @@ mod game_actions {
             self: @ContractState,
             preparation_phase_interval: u64,
             event_interval: u64,
-            erc_addr: ContractAddress,
-            reward_pool_addr: ContractAddress,
+            coin_erc_address: ContractAddress,
+            jackpot_pool_addr: ContractAddress,
             revenant_init_price: u128,
             max_amount_of_revenants: u32,
             transaction_fee_percent: u32,
-            champion_prize_percent: u32,
+            winner_prize_percent: u32,
         ) -> u32 {
             let world = self.world_dispatcher.read();
-            let mut game_tracker = get!(world, GAME_CONFIG, (GameTracker));
-            let game_id = game_tracker.count + 1; // game id increment
+            let mut game_tracker = get!(world, GAME_CONFIG, (GameCountTracker));
+            let game_id = game_tracker.game_count + 1; // game id increment
 
             assert(transaction_fee_percent < 100, 'invalid transaction fee');
-            assert(champion_prize_percent < 100, 'invalid champion prize');
+            assert(winner_prize_percent < 100, 'invalid champion prize');
 
             let start_block_number = get_block_info().unbox().block_number; // blocknumber
-            let prize = 0; // total prize
+            let jackpot = 0; // total prize
             let status = GameStatus::preparing; // game status
 
             let game = Game {
                 game_id,
                 start_block_number,
-                prize,
+                jackpot,
                 preparation_phase_interval,
                 event_interval,
-                erc_addr,
-                reward_pool_addr,
+                coin_erc_address,
+                jackpot_pool_addr,
                 revenant_init_price,
                 status,
                 transaction_fee_percent,
-                champion_prize_percent,
-                rewards_claim_status: 0,
+                winner_prize_percent,
+                jackpot_claim_status: 0,
                 max_amount_of_revenants: max_amount_of_revenants,
             };
 
@@ -78,9 +78,9 @@ mod game_actions {
                 remain_life_count: 0,
                 reinforcement_count: 0,
                 trade_count: 0,
-                score_count: 0,
+                contribution_score_count: 0,
             };
-            let game_tracker = GameTracker { entity_id: GAME_CONFIG, count: game_id };
+            let game_tracker = GameCountTracker { entity_id: GAME_CONFIG, game_count: game_id };
             let reinforcement_balance = ReinforcementBalance {
                 game_id,
                 target_price: target_price,
@@ -99,7 +99,6 @@ mod game_actions {
             game.assert_existed();
             game.refresh_status(world);
         }
-
 
         fn get_current_block(self: @ContractState) -> u64 {
             let start_block_number = get_block_info().unbox().block_number; // blocknumber

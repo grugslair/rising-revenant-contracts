@@ -12,7 +12,7 @@ export const createNetworkLayer = async () => {
     });
 
     // TODO: Make Burner System
-    const account = new Account(provider, import.meta.env.VITE_PUBLIC_MASTER_ADDRESS!, import.meta.env.VITE_PUBLIC_MASTER_PRIVATE_KEY!)
+    const account = new Account(provider, import.meta.env.VITE_PUBLIC_MASTER_ADDRESS!, import.meta.env.VITE_PUBLIC_MASTER_PRIVATE_KEY!,"1")
 
     return {
         world,

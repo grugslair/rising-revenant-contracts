@@ -9,7 +9,6 @@ struct TradeRevenant {
     entity_id: u32,
     seller: ContractAddress,
     price: u128,
-    revenant_id: u128,
     outpost_id: u128,
     buyer: ContractAddress,
     status: u32,

@@ -12,15 +12,13 @@ struct PlayerInfo {
     earned_prize: u128,
     revenant_count: u32,
     outpost_count: u32,
-    reinforcement_count: u32,
-    initiated: u8,
-    inited: bool,
+    reinforcements_available_count: u32,
     player_wallet_amount: u128
 }
 
 #[generate_trait]
 impl PlayerInfoImpl of PlayerInfoTrait {
     fn check_player_exists(ref self: PlayerInfo, world: IWorldDispatcher) {
-        assert(self.initiated != 0, 'The user does not exist');
+        assert(self.revenant_count != 0, 'The user does not exist');
     }
 }

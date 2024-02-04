@@ -1,7 +1,7 @@
 use array::{ArrayTrait, SpanTrait};
 use dojo::world::{Context, IWorldDispatcherTrait};
-use realmsrisingrevenant::components::Position;
-use realmsrisingrevenant::components::WorldEvent;
+use risingrevenant::components::Position;
+use risingrevenant::components::WorldEvent;
 use serde::Serde;
 use starknet::ContractAddress;
 
