@@ -69,6 +69,12 @@ mod revenant_actions {
             );
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
+
+            
+            if (player_info.revenant_count == 0) // here
+            {
+                player_info.player_wallet_amount = PLAYER_STARTING_AMOUNT;
+            }
             // assert(player_info.revenant_count + count <= REVENANT_MAX_COUNT, 'reach revenant limit');
 
             // if game.revenant_init_price > 0 {
@@ -116,10 +122,6 @@ mod revenant_actions {
             player_info.revenant_count += count;
             player_info.outpost_count += count;
 
-            if (player_info.revenant_count == 0) // here
-            {
-                player_info.player_wallet_amount = PLAYER_STARTING_AMOUNT;
-            }
 
             player_info.player_wallet_amount -= game.revenant_init_price * count.into();
 
@@ -235,7 +237,6 @@ mod revenant_actions {
 
             true
         }
-
 
         fn reinforce_outpost(self: @ContractState, game_id: u32, count: u32, outpost_id: u128) {
             let world = self.world_dispatcher.read();
