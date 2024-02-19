@@ -20,7 +20,8 @@ mod world_event_actions {
     use risingrevenant::components::player::{PlayerInfo, PlayerInfoImpl, PlayerInfoTrait};
     use risingrevenant::components::world_event::{WorldEvent, WorldEventTracker};
     use risingrevenant::constants::{
-        EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH,  EVENT_INCREASE_RADIUS, DESTORY_OUTPOST_SCORE,SPAWN_RANGE_Y_MAX, SPAWN_RANGE_Y_MIN, SPAWN_RANGE_X_MAX, SPAWN_RANGE_X_MIN
+        EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH, EVENT_INCREASE_RADIUS, DESTORY_OUTPOST_SCORE,
+        SPAWN_RANGE_Y_MAX, SPAWN_RANGE_Y_MIN, SPAWN_RANGE_X_MAX, SPAWN_RANGE_X_MIN
     };
     use risingrevenant::utils::MAX_U32;
     use risingrevenant::utils::random::{Random, RandomImpl};
@@ -66,14 +67,16 @@ mod world_event_actions {
             let player = get_caller_address();
 
             // Check if the game is active
-            let (mut game, mut game_data) = get!(world, game_id, (Game, GameEntityCounter));
+            let (mut game, mut game_data): (Game, GameEntityCounter) = get!(
+                world, game_id, (Game, GameEntityCounter)
+            );
             game.assert_is_playing(world);
 
             // Get the event
-            let mut world_event = get!(world, (game_id, event_id), WorldEvent);
+            let mut world_event: WorldEvent = get!(world, (game_id, event_id), WorldEvent);
 
             // Get the outpost
-            let mut outpost = get!(world, (game_id, outpost_id), Outpost);
+            let mut outpost: Outpost = get!(world, (game_id, outpost_id), Outpost);
             outpost.assert_existed();
 
             assert(
@@ -105,7 +108,7 @@ mod world_event_actions {
             };
 
             let mut owner_info = get!(world, (game_id, outpost.owner), (PlayerInfo));
-            owner_info.check_player_exists(world); 
+            owner_info.check_player_exists(world);
             if outpost.lifes == 0 {
                 game_data.outpost_exists_count -= 1;
                 owner_info.revenant_count -= 1;
@@ -152,7 +155,7 @@ mod world_event_actions {
 
             let seed = starknet::get_tx_info().unbox().transaction_hash;
             let mut random = RandomImpl::new(seed);
-            let x =  random.next_u32(SPAWN_RANGE_X_MIN, SPAWN_RANGE_X_MAX);
+            let x = random.next_u32(SPAWN_RANGE_X_MIN, SPAWN_RANGE_X_MAX);
             let y = random.next_u32(SPAWN_RANGE_Y_MIN, SPAWN_RANGE_Y_MAX);
 
             WorldEvent { game_id, entity_id, x, y, radius, destroy_count: 0, block_number }

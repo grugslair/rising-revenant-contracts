@@ -1,4 +1,72 @@
 use starknet::ContractAddress;
+use risingrevenant::components::game::{GameSetup, GamePot, DevWallet};
+use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
+use openzeppelin::token::erc20::interface::{
+    IERC20, IERC20Dispatcher, IERC20DispatcherImpl, IERC20DispatcherTrait
+};
+
+// DEV
+use risingrevenant::constants::PLAYER_STARTING_AMOUNT;
+
+struct GameAction {
+    world: IWorldDispatcher,
+    game_id: u32,
+}
+
+#[generate_trait]
+impl GameActionImpl of GameActionTrait {
+    fn get<K, T>(self: @GameAction, key: K) -> T {
+        get!(self.world, key, (T))
+    }
+    fn set<T>(self: @GameAction, obj: T) {
+        set!(self.world, (T));
+    }
+    fn get_setup(self: @GameAction) -> GameSetup {
+        let setup: GameSetup = self.get(*self.game_id);
+        setup
+    }
+    fn check_game_playing(self: @GameAction) {}
+    fn transfer<T, +Into<T, u256>, +Copy<T>, +Drop<T>>(
+        self: @GameAction, sender: ContractAddress, recipient: ContractAddress, amount: T
+    ) {
+        // // PRODUCTION
+        // let game = self.get_setup();
+        // let erc20 = IERC20Dispatcher { contract_address: game.coin_erc_address };
+        // let result = erc20.transfer_from(sender, recipient, amount: amount.into());
+        // assert(result, 'need approve for erc20');
+
+        // DEV ONLY
+        let mut sender_wallet: DevWallet = self.get((*self.game_id, sender));
+        let mut recipiant_wallet: DevWallet = self.get((*self.game_id, recipient));
+        if (!sender_wallet.init) {
+            sender_wallet.init = true;
+            sender_wallet.balance = PLAYER_STARTING_AMOUNT;
+        }
+        if (!recipiant_wallet.init) {
+            recipiant_wallet.init = true;
+            recipiant_wallet.balance = PLAYER_STARTING_AMOUNT;
+        }
+        assert(sender_wallet.balance >= amount.into(), 'not enough cash');
+        sender_wallet.balance -= amount.into();
+        recipiant_wallet.balance += amount.into();
+        self.set((sender_wallet, recipiant_wallet));
+    }
+    fn increase_pot<T, +Into<T, u256>, +Copy<T>, +Drop<T>>(self: @GameAction, amount: T) {
+        let game: GameSetup = self.get(self.game_id);
+        let mut game_pot: GamePot = self.get((self.game_id));
+        game_pot.total_pot += amount.into();
+        game_pot.confirmation_pot = game_pot.total_pot
+            * game.confirmation_percent.into()
+            / 100_u256;
+        game_pot.ltr_pot = game_pot.total_pot * game.ltr_percent.into() / 100_u256;
+        game_pot.dev_pot = game_pot.total_pot * game.dev_percent.into() / 100_u256;
+        game_pot.winners_pot = game_pot.total_pot
+            - game_pot.confirmation_pot
+            - game_pot.ltr_pot
+            - game_pot.dev_pot;
+        self.set(game_pot);
+    }
+}
 
 #[starknet::interface]
 trait IGameActions<TContractState> {
@@ -95,7 +163,7 @@ mod game_actions {
 
         fn refresh_status(self: @ContractState, game_id: u32) {
             let world = self.world_dispatcher.read();
-            let mut game = get!(world, game_id, Game);
+            let mut game: Game = get!(world, game_id, Game);
             game.assert_existed();
             game.refresh_status(world);
         }

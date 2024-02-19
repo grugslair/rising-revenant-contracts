@@ -1,4 +1,6 @@
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
+use risingrevenant::systems::game::{GameAction, GameActionTrait};
+use risingrevenant::components::outpost::{Outpost};
 
 #[starknet::interface]
 trait IRevenantActions<TContractState> {
@@ -45,8 +47,8 @@ mod revenant_actions {
     use risingrevenant::components::world_event::{WorldEvent, WorldEventTracker};
 
     use risingrevenant::constants::{
-        MAP_HEIGHT, MAP_WIDTH, OUTPOST_INIT_LIFE, REINFORCEMENT_INIT_COUNT,
-        SPAWN_RANGE_X_MAX, SPAWN_RANGE_Y_MAX, SPAWN_RANGE_X_MIN, SPAWN_RANGE_Y_MIN,PLAYER_STARTING_AMOUNT
+        MAP_HEIGHT, MAP_WIDTH, OUTPOST_INIT_LIFE, REINFORCEMENT_INIT_COUNT, SPAWN_RANGE_X_MAX,
+        SPAWN_RANGE_Y_MAX, SPAWN_RANGE_X_MIN, SPAWN_RANGE_Y_MIN, PLAYER_STARTING_AMOUNT
     };
     use risingrevenant::utils::random::{Random, RandomImpl};
     use starknet::{
@@ -70,7 +72,6 @@ mod revenant_actions {
 
             let mut player_info = get!(world, (game_id, player), PlayerInfo);
 
-            
             if (player_info.revenant_count == 0) // here
             {
                 player_info.player_wallet_amount = PLAYER_STARTING_AMOUNT;
@@ -122,7 +123,6 @@ mod revenant_actions {
             player_info.revenant_count += count;
             player_info.outpost_count += count;
 
-
             player_info.player_wallet_amount -= game.revenant_init_price * count.into();
 
             game.jackpot += count.into() * game.revenant_init_price; // here 
@@ -155,7 +155,7 @@ mod revenant_actions {
 
             game.jackpot_claim_status = 1;
 
-            set!(world, (game,player_info));
+            set!(world, (game, player_info));
 
             prize
         }
@@ -313,13 +313,13 @@ mod revenant_actions {
             };
 
             let mut x = random.next_u32(SPAWN_RANGE_X_MIN, SPAWN_RANGE_X_MAX);
-            let mut y =  random.next_u32(SPAWN_RANGE_Y_MIN, SPAWN_RANGE_Y_MAX);
+            let mut y = random.next_u32(SPAWN_RANGE_Y_MIN, SPAWN_RANGE_Y_MAX);
 
             let mut prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
             // avoid multiple outpost appearing in the same position
             if prev_outpost.entity_id > 0 {
                 loop {
-                    x =  random.next_u32(SPAWN_RANGE_X_MIN, SPAWN_RANGE_X_MAX);
+                    x = random.next_u32(SPAWN_RANGE_X_MIN, SPAWN_RANGE_X_MAX);
                     y = random.next_u32(SPAWN_RANGE_Y_MIN, SPAWN_RANGE_Y_MAX);
                     prev_outpost = get!(world, (game_id, x, y), OutpostPosition);
                     if prev_outpost.entity_id == 0 {
@@ -346,5 +346,18 @@ mod revenant_actions {
 
             (revenant, outpost, position)
         }
+    }
+}
+
+
+#[generate_trait]
+impl OutpostActionsImpl of OutpostActionsTrait {
+    fn get_outpost(self: @GameAction, outpost_id: u128) -> Outpost {
+        self.get((self.game_id, outpost_id))
+    }
+    fn get_active_outpost(self: @GameAction, outpost_id: u128) -> Outpost {
+        let outpost = self.get_outpost(outpost_id);
+        assert(outpost.lifes > 0, 'outpost has been destoryed');
+        outpost
     }
 }
