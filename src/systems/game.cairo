@@ -77,7 +77,7 @@ impl GamePhaseImpl of GamePhaseTrait {
         if current_block < self.play_block_number {
             return GamePhase::Preparing;
         }
-        return GamePhase::Playing;
+        GamePhase::Playing
     }
 
     fn assert_preparing(self: GamePhases) {

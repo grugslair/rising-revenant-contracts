@@ -23,22 +23,21 @@ type OutpostTrade = Trade<Position>;
 #[derive(Model, Copy, Drop, Print)]
 type ReinforcementTrade = Trade<u32>;
 
-trait TradeTrait<O> {
-    fn new(
-        game_id: u128, trade_id: u128, seller: ContractAddress, price: u128, offer: O
-    ) -> Trade<O>;
+trait TradeTrait<O, T> {
+    fn new(game_id: u128, trade_id: u128, seller: ContractAddress, price: u128, offer: O) -> T;
 }
 
+
 #[generate_trait]
-impl TradeImpl of GenTradeTrait {
-    fn check_selling<O>(self: @Trade<O>) {
+impl TradeImpl<O, T> of GenTradeTrait<O, T> {
+    fn check_selling(self: @Trade<O>) {
         assert(*self.status != TradeStatus::not_created, 'trade not exist');
         assert(*self.status != TradeStatus::sold, 'trade had been sold');
         assert(*self.status != TradeStatus::revoked, 'trade had been revoked');
     }
 }
 
-impl ReinforcementTradeImpl of TradeTrait<u32> {
+impl ReinforcementTradeImpl of TradeTrait<u32, ReinforcementTrade> {
     fn new(
         game_id: u128, trade_id: u128, seller: ContractAddress, price: u128, offer: u32
     ) -> ReinforcementTrade {
@@ -55,7 +54,7 @@ impl ReinforcementTradeImpl of TradeTrait<u32> {
     }
 }
 
-impl OutpostTradeImpl of TradeTrait<Position> {
+impl OutpostTradeImpl of TradeTrait<Position, OutpostTrade> {
     fn new(
         game_id: u128, trade_id: u128, seller: ContractAddress, price: u128, offer: Position
     ) -> OutpostTrade {
