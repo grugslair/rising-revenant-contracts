@@ -4,16 +4,16 @@ use risingrevenant::components::outpost::{Position};
 #[starknet::interface]
 trait ITradeOutpostActions<TContractState> {
     // Create a new trade
-    fn create(self: @TContractState, game_id: u32, outpost_postion: Position, price: u128) -> u32;
+    fn create(self: @TContractState, game_id: u128, outpost_postion: Position, price: u128) -> u32;
 
     // Revoke an initiated trade
-    fn revoke(self: @TContractState, game_id: u32, trade_id: u32);
+    fn revoke(self: @TContractState, game_id: u128, trade_id: u32);
 
     // Purchase an existing trade
-    fn purchase(self: @TContractState, game_id: u32, trade_id: u32);
+    fn purchase(self: @TContractState, game_id: u128, trade_id: u32);
 
     // Modify the price of an existing trade
-    fn modify_price(self: @TContractState, game_id: u32, trade_id: u32, new_price: u128);
+    fn modify_price(self: @TContractState, game_id: u128, trade_id: u32, new_price: u128);
 }
 
 // Trade for outpost
@@ -34,7 +34,7 @@ mod trade_outpost_actions {
     #[external(v0)]
     impl TradeOutpostActionImpl of ITradeOutpostActions<ContractState> {
         fn create(
-            self: @ContractState, game_id: u32, outpost_postion: Position, price: u128
+            self: @ContractState, game_id: u128, outpost_postion: Position, price: u128
         ) -> u32 {
             let trade_action = GameAction { world: self.world_dispatcher.read(), game_id };
 
@@ -47,14 +47,14 @@ mod trade_outpost_actions {
         }
 
 
-        fn purchase(self: @ContractState, game_id: u32, trade_id: u32) {
+        fn purchase(self: @ContractState, game_id: u128, trade_id: u32) {
             let trade_action = GameAction { world: self.world_dispatcher.read(), game_id };
             let trade: Trade<Position> = trade_action.purchase_trade(TradeType::outpost, trade_id);
 
             trade_action.change_outpost_owner(trade.offer, trade.buyer);
         }
 
-        fn modify_price(self: @ContractState, game_id: u32, trade_id: u32, new_price: u128) {
+        fn modify_price(self: @ContractState, game_id: u128, trade_id: u32, new_price: u128) {
             TradeActionImpl::<
                 Position
             >::modify_trade_price(
@@ -65,7 +65,7 @@ mod trade_outpost_actions {
             );
         }
 
-        fn revoke(self: @ContractState, game_id: u32, trade_id: u32) {
+        fn revoke(self: @ContractState, game_id: u128, trade_id: u32) {
             let _: Trade<Position> = GameAction { world: self.world_dispatcher.read(), game_id }
                 .revoke_trade(TradeType::outpost, trade_id);
         }

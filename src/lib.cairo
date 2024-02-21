@@ -1,7 +1,6 @@
 mod components;
+mod defaults;
 mod constants;
 mod systems;
-
-#[cfg(test)]
-mod tests;
+mod contracts;
 mod utils;

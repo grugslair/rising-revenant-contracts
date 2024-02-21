@@ -7,9 +7,7 @@ mod tests {
     use risingrevenant::components::game::{
         Game, GameCountTracker, GameStatus, GameEntityCounter, GameImpl, GameTrait
     };
-    use risingrevenant::components::outpost::{
-        Outpost, OutpostStatus, OutpostImpl, OutpostTrait
-    };
+    use risingrevenant::components::outpost::{Outpost, OutpostStatus, OutpostImpl, OutpostTrait};
     use risingrevenant::components::player::PlayerInfo;
     use risingrevenant::components::revenant::{
         Revenant, RevenantStatus, RevenantImpl, RevenantTrait
@@ -19,7 +17,7 @@ mod tests {
 
     use risingrevenant::constants::{
         EVENT_INIT_RADIUS, GAME_CONFIG, OUTPOST_INIT_LIFE, REINFORCEMENT_INIT_COUNT,
-         DESTORY_OUTPOST_SCORE, EVENT_INCREASE_RADIUS,
+        DESTORY_OUTPOST_SCORE, EVENT_INCREASE_RADIUS,
     };
 
     use risingrevenant::systems::game::{IGameActionsDispatcher, IGameActionsDispatcherTrait};
@@ -94,8 +92,8 @@ mod tests {
         let (game, game_counter) = get!(world, (game_id), (Game, GameEntityCounter));
         assert(game_counter.revenant_count == 1, 'wrong revenant count');
         assert(game_counter.outpost_count == 1, 'wrong outpost count');
-        assert(game_counter.outpost_exists_count == 1, 'wrong outpost count');
-        assert(game_counter.remain_life_count == OUTPOST_INIT_LIFE, 'wrong remain lifes');
+        assert(game_counter.outpost_remaining_count == 1, 'wrong outpost count');
+        assert(game_counter.remain_life_count == OUTPOST_INIT_LIFE, 'wrong remain life');
 
         let revenant = get!(world, (game_id, revenant_id), Revenant);
         // assert(revenant.outpost_count == 1, 'wrong revenant info');
@@ -111,8 +109,8 @@ mod tests {
         let (game, game_counter) = get!(world, (game_id), (Game, GameEntityCounter));
         assert(game_counter.revenant_count == count, 'wrong revenant count');
         assert(game_counter.outpost_count == count, 'wrong outpost count');
-        assert(game_counter.outpost_exists_count == count, 'wrong outpost count');
-        assert(game_counter.remain_life_count == OUTPOST_INIT_LIFE * count, 'wrong remain lifes');
+        assert(game_counter.outpost_remaining_count == count, 'wrong outpost count');
+        assert(game_counter.remain_life_count == OUTPOST_INIT_LIFE * count, 'wrong remain life');
 
         let revenant = get!(world, (game_id, count), Revenant);
         // assert(revenant.outpost_count == 1, 'wrong revenant info');
@@ -132,7 +130,10 @@ mod tests {
         assert(purchase_result, 'Failed to purchase');
         let player_info = get!(world, (game_id, caller), PlayerInfo);
         let expected_purchase_count = REINFORCEMENT_INIT_COUNT + purchase_count;
-        assert(player_info.reinforcements_available_count == expected_purchase_count, 'wrong purchase count');
+        assert(
+            player_info.reinforcements_available_count == expected_purchase_count,
+            'wrong purchase count'
+        );
 
         let game_counter = get!(world, (game_id), GameEntityCounter);
         assert(
@@ -147,9 +148,9 @@ mod tests {
         revenant_action.reinforce_outpost(game_id, 1, outpost_id);
 
         let outpost = get!(world, (game_id, outpost_id), (Outpost));
-        assert(outpost.lifes == OUTPOST_INIT_LIFE + 1, 'life value is wrong');
+        assert(outpost.life == OUTPOST_INIT_LIFE + 1, 'life value is wrong');
         let game_counter = get!(world, (game_id), GameEntityCounter);
-        assert(game_counter.remain_life_count == OUTPOST_INIT_LIFE + 1, 'wrong remain lifes');
+        assert(game_counter.remain_life_count == OUTPOST_INIT_LIFE + 1, 'wrong remain life');
         assert(
             game_counter.reinforcement_count == expected_purchase_count - 1,
             'wrong reinforcement count'
@@ -168,7 +169,6 @@ mod tests {
         let world_event = world_event_action.create(game_id);
         assert(world_event.radius == EVENT_INIT_RADIUS, 'event radius is wrong');
 
-        
         let mut expect_score = 0;
 
         let player_info = get!(world, (game_id, caller), PlayerInfo);
@@ -182,8 +182,6 @@ mod tests {
             world_event_2.radius == EVENT_INIT_RADIUS + EVENT_INCREASE_RADIUS,
             'event radius is wrong'
         );
-
-        
 
         let player_info = get!(world, (game_id, caller), PlayerInfo);
         assert(player_info.score == expect_score, 'wrong p2 score world event');
@@ -201,7 +199,7 @@ mod tests {
 
         _add_block_number(PREPARE_PHRASE_INTERVAL + 1);
         let world_event = world_event_action.create(game_id);
-     
+
         let destoryed = world_event_action
             .destroy_outpost(game_id, world_event.entity_id, outpost_id);
 
@@ -209,13 +207,13 @@ mod tests {
 
         let outpost = get!(world, (game_id, outpost_id), Outpost);
         if destoryed {
-            assert(outpost.lifes == OUTPOST_INIT_LIFE - 1, 'life value is wrong');
+            assert(outpost.life == OUTPOST_INIT_LIFE - 1, 'life value is wrong');
             assert(outpost.last_affect_event_id == world_event.entity_id, 'wrong affect id');
             let world_event = get!(world, (game_id, world_event.entity_id), WorldEvent);
             assert(world_event.destroy_count == 1, 'wrong destory count');
             expect_score += DESTORY_OUTPOST_SCORE;
         } else {
-            assert(outpost.lifes == OUTPOST_INIT_LIFE, 'life value is wrong');
+            assert(outpost.life == OUTPOST_INIT_LIFE, 'life value is wrong');
             let world_event = get!(world, (game_id, world_event.entity_id), WorldEvent);
             assert(world_event.destroy_count == 0, 'wrong destory count');
         }
@@ -251,7 +249,7 @@ mod tests {
 
             if destoryed {
                 let outpost = get!(world, (game_id, outpost_id), Outpost);
-                if (outpost.lifes == 0) {
+                if (outpost.life == 0) {
                     break;
                 };
             };
@@ -273,7 +271,7 @@ mod tests {
         ); // need two outpost for checking game end
 
         let game_counter = get!(world, (game_id), GameEntityCounter);
-        assert(game_counter.remain_life_count == OUTPOST_INIT_LIFE * 2, 'wrong remain lifes');
+        assert(game_counter.remain_life_count == OUTPOST_INIT_LIFE * 2, 'wrong remain life');
         _add_block_number(PREPARE_PHRASE_INTERVAL + 1);
 
         // Loop world event
@@ -287,7 +285,7 @@ mod tests {
 
             let game_counter = get!(world, (game_id), GameEntityCounter);
             if destoryed {
-                if game_counter.outpost_exists_count == 1 {
+                if game_counter.outpost_remaining_count == 1 {
                     break;
                 };
             };
@@ -296,7 +294,7 @@ mod tests {
 
         let (game, game_counter) = get!(world, (game_id), (Game, GameEntityCounter));
         assert(game.status == GameStatus::ended, 'wrong game status');
-        assert(game_counter.remain_life_count == OUTPOST_INIT_LIFE, 'wrong remain lifes');
+        assert(game_counter.remain_life_count == OUTPOST_INIT_LIFE, 'wrong remain life');
     }
 
     #[test]
@@ -340,7 +338,7 @@ mod tests {
 
             let game_counter = get!(world, (game_id), GameEntityCounter);
             if destoryed {
-                if game_counter.outpost_exists_count == 1 {
+                if game_counter.outpost_remaining_count == 1 {
                     break;
                 };
             };

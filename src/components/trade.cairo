@@ -4,11 +4,11 @@ use starknet::{ContractAddress};
 #[derive(Model, Copy, Drop, Serde, SerdeLen)]
 struct Trade<T> {
     #[key]
-    game_id: u32,
+    game_id: u128,
     #[key]
     trade_type: u8,
     #[key]
-    trade_id: u32,
+    trade_id: u128,
     seller: ContractAddress,
     buyer: ContractAddress,
     price: u128,
@@ -17,16 +17,15 @@ struct Trade<T> {
 }
 
 
-trait TradeTrait<T> {
-    fn new(
-        game_id: u32, trade_type: u8, trade_id: u32, seller: ContractAddress, price: u128, offer: T
-    ) -> Trade<T>;
-    fn check_selling(self: @Trade<T>);
-}
-
+#[generate_trait]
 impl TradeImpl<T> of TradeTrait<T> {
     fn new(
-        game_id: u32, trade_type: u8, trade_id: u32, seller: ContractAddress, price: u128, offer: T
+        game_id: u128,
+        trade_type: u8,
+        trade_id: u128,
+        seller: ContractAddress,
+        price: u128,
+        offer: T
     ) -> Trade<T> {
         Trade {
             game_id,

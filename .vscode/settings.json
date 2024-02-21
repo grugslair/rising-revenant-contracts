@@ -2,5 +2,8 @@
     // This works better until the dojo lang server gets fixed
     "cairo1.languageServerPath": "${userHome}/.dojo/bin/dojo-language-server",
     "cairo1.enableLanguageServer": true,
-    "cairo1.enableScarb": true
+    "cairo1.enableScarb": true,
+    "cSpell.words": [
+        "risingrevenant"
+    ]
 }

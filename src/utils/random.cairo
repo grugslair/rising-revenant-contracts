@@ -1,51 +1,42 @@
-use box::BoxTrait;
 use option::OptionTrait;
-use traits::{Into, TryInto};
+use traits::{Into, TryInto, BitNot};
 
-#[derive(Drop)]
+use starknet::{ContractAddress, get_contract_address};
+
+
+#[derive(Copy, Drop, Serde)]
 struct Random {
-    s0: u128,
-    s1: u128
+    seed: felt252,
+    nonce: usize,
 }
 
-trait RandomTrait {
-    fn new(seed: felt252) -> Random;
-
-    fn next(ref self: Random) -> u128;
-    fn next_u32(ref self: Random, min: u32, max: u32) -> u32;
-}
-
+#[generate_trait]
 impl RandomImpl of RandomTrait {
-    fn new(seed: felt252) -> Random {
-        let seed256: u256 = seed.into();
-        let s0 = splitmix(seed256.low);
-        let s1 = splitmix(s0);
-
-        Random { s0, s1 }
+    // one instance by contract, then passed by ref to sub fns
+    fn new() -> Random {
+        Random { seed: seed(get_contract_address()), nonce: 0 }
     }
 
-    fn next(ref self: Random) -> u128 {
-        let result = (rotl(self.s0 * 5, 7) * 9) & U64;
-
-        let mut s1 = (self.s1 ^ self.s0) & U64;
-        let s0 = (rotl(self.s0, 24) ^ s1 ^ (s1 * 65536)) & U64;
-        s1 = (rotl(s1, 37) & U64);
-
-        self.s0 = s0;
-        self.s1 = s1;
-
-        s0
+    fn next_seed(ref self: Random) -> felt252 {
+        self.nonce += 1;
+        self.seed = pedersen::pedersen(self.seed, self.nonce.into());
+        self.seed
     }
 
-    fn next_u32(ref self: Random, min: u32, max: u32) -> u32 {
-        assert(min < max, 'min should less than max');
-
-        let random_num = self.next();
-        let range: u128 = (max - min + 1).into();
-        let result = (random_num % range) + min.into();
-
-        result.try_into().unwrap()
+    fn next<T, +Into<T, u256>, +Into<u8, T>, +TryInto<u256, T>, +BitNot<T>>(ref self: Random) -> T {
+        let seed: u256 = self.next_seed().into();
+        let mask: T = BitNot::bitnot(0_u8.into());
+        (mask.into() & seed).try_into().unwrap()
     }
+
+    fn next_capped<T, +Into<T, u256>, +TryInto<u256, T>, +Drop<T>>(ref self: Random, cap: T) -> T {
+        let seed: u256 = self.next_seed().into();
+        (seed % cap.into()).try_into().unwrap()
+    }
+}
+
+fn seed(salt: ContractAddress) -> felt252 {
+    pedersen::pedersen(starknet::get_tx_info().unbox().transaction_hash, salt.into())
 }
 
 const U64: u128 = 0xffffffffffffffff_u128; // 2**64-1 
@@ -79,22 +70,3 @@ fn pow2(mut i: u128) -> u128 {
     }
 }
 
-#[cfg(test)]
-mod test {
-    use super::RandomImpl;
-
-    #[test]
-    #[available_gas(3000000000)]
-    fn test_random() {
-        let seed = starknet::get_tx_info().unbox().transaction_hash;
-        let mut random = RandomImpl::new(seed);
-
-        let mut next = random.next_u32(30, 99);
-        assert(next >= 30, 'Wrong random number range');
-        assert(next <= 99, 'Wrong random number range');
-
-        next = random.next_u32(12, 29);
-        assert(next >= 12, 'Wrong random number range');
-        assert(next <= 29, 'Wrong random number range');
-    }
-}

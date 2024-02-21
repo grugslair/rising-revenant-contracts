@@ -1,13 +1,14 @@
-use cubit::f128::types::fixed::{FixedTrait};
-use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-use origami::defi::auction::vrgda::{LogisticVRGDA, LogisticVRGDATrait};
 use starknet::{ContractAddress, get_block_timestamp};
+use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
+use cubit::f128::types::fixed::{FixedTrait};
+use origami::defi::auction::vrgda::{LogisticVRGDA, LogisticVRGDATrait};
 
-use risingrevenant::components::game::{GameSetup, GameOutpostsTracker};
+use risingrevenant::components::game::{GameState};
 use risingrevenant::components::reinforcement::ReinforcementBalance;
 
 use risingrevenant::systems::game::{GameAction, GameActionTrait};
 use risingrevenant::systems::player::{PlayerActionsTrait};
+use risingrevenant::systems::payment::{PaymentSystemTrait};
 
 const target_price: u128 = 10;
 const decay_constant: u128 = 571849066284996100; // 0.031
@@ -16,7 +17,7 @@ const max_sellable: u128 = 1000000000;
 #[generate_trait]
 impl ReinforcementActionImpl of ReinforcementActionTrait {
     fn get_reinforcement_price(self: @GameAction, count: u32) -> u128 {
-        let balance_info: ReinforcementBalance = self.get(self.game_id);
+        let balance_info: ReinforcementBalance = self.get_game();
 
         let time_since_start: u128 = get_block_timestamp().into()
             - balance_info.start_timestamp.into();
@@ -45,26 +46,28 @@ impl ReinforcementActionImpl of ReinforcementActionTrait {
 
         total_price
     }
-    fn update_renforcements<T, +Into<T, i64>, +Copy<T>, +Drop<T>>(
+    fn update_reinforcements<T, +Into<T, i64>, +Copy<T>, +Drop<T>>(
         self: @GameAction, player_id: ContractAddress, count: T
     ) {
         let mut player_info = self.get_player(player_id);
         let new_reinforcements_count: i64 = player_info.reinforcements_available_count.into()
             + count.into();
-        assert(0 <= new_reinforcements_count, 'Not enough renformecments');
+        assert(0 <= new_reinforcements_count, 'Not enough reinforcements');
         player_info.reinforcements_available_count = new_reinforcements_count.try_into().unwrap();
         self.set(player_info);
     }
     fn purchase_reinforcement(self: @GameAction, player_id: ContractAddress, count: u32) {
+        self.assert_preparing();
         let cost = self.get_reinforcement_price(count);
-        let game_setup: GameSetup = self.get(self.game_id);
 
-        self.transfer(player_id, game_setup.pot_pool_addr, cost);
-        self.update_renforcements(player_id, count);
+        let payment_system = PaymentSystemTrait::new(self);
+        payment_system.pay_into_pot(player_id, cost);
 
-        let mut outposts_tracker: GameOutpostsTracker = self.get(self.game_id);
+        self.update_reinforcements(player_id, count);
+
+        let mut outposts_tracker: GameState = self.get_game();
         outposts_tracker.reinforcement_count += count;
-        self.increase_pot(cost);
         self.set(outposts_tracker);
     }
 }
+

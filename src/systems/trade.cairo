@@ -1,25 +1,20 @@
-use core::option::OptionTrait;
-use core::traits::Into;
-
-use starknet::{ContractAddress, get_caller_address};
+use starknet::{get_caller_address};
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
-use risingrevenant::components::game::{GamePotTrait};
-use risingrevenant::components::trade::{Trade, TradeTrait, TradeType, TradeStatus};
+use risingrevenant::components::game::{GameTradeTax};
+use risingrevenant::components::trade::{Trade, TradeTrait, TradeStatus};
 
 use risingrevenant::systems::game::{GameAction, GameActionTrait};
+use risingrevenant::systems::payment::{PaymentSystemTrait};
 
 
 #[generate_trait]
 impl TradeActionImpl<T, +Drop<T>, +Copy<T>> of TradeActionTrait<T> {
     fn create_trade(self: @GameAction, trade_type: u8, price: u128, offer: T) -> Trade<T> {
-        self.check_game_playing();
-
+        self.assert_playing();
         let seller = get_caller_address();
 
-        let trade = TradeTrait::new(
-            *self.game_id, trade_type, (*self.world).uuid(), seller, price, offer
-        );
+        let trade = TradeTrait::new(*self.game_id, trade_type, self.uuid(), seller, price, offer);
         self.set(trade);
         trade
     }
@@ -30,18 +25,19 @@ impl TradeActionImpl<T, +Drop<T>, +Copy<T>> of TradeActionTrait<T> {
         let buyer = get_caller_address(); //get the address of the person calling the api
         assert(trade.seller != buyer, 'unable purchase your own trade');
 
-        let game_setup = self.get_setup();
-        let pot_contribution = trade.price * (game_setup.trade_pot_percent).into() / 100_u128;
+        let payment_system = PaymentSystemTrait::new(self);
+        let taxes: GameTradeTax = self.get_game();
+
+        let pot_contribution = trade.price * (taxes.trade_tax).into() / 100_u128;
         let seller_payout = trade.price - pot_contribution;
 
-        self.transfer(buyer, trade.seller, seller_payout);
-        self.transfer(buyer, game_setup.pot_pool_addr, pot_contribution);
+        payment_system.transfer(buyer, trade.seller, seller_payout);
+        payment_system.pay_into_pot(buyer, pot_contribution);
 
         trade.status = TradeStatus::sold;
         trade.buyer = buyer;
         self.set((trade));
 
-        self.increase_pot(pot_contribution);
         trade
     }
 
@@ -59,7 +55,7 @@ impl TradeActionImpl<T, +Drop<T>, +Copy<T>> of TradeActionTrait<T> {
     }
 
     fn get_active_trade(self: @GameAction, trade_type: u8, trade_id: u32) -> Trade<T> {
-        self.check_game_playing();
+        self.assert_playing();
         let trade: Trade<T> = self.get((*self.game_id, trade_type, trade_id));
         trade.check_selling();
         trade

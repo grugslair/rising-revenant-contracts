@@ -83,7 +83,9 @@ fn _init_world() -> DefaultWorld {
 
     let trade_action = ITradeActionsDispatcher {
         contract_address: world
-            .deploy_contract('salt', trade_reinforcement_actions::TEST_CLASS_HASH.try_into().unwrap())
+            .deploy_contract(
+                'salt', trade_reinforcement_actions::TEST_CLASS_HASH.try_into().unwrap()
+            )
     };
 
     let trade_revenant_action = ITradeRevenantActionsDispatcher {
@@ -150,7 +152,7 @@ fn _init_game() -> (DefaultWorld, u32) {
     (world, game_id)
 }
 
-fn _create_revenant(revenant_action: IRevenantActionsDispatcher, game_id: u32) -> (u128, u128) {
+fn _create_revenant(revenant_action: IRevenantActionsDispatcher, game_id: u128) -> (u128, u128) {
     let (revenant_id, outpost_id) = revenant_action.create(game_id, 1);
     // revenant_action.claim_initial_rewards(game_id);
     (revenant_id, outpost_id)

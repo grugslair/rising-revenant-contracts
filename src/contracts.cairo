@@ -1,9 +1,7 @@
 mod game;
 mod outpost;
-mod player;
-mod trade;
-mod reinforcement;
-mod world_event;
 mod payment;
-mod position;
-
+mod reinforcement;
+mod trade_reinforcement;
+mod trade_outpost;
+mod world_event;

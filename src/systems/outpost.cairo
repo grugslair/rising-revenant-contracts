@@ -1,58 +1,95 @@
 use starknet::{ContractAddress, get_caller_address};
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
-use risingrevenant::components::outpost::{Outpost, OutpostTrait, Position, PositionTrait};
-use risingrevenant::components::game::{GameSetup, GameOutpostsTracker};
+use risingrevenant::components::outpost::{
+    Outpost, OutpostTrait, OutpostStatus, OutpostMarket, OutpostSetup
+};
+use risingrevenant::components::world_event::CurrentWorldEventTrait;
+use risingrevenant::components::game::{
+    GamePhases, GameState, Position, PositionTrait, GameStatus, GameMap
+};
 use risingrevenant::components::player::PlayerInfo;
+use risingrevenant::components::world_event::{WorldEvent, CurrentWorldEvent, OutpostVerified};
 
 use risingrevenant::systems::player::PlayerActionsTrait;
 use risingrevenant::systems::reinforcement::ReinforcementActionTrait;
 use risingrevenant::systems::game::{GameAction, GameActionTrait};
-
-use risingrevenant::utils::random::{Random, RandomImpl};
+use risingrevenant::systems::payment::{PaymentSystemTrait, PaymentSystem};
+use risingrevenant::systems::world_event::{WorldEventTrait};
+use risingrevenant::systems::position::{PositionGeneratorTrait};
 
 
 #[generate_trait]
 impl OutpostActionsImpl of OutpostActionsTrait {
-    fn new_outpost(self: @GameAction, ref player_info: PlayerInfo) -> Outpost {
-        let game_setup: GameSetup = self.get(self.game_id);
-        let mut random = RandomImpl::new(starknet::get_tx_info().unbox().transaction_hash);
-        let mut outpost = OutpostTrait::new_random(
-            *self.game_id, player_info.player_id, ref random
-        );
+    fn purchase_outpost(self: @GameAction) -> Outpost {
+        self.assert_preparing();
+
+        let mut outpost_market: OutpostMarket = self.get_game();
+        assert(outpost_market.available > 0, 'No more outposts available');
+
+        let player_info = self.get_caller_info();
+        let payment_system = PaymentSystemTrait::new(self);
+        let cost = outpost_market.price;
+
+        payment_system.pay_into_pot(player_info.player_id, cost);
+        let outpost = self.new_outpost(player_info);
+
+        outpost_market.available -= 1;
+        self.set(outpost_market);
+        outpost
+    }
+
+    fn new_outpost(self: @GameAction, mut player_info: PlayerInfo) -> Outpost {
+        let setup: OutpostSetup = self.get_game();
+        let mut position_generator = PositionGeneratorTrait::new(self);
+        let mut outpost = Outpost {
+            game_id: *self.game_id,
+            position: position_generator.next(),
+            owner: player_info.player_id,
+            life: setup.life,
+            reinforces_remaining: setup.max_reinforcements,
+            status: OutpostStatus::active,
+        };
         loop {
             let _outpost: Outpost = self.get((self.game_id, outpost.position));
-            if _outpost.status == 0 {
+            if _outpost.status == OutpostStatus::not_created {
                 break;
             }
-            outpost.position = PositionTrait::new_random(ref random);
+            outpost.position = position_generator.next();
         };
         player_info.outpost_count += 1;
 
-        let mut game_outpost_tracker: GameOutpostsTracker = self.get(self.game_id);
-        game_outpost_tracker.outpost_created_count += 1;
-        game_outpost_tracker.outpost_exists_count += 1;
-        game_outpost_tracker.remain_life_count += outpost.lifes;
-        self.set((player_info, outpost, game_outpost_tracker));
+        let mut game_state: GameState = self.get_game();
+        game_state.outpost_created_count += 1;
+        game_state.outpost_remaining_count += 1;
+        game_state.remain_life_count += outpost.life;
+        self.set((outpost, game_state, player_info));
         outpost
+    }
+
+    fn get_outpost_price(self: @GameAction) -> u256 {
+        self.get_game::<OutpostMarket>().price
     }
     fn reinforce_outpost(self: @GameAction, outpost_id: Position, count: u32) {
         let player_id = get_caller_address();
         let mut outpost = self.get_active_outpost(outpost_id);
         assert(outpost.owner == player_id, 'Not players outpost');
-        self.update_renforcements::<i64>(player_id, -count.into());
+        assert(self.check_outpost_verified(outpost_id), 'Not verified from last event');
 
-        let max_reinforcement = outpost.get_max_reinforcement();
-        assert(count <= max_reinforcement, 'Over reinforcment limit');
-        outpost.reinforcements += count;
+        self.update_reinforcements::<i64>(player_id, -count.into());
+        assert(count <= outpost.reinforces_remaining, 'Over reinforcement limit');
+        outpost.reinforces_remaining -= count;
+        outpost.life += count;
+
         self.set(outpost);
     }
     fn get_outpost(self: @GameAction, outpost_id: Position) -> Outpost {
         self.get((self.game_id, outpost_id))
     }
     fn get_active_outpost(self: @GameAction, outpost_id: Position) -> Outpost {
+        self.assert_playing();
         let outpost = self.get_outpost(outpost_id);
-        outpost.assert_existed();
+        outpost.assert_active();
         outpost
     }
     fn change_outpost_owner(
@@ -69,44 +106,49 @@ impl OutpostActionsImpl of OutpostActionsTrait {
 
         self.set((new_owner, old_owner, outpost));
     }
-}
+    fn check_outpost_verified(self: @GameAction, outpost_id: Position) -> bool {
+        let current_event: CurrentWorldEvent = self.get_game();
+        if current_event.is_impacted(outpost_id) {
+            return true;
+        }
+        let verified: OutpostVerified = self
+            .get((self.game_id, current_event.event_id, outpost_id));
+        verified.verified
+    }
+    fn verify_outpost(self: @GameAction, outpost_id: Position) {
+        self.assert_playing();
+        let (current_event, mut game_state): (CurrentWorldEvent, GameState) = self.get_game();
 
+        let mut verified: OutpostVerified = self
+            .get((self.game_id, current_event.event_id, outpost_id));
 
-#[starknet::interface]
-trait IOutpostActions<TContractState> {
-    fn purchase(self: @TContractState, game_id: u32) -> Position;
-    fn reinforce(self: @TContractState, game_id: u32, outpost_id: Position, count: u32);
-}
+        assert(!verified.verified, 'Already verified');
+        assert(current_event.is_impacted(outpost_id), 'Outpost not impacted');
+        let mut outpost = self.get_active_outpost(outpost_id);
 
+        outpost.life -= 1;
+        verified.verified = true;
+        game_state.remain_life_count -= 1;
+        let mut caller_contribution = self.get_caller_contribution();
+        caller_contribution.score += 1;
 
-#[dojo::contract]
-mod outpost_actions {
-    use super::IOutpostActions;
-    use super::OutpostActionsTrait;
+        if outpost.life <= 0 {
+            outpost.status = OutpostStatus::destroyed;
+            let mut owner = self.get_player(outpost.owner);
 
-    use risingrevenant::components::outpost::{OutpostTrait, Position};
-    use risingrevenant::components::game::{GameSetup};
-    use risingrevenant::components::player::{PlayerInfo};
+            owner.outpost_count -= 1;
+            game_state.outpost_remaining_count -= 1;
 
-    use risingrevenant::systems::game::{GameAction, GameActionTrait};
-    use risingrevenant::systems::player::{PlayerActionsTrait};
+            if game_state.outpost_remaining_count <= 1 {
+                let mut phases: GamePhases = self.get_game();
+                phases.game_ended = true;
+                self.set(phases);
+            }
 
-    #[external(v0)]
-    impl OutpostActionsImpl of IOutpostActions<ContractState> {
-        fn purchase(self: @TContractState, game_id: u32) -> Position {
-            let outpost_action = GameAction { world: self.world_dispatcher.read(), game_id };
-            let game_setup: GameSetup = outpost_action.get(game_id);
-            let mut player_info = self.get_caller_info();
-            let cost = game_setup.revenant_init_price;
-            self.transfer(player_info.player_id, game_setup.pot_pool_addr, cost);
-            let outpost = outpost_action.new_outpost(ref player_info);
-            self.increase_pot(cost);
-            outpost.position
+            self.set(owner);
         }
 
-        fn reinforce(self: @TContractState, game_id: u32, outpost_id: Position, count: u32) {
-            let outpost_action = GameAction { world: self.world_dispatcher.read(), game_id };
-            outpost_action.reinforce_outpost(outpost_id, count);
-        }
+        self.set((caller_contribution, outpost, verified, game_state));
     }
 }
+

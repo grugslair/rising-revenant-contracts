@@ -1,7 +1,7 @@
-use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use starknet::{ContractAddress, get_caller_address};
+use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
-use risingrevenant::components::player::{PlayerInfo};
+use risingrevenant::components::player::{PlayerInfo, PlayerContribution};
 
 use risingrevenant::systems::game::{GameAction, GameActionTrait};
 
@@ -13,5 +13,8 @@ impl PlayerActionsImpl of PlayerActionsTrait {
     }
     fn get_caller_info(self: @GameAction) -> PlayerInfo {
         self.get_player(get_caller_address())
+    }
+    fn get_caller_contribution(self: @GameAction) -> PlayerContribution {
+        self.get((self.game_id, get_caller_address()))
     }
 }
