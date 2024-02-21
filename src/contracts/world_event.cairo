@@ -9,16 +9,14 @@ trait IWorldEventActions<TContractState> {
 
 #[dojo::contract]
 mod world_event_actions {
-    use risingrevenant::components::game::{
-        Game, GameEntityCounter, GameStatus, GameTrait, GameImpl
-    };
+    use risingrevenant::components::game::{Game, GameEntityCounter, GameTrait, GameImpl};
     use risingrevenant::components::outpost::{
         Outpost, OutpostPosition, OutpostStatus, OutpostImpl, OutpostTrait
     };
     use risingrevenant::components::player::{PlayerInfo, PlayerInfoImpl, PlayerInfoTrait};
     use risingrevenant::components::world_event::{WorldEvent, WorldEventTracker};
     use risingrevenant::constants::{
-        EVENT_INIT_RADIUS, MAP_HEIGHT, MAP_WIDTH, EVENT_INCREASE_RADIUS, DESTORY_OUTPOST_SCORE,
+        EVENT_RADIUS_START, MAP_HEIGHT, MAP_WIDTH, EVENT_RADIUS_INCREASE, DESTORY_OUTPOST_SCORE,
         SPAWN_RANGE_Y_MAX, SPAWN_RANGE_Y_MIN, SPAWN_RANGE_X_MAX, SPAWN_RANGE_X_MIN
     };
     use risingrevenant::utils::MAX_U32;
@@ -68,11 +66,11 @@ mod world_event_actions {
             player: ContractAddress,
             entity_id: u128,
         ) -> WorldEvent {
-            let mut radius: u32 = EVENT_INIT_RADIUS;
+            let mut radius: u32 = EVENT_RADIUS_START;
             if entity_id > 1 {
                 let prev_world_event = get!(world, (game_id, entity_id - 1), WorldEvent);
                 if prev_world_event.destroy_count == 0 && prev_world_event.radius < MAX_U32 {
-                    radius = prev_world_event.radius + EVENT_INCREASE_RADIUS;
+                    radius = prev_world_event.radius + EVENT_RADIUS_INCREASE;
                 } else {
                     radius = prev_world_event.radius;
                 }

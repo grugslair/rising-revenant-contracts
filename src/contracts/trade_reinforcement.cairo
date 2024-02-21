@@ -21,7 +21,7 @@ mod trade_outpost_actions {
     use starknet::{ContractAddress, get_caller_address};
     use dojo::world::{IWorldDispatcherTrait};
 
-    use risingrevenant::components::trade::{Trade, TradeTrait, TradeType};
+    use risingrevenant::components::trade::{ReinforcementTrade, TradeTrait, TradeType};
 
     use risingrevenant::systems::game::{GameAction, GameActionTrait};
     use risingrevenant::systems::trade::{TradeActionImpl};
@@ -39,7 +39,7 @@ mod trade_outpost_actions {
 
         fn purchase(self: @ContractState, game_id: u128, trade_id: u32) {
             let trade_action = GameAction { world: self.world_dispatcher.read(), game_id };
-            let trade: Trade<u32> = trade_action
+            let trade: ReinforcementTrade = trade_action
                 .purchase_trade(TradeType::reinforcements, trade_id);
             trade_action.update_reinforcements(trade.buyer, trade.offer);
         }
@@ -57,7 +57,8 @@ mod trade_outpost_actions {
 
         fn revoke(self: @ContractState, game_id: u128, trade_id: u32) {
             let trade_action = GameAction { world: self.world_dispatcher.read(), game_id };
-            let trade: Trade<u32> = trade_action.revoke_trade(TradeType::reinforcements, trade_id);
+            let trade: ReinforcementTrade = trade_action
+                .revoke_trade(TradeType::reinforcements, trade_id);
             trade_action.update_reinforcements(trade.seller, trade.offer);
         }
     }

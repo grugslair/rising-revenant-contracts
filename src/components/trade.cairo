@@ -1,7 +1,7 @@
 use starknet::{ContractAddress};
+use risingrevenant::components::game::{Position};
 
-
-#[derive(Model, Copy, Drop, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde, SerdeLen)]
 struct Trade<T> {
     #[key]
     game_id: u128,
@@ -16,6 +16,11 @@ struct Trade<T> {
     status: u8,
 }
 
+#[derive(Model, Copy, Drop, Serde, SerdeLen)]
+type OutpostTrade = Trade<Position>;
+
+#[derive(Model, Copy, Drop, Serde, SerdeLen)]
+type ReinforcementTrade = Trade<u32>;
 
 #[generate_trait]
 impl TradeImpl<T> of TradeTrait<T> {
@@ -38,7 +43,6 @@ impl TradeImpl<T> of TradeTrait<T> {
             status: TradeStatus::selling,
         }
     }
-
 
     fn check_selling(self: @Trade<T>) {
         assert(*self.status != TradeStatus::not_created, 'trade not exist');

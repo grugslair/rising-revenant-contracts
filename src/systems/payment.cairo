@@ -1,5 +1,4 @@
 use starknet::ContractAddress;
-use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use openzeppelin::token::erc20::interface::{
     IERC20, IERC20Dispatcher, IERC20DispatcherImpl, IERC20DispatcherTrait
 };
@@ -83,5 +82,4 @@ impl PaymentSystemImpl of PaymentSystemTrait {
         self.transfer(pot_conts.pot_address, recipient, amount);
     }
 }
-
 

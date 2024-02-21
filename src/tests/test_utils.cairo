@@ -13,7 +13,7 @@ use risingrevenant::components::trade_reinforcement::trade_reinforcement;
 use risingrevenant::components::trade_revenant::trade_revenant;
 use risingrevenant::components::world_event::world_event;
 
-use risingrevenant::constants::{EVENT_INIT_RADIUS, GAME_CONFIG, OUTPOST_INIT_LIFE};
+use risingrevenant::constants::{EVENT_RADIUS_START, GAME_CONFIG, OUTPOST_INIT_LIFE};
 
 use risingrevenant::systems::game::{
     game_actions, IGameActionsDispatcher, IGameActionsDispatcherTrait

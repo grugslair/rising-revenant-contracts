@@ -1,5 +1,4 @@
 use starknet::{ContractAddress, get_caller_address};
-use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
 use risingrevenant::components::player::{PlayerInfo, PlayerContribution};
 

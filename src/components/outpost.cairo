@@ -47,23 +47,7 @@ mod OutpostStatus {
 
 #[generate_trait]
 impl OutpostImpl of OutpostTrait {
-    fn new_random(
-        game_id: u128,
-        owner: ContractAddress,
-        mut random: Random,
-        map_dims: Dimensions<u32>,
-        max_reinforcements: u32,
-    ) -> Outpost {
-        Outpost {
-            game_id,
-            position: PositionTrait::new_random(random, map_dims),
-            owner,
-            life: 0,
-            reinforces_remaining: max_reinforcements,
-            status: OutpostStatus::active,
-        }
-    }
-    fn assert_existed(self: @Outpost) {
+    fn assert_exists(self: @Outpost) {
         assert(*self.status != OutpostStatus::not_created, 'Outpost not exist');
         assert(*self.life > 0, 'Outpost has been destroyed');
     }

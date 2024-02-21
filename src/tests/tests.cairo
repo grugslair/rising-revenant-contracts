@@ -16,8 +16,8 @@ mod tests {
     use risingrevenant::components::world_event::{WorldEvent};
 
     use risingrevenant::constants::{
-        EVENT_INIT_RADIUS, GAME_CONFIG, OUTPOST_INIT_LIFE, REINFORCEMENT_INIT_COUNT,
-        DESTORY_OUTPOST_SCORE, EVENT_INCREASE_RADIUS,
+        EVENT_RADIUS_START, GAME_CONFIG, OUTPOST_INIT_LIFE, REINFORCEMENT_INIT_COUNT,
+        DESTORY_OUTPOST_SCORE, EVENT_RADIUS_INCREASE,
     };
 
     use risingrevenant::systems::game::{IGameActionsDispatcher, IGameActionsDispatcherTrait};
@@ -57,7 +57,7 @@ mod tests {
         assert(game_tracker.game_count == 1, 'wrong game trakcer');
 
         let (mut game, game_counter) = get!(world, (game_id), (Game, GameEntityCounter));
-        game.assert_existed();
+        game.assert_exists();
         game.assert_can_create_outpost(world);
 
         assert(game.status == GameStatus::preparing, 'wrong game status');
@@ -167,7 +167,7 @@ mod tests {
         let player_info = get!(world, (game_id, caller), PlayerInfo);
         assert(player_info.score == 0, 'wrong init player score');
         let world_event = world_event_action.create(game_id);
-        assert(world_event.radius == EVENT_INIT_RADIUS, 'event radius is wrong');
+        assert(world_event.radius == EVENT_RADIUS_START, 'event radius is wrong');
 
         let mut expect_score = 0;
 
@@ -179,7 +179,7 @@ mod tests {
         _add_block_number(EVENT_BLOCK_INTERVAL + 1);
         let world_event_2 = world_event_action.create(game_id);
         assert(
-            world_event_2.radius == EVENT_INIT_RADIUS + EVENT_INCREASE_RADIUS,
+            world_event_2.radius == EVENT_RADIUS_START + EVENT_RADIUS_INCREASE,
             'event radius is wrong'
         );
 

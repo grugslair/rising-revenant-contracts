@@ -11,8 +11,8 @@ const OUTPOST_MAX_REINFORCEMENT: u32 = 20;
 // When we need to perform a demonstration, we can modify this value.
 const REINFORCEMENT_INIT_COUNT: u32 = 0;
 
-const EVENT_INIT_RADIUS: u32 = 155;
-const EVENT_INCREASE_RADIUS: u32 = 15;
+const EVENT_RADIUS_START: u32 = 155;
+const EVENT_RADIUS_INCREASE: u32 = 15;
 
 // The reward score offered for destory a outpost
 const DESTORY_OUTPOST_SCORE: u32 = 5;

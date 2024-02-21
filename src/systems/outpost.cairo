@@ -6,15 +6,15 @@ use risingrevenant::components::outpost::{
 };
 use risingrevenant::components::world_event::CurrentWorldEventTrait;
 use risingrevenant::components::game::{
-    GamePhases, GameState, Position, PositionTrait, GameStatus, GameMap
+    GamePhases, GameState, Position, PositionTrait, GameMap, GameStatus,
 };
 use risingrevenant::components::player::PlayerInfo;
 use risingrevenant::components::world_event::{WorldEvent, CurrentWorldEvent, OutpostVerified};
 
 use risingrevenant::systems::player::PlayerActionsTrait;
 use risingrevenant::systems::reinforcement::ReinforcementActionTrait;
-use risingrevenant::systems::game::{GameAction, GameActionTrait};
-use risingrevenant::systems::payment::{PaymentSystemTrait, PaymentSystem};
+use risingrevenant::systems::game::{GameAction, GameActionTrait, GamePhaseTrait};
+use risingrevenant::systems::payment::{PaymentSystemTrait};
 use risingrevenant::systems::world_event::{WorldEventTrait};
 use risingrevenant::systems::position::{PositionGeneratorTrait};
 
@@ -116,7 +116,8 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         verified.verified
     }
     fn verify_outpost(self: @GameAction, outpost_id: Position) {
-        self.assert_playing();
+        let mut phases: GamePhases = self.get_game();
+        phases.assert_playing();
         let (current_event, mut game_state): (CurrentWorldEvent, GameState) = self.get_game();
 
         let mut verified: OutpostVerified = self
@@ -141,7 +142,7 @@ impl OutpostActionsImpl of OutpostActionsTrait {
 
             if game_state.outpost_remaining_count <= 1 {
                 let mut phases: GamePhases = self.get_game();
-                phases.game_ended = true;
+                phases.status = GameStatus::ended;
                 self.set(phases);
             }
 

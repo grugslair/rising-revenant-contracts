@@ -1,5 +1,4 @@
 use starknet::{get_caller_address};
-use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
 use risingrevenant::components::game::{GameTradeTax};
 use risingrevenant::components::trade::{Trade, TradeTrait, TradeStatus};
@@ -28,7 +27,7 @@ impl TradeActionImpl<T, +Drop<T>, +Copy<T>> of TradeActionTrait<T> {
         let payment_system = PaymentSystemTrait::new(self);
         let taxes: GameTradeTax = self.get_game();
 
-        let pot_contribution = trade.price * (taxes.trade_tax).into() / 100_u128;
+        let pot_contribution = trade.price * (taxes.trade_tax_percent).into() / 100_u128;
         let seller_payout = trade.price - pot_contribution;
 
         payment_system.transfer(buyer, trade.seller, seller_payout);

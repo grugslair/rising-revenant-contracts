@@ -12,7 +12,7 @@ mod payment_actions {
     use starknet::{get_caller_address};
 
 
-    use risingrevenant::systems::game::{GameAction, GameActionImpl, GameState, GameStatus, GamePot};
+    use risingrevenant::systems::game::{GameAction, GameActionImpl, GameState, GamePot};
     use risingrevenant::systems::player::{PlayerActionsTrait};
 
     use risingrevenant::systems::payment::{PaymentSystemTrait, PaymentSystem};

@@ -6,7 +6,6 @@ trait IReinforcementActions<TContractState> {
 
 #[dojo::contract]
 mod outpost_actions {
-    use super::;
     use super::IReinforcementActions;
     use starknet::{get_caller_address};
 
@@ -18,7 +17,6 @@ mod outpost_actions {
     use risingrevenant::systems::payment::{PaymentSystemTrait};
     use risingrevenant::systems::reinforcement::{ReinforcementActionTrait};
 
-    
 
     #[external(v0)]
     impl OutpostActionsImpl of IReinforcementActions<ContractState> {

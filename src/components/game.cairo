@@ -2,13 +2,13 @@ use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use starknet::{ContractAddress, get_caller_address};
 use risingrevenant::utils::random::{Random, RandomTrait};
 
-#[derive(Copy, Drop, Serde, SerdeLen)]
-struct Dimensions<T> {
-    x: T,
-    y: T
+#[derive(Copy, Drop, Serde, SerdeLen, Print, Introspect)]
+struct Dimensions {
+    x: u32,
+    y: u32
 }
 
-#[derive(Copy, Drop, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde, SerdeLen, Print, Introspect)]
 struct Position {
     x: u32,
     y: u32,
@@ -16,46 +16,39 @@ struct Position {
 
 #[generate_trait]
 impl PositionImpl of PositionTrait {
-    fn new_random(mut random: Random, map_dims: Dimensions<u32>) -> Position {
+    fn new_random(mut random: Random, map_dims: Dimensions) -> Position {
         Position { x: random.next_capped(map_dims.x), y: random.next_capped(map_dims.y) }
     }
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct PositionGenerator {
     random: Random,
-    map_dims: Dimensions<u32>
+    map_dims: Dimensions
 }
 
 #[derive(Model, Copy, Drop, Serde, SerdeLen)]
 struct CurrentGame {
+    #[key]
+    owner: ContractAddress,
     game_id: u128,
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
-struct OutpostMarket {
-    #[key]
-    game_id: u128,
-    outpost_price: u128,
-    outposts_available: u32,
-    max_reinforcements: u32,
-}
 
 #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
 struct GamePhases {
     #[key]
     game_id: u128,
-    game_created: bool,
+    status: u8,
     preparation_block_number: u64,
     play_block_number: u64,
-    game_ended: bool,
 }
 
 #[derive(Model, Copy, Drop, Serde, SerdeLen)]
 struct GameMap {
     #[key]
     game_id: u128,
-    dimensions: Dimensions<u32>,
+    dimensions: Dimensions,
 }
 
 #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
@@ -69,7 +62,7 @@ struct GameERC20 {
 struct GameTradeTax {
     #[key]
     game_id: u128,
-    trade_tax: u32,
+    trade_tax_percent: u8,
 }
 
 #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
@@ -118,8 +111,14 @@ struct DevWallet {
     init: bool,
 }
 
+mod GameStatus {
+    const not_created: u8 = 0;
+    const created: u8 = 1;
+    const ended: u8 = 2;
+}
+
 #[derive(Copy, Drop, Serde, PartialEq)]
-enum GameStatus {
+enum GamePhase {
     NotCreated,
     Created,
     Preparing,

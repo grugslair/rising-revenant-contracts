@@ -9,7 +9,7 @@ use risingrevenant::utils::{calculate_distance};
 struct WorldEventSetup {
     #[key]
     game_id: u128,
-    start_radius: u32,
+    radius_start: u32,
     radius_increase: u32,
 }
 
@@ -26,6 +26,7 @@ struct WorldEvent {
     previous_event: u128,
     next_event: u128,
 }
+
 #[derive(Model, Copy, Drop, Serde, SerdeLen)]
 struct CurrentWorldEvent {
     #[key]
@@ -38,16 +39,6 @@ struct CurrentWorldEvent {
     previous_event: u128,
 }
 
-#[derive(Model, Copy, Drop, Serde, SerdeLen)]
-struct OutpostImpacted {
-    #[key]
-    game_id: u128,
-    #[key]
-    event_id: u128,
-    #[key]
-    outpost_id: u32,
-    impacted: bool,
-}
 #[derive(Model, Copy, Drop, Serde, SerdeLen)]
 struct OutpostVerified {
     #[key]

@@ -1,5 +1,4 @@
 use starknet::{ContractAddress, get_block_timestamp};
-use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use cubit::f128::types::fixed::{FixedTrait};
 use origami::defi::auction::vrgda::{LogisticVRGDA, LogisticVRGDATrait};
 
