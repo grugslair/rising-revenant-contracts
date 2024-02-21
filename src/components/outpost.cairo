@@ -9,7 +9,7 @@ use risingrevenant::utils::random::{Random};
 use risingrevenant::utils::{calculate_distance};
 
 
-#[derive(Model, Copy, Drop, Serde, SerdeLen)]
+#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
 struct Outpost {
     #[key]
     game_id: u128,

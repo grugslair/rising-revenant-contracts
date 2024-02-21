@@ -3,7 +3,7 @@ use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use origami::defi::auction::vrgda::{LogisticVRGDA, LogisticVRGDATrait};
 use starknet::{ContractAddress, get_block_timestamp};
 
-#[derive(Model, Copy, Drop, Serde, SerdeLen)]
+#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
 struct ReinforcementBalance {
     #[key]
     game_id: u128,

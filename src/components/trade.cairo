@@ -1,7 +1,8 @@
 use starknet::{ContractAddress};
 use risingrevenant::components::game::{Position};
 
-#[derive(Copy, Drop, Serde, SerdeLen)]
+
+#[derive(Copy, Drop, Print, Introspect)]
 struct Trade<T> {
     #[key]
     game_id: u128,
@@ -16,25 +17,34 @@ struct Trade<T> {
     status: u8,
 }
 
-#[derive(Model, Copy, Drop, Serde, SerdeLen)]
+#[derive(Model, Copy, Drop, Print, Introspect)]
 type OutpostTrade = Trade<Position>;
 
-#[derive(Model, Copy, Drop, Serde, SerdeLen)]
+#[derive(Model, Copy, Drop, Print)]
 type ReinforcementTrade = Trade<u32>;
 
-#[generate_trait]
-impl TradeImpl<T> of TradeTrait<T> {
+trait TradeTrait<O> {
     fn new(
-        game_id: u128,
-        trade_type: u8,
-        trade_id: u128,
-        seller: ContractAddress,
-        price: u128,
-        offer: T
-    ) -> Trade<T> {
-        Trade {
+        game_id: u128, trade_id: u128, seller: ContractAddress, price: u128, offer: O
+    ) -> Trade<O>;
+}
+
+#[generate_trait]
+impl TradeImpl of GenTradeTrait {
+    fn check_selling<O>(self: @Trade<O>) {
+        assert(*self.status != TradeStatus::not_created, 'trade not exist');
+        assert(*self.status != TradeStatus::sold, 'trade had been sold');
+        assert(*self.status != TradeStatus::revoked, 'trade had been revoked');
+    }
+}
+
+impl ReinforcementTradeImpl of TradeTrait<u32> {
+    fn new(
+        game_id: u128, trade_id: u128, seller: ContractAddress, price: u128, offer: u32
+    ) -> ReinforcementTrade {
+        ReinforcementTrade {
             game_id,
-            trade_type,
+            trade_type: TradeType::reinforcements,
             trade_id,
             seller,
             buyer: starknet::contract_address_const::<0x0>(),
@@ -43,11 +53,22 @@ impl TradeImpl<T> of TradeTrait<T> {
             status: TradeStatus::selling,
         }
     }
+}
 
-    fn check_selling(self: @Trade<T>) {
-        assert(*self.status != TradeStatus::not_created, 'trade not exist');
-        assert(*self.status != TradeStatus::sold, 'trade had been sold');
-        assert(*self.status != TradeStatus::revoked, 'trade had been revoked');
+impl OutpostTradeImpl of TradeTrait<Position> {
+    fn new(
+        game_id: u128, trade_id: u128, seller: ContractAddress, price: u128, offer: Position
+    ) -> OutpostTrade {
+        OutpostTrade {
+            game_id,
+            trade_type: TradeType::outpost,
+            trade_id,
+            seller,
+            buyer: starknet::contract_address_const::<0x0>(),
+            price,
+            offer,
+            status: TradeStatus::selling,
+        }
     }
 }
 

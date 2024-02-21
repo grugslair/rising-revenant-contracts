@@ -21,7 +21,7 @@ use risingrevenant::systems::position::{PositionGeneratorTrait};
 
 #[generate_trait]
 impl OutpostActionsImpl of OutpostActionsTrait {
-    fn purchase_outpost(self: @GameAction) -> Outpost {
+    fn purchase_outpost(self: GameAction) -> Outpost {
         self.assert_preparing();
 
         let mut outpost_market: OutpostMarket = self.get_game();
@@ -35,15 +35,15 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         let outpost = self.new_outpost(player_info);
 
         outpost_market.available -= 1;
-        self.set(outpost_market);
+        set!(self.world, (outpost_market));
         outpost
     }
 
-    fn new_outpost(self: @GameAction, mut player_info: PlayerInfo) -> Outpost {
+    fn new_outpost(self: GameAction, mut player_info: PlayerInfo) -> Outpost {
         let setup: OutpostSetup = self.get_game();
         let mut position_generator = PositionGeneratorTrait::new(self);
         let mut outpost = Outpost {
-            game_id: *self.game_id,
+            game_id: self.game_id,
             position: position_generator.next(),
             owner: player_info.player_id,
             life: setup.life,
@@ -63,14 +63,14 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         game_state.outpost_created_count += 1;
         game_state.outpost_remaining_count += 1;
         game_state.remain_life_count += outpost.life;
-        self.set((outpost, game_state, player_info));
+        set!(self.world, (outpost, game_state, player_info));
         outpost
     }
 
-    fn get_outpost_price(self: @GameAction) -> u256 {
+    fn get_outpost_price(self: GameAction) -> u256 {
         self.get_game::<OutpostMarket>().price
     }
-    fn reinforce_outpost(self: @GameAction, outpost_id: Position, count: u32) {
+    fn reinforce_outpost(self: GameAction, outpost_id: Position, count: u32) {
         let player_id = get_caller_address();
         let mut outpost = self.get_active_outpost(outpost_id);
         assert(outpost.owner == player_id, 'Not players outpost');
@@ -81,20 +81,18 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         outpost.reinforces_remaining -= count;
         outpost.life += count;
 
-        self.set(outpost);
+        set!(self.world, (outpost));
     }
-    fn get_outpost(self: @GameAction, outpost_id: Position) -> Outpost {
+    fn get_outpost(self: GameAction, outpost_id: Position) -> Outpost {
         self.get((self.game_id, outpost_id))
     }
-    fn get_active_outpost(self: @GameAction, outpost_id: Position) -> Outpost {
+    fn get_active_outpost(self: GameAction, outpost_id: Position) -> Outpost {
         self.assert_playing();
         let outpost = self.get_outpost(outpost_id);
         outpost.assert_active();
         outpost
     }
-    fn change_outpost_owner(
-        self: @GameAction, outpost_id: Position, new_owner_id: ContractAddress
-    ) {
+    fn change_outpost_owner(self: GameAction, outpost_id: Position, new_owner_id: ContractAddress) {
         let mut outpost = self.get_active_outpost(outpost_id);
 
         let mut new_owner = self.get_player(new_owner_id);
@@ -104,9 +102,9 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         old_owner.outpost_count -= 1;
         outpost.owner = new_owner_id;
 
-        self.set((new_owner, old_owner, outpost));
+        set!(self.world, (new_owner, old_owner, outpost));
     }
-    fn check_outpost_verified(self: @GameAction, outpost_id: Position) -> bool {
+    fn check_outpost_verified(self: GameAction, outpost_id: Position) -> bool {
         let current_event: CurrentWorldEvent = self.get_game();
         if current_event.is_impacted(outpost_id) {
             return true;
@@ -115,11 +113,11 @@ impl OutpostActionsImpl of OutpostActionsTrait {
             .get((self.game_id, current_event.event_id, outpost_id));
         verified.verified
     }
-    fn verify_outpost(self: @GameAction, outpost_id: Position) {
+    fn verify_outpost(self: GameAction, outpost_id: Position) {
         let mut phases: GamePhases = self.get_game();
         phases.assert_playing();
-        let (current_event, mut game_state): (CurrentWorldEvent, GameState) = self.get_game();
-
+        let current_event: CurrentWorldEvent = self.get_game();
+        let mut game_state: GameState = self.get_game();
         let mut verified: OutpostVerified = self
             .get((self.game_id, current_event.event_id, outpost_id));
 
@@ -143,13 +141,13 @@ impl OutpostActionsImpl of OutpostActionsTrait {
             if game_state.outpost_remaining_count <= 1 {
                 let mut phases: GamePhases = self.get_game();
                 phases.status = GameStatus::ended;
-                self.set(phases);
+                set!(self.world, (phases));
             }
 
-            self.set(owner);
+            set!(self.world, (owner));
         }
 
-        self.set((caller_contribution, outpost, verified, game_state));
+        set!(self.world, (caller_contribution, outpost, verified, game_state));
     }
 }
 

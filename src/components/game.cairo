@@ -2,13 +2,13 @@ use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use starknet::{ContractAddress, get_caller_address};
 use risingrevenant::utils::random::{Random, RandomTrait};
 
-#[derive(Copy, Drop, Serde, SerdeLen, Print, Introspect)]
+#[derive(Copy, Drop, Serde, SerdeLen, Introspect)]
 struct Dimensions {
     x: u32,
     y: u32
 }
 
-#[derive(Copy, Drop, Serde, SerdeLen, Print, Introspect)]
+#[derive(Copy, Drop, Serde, SerdeLen, Introspect)]
 struct Position {
     x: u32,
     y: u32,
@@ -27,7 +27,7 @@ struct PositionGenerator {
     map_dims: Dimensions
 }
 
-#[derive(Model, Copy, Drop, Serde, SerdeLen)]
+#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
 struct CurrentGame {
     #[key]
     owner: ContractAddress,
@@ -44,7 +44,7 @@ struct GamePhases {
     play_block_number: u64,
 }
 
-#[derive(Model, Copy, Drop, Serde, SerdeLen)]
+#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
 struct GameMap {
     #[key]
     game_id: u128,
@@ -101,7 +101,7 @@ struct GamePot {
 }
 
 
-#[derive(Model, Copy, Drop, Serde, SerdeLen)]
+#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
 struct DevWallet {
     #[key]
     game_id: u128,

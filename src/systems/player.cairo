@@ -7,13 +7,13 @@ use risingrevenant::systems::game::{GameAction, GameActionTrait};
 
 #[generate_trait]
 impl PlayerActionsImpl of PlayerActionsTrait {
-    fn get_player(self: @GameAction, player_id: ContractAddress) -> PlayerInfo {
+    fn get_player(self: GameAction, player_id: ContractAddress) -> PlayerInfo {
         self.get((self.game_id, player_id))
     }
-    fn get_caller_info(self: @GameAction) -> PlayerInfo {
+    fn get_caller_info(self: GameAction) -> PlayerInfo {
         self.get_player(get_caller_address())
     }
-    fn get_caller_contribution(self: @GameAction) -> PlayerContribution {
+    fn get_caller_contribution(self: GameAction) -> PlayerContribution {
         self.get((self.game_id, get_caller_address()))
     }
 }

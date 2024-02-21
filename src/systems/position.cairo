@@ -7,12 +7,12 @@ use risingrevenant::utils::random::{Random, RandomTrait};
 
 #[generate_trait]
 impl PositionGeneratorImpl of PositionGeneratorTrait {
-    fn new(action: @GameAction) -> PositionGenerator {
+    fn new(action: GameAction) -> PositionGenerator {
         PositionGenerator {
             random: RandomTrait::new(), map_dims: action.get_game::<GameMap>().dimensions,
         }
     }
-    fn single(action: @GameAction) -> Position {
+    fn single(action: GameAction) -> Position {
         let mut generator = PositionGeneratorImpl::new(action);
         generator.next()
     }

@@ -1,4 +1,5 @@
 use starknet::{ContractAddress, get_block_timestamp};
+use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use cubit::f128::types::fixed::{FixedTrait};
 use origami::defi::auction::vrgda::{LogisticVRGDA, LogisticVRGDATrait};
 
@@ -15,7 +16,7 @@ const max_sellable: u128 = 1000000000;
 
 #[generate_trait]
 impl ReinforcementActionImpl of ReinforcementActionTrait {
-    fn get_reinforcement_price(self: @GameAction, count: u32) -> u128 {
+    fn get_reinforcement_price(self: GameAction, count: u32) -> u128 {
         let balance_info: ReinforcementBalance = self.get_game();
 
         let time_since_start: u128 = get_block_timestamp().into()
@@ -46,16 +47,16 @@ impl ReinforcementActionImpl of ReinforcementActionTrait {
         total_price
     }
     fn update_reinforcements<T, +Into<T, i64>, +Copy<T>, +Drop<T>>(
-        self: @GameAction, player_id: ContractAddress, count: T
+        self: GameAction, player_id: ContractAddress, count: T
     ) {
         let mut player_info = self.get_player(player_id);
         let new_reinforcements_count: i64 = player_info.reinforcements_available_count.into()
             + count.into();
         assert(0 <= new_reinforcements_count, 'Not enough reinforcements');
         player_info.reinforcements_available_count = new_reinforcements_count.try_into().unwrap();
-        self.set(player_info);
+        set!(self.world, (player_info,));
     }
-    fn purchase_reinforcement(self: @GameAction, player_id: ContractAddress, count: u32) {
+    fn purchase_reinforcement(self: GameAction, player_id: ContractAddress, count: u32) {
         self.assert_preparing();
         let cost = self.get_reinforcement_price(count);
 
@@ -66,7 +67,7 @@ impl ReinforcementActionImpl of ReinforcementActionTrait {
 
         let mut outposts_tracker: GameState = self.get_game();
         outposts_tracker.reinforcement_count += count;
-        self.set(outposts_tracker);
+        set!(self.world, (outposts_tracker,));
     }
 }
 

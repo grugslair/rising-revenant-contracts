@@ -20,12 +20,12 @@ mod outpost_actions {
 
     #[external(v0)]
     impl OutpostActionsImpl of IReinforcementActions<ContractState> {
-        fn get_price(self: @TContractState, game_id: u128, count: u32) -> u128 {
+        fn get_price(self: @ContractState, game_id: u128, count: u32) -> u128 {
             let game_action = GameAction { world: self.world_dispatcher.read(), game_id };
             game_action.get_reinforcement_price(count)
         }
 
-        fn purchase(self: @TContractState, game_id: u128, count: u32) {
+        fn purchase(self: @ContractState, game_id: u128, count: u32) {
             let game_action = GameAction { world: self.world_dispatcher.read(), game_id };
             game_action.purchase_reinforcement(get_caller_address(), count);
         }
