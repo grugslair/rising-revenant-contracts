@@ -25,6 +25,11 @@ type ReinforcementTrade = Trade<u32>;
 
 trait TradeTrait<O, T> {
     fn new(game_id: u128, trade_id: u128, seller: ContractAddress, price: u128, offer: O) -> T;
+    fn check_selling(self: T);
+    fn is_owner(self: T, caller: ContractAddress) -> bool;
+    fn set_status(ref self: T, status: u8);
+    fn set_price(ref self: T, price: u128);
+    fn set_sold(ref self: T, buyer: ContractAddress) -> (ContractAddress, u128);
 }
 
 
@@ -52,6 +57,23 @@ impl ReinforcementTradeImpl of TradeTrait<u32, ReinforcementTrade> {
             status: TradeStatus::selling,
         }
     }
+    fn check_selling(self: ReinforcementTrade) {
+        GenTradeTrait::<u32, ReinforcementTrade>::check_selling(@self);
+    }
+    fn is_owner(self: ReinforcementTrade, caller: ContractAddress) -> bool {
+        self.seller == caller
+    }
+    fn set_status(ref self: ReinforcementTrade, status: u8) {
+        self.status = status;
+    }
+    fn set_price(ref self: ReinforcementTrade, price: u128) {
+        self.price = price;
+    }
+    fn set_sold(ref self: ReinforcementTrade, buyer: ContractAddress) -> (ContractAddress, u128) {
+        self.status = TradeStatus::sold;
+        self.buyer = buyer;
+        (self.seller, self.price)
+    }
 }
 
 impl OutpostTradeImpl of TradeTrait<Position, OutpostTrade> {
@@ -68,6 +90,23 @@ impl OutpostTradeImpl of TradeTrait<Position, OutpostTrade> {
             offer,
             status: TradeStatus::selling,
         }
+    }
+    fn check_selling(self: OutpostTrade) {
+        GenTradeTrait::<Position, OutpostTrade>::check_selling(@self);
+    }
+    fn is_owner(self: OutpostTrade, caller: ContractAddress) -> bool {
+        self.seller == caller
+    }
+    fn set_status(ref self: OutpostTrade, status: u8) {
+        self.status = status;
+    }
+    fn set_price(ref self: OutpostTrade, price: u128) {
+        self.price = price;
+    }
+    fn set_sold(ref self: OutpostTrade, buyer: ContractAddress) -> (ContractAddress, u128) {
+        self.status = TradeStatus::sold;
+        self.buyer = buyer;
+        (self.seller, self.price)
     }
 }
 

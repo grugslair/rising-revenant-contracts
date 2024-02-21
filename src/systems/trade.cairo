@@ -4,7 +4,7 @@ use dojo::model::{Model};
 use dojo::database::introspect::Introspect;
 
 use risingrevenant::components::game::{GameTradeTax};
-use risingrevenant::components::trade::{Trade, TradeTrait, TradeStatus, GenTradeTrait};
+use risingrevenant::components::trade::{Trade, TradeTrait, TradeStatus};
 
 use risingrevenant::systems::game::{GameAction, GameActionTrait};
 use risingrevenant::systems::payment::{PaymentSystemTrait};
@@ -35,19 +35,19 @@ impl TradeActionImpl<
         let mut trade = TradeActionTrait::<O, T>::get_active_trade(self, trade_type, trade_id);
 
         let buyer = get_caller_address(); //get the address of the person calling the api
-        assert(trade.seller != buyer, 'unable purchase your own trade');
+        assert(!TradeTrait::<O, T>::is_owner(trade, buyer), 'unable purchase your own trade');
+
+        let (seller, price) = TradeTrait::<O, T>::set_sold(ref trade, buyer);
 
         let payment_system = PaymentSystemTrait::new(self);
         let taxes: GameTradeTax = self.get_game();
 
-        let pot_contribution = trade.price * (taxes.trade_tax_percent).into() / 100_u128;
-        let seller_payout = trade.price - pot_contribution;
+        let pot_contribution = price * (taxes.trade_tax_percent).into() / 100_u128;
+        let seller_payout = price - pot_contribution;
 
-        payment_system.transfer(buyer, trade.seller, seller_payout);
+        payment_system.transfer(buyer, seller, seller_payout);
         payment_system.pay_into_pot(buyer, pot_contribution);
 
-        trade.status = TradeStatus::sold;
-        trade.buyer = buyer;
         set!(self.world, (trade,));
 
         trade
@@ -57,7 +57,7 @@ impl TradeActionImpl<
         let mut trade = TradeActionTrait::<
             O, T
         >::get_players_active_trade(self, trade_type, trade_id);
-        trade.price = new_price;
+        TradeTrait::<O, T>::set_price(ref trade, new_price);
         set!(self.world, (trade,));
     }
 
@@ -65,7 +65,7 @@ impl TradeActionImpl<
         let mut trade = TradeActionTrait::<
             O, T
         >::get_players_active_trade(self, trade_type, trade_id);
-        trade.status = TradeStatus::revoked;
+        TradeTrait::<O, T>::set_status(ref trade, TradeStatus::revoked);
         set!(self.world, (trade,));
         trade
     }
@@ -73,13 +73,13 @@ impl TradeActionImpl<
     fn get_active_trade(self: GameAction, trade_type: u8, trade_id: u32) -> T {
         self.assert_playing();
         let trade = self.get((self.game_id, trade_type, trade_id));
-        trade.check_selling();
+        TradeTrait::<O, T>::check_selling(trade);
         trade
     }
     fn get_players_active_trade(self: GameAction, trade_type: u8, trade_id: u32) -> T {
         let trade = TradeActionTrait::<O, T>::get_active_trade(self, trade_type, trade_id);
         let caller = get_caller_address();
-        // assert(trade.seller == caller, 'not owner');
+        assert(TradeTrait::<O, T>::is_owner(trade, caller), 'not owner');
         trade
     }
 }
