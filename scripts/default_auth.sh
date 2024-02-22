@@ -13,6 +13,8 @@ export WORLD_EVENT_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[
 
 export OUTPOST_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::contracts::outpost::outpost_actions").address')
 
+export REINFORCEMENTS_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::contracts::reinforcement::reinforcement_actions").address')
+
 export PAYMENT_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::contracts::payment::payment_actions").address')
 
 export TRADE_OUTPOST_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::contracts::trade_outpost::trade_outpost_actions").address')
@@ -28,6 +30,8 @@ echo " "
 echo world event actions : $WORLD_EVENT_ADDRESS
 echo " "
 echo outpost actions : $OUTPOST_ACTIONS_ADDRESS
+echo " "
+echo reinforcements actions : $REINFORCEMENTS_ACTIONS_ADDRESS
 echo " "
 echo payment actions : $PAYMENT_ACTIONS_ADDRESS
 echo " "
@@ -78,6 +82,11 @@ done
 
 for component in ${COMPONENTS[@]}; do
     sozo auth writer $component $OUTPOST_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
+    sleep 1 
+done
+
+for component in ${COMPONENTS[@]}; do
+    sozo auth writer $component $REINFORCEMENTS_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
     sleep 1 
 done
 
