@@ -1,6 +1,4 @@
 use cubit::f128::types::fixed::{Fixed, FixedTrait};
-use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-use origami::defi::auction::vrgda::{LogisticVRGDA, LogisticVRGDATrait};
 use starknet::{ContractAddress, get_block_timestamp};
 
 #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
