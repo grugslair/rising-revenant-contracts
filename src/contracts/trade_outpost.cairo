@@ -1,5 +1,4 @@
-use risingrevenant::components::outpost::{Position};
-
+use risingrevenant::components::game::{Position};
 
 #[starknet::interface]
 trait ITradeOutpostActions<TContractState> {
@@ -23,11 +22,11 @@ mod trade_outpost_actions {
 
     use starknet::{ContractAddress, get_caller_address};
 
-    use risingrevenant::components::trade::{OutpostTrade, TradeTrait, TradeType};
-    use risingrevenant::components::outpost::{Position};
+    use risingrevenant::components::trade::{Trade, OutpostTrade, TradeTrait, TradeType};
+    use risingrevenant::components::game::{Position};
 
     use risingrevenant::systems::game::{GameAction, GameActionTrait};
-    use risingrevenant::systems::trade::{TradeActionImpl};
+    use risingrevenant::systems::trade::{TradeActionImpl, TradeActionTrait};
     use risingrevenant::systems::outpost::{OutpostActionsTrait};
 
     #[external(v0)]
@@ -41,7 +40,9 @@ mod trade_outpost_actions {
             let outpost = trade_action.get_active_outpost(outpost_postion);
             assert(outpost.owner == caller, 'not owner');
 
-            let trade = trade_action.create_trade(TradeType::outpost, price, outpost_postion);
+            let trade: OutpostTrade = TradeActionTrait::create_trade(
+                trade_action, price, outpost_postion
+            );
             trade.trade_id
         }
 

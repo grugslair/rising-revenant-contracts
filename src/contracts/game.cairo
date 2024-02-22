@@ -1,36 +1,34 @@
 #[starknet::interface]
 trait IGameActions<TContractState> {
-    fn create(self: @TContractState) -> u128;
-    fn get_block_number(self: @TContractState) -> u64;
+    fn create(self: @TContractState, start_block: u64, preparation_blocks: u64) -> u128;
 }
 
 #[dojo::contract]
 mod game_actions {
-    use starknet::{
-        ContractAddress, get_block_info, get_block_number, get_block_timestamp, get_caller_address
-    };
+    use starknet::{ContractAddress, get_block_info, get_block_timestamp, get_caller_address};
 
     use risingrevenant::components::game::{
         CurrentGame, GameStatus, GameMap, GameTradeTax, GamePotConsts, GameState, GamePot,
-        Dimensions
+        GamePhases, Dimensions
     };
-    use risingrevenant::components::reinforcement::{ReinforcementBalance, target_price};
+    use risingrevenant::components::reinforcement::{ReinforcementBalance};
     use risingrevenant::components::outpost::{OutpostMarket, OutpostSetup};
     use risingrevenant::components::world_event::{WorldEventSetup};
 
     use risingrevenant::systems::game::{uuid, GameAction, GameActionTrait};
 
     use risingrevenant::defaults::{
-        MAP_WIDTH, MAP_HEIGHT, DEV_PERCENT, CONFIRMATION_PERCENT, LTR_PERCENT, GAME_TRADE_TAX_PERCENT, EVENT_RADIUS_START, EVENT_RADIUS_INCREASE
+        MAP_WIDTH, MAP_HEIGHT, DEV_PERCENT, CONFIRMATION_PERCENT, LTR_PERCENT,
+        GAME_TRADE_TAX_PERCENT, EVENT_RADIUS_START, EVENT_RADIUS_INCREASE, OUTPOST_PRICE,
+        MAX_OUTPOSTS
     };
 
-    
 
     use super::IGameActions;
 
     #[external(v0)]
     impl GameActionImpl of IGameActions<ContractState> {
-        fn create(self: @ContractState, admin: ContractAddress) -> u128 {
+        fn create(self: @ContractState, start_block: u64, preparation_blocks: u64) -> u128 {
             let world = self.world_dispatcher.read();
             let caller_id = get_caller_address();
             let game_id = uuid(world);
@@ -38,7 +36,7 @@ mod game_actions {
             let mut current_game: CurrentGame = game_action.get(caller_id);
             let last_game_id = current_game.game_id;
             current_game.game_id = game_id;
-            
+
             let game_map = GameMap {
                 game_id, dimensions: Dimensions { x: MAP_WIDTH, y: MAP_HEIGHT },
             };
@@ -50,22 +48,19 @@ mod game_actions {
                 ltr_percent: LTR_PERCENT,
             };
 
-            let game_trade_tax = GameTradeTax{
-                game_id,
-                trade_tax_percent: GAME_TRADE_TAX_PERCENT,
+            let game_trade_tax = GameTradeTax {
+                game_id, trade_tax_percent: GAME_TRADE_TAX_PERCENT,
             };
 
-            let outpost_market = OutpostMarket{
-                game_id, 
-            }
-
-            let world_event_setup = WorldEventSetup{
-                game_id,
-                radius_start: EVENT_RADIUS_START,
-                radius_increase: EVENT_RADIUS_INCREASE
+            let outpost_market = OutpostMarket {
+                game_id, price: OUTPOST_PRICE, available: MAX_OUTPOSTS,
             };
 
-            let game_state = GameState{
+            let world_event_setup = WorldEventSetup {
+                game_id, radius_start: EVENT_RADIUS_START, radius_increase: EVENT_RADIUS_INCREASE
+            };
+
+            let game_state = GameState {
                 game_id,
                 outpost_created_count: 0,
                 outpost_remaining_count: 0,
@@ -76,17 +71,25 @@ mod game_actions {
 
             let game_phases = GamePhases {
                 game_id,
+                status: GameStatus::created,
+                preparation_block_number: start_block,
+                play_block_number: start_block + preparation_blocks,
+            };
 
-            }
-
-
-
-            game_action.set((current_game, game_map, game_pot_consts, world_event_setup, outpost_market, game_trade_tax));
+            set!(
+                world,
+                (
+                    current_game,
+                    game_map,
+                    game_pot_consts,
+                    world_event_setup,
+                    outpost_market,
+                    game_trade_tax,
+                    game_phases,
+                    game_state
+                )
+            );
             game_id
-        }
-
-        fn get_block_number(self: @ContractState) -> u64 {
-            get_block_number()
         }
     }
 }
