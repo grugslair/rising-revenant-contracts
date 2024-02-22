@@ -4,6 +4,9 @@ const OUTPOST_INIT_LIFE: u32 = 1;
 // Outposts, can be bolstered up to 20 times in their lifetime
 const OUTPOST_MAX_REINFORCEMENT: u32 = 20;
 
+const MAX_OUTPOSTS: u32 = 20;
+const OUTPOST_PRICE: u256 = 100;
+
 const REINFORCEMENT_INIT_COUNT: u32 = 0;
 const REINFORCEMENT_LIFE_INCREASE: u32 = 0;
 

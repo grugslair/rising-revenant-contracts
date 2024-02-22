@@ -1,7 +1,7 @@
 #[starknet::interface]
 trait ITradeReinforcmentsActions<TContractState> {
     // Create a new trade
-    fn create(self: @TContractState, game_id: u128, count: u32, price: u128) -> u128;
+    fn create(self: @TContractState, game_id: u128, price: u128, count: u32) -> u128;
 
     // Revoke an initiated trade
     fn revoke(self: @TContractState, game_id: u128, trade_id: u128);
@@ -28,36 +28,31 @@ mod trade_outpost_actions {
 
     #[external(v0)]
     impl TradeReinforcmentsActionImpl of ITradeReinforcmentsActions<ContractState> {
-        fn create(self: @ContractState, game_id: u128, count: u32, price: u128) -> u128 {
+        fn create(self: @ContractState, game_id: u128, price: u128, count: u32,) -> u128 {
             let trade_action = GameAction { world: self.world_dispatcher.read(), game_id };
             assert(count > 0, 'count must larger than 0');
-            let trade = trade_action.create_trade(TradeType::reinforcements, price, count);
+            let trade: ReinforcementTrade = trade_action.create_trade(price, count);
             trade_action.update_reinforcements::<i64>(trade.seller, -count.into());
             trade.trade_id
         }
 
         fn purchase(self: @ContractState, game_id: u128, trade_id: u128) {
             let trade_action = GameAction { world: self.world_dispatcher.read(), game_id };
-            let trade: ReinforcementTrade = trade_action
-                .purchase_trade(TradeType::reinforcements, trade_id);
+            let trade: ReinforcementTrade = trade_action.purchase_trade(trade_id);
             trade_action.update_reinforcements(trade.buyer, trade.offer);
         }
 
         fn modify_price(self: @ContractState, game_id: u128, trade_id: u128, new_price: u128) {
             TradeActionImpl::<
-                u128
+                ReinforcementTrade, u32
             >::modify_trade_price(
-                GameAction { world: self.world_dispatcher.read(), game_id },
-                TradeType::reinforcements,
-                trade_id,
-                new_price
+                GameAction { world: self.world_dispatcher.read(), game_id }, trade_id, new_price
             );
         }
 
         fn revoke(self: @ContractState, game_id: u128, trade_id: u128) {
             let trade_action = GameAction { world: self.world_dispatcher.read(), game_id };
-            let trade: ReinforcementTrade = trade_action
-                .revoke_trade(TradeType::reinforcements, trade_id);
+            let trade: ReinforcementTrade = trade_action.revoke_trade(trade_id);
             trade_action.update_reinforcements(trade.seller, trade.offer);
         }
     }

@@ -9,7 +9,7 @@ use risingrevenant::systems::position::{PositionGeneratorTrait};
 
 #[generate_trait]
 impl WorldEventImpl of WorldEventTrait {
-    fn new_world_event(self: GameAction) {
+    fn new_world_event(self: GameAction) -> CurrentWorldEvent {
         self.assert_playing();
         let event_setup: WorldEventSetup = self.get_game();
         let last_event: CurrentWorldEvent = self.get_game();
@@ -24,7 +24,9 @@ impl WorldEventImpl of WorldEventTrait {
             block_number: starknet::get_block_info().unbox().block_number,
             previous_event: last_event.event_id,
         };
-        set!(self.world, (event, last_event.to_event(next_event_id)));
+        let last_world_event = last_event.to_event(next_event_id);
+        set!(self.world, (event, last_world_event));
+        event
     }
     fn get_current_event(self: GameAction) -> CurrentWorldEvent {
         self.get_game()

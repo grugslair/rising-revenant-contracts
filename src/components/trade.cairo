@@ -1,15 +1,13 @@
 use starknet::{ContractAddress};
 use risingrevenant::components::game::{Position};
+// use dojo::database::introspect::Introspect;
+// use dojo::model::{Model};
 
-
-#[derive(Copy, Drop, Print, Introspect)]
+#[derive(Copy, Drop, Print)]
 struct Trade<T> {
-    #[key]
     game_id: u128,
-    #[key]
-    trade_type: u8,
-    #[key]
     trade_id: u128,
+    trade_type: u8,
     seller: ContractAddress,
     buyer: ContractAddress,
     price: u128,
@@ -17,24 +15,44 @@ struct Trade<T> {
     status: u8,
 }
 
-#[derive(Model, Copy, Drop, Print, Introspect)]
-type OutpostTrade = Trade<Position>;
+#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+struct OutpostTrade {
+    #[key]
+    game_id: u128,
+    #[key]
+    trade_id: u128,
+    trade_type: u8,
+    seller: ContractAddress,
+    buyer: ContractAddress,
+    price: u128,
+    offer: Position,
+    status: u8,
+}
 
-#[derive(Model, Copy, Drop, Print)]
-type ReinforcementTrade = Trade<u32>;
+#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+struct ReinforcementTrade {
+    #[key]
+    game_id: u128,
+    #[key]
+    trade_id: u128,
+    trade_type: u8,
+    seller: ContractAddress,
+    buyer: ContractAddress,
+    price: u128,
+    offer: u32,
+    status: u8,
+}
 
-trait TradeTrait<O, T> {
+trait TradeTrait<T, O> {
     fn new(game_id: u128, trade_id: u128, seller: ContractAddress, price: u128, offer: O) -> T;
-    fn check_selling(self: T);
-    fn is_owner(self: T, caller: ContractAddress) -> bool;
-    fn set_status(ref self: T, status: u8);
-    fn set_price(ref self: T, price: u128);
-    fn set_sold(ref self: T, buyer: ContractAddress) -> (ContractAddress, u128);
+    fn to_generic(self: T) -> Trade<O>;
+    fn from_generic(trade: Trade<O>) -> T;
+    fn get_type(self: T) -> u8;
 }
 
 
 #[generate_trait]
-impl TradeImpl<O, T> of GenTradeTrait<O, T> {
+impl TradeImpl<O> of GenTradeTrait<O> {
     fn check_selling(self: @Trade<O>) {
         assert(*self.status != TradeStatus::not_created, 'trade not exist');
         assert(*self.status != TradeStatus::sold, 'trade had been sold');
@@ -42,14 +60,15 @@ impl TradeImpl<O, T> of GenTradeTrait<O, T> {
     }
 }
 
-impl ReinforcementTradeImpl of TradeTrait<u32, ReinforcementTrade> {
+
+impl ReinforcementTradeImpl of TradeTrait<ReinforcementTrade, u32> {
     fn new(
         game_id: u128, trade_id: u128, seller: ContractAddress, price: u128, offer: u32
     ) -> ReinforcementTrade {
         ReinforcementTrade {
             game_id,
-            trade_type: TradeType::reinforcements,
             trade_id,
+            trade_type: TradeType::reinforcements,
             seller,
             buyer: starknet::contract_address_const::<0x0>(),
             price,
@@ -57,33 +76,43 @@ impl ReinforcementTradeImpl of TradeTrait<u32, ReinforcementTrade> {
             status: TradeStatus::selling,
         }
     }
-    fn check_selling(self: ReinforcementTrade) {
-        GenTradeTrait::<u32, ReinforcementTrade>::check_selling(@self);
+    fn to_generic(self: ReinforcementTrade) -> Trade<u32> {
+        Trade {
+            game_id: self.game_id,
+            trade_id: self.trade_id,
+            trade_type: self.trade_type,
+            seller: self.seller,
+            buyer: self.buyer,
+            price: self.price,
+            offer: self.offer,
+            status: self.status,
+        }
     }
-    fn is_owner(self: ReinforcementTrade, caller: ContractAddress) -> bool {
-        self.seller == caller
+    fn from_generic(trade: Trade<u32>) -> ReinforcementTrade {
+        ReinforcementTrade {
+            game_id: trade.game_id,
+            trade_id: trade.trade_id,
+            trade_type: trade.trade_type,
+            seller: trade.seller,
+            buyer: trade.buyer,
+            price: trade.price,
+            offer: trade.offer,
+            status: trade.status,
+        }
     }
-    fn set_status(ref self: ReinforcementTrade, status: u8) {
-        self.status = status;
-    }
-    fn set_price(ref self: ReinforcementTrade, price: u128) {
-        self.price = price;
-    }
-    fn set_sold(ref self: ReinforcementTrade, buyer: ContractAddress) -> (ContractAddress, u128) {
-        self.status = TradeStatus::sold;
-        self.buyer = buyer;
-        (self.seller, self.price)
+    fn get_type(self: ReinforcementTrade) -> u8 {
+        TradeType::reinforcements
     }
 }
 
-impl OutpostTradeImpl of TradeTrait<Position, OutpostTrade> {
+impl OutpostTradeImpl of TradeTrait<OutpostTrade, Position> {
     fn new(
         game_id: u128, trade_id: u128, seller: ContractAddress, price: u128, offer: Position
     ) -> OutpostTrade {
         OutpostTrade {
             game_id,
-            trade_type: TradeType::outpost,
             trade_id,
+            trade_type: TradeType::outpost,
             seller,
             buyer: starknet::contract_address_const::<0x0>(),
             price,
@@ -91,22 +120,32 @@ impl OutpostTradeImpl of TradeTrait<Position, OutpostTrade> {
             status: TradeStatus::selling,
         }
     }
-    fn check_selling(self: OutpostTrade) {
-        GenTradeTrait::<Position, OutpostTrade>::check_selling(@self);
+    fn to_generic(self: OutpostTrade) -> Trade<Position> {
+        Trade {
+            game_id: self.game_id,
+            trade_id: self.trade_id,
+            trade_type: self.trade_type,
+            seller: self.seller,
+            buyer: self.buyer,
+            price: self.price,
+            offer: self.offer,
+            status: self.status,
+        }
     }
-    fn is_owner(self: OutpostTrade, caller: ContractAddress) -> bool {
-        self.seller == caller
+    fn from_generic(trade: Trade<Position>) -> OutpostTrade {
+        OutpostTrade {
+            game_id: trade.game_id,
+            trade_type: trade.trade_type,
+            trade_id: trade.trade_id,
+            seller: trade.seller,
+            buyer: trade.buyer,
+            price: trade.price,
+            offer: trade.offer,
+            status: trade.status,
+        }
     }
-    fn set_status(ref self: OutpostTrade, status: u8) {
-        self.status = status;
-    }
-    fn set_price(ref self: OutpostTrade, price: u128) {
-        self.price = price;
-    }
-    fn set_sold(ref self: OutpostTrade, buyer: ContractAddress) -> (ContractAddress, u128) {
-        self.status = TradeStatus::sold;
-        self.buyer = buyer;
-        (self.seller, self.price)
+    fn get_type(self: OutpostTrade) -> u8 {
+        TradeType::outpost
     }
 }
 

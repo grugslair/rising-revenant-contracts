@@ -1,14 +1,16 @@
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use starknet::{ContractAddress, get_caller_address};
 use risingrevenant::utils::random::{Random, RandomTrait};
+use dojo::database::introspect::Introspect;
+use dojo::model::{Model};
 
-#[derive(Copy, Drop, Serde, SerdeLen, Introspect)]
+#[derive(Copy, Drop, Print, Serde, SerdeLen, Introspect)]
 struct Dimensions {
     x: u32,
     y: u32
 }
 
-#[derive(Copy, Drop, Serde, SerdeLen, Introspect)]
+#[derive(Copy, Drop, Print, Serde, SerdeLen, Introspect)]
 struct Position {
     x: u32,
     y: u32,
@@ -34,6 +36,14 @@ struct CurrentGame {
     game_id: u128,
 }
 
+// #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+// struct Admin {
+//     #[key]
+//     game_id: u128,
+//     #[key]
+//     player: ContractAddress,
+//     admin: bool,
+// }
 
 #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
 struct GamePhases {
