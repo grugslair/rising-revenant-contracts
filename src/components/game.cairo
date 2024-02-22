@@ -36,15 +36,6 @@ struct CurrentGame {
     game_id: u128,
 }
 
-// #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
-// struct Admin {
-//     #[key]
-//     game_id: u128,
-//     #[key]
-//     player: ContractAddress,
-//     admin: bool,
-// }
-
 #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
 struct GamePhases {
     #[key]

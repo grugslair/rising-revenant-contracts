@@ -15,7 +15,7 @@ trait ITradeReinforcmentsActions<TContractState> {
 
 // Trade for outpost
 #[dojo::contract]
-mod trade_outpost_actions {
+mod trade_reinforcement_actions {
     use super::ITradeReinforcmentsActions;
 
     use starknet::{ContractAddress, get_caller_address};
