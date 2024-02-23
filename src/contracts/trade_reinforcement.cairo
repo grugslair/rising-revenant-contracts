@@ -1,5 +1,5 @@
 #[starknet::interface]
-trait ITradeReinforcmentsActions<TContractState> {
+trait ITradeReinforcementsActions<TContractState> {
     // Create a new trade
     fn create(self: @TContractState, game_id: u128, price: u128, count: u32) -> u128;
 
@@ -16,7 +16,7 @@ trait ITradeReinforcmentsActions<TContractState> {
 // Trade for outpost
 #[dojo::contract]
 mod trade_reinforcement_actions {
-    use super::ITradeReinforcmentsActions;
+    use super::ITradeReinforcementsActions;
 
     use starknet::{ContractAddress, get_caller_address};
 
@@ -27,7 +27,7 @@ mod trade_reinforcement_actions {
     use risingrevenant::systems::reinforcement::{ReinforcementActionTrait};
 
     #[external(v0)]
-    impl TradeReinforcmentsActionImpl of ITradeReinforcmentsActions<ContractState> {
+    impl TradeReinforcementsActionsImpl of ITradeReinforcementsActions<ContractState> {
         fn create(self: @ContractState, game_id: u128, price: u128, count: u32,) -> u128 {
             let trade_action = GameAction { world: self.world_dispatcher.read(), game_id };
             assert(count > 0, 'count must larger than 0');

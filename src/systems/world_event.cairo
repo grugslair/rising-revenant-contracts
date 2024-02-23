@@ -25,7 +25,8 @@ impl WorldEventImpl of WorldEventTrait {
             previous_event: last_event.event_id,
         };
         let last_world_event = last_event.to_event(next_event_id);
-        set!(self.world, (event, last_world_event));
+        self.set(event);
+        self.set(last_world_event);
         event
     }
     fn get_current_event(self: GameAction) -> CurrentWorldEvent {

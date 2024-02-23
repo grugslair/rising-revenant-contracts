@@ -3,7 +3,7 @@ use risingrevenant::components::game::{Position};
 // use dojo::database::introspect::Introspect;
 // use dojo::model::{Model};
 
-#[derive(Copy, Drop, Print)]
+#[derive(Copy, Drop)]
 struct Trade<T> {
     game_id: u128,
     trade_id: u128,

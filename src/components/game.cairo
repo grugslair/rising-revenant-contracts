@@ -4,6 +4,7 @@ use risingrevenant::utils::random::{Random, RandomTrait};
 use dojo::database::introspect::Introspect;
 use dojo::model::{Model};
 
+
 #[derive(Copy, Drop, Print, Serde, SerdeLen, Introspect)]
 struct Dimensions {
     x: u32,
@@ -23,7 +24,7 @@ impl PositionImpl of PositionTrait {
     }
 }
 
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde, SerdeLen)]
 struct PositionGenerator {
     random: Random,
     map_dims: Dimensions
@@ -118,12 +119,12 @@ mod GameStatus {
     const ended: u8 = 2;
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-mod GamePhase {
-    const not_created: u8 = 0;
-    const created: u8 = 1;
-    const preparing: u8 = 2;
-    const playing: u8 = 3;
-    const ended: u8 = 4;
+#[derive(Serde, Copy, Drop, Introspect, PartialEq, Print)]
+enum GamePhase {
+    NotCreated,
+    Created,
+    Preparing,
+    Playing,
+    Ended,
 }
 

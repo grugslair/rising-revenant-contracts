@@ -13,7 +13,7 @@ use risingrevenant::systems::game::{GameAction, GameActionTrait};
 use risingrevenant::constants::PLAYER_STARTING_AMOUNT;
 
 
-#[derive(Copy, Drop, Print)]
+#[derive(Copy, Drop)]
 struct PaymentSystem {
     game_action: GameAction,
     coin_erc_address: ContractAddress,
@@ -37,10 +37,8 @@ impl PaymentSystemImpl of PaymentSystemTrait {
     fn transfer<T, +Into<T, u256>, +Copy<T>, +Drop<T>>(
         self: PaymentSystem, sender: ContractAddress, recipient: ContractAddress, amount: T
     ) {
-        let mut sender_wallet: DevWallet = self.game_action.get((self.game_action.game_id, sender));
-        let mut recipiant_wallet: DevWallet = self
-            .game_action
-            .get((self.game_action.game_id, recipient));
+        let mut sender_wallet: DevWallet = self.game_action.get(sender);
+        let mut recipiant_wallet: DevWallet = self.game_action.get(recipient);
         if (!sender_wallet.init) {
             sender_wallet.init = true;
             sender_wallet.balance = PLAYER_STARTING_AMOUNT;
@@ -52,7 +50,8 @@ impl PaymentSystemImpl of PaymentSystemTrait {
         assert(sender_wallet.balance >= amount.into(), 'not enough cash');
         sender_wallet.balance -= amount.into();
         recipiant_wallet.balance += amount.into();
-        set!(self.game_action.world, (sender_wallet, recipiant_wallet));
+        self.game_action.set(sender_wallet);
+        self.game_action.set(recipiant_wallet);
     }
 
     fn pay_into_pot<T, +Into<T, u256>, +Copy<T>, +Drop<T>>(
@@ -71,7 +70,7 @@ impl PaymentSystemImpl of PaymentSystemTrait {
             - game_pot.confirmation_pot
             - game_pot.ltr_pot
             - game_pot.dev_pot;
-        set!(self.game_action.world, (game_pot,));
+        self.game_action.set(game_pot);
     }
 
     fn pay_out_pot<T, +Into<T, u256>, +Copy<T>, +Drop<T>>(

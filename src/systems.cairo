@@ -1,3 +1,4 @@
+mod get_set;
 mod game;
 mod outpost;
 mod player;

@@ -1,5 +1,5 @@
 #[starknet::interface]
-trait IPaymentAction<TContractState> {
+trait IPaymentActions<TContractState> {
     fn claim_jackpot(self: @TContractState, game_id: u128);
     fn claim_confirmation_contribution(self: @TContractState, game_id: u128);
 }
@@ -15,17 +15,17 @@ mod payment_actions {
     use risingrevenant::systems::player::{PlayerActionsTrait};
 
     use risingrevenant::systems::payment::{PaymentSystemTrait, PaymentSystem};
-    use super::IPaymentAction;
+    use super::IPaymentActions;
 
     #[external(v0)]
-    impl PaymentActionImpl of IPaymentAction<ContractState> {
+    impl PaymentActionsImpl of IPaymentActions<ContractState> {
         fn claim_jackpot(self: @ContractState, game_id: u128) {
             let (game_action, mut pot, payment_system) = self.get_claim_info(game_id);
             let caller = game_action.get_caller_info();
             assert(caller.outpost_count > 0, 'Not winner');
             assert(!pot.claimed, 'Pot already claimed');
             pot.claimed = true;
-            set!(game_action.world, (pot,));
+            game_action.set(pot);
 
             payment_system.pay_out_pot(caller.player_id, pot.winners_pot);
         }
@@ -43,7 +43,7 @@ mod payment_actions {
                 * caller_contribution.score
                 / game_state.contribution_score_total;
             payment_system.pay_out_pot(caller_contribution.player_id, reward);
-            set!(game_action.world, (caller_contribution,));
+            game_action.set(caller_contribution);
         }
     }
 

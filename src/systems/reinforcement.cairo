@@ -54,7 +54,7 @@ impl ReinforcementActionImpl of ReinforcementActionTrait {
             + count.into();
         assert(0 <= new_reinforcements_count, 'Not enough reinforcements');
         player_info.reinforcements_available_count = new_reinforcements_count.try_into().unwrap();
-        set!(self.world, (player_info,));
+        self.set(player_info);
     }
     fn purchase_reinforcement(self: GameAction, player_id: ContractAddress, count: u32) {
         self.assert_preparing();
@@ -67,7 +67,7 @@ impl ReinforcementActionImpl of ReinforcementActionTrait {
 
         let mut outposts_tracker: GameState = self.get_game();
         outposts_tracker.reinforcement_count += count;
-        set!(self.world, (outposts_tracker,));
+        self.set(outposts_tracker);
     }
 }
 

@@ -5,6 +5,8 @@ trait IGameActions<TContractState> {
 
 #[dojo::contract]
 mod game_actions {
+    use debug::PrintTrait;
+
     use starknet::{ContractAddress, get_block_info, get_block_timestamp, get_caller_address};
 
     use risingrevenant::components::game::{
@@ -75,7 +77,6 @@ mod game_actions {
                 preparation_block_number: start_block,
                 play_block_number: start_block + preparation_blocks,
             };
-
             set!(
                 world,
                 (

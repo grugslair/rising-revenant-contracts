@@ -11,6 +11,7 @@ use risingrevenant::components::trade::{
 
 use risingrevenant::systems::game::{GameAction, GameActionTrait};
 use risingrevenant::systems::payment::{PaymentSystemTrait};
+use risingrevenant::systems::get_set::{GetTrait, SetTrait};
 
 #[generate_trait]
 impl TradeActionImpl<
@@ -21,6 +22,8 @@ impl TradeActionImpl<
     +Drop<T>,
     +Copy<T>,
     +Serde<T>,
+    +GetTrait<T, u128>,
+    +SetTrait<T>,
     +Drop<O>,
     +Serde<O>,
     +Copy<O>,
@@ -31,7 +34,7 @@ impl TradeActionImpl<
         let seller = get_caller_address();
 
         let trade = TradeTrait::<T, O>::new(self.game_id, self.uuid(), seller, price, offer);
-        set!(self.world, (trade,));
+        self.set(trade);
         trade
     }
 
@@ -53,7 +56,7 @@ impl TradeActionImpl<
         payment_system.pay_into_pot(buyer, pot_contribution);
 
         let _trade = TradeTrait::from_generic(trade);
-        set!(self.world, (_trade,));
+        self.set(_trade);
         _trade
     }
 
@@ -61,19 +64,19 @@ impl TradeActionImpl<
         let mut _trade = TradeActionTrait::<T, O>::get_players_active_trade(self, trade_id);
         _trade.price = new_price;
         let trade: T = TradeTrait::from_generic(_trade);
-        set!(self.world, (trade,));
+        self.set(trade);
     }
 
     fn revoke_trade(self: GameAction, trade_id: u128) -> T {
         let mut _trade = TradeActionTrait::<T, O>::get_players_active_trade(self, trade_id);
         _trade.status = TradeStatus::revoked;
         let trade = TradeTrait::from_generic(_trade);
-        set!(self.world, (trade,));
+        self.set(trade);
         trade
     }
     fn get_active_trade(self: GameAction, trade_id: u128) -> Trade<O> {
         self.assert_playing();
-        let trade = self.get::<(u128, u128), T>((self.game_id, trade_id)).to_generic();
+        let trade = self.get::<T, u128>(trade_id).to_generic();
         trade.check_selling();
         trade
     }

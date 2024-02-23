@@ -1,4 +1,5 @@
 // mod foo_erc;
-// mod test_utils;
-// mod tests;
+mod utils;
+mod tests;
+mod contracts_tests;
 
