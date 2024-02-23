@@ -119,11 +119,11 @@ mod GameStatus {
 }
 
 #[derive(Copy, Drop, Serde, PartialEq)]
-enum GamePhase {
-    NotCreated,
-    Created,
-    Preparing,
-    Playing,
-    Ended,
+mod GamePhase {
+    const not_created: u8 = 0;
+    const created: u8 = 1;
+    const preparing: u8 = 2;
+    const playing: u8 = 3;
+    const ended: u8 = 4;
 }
 

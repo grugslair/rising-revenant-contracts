@@ -41,19 +41,19 @@ impl GameActionImpl of GameActionTrait {
     fn uuid(self: GameAction) -> u128 {
         uuid(self.world)
     }
-    fn get_status(self: GameAction) -> GamePhase {
+    fn get_status(self: GameAction) -> u8 {
         let phases: GamePhases = self.get_game();
         phases.get_status()
     }
 
     fn assert_preparing(self: GameAction) {
-        assert(self.get_status() == GamePhase::Preparing, 'Game not in preparing phase');
+        assert(self.get_status() == GamePhase::preparing, 'Game not in preparing phase');
     }
     fn assert_playing(self: GameAction) {
-        assert(self.get_status() == GamePhase::Playing, 'Game not in play phase');
+        assert(self.get_status() == GamePhase::playing, 'Game not in play phase');
     }
     fn assert_ended(self: GameAction) {
-        assert(self.get_status() == GamePhase::Ended, 'Game not ended');
+        assert(self.get_status() == GamePhase::ended, 'Game not ended');
     }
     fn get_block_number(self: GameAction) -> u64 {
         get_block_info().unbox().block_number
@@ -62,32 +62,32 @@ impl GameActionImpl of GameActionTrait {
 
 #[generate_trait]
 impl GamePhaseImpl of GamePhaseTrait {
-    fn get_status(self: GamePhases) -> GamePhase {
+    fn get_status(self: GamePhases) -> u8 {
         if self.status == GameStatus::not_created {
-            return GamePhase::NotCreated;
+            return GamePhase::not_created;
         }
         if self.status == GameStatus::ended {
-            return GamePhase::Ended;
+            return GamePhase::ended;
         }
 
         let current_block = get_block_number();
         if current_block < self.preparation_block_number {
-            return GamePhase::Created;
+            return GamePhase::created;
         }
         if current_block < self.play_block_number {
-            return GamePhase::Preparing;
+            return GamePhase::preparing;
         }
-        GamePhase::Playing
+        GamePhase::playing
     }
 
     fn assert_preparing(self: GamePhases) {
-        assert(self.get_status() == GamePhase::Preparing, 'Game not in preparing phase');
+        assert(self.get_status() == GamePhase::preparing, 'Game not in preparing phase');
     }
     fn assert_playing(self: GamePhases) {
-        assert(self.get_status() == GamePhase::Playing, 'Game not in play phase');
+        assert(self.get_status() == GamePhase::playing, 'Game not in play phase');
     }
     fn assert_ended(self: GamePhases) {
-        assert(self.get_status() == GamePhase::Ended, 'Game not ended');
+        assert(self.get_status() == GamePhase::ended, 'Game not ended');
     }
 }
 
