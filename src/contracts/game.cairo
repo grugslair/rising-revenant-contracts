@@ -22,7 +22,7 @@ mod game_actions {
     use risingrevenant::defaults::{
         MAP_WIDTH, MAP_HEIGHT, DEV_PERCENT, CONFIRMATION_PERCENT, LTR_PERCENT,
         GAME_TRADE_TAX_PERCENT, EVENT_RADIUS_START, EVENT_RADIUS_INCREASE, OUTPOST_PRICE,
-        MAX_OUTPOSTS
+        MAX_OUTPOSTS, OUTPOST_INIT_LIFE, OUTPOST_MAX_REINFORCEMENT
     };
 
 
@@ -77,6 +77,14 @@ mod game_actions {
                 preparation_block_number: start_block,
                 play_block_number: start_block + preparation_blocks,
             };
+
+            //we need this so the outpost dont start with 0 life
+            let otupost_setup = OutpostSetup {
+                game_id,
+                life: OUTPOST_INIT_LIFE,
+                max_reinforcements: OUTPOST_MAX_REINFORCEMENT,
+            };
+
             set!(
                 world,
                 (
@@ -87,7 +95,8 @@ mod game_actions {
                     outpost_market,
                     game_trade_tax,
                     game_phases,
-                    game_state
+                    game_state,
+                    otupost_setup
                 )
             );
             game_id

@@ -13,7 +13,7 @@ use risingrevenant::components::world_event::{WorldEvent, CurrentWorldEvent, Out
 
 use risingrevenant::systems::player::PlayerActionsTrait;
 use risingrevenant::systems::reinforcement::ReinforcementActionTrait;
-use risingrevenant::systems::game::{GameAction, GameActionTrait, GamePhaseTrait};
+use risingrevenant::systems::game::{GameAction, GameActionTrait, GamePhaseTrait, GamePhase};
 use risingrevenant::systems::payment::{PaymentSystemTrait};
 use risingrevenant::systems::world_event::{WorldEventTrait};
 use risingrevenant::systems::position::{PositionGeneratorTrait};
@@ -51,6 +51,9 @@ impl OutpostActionsImpl of OutpostActionsTrait {
             reinforces_remaining: setup.max_reinforcements,
             status: OutpostStatus::active,
         };
+
+        println!("New outpost position: {}", setup.life);
+
         loop {
             let _outpost: Outpost = self.get_outpost(outpost.position);
             if _outpost.status == OutpostStatus::not_created {
@@ -77,7 +80,28 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         let player_id = get_caller_address();
         let mut outpost = self.get_active_outpost(outpost_id);
         assert(outpost.owner == player_id, 'Not players outpost');
-        assert(self.check_outpost_verified(outpost_id), 'Not verified from last event');
+        assert(outpost.life > 0 , 'Outpost is destroyed');
+
+        // this needs to check the GamePhases
+        // also needs to check if the current event one is hitting it
+        let mut game_phase = self.get_status();
+
+        // we first need to check the game is in either playing or preparing phase
+        assert(game_phase != GamePhase::Ended, 'Game has ended');
+        assert(game_phase != GamePhase::Created, 'Game has not began yet');
+
+        //then we check if the phase is in game 
+        if (game_phase == GamePhase::Playing) {
+            let current_event: CurrentWorldEvent = self.get_game();
+
+            let is_impacted = current_event.is_impacted(outpost_id);    
+            //if the outpost is in the event
+            if (is_impacted) {
+                //has it been confirmed
+                let verified: OutpostVerified = self.get((current_event.event_id, outpost_id));
+                assert(verified.verified, 'Not verified from last event');
+            }
+        }
 
         self.update_reinforcements::<i64>(player_id, -count.into());
         assert(count <= outpost.reinforces_remaining, 'Over reinforcement limit');
@@ -90,7 +114,9 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         self.get(outpost_id)
     }
     fn get_active_outpost(self: GameAction, outpost_id: Position) -> Outpost {
-        self.assert_playing();
+        // self.assert_playing();
+        // not 100% sure why we should only get the outpost if the game is playing
+        // if this is enabled it would mean we are not allowed to rienforce when in prep phase
         let outpost = self.get_outpost(outpost_id);
         outpost.assert_active();
         outpost
