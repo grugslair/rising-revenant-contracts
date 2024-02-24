@@ -67,42 +67,42 @@ COMPONENTS=(
 
 for component in ${COMPONENTS[@]}; do
     sozo auth writer $component $WORLD_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 1 
+    sleep 0.2 
 done
 
 for component in ${COMPONENTS[@]}; do
     sozo auth writer $component $GAME_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 1 
+    sleep 0.2 
 done
 
 for component in ${COMPONENTS[@]}; do
     sozo auth writer $component $WORLD_EVENT_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 1 
+    sleep 0.2 
 done
 
 for component in ${COMPONENTS[@]}; do
     sozo auth writer $component $OUTPOST_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 1 
+    sleep 0.2 
 done
 
 for component in ${COMPONENTS[@]}; do
     sozo auth writer $component $REINFORCEMENTS_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 1 
+    sleep 0.2 
 done
 
 for component in ${COMPONENTS[@]}; do
     sozo auth writer $component $PAYMENT_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 1 
+    sleep 0.2 
 done
 
 for component in ${COMPONENTS[@]}; do
     sozo auth writer $component $TRADE_OUTPOST_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 1 
+    sleep 0.2 
 done
 
 for component in ${COMPONENTS[@]}; do
     sozo auth writer $component $TRADE_REINFORCEMENTS_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 1 
+    sleep 0.2 
 done
 
 
