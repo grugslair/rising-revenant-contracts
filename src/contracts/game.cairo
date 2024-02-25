@@ -79,10 +79,16 @@ mod game_actions {
             };
 
             //we need this so the outpost dont start with 0 life
-            let otupost_setup = OutpostSetup {
+            let outpost_setup = OutpostSetup {
                 game_id,
                 life: OUTPOST_INIT_LIFE,
                 max_reinforcements: OUTPOST_MAX_REINFORCEMENT,
+            };
+
+            let world_event_setup = WorldEventSetup {
+                game_id,
+                radius_start: EVENT_RADIUS_START,
+                radius_increase: EVENT_RADIUS_INCREASE,
             };
 
             set!(
@@ -96,7 +102,8 @@ mod game_actions {
                     game_trade_tax,
                     game_phases,
                     game_state,
-                    otupost_setup
+                    outpost_setup,
+                    world_event_setup,
                 )
             );
             game_id
