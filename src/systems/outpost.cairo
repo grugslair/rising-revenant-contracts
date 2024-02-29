@@ -51,9 +51,6 @@ impl OutpostActionsImpl of OutpostActionsTrait {
             reinforces_remaining: setup.max_reinforcements,
             status: OutpostStatus::active,
         };
-
-        println!("New outpost position: {}", setup.life);
-
         loop {
             let _outpost: Outpost = self.get_outpost(outpost.position);
             if _outpost.status == OutpostStatus::not_created {
@@ -80,27 +77,12 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         let player_id = get_caller_address();
         let mut outpost = self.get_active_outpost(outpost_id);
         assert(outpost.owner == player_id, 'Not players outpost');
-        assert(outpost.life > 0 , 'Outpost is destroyed');
-
-        // this needs to check the GamePhases
-        // also needs to check if the current event one is hitting it
-        let mut game_phase = self.get_status();
-
-        // we first need to check the game is in either playing or preparing phase
-        assert(game_phase != GamePhase::Ended, 'Game has ended');
-        assert(game_phase != GamePhase::Created, 'Game has not began yet');
-
-        //then we check if the phase is in game 
-        if (game_phase == GamePhase::Playing) {
-            let current_event: CurrentWorldEvent = self.get_game();
-
-            let is_impacted = current_event.is_impacted(outpost_id);    
-            //if the outpost is in the event
-            if (is_impacted) {
-                //has it been confirmed
-                let verified: OutpostVerified = self.get((current_event.event_id, outpost_id));
-                assert(verified.verified, 'Not verified from last event');
-            }
+        assert(outpost.life > 0, 'Outpost is destroyed');
+        let game_phase = self.get_phase();
+        if game_phase == GamePhase::Playing {
+            assert(self.check_outpost_verified(outpost_id), 'Not verified from last event');
+        } else {
+            assert(game_phase == GamePhase::Preparing, 'Game not running');
         }
 
         self.update_reinforcements::<i64>(player_id, -count.into());
@@ -122,6 +104,7 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         outpost
     }
     fn change_outpost_owner(self: GameAction, outpost_id: Position, new_owner_id: ContractAddress) {
+        self.assert_playing();
         let mut outpost = self.get_active_outpost(outpost_id);
 
         let mut new_owner = self.get_player(new_owner_id);
@@ -137,7 +120,7 @@ impl OutpostActionsImpl of OutpostActionsTrait {
     }
     fn check_outpost_verified(self: GameAction, outpost_id: Position) -> bool {
         let current_event: CurrentWorldEvent = self.get_game();
-        if current_event.is_impacted(outpost_id) {
+        if !current_event.is_impacted(outpost_id) {
             return true;
         }
         let verified: OutpostVerified = self.get((current_event.event_id, outpost_id));
