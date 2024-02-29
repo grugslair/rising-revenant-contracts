@@ -22,7 +22,8 @@ mod game_actions {
     use risingrevenant::defaults::{
         MAP_WIDTH, MAP_HEIGHT, DEV_PERCENT, CONFIRMATION_PERCENT, LTR_PERCENT,
         GAME_TRADE_TAX_PERCENT, EVENT_RADIUS_START, EVENT_RADIUS_INCREASE, OUTPOST_PRICE,
-        MAX_OUTPOSTS, OUTPOST_INIT_LIFE, OUTPOST_MAX_REINFORCEMENT, REINFORCEMENT_TARGET_PRICE, REINFORCEMENT_MAX_SELLABLE, REINFORCEMENT_DECAY_CONSTANT
+        MAX_OUTPOSTS, OUTPOST_INIT_LIFE, OUTPOST_MAX_REINFORCEMENT, REINFORCEMENT_TARGET_PRICE,
+        REINFORCEMENT_MAX_SELLABLE, REINFORCEMENT_DECAY_CONSTANT
     };
 
 
@@ -88,14 +89,13 @@ mod game_actions {
             };
 
             let reinforcement_market = ReinforcementMarket {
-                game_id, 
+                game_id,
                 target_price: REINFORCEMENT_TARGET_PRICE,
                 start_timestamp: 0,
                 decay_constant: REINFORCEMENT_DECAY_CONSTANT,
                 max_sellable: REINFORCEMENT_MAX_SELLABLE,
                 count: 0,
-
-            }
+            };
 
             game_action.set(current_game);
             game_action.set(game_map);
@@ -107,6 +107,7 @@ mod game_actions {
             game_action.set(game_state);
             game_action.set(outpost_setup);
             game_action.set(world_event_setup);
+            game_action.set(reinforcement_market);
 
             game_id
         }

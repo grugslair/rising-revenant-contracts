@@ -23,7 +23,7 @@ use risingrevenant::components::{
         dev_wallet
     },
     outpost::{outpost, outpost_market, outpost_setup}, player::{player_info, player_contribution},
-    reinforcement::{reinforcement_balance}, trade::{outpost_trade, reinforcement_trade},
+    reinforcement::{reinforcement_market}, trade::{outpost_trade, reinforcement_trade},
     world_event::{world_event_setup, world_event, current_world_event, outpost_verified}
 };
 
@@ -87,7 +87,7 @@ fn setup_test_world() -> DefaultWorld {
         outpost_setup::TEST_CLASS_HASH,
         player_info::TEST_CLASS_HASH,
         player_contribution::TEST_CLASS_HASH,
-        reinforcement_balance::TEST_CLASS_HASH,
+        reinforcement_market::TEST_CLASS_HASH,
         outpost_trade::TEST_CLASS_HASH,
         reinforcement_trade::TEST_CLASS_HASH,
         world_event_setup::TEST_CLASS_HASH,

@@ -3,7 +3,7 @@ use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use risingrevenant::components::{
     game::{
         CurrentGame, GamePhases, GameMap, GameERC20, GameTradeTax, GamePotConsts, GameState,
-        GamePot, DevWallet, Position
+        GamePot, DevWallet, Position,
     },
     outpost::{Outpost, OutpostMarket, OutpostSetup}, player::{PlayerInfo, PlayerContribution},
     reinforcement::{ReinforcementMarket}, trade::{OutpostTrade, ReinforcementTrade},
@@ -246,6 +246,16 @@ impl WorldEventSetImpl of SetTrait<WorldEvent> {
 }
 impl OutpostVerifiedSetImpl of SetTrait<OutpostVerified> {
     fn set(self: @OutpostVerified, world: IWorldDispatcher) {
+        set!(world, (*self,));
+    }
+}
+impl CurrentGameSetImpl of SetTrait<CurrentGame> {
+    fn set(self: @CurrentGame, world: IWorldDispatcher) {
+        set!(world, (*self,));
+    }
+}
+impl GameTradeTaxSetImpl of SetTrait<GameTradeTax> {
+    fn set(self: @GameTradeTax, world: IWorldDispatcher) {
         set!(world, (*self,));
     }
 }
