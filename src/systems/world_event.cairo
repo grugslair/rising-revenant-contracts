@@ -19,8 +19,8 @@ impl WorldEventImpl of WorldEventTrait {
             game_id: self.game_id,
             event_id: next_event_id,
             position: PositionGeneratorTrait::single(self),
-            radius: last_event.radius + event_setup.radius_increase,
-            number: last_event.number,
+            radius: event_setup.radius_start + event_setup.radius_increase * last_event.number,
+            number: last_event.number + 1,
             block_number: starknet::get_block_info().unbox().block_number,
             previous_event: last_event.event_id,
         };
