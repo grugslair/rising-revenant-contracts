@@ -5,12 +5,13 @@ use openzeppelin::token::erc20::interface::{
 };
 
 use risingrevenant::components::game::{GamePot, DevWallet, GamePotConsts, GameERC20,};
+use risingrevenant::components::currency::{CurrencyTrait};
 
 use risingrevenant::systems::game::{GameAction, GameActionTrait};
 
 
 // DEV
-use risingrevenant::constants::PLAYER_STARTING_AMOUNT;
+use risingrevenant::constants::{PLAYER_STARTING_AMOUNT};
 
 
 #[derive(Copy, Drop)]
@@ -26,19 +27,21 @@ impl PaymentSystemImpl of PaymentSystemTrait {
         let erc_20: GameERC20 = game_action.get_game();
         PaymentSystem { game_action: game_action, coin_erc_address: erc_20.address }
     }
-    // fn transfer<T, +Into<T, u256>, +Copy<T>, +Drop<T>>(
+    // fn transfer<T, +CurrencyTrait<T, u256>, +Copy<T>, +Drop<T>>(
     //     self: @PaymentSystem, sender: ContractAddress, recipient: ContractAddress, amount: T
     // ) {
+    //     let amount_256 = amount.convert();
     //     let erc20 = IERC20Dispatcher { contract_address: *self.coin_erc_address };
-    //     let result = erc20.transfer_from(sender, recipient, amount: amount.into());
+    //     let result = erc20.transfer_from(sender, recipient, amount: amount_256);
     //     assert(result, 'need approve for erc20');
     // }
 
-    fn transfer<T, +Into<T, u256>, +Copy<T>, +Drop<T>>(
+    fn transfer<T, +CurrencyTrait<T, u256>, +Copy<T>, +Drop<T>>(
         self: PaymentSystem, sender: ContractAddress, recipient: ContractAddress, amount: T
     ) {
         let mut sender_wallet: DevWallet = self.game_action.get(sender);
         let mut recipiant_wallet: DevWallet = self.game_action.get(recipient);
+        let amount_256 = amount.convert();
         if (!sender_wallet.init) {
             sender_wallet.init = true;
             sender_wallet.balance = PLAYER_STARTING_AMOUNT;
@@ -47,20 +50,21 @@ impl PaymentSystemImpl of PaymentSystemTrait {
             recipiant_wallet.init = true;
             recipiant_wallet.balance = PLAYER_STARTING_AMOUNT;
         }
-        assert(sender_wallet.balance >= amount.into(), 'not enough cash');
-        sender_wallet.balance -= amount.into();
-        recipiant_wallet.balance += amount.into();
+        assert(sender_wallet.balance >= amount_256, 'not enough cash');
+        sender_wallet.balance -= amount_256;
+        recipiant_wallet.balance += amount_256;
         self.game_action.set(sender_wallet);
         self.game_action.set(recipiant_wallet);
     }
 
-    fn pay_into_pot<T, +Into<T, u256>, +Copy<T>, +Drop<T>>(
+    fn pay_into_pot<T, +CurrencyTrait<T, u256>, +Copy<T>, +Drop<T>>(
         self: PaymentSystem, sender: ContractAddress, amount: T
     ) {
         let pot_conts: GamePotConsts = self.game_action.get_game();
-        self.transfer(sender, pot_conts.pot_address, amount);
+        let amount_256 = amount.convert();
+        self.transfer(sender, pot_conts.pot_address, amount_256);
         let mut game_pot: GamePot = self.game_action.get_game();
-        game_pot.total_pot += amount.into();
+        game_pot.total_pot += amount_256;
         game_pot.confirmation_pot = game_pot.total_pot
             * pot_conts.confirmation_percent.into()
             / 100_u256;
@@ -73,7 +77,7 @@ impl PaymentSystemImpl of PaymentSystemTrait {
         self.game_action.set(game_pot);
     }
 
-    fn pay_out_pot<T, +Into<T, u256>, +Copy<T>, +Drop<T>>(
+    fn pay_out_pot<T, +CurrencyTrait<T, u256>, +Copy<T>, +Drop<T>>(
         self: PaymentSystem, recipient: ContractAddress, amount: T
     ) {
         let pot_conts: GamePotConsts = self.game_action.get_game();
