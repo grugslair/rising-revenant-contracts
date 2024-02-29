@@ -56,7 +56,7 @@ COMPONENTS=(
     "OutpostSetup"
     "PlayerInfo"
     "PlayerContribution"
-    "ReinforcementBalance"
+    "ReinforcementMarket"
     "OutpostTrade"
     "ReinforcementTrade"
     "WorldEventSetup"

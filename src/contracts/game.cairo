@@ -13,7 +13,7 @@ mod game_actions {
         CurrentGame, GameStatus, GameMap, GameTradeTax, GamePotConsts, GameState, GamePot,
         GamePhases, Dimensions
     };
-    use risingrevenant::components::reinforcement::{ReinforcementBalance};
+    use risingrevenant::components::reinforcement::{ReinforcementMarket};
     use risingrevenant::components::outpost::{OutpostMarket, OutpostSetup};
     use risingrevenant::components::world_event::{WorldEventSetup};
 
@@ -22,7 +22,7 @@ mod game_actions {
     use risingrevenant::defaults::{
         MAP_WIDTH, MAP_HEIGHT, DEV_PERCENT, CONFIRMATION_PERCENT, LTR_PERCENT,
         GAME_TRADE_TAX_PERCENT, EVENT_RADIUS_START, EVENT_RADIUS_INCREASE, OUTPOST_PRICE,
-        MAX_OUTPOSTS, OUTPOST_INIT_LIFE, OUTPOST_MAX_REINFORCEMENT
+        MAX_OUTPOSTS, OUTPOST_INIT_LIFE, OUTPOST_MAX_REINFORCEMENT, REINFORCEMENT_TARGET_PRICE, REINFORCEMENT_MAX_SELLABLE, REINFORCEMENT_DECAY_CONSTANT
     };
 
 
@@ -80,32 +80,34 @@ mod game_actions {
 
             //we need this so the outpost dont start with 0 life
             let outpost_setup = OutpostSetup {
-                game_id,
-                life: OUTPOST_INIT_LIFE,
-                max_reinforcements: OUTPOST_MAX_REINFORCEMENT,
+                game_id, life: OUTPOST_INIT_LIFE, max_reinforcements: OUTPOST_MAX_REINFORCEMENT,
             };
 
             let world_event_setup = WorldEventSetup {
-                game_id,
-                radius_start: EVENT_RADIUS_START,
-                radius_increase: EVENT_RADIUS_INCREASE,
+                game_id, radius_start: EVENT_RADIUS_START, radius_increase: EVENT_RADIUS_INCREASE,
             };
 
-            set!(
-                world,
-                (
-                    current_game,
-                    game_map,
-                    game_pot_consts,
-                    world_event_setup,
-                    outpost_market,
-                    game_trade_tax,
-                    game_phases,
-                    game_state,
-                    outpost_setup,
-                    world_event_setup,
-                )
-            );
+            let reinforcement_market = ReinforcementMarket {
+                game_id, 
+                target_price: REINFORCEMENT_TARGET_PRICE,
+                start_timestamp: 0,
+                decay_constant: REINFORCEMENT_DECAY_CONSTANT,
+                max_sellable: REINFORCEMENT_MAX_SELLABLE,
+                count: 0,
+
+            }
+
+            game_action.set(current_game);
+            game_action.set(game_map);
+            game_action.set(game_pot_consts);
+            game_action.set(world_event_setup);
+            game_action.set(outpost_market);
+            game_action.set(game_trade_tax);
+            game_action.set(game_phases);
+            game_action.set(game_state);
+            game_action.set(outpost_setup);
+            game_action.set(world_event_setup);
+
             game_id
         }
     }

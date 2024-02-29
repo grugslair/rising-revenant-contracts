@@ -27,7 +27,7 @@ use risingrevenant::components::{
         GamePot, DevWallet
     },
     outpost::{Outpost, OutpostMarket, OutpostSetup}, player::{PlayerInfo, PlayerContribution},
-    reinforcement::{ReinforcementBalance}, trade::{OutpostTrade, ReinforcementTrade},
+    reinforcement::{ReinforcementMarket}, trade::{OutpostTrade, ReinforcementTrade},
     world_event::{WorldEventSetup, WorldEvent, CurrentWorldEvent, OutpostVerified}
 };
 
@@ -45,7 +45,7 @@ mod contracts_tests {
             GamePot, DevWallet
         },
         outpost::{Outpost, OutpostMarket, OutpostSetup}, player::{PlayerInfo, PlayerContribution},
-        reinforcement::{ReinforcementBalance}, trade::{OutpostTrade, ReinforcementTrade},
+        reinforcement::{ReinforcementMarket}, trade::{OutpostTrade, ReinforcementTrade},
         world_event::{WorldEventSetup, WorldEvent, CurrentWorldEvent, OutpostVerified}
     };
     use risingrevenant::contracts::{
@@ -86,19 +86,26 @@ mod contracts_tests {
             setup_test_world();
         let game_id = game_actions.create(1, 10);
         let game_action = GameAction { world, game_id };
-        // let mut game_phases: GamePhases = game_action.get_game();
-
-        // set!(
-        //     world,
-        //     (GamePhases {
-        //         game_id, status: 1, preparation_block_number: 2, play_block_number: 10,
-        //     }),
-        // );
-        // let game_phases: GamePhases = game_action.get_game();
         let game_phases: GamePhases = game_action.get_game();
-        // let game_phases = get!(world, game_id, GamePhases);
-        // game_phases = game_action.get_game();
         println!("Game ID {}", game_id);
         game_phases.print();
+    }
+
+
+    #[test]
+    #[available_gas(3000000000)]
+    fn test_trade_outpost() {
+        let DefaultWorld{world,
+        game_actions,
+        outpost_actions,
+        payment_actions,
+        reinforcement_actions,
+        trade_outpost_actions,
+        trade_reinforcement_actions,
+        world_event_actions,
+        admin } =
+            setup_test_world();
+        let game_id = game_actions.create(1, 10);
+        let game_action = GameAction { world, game_id };
     }
 }

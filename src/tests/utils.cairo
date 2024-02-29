@@ -14,7 +14,7 @@ use risingrevenant::components::{
         GamePot, DevWallet
     },
     outpost::{Outpost, OutpostMarket, OutpostSetup}, player::{PlayerInfo, PlayerContribution},
-    reinforcement::{ReinforcementBalance}, trade::{OutpostTrade, ReinforcementTrade},
+    reinforcement::{ReinforcementMarket}, trade::{OutpostTrade, ReinforcementTrade},
     world_event::{WorldEventSetup, WorldEvent, CurrentWorldEvent, OutpostVerified}
 };
 use risingrevenant::components::{
@@ -146,7 +146,7 @@ fn setup_test_world() -> DefaultWorld {
     world.grant_owner(admin, 'OutpostSetup');
     world.grant_owner(admin, 'PlayerInfo');
     world.grant_owner(admin, 'PlayerContribution');
-    world.grant_owner(admin, 'ReinforcementBalance');
+    world.grant_owner(admin, 'ReinforcementMarket');
     world.grant_owner(admin, 'OutpostTrade');
     world.grant_owner(admin, 'ReinforcementTrade');
     world.grant_owner(admin, 'WorldEventSetup');

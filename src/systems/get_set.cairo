@@ -6,7 +6,7 @@ use risingrevenant::components::{
         GamePot, DevWallet, Position
     },
     outpost::{Outpost, OutpostMarket, OutpostSetup}, player::{PlayerInfo, PlayerContribution},
-    reinforcement::{ReinforcementBalance}, trade::{OutpostTrade, ReinforcementTrade},
+    reinforcement::{ReinforcementMarket}, trade::{OutpostTrade, ReinforcementTrade},
     world_event::{WorldEventSetup, WorldEvent, CurrentWorldEvent, OutpostVerified}
 };
 
@@ -94,9 +94,9 @@ impl WorldEventSetupGetImpl of GetGameTrait<WorldEventSetup> {
     }
 }
 
-impl ReinforcementBalanceGetImpl of GetGameTrait<ReinforcementBalance> {
-    fn get(world: IWorldDispatcher, game_id: u128) -> ReinforcementBalance {
-        get!(world, game_id, ReinforcementBalance)
+impl ReinforcementMarketGetImpl of GetGameTrait<ReinforcementMarket> {
+    fn get(world: IWorldDispatcher, game_id: u128) -> ReinforcementMarket {
+        get!(world, game_id, ReinforcementMarket)
     }
 }
 
@@ -160,8 +160,8 @@ impl WorldEventSetupSetImpl of SetTrait<WorldEventSetup> {
     }
 }
 
-impl ReinforcementBalanceSetImpl of SetTrait<ReinforcementBalance> {
-    fn set(self: @ReinforcementBalance, world: IWorldDispatcher) {
+impl ReinforcementMarketSetImpl of SetTrait<ReinforcementMarket> {
+    fn set(self: @ReinforcementMarket, world: IWorldDispatcher) {
         set!(world, (*self,));
     }
 }

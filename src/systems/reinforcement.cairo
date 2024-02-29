@@ -4,29 +4,25 @@ use cubit::f128::types::fixed::{FixedTrait};
 use origami::defi::auction::vrgda::{LogisticVRGDA, LogisticVRGDATrait};
 
 use risingrevenant::components::game::{GameState};
-use risingrevenant::components::reinforcement::ReinforcementBalance;
+use risingrevenant::components::reinforcement::ReinforcementMarket;
 
 use risingrevenant::systems::game::{GameAction, GameActionTrait};
 use risingrevenant::systems::player::{PlayerActionsTrait};
 use risingrevenant::systems::payment::{PaymentSystemTrait};
 
-const target_price: u128 = 10;
-const decay_constant: u128 = 571849066284996100; // 0.031
-const max_sellable: u128 = 1000000000;
 
 #[generate_trait]
 impl ReinforcementActionImpl of ReinforcementActionTrait {
     fn get_reinforcement_price(self: GameAction, count: u32) -> u128 {
-        let balance_info: ReinforcementBalance = self.get_game();
+        let market: ReinforcementMarket = self.get_game();
 
-        let time_since_start: u128 = get_block_timestamp().into()
-            - balance_info.start_timestamp.into();
+        let time_since_start: u128 = get_block_timestamp().into() - market.start_timestamp.into();
 
         let vrgda = LogisticVRGDA {
-            target_price: FixedTrait::new_unscaled(balance_info.target_price, false),
-            decay_constant: FixedTrait::new(decay_constant, false),
-            max_sellable: FixedTrait::new_unscaled(max_sellable, false),
-            time_scale: FixedTrait::new(decay_constant, false),
+            target_price: FixedTrait::new_unscaled(market.target_price, false),
+            decay_constant: FixedTrait::new(market.decay_constant, false),
+            max_sellable: FixedTrait::new_unscaled(market.max_sellable.into(), false),
+            time_scale: FixedTrait::new(market.decay_constant, false),
         };
 
         let time = FixedTrait::new_unscaled(time_since_start / 60, false);
@@ -37,9 +33,7 @@ impl ReinforcementActionImpl of ReinforcementActionTrait {
                 break;
             }
             let price = vrgda
-                .get_vrgda_price(
-                    time, FixedTrait::new_unscaled((balance_info.count + p).into(), false)
-                );
+                .get_vrgda_price(time, FixedTrait::new_unscaled((market.count + p).into(), false));
             total_price += price.try_into().unwrap();
             p += 1;
         };

@@ -42,19 +42,19 @@ impl GameActionImpl of GameActionTrait {
     fn uuid(self: GameAction) -> u128 {
         uuid(self.world)
     }
-    fn get_status(self: GameAction) -> GamePhase {
+    fn get_phase(self: GameAction) -> GamePhase {
         let phases: GamePhases = self.get_game();
-        phases.get_status()
+        phases.get_phase()
     }
 
     fn assert_preparing(self: GameAction) {
-        assert(self.get_status() == GamePhase::Preparing, 'Game not in preparing phase');
+        assert(self.get_phase() == GamePhase::Preparing, 'Game not in preparing phase');
     }
     fn assert_playing(self: GameAction) {
-        assert(self.get_status() == GamePhase::Playing, 'Game not in play phase');
+        assert(self.get_phase() == GamePhase::Playing, 'Game not in play phase');
     }
     fn assert_ended(self: GameAction) {
-        assert(self.get_status() == GamePhase::Ended, 'Game not ended');
+        assert(self.get_phase() == GamePhase::Ended, 'Game not ended');
     }
     fn get_block_number(self: GameAction) -> u64 {
         get_block_info().unbox().block_number
@@ -63,7 +63,7 @@ impl GameActionImpl of GameActionTrait {
 
 #[generate_trait]
 impl GamePhaseImpl of GamePhaseTrait {
-    fn get_status(self: GamePhases) -> GamePhase {
+    fn get_phase(self: GamePhases) -> GamePhase {
         if self.status == GameStatus::not_created {
             return GamePhase::NotCreated;
         }
@@ -82,13 +82,13 @@ impl GamePhaseImpl of GamePhaseTrait {
     }
 
     fn assert_preparing(self: GamePhases) {
-        assert(self.get_status() == GamePhase::Preparing, 'Game not in preparing phase');
+        assert(self.get_phase() == GamePhase::Preparing, 'Game not in preparing phase');
     }
     fn assert_playing(self: GamePhases) {
-        assert(self.get_status() == GamePhase::Playing, 'Game not in play phase');
+        assert(self.get_phase() == GamePhase::Playing, 'Game not in play phase');
     }
     fn assert_ended(self: GamePhases) {
-        assert(self.get_status() == GamePhase::Ended, 'Game not ended');
+        assert(self.get_phase() == GamePhase::Ended, 'Game not ended');
     }
 }
 // #[cfg(test)]
