@@ -1,5 +1,5 @@
 mod random;
-
+use starknet::{get_block_info};
 use risingrevenant::components::outpost::Position;
 
 const SQRT_SCALE: u32 = 1000;
@@ -43,4 +43,9 @@ fn sqrt<
     };
 
     return x / scale;
+}
+
+
+fn get_block_number() -> u64 {
+    get_block_info().unbox().block_number
 }

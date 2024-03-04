@@ -9,6 +9,9 @@ mod reinforcement_actions {
     use super::IReinforcementActions;
     use starknet::{get_caller_address};
 
+    use risingrevenant::components::reinforcement::{ReinforcementMarket, ReinforcementMarketTrait};
+
+
     use risingrevenant::systems::game::{GameAction, GameActionTrait};
     use risingrevenant::systems::reinforcement::{ReinforcementActionTrait};
 
@@ -17,7 +20,8 @@ mod reinforcement_actions {
     impl ReinforcementActionsImpl of IReinforcementActions<ContractState> {
         fn get_price(self: @ContractState, game_id: u128, count: u32) -> u128 {
             let game_action = GameAction { world: self.world_dispatcher.read(), game_id };
-            game_action.get_reinforcement_price(count)
+            let market: ReinforcementMarket = game_action.get_game();
+            market.get_reinforcement_price(count)
         }
 
         fn purchase(self: @ContractState, game_id: u128, count: u32) {

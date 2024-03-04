@@ -91,7 +91,7 @@ mod game_actions {
             let reinforcement_market = ReinforcementMarket {
                 game_id,
                 target_price: REINFORCEMENT_TARGET_PRICE,
-                start_timestamp: 0,
+                start_block_number: start_block,
                 decay_constant: REINFORCEMENT_DECAY_CONSTANT,
                 max_sellable: REINFORCEMENT_MAX_SELLABLE,
                 count: 0,

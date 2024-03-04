@@ -37,6 +37,8 @@ mod contracts_tests {
     use dojo::test_utils::{deploy_contract};
     use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
+    use risingrevenant::utils::get_block_number;
+
 
     use risingrevenant::tests::utils::{setup_test_world, DefaultWorld};
     use risingrevenant::components::{
@@ -73,7 +75,8 @@ mod contracts_tests {
 
     #[test]
     #[available_gas(3000000000)]
-    fn test_create_game() {
+    fn test_purchase() {
+        println!("Test Purchase Reinforcements");
         let DefaultWorld{world,
         game_actions,
         outpost_actions,
@@ -85,9 +88,21 @@ mod contracts_tests {
         admin } =
             setup_test_world();
         let game_id = game_actions.create(1, 10);
+        starknet::testing::set_block_number(1);
         let game_action = GameAction { world, game_id };
-        let game_phases: GamePhases = game_action.get_game();
-        println!("Game ID {}", game_id);
-        game_phases.print();
+        let mut n: u32 = 1;
+        loop {
+            let price = reinforcement_actions.get_price(game_id, 1);
+            let mut market: ReinforcementMarket = game_action.get_game();
+            println!("Market count {} price {}", market.count, price);
+
+            market.count = n;
+            game_action.set(market);
+
+            n += 1;
+            if n >= 10 {
+                break;
+            }
+        }
     }
 }
