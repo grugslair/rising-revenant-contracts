@@ -36,9 +36,10 @@ mod contracts_tests {
     use debug::PrintTrait;
     use dojo::test_utils::{deploy_contract};
     use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
+    use origami::defi::auction::vrgda::{LogisticVRGDA, LogisticVRGDATrait};
+    use cubit::f128::types::fixed::{Fixed, FixedTrait, ONE_u128};
 
     use risingrevenant::utils::get_block_number;
-
 
     use risingrevenant::tests::utils::{setup_test_world, DefaultWorld};
     use risingrevenant::components::{
@@ -73,6 +74,11 @@ mod contracts_tests {
 
     use risingrevenant::systems::{game::{GameAction, GameActionTrait},};
 
+    use risingrevenant::defaults::{
+        REINFORCEMENT_TARGET_PRICE, REINFORCEMENT_MAX_SELLABLE, REINFORCEMENT_DECAY_CONSTANT,
+        REINFORCEMENT_TIME_SCALE
+    };
+
     #[test]
     #[available_gas(3000000000)]
     fn test_purchase() {
@@ -92,17 +98,54 @@ mod contracts_tests {
         let game_action = GameAction { world, game_id };
         let mut n: u32 = 1;
         loop {
-            let price = reinforcement_actions.get_price(game_id, 1);
+            let price = reinforcement_actions.get_price(game_id, 10);
             let mut market: ReinforcementMarket = game_action.get_game();
             println!("Market count {} price {}", market.count, price);
 
-            market.count = n;
+            market.count = n * 10;
             game_action.set(market);
 
             n += 1;
             if n >= 10 {
                 break;
             }
-        }
+        };
+    }
+    #[test]
+    #[available_gas(3000000000)]
+    fn test_target_sales_time() {
+        let vrgda = LogisticVRGDA {
+            target_price: FixedTrait::new_unscaled(REINFORCEMENT_TARGET_PRICE, false),
+            decay_constant: FixedTrait::new(REINFORCEMENT_DECAY_CONSTANT, false),
+            max_sellable: FixedTrait::new_unscaled(REINFORCEMENT_MAX_SELLABLE.into(), false),
+            time_scale: FixedTrait::new(REINFORCEMENT_TIME_SCALE, false),
+        };
+        let mut n: u128 = 0;
+        loop {
+            let price = vrgda
+                .get_vrgda_price(
+                    FixedTrait::new_unscaled(5, false), FixedTrait::new_unscaled(n, false)
+                );
+
+            let price_u128: u128 = price.try_into().unwrap();
+            println!("count {} price {}", n, price_u128);
+            if n >= 40 {
+                break;
+            }
+            n += 2;
+        };
+        n = 0;
+        println!("Target Sales Times");
+        loop {
+            let time = vrgda.get_target_sale_time(FixedTrait::new_unscaled(n, false));
+
+            let time_1_000_000_000: u128 = time.mag * 1_000_000_000 / ONE_u128;
+            let time_1: u128 = time.try_into().unwrap();
+            println!("count {} time * 1e9 {} time {}", n, time_1_000_000_000, time_1);
+            if n >= 20 {
+                break;
+            }
+            n += 5;
+        };
     }
 }

@@ -23,7 +23,7 @@ mod game_actions {
         MAP_WIDTH, MAP_HEIGHT, DEV_PERCENT, CONFIRMATION_PERCENT, LTR_PERCENT,
         GAME_TRADE_TAX_PERCENT, EVENT_RADIUS_START, EVENT_RADIUS_INCREASE, OUTPOST_PRICE,
         MAX_OUTPOSTS, OUTPOST_INIT_LIFE, OUTPOST_MAX_REINFORCEMENT, REINFORCEMENT_TARGET_PRICE,
-        REINFORCEMENT_MAX_SELLABLE, REINFORCEMENT_DECAY_CONSTANT
+        REINFORCEMENT_MAX_SELLABLE, REINFORCEMENT_DECAY_CONSTANT, REINFORCEMENT_TIME_SCALE
     };
 
 
@@ -94,7 +94,7 @@ mod game_actions {
                 start_block_number: start_block,
                 decay_constant: REINFORCEMENT_DECAY_CONSTANT,
                 max_sellable: REINFORCEMENT_MAX_SELLABLE,
-                count: 0,
+                time_scale: REINFORCEMENT_TIME_SCALE,
             };
 
             game_action.set(current_game);
