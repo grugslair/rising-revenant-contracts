@@ -5,7 +5,7 @@ trait IGameActions<TContractState> {
 
 #[dojo::contract]
 mod game_actions {
-    use cubit::f128::types::fixed::{FixedTrait};
+    use cubit::f128::types::fixed::{FixedTrait, ONE_u128};
 
     use starknet::{ContractAddress, get_block_info, get_block_timestamp, get_caller_address};
     use risingrevenant::components::currency::CurrencyTrait;
@@ -23,7 +23,8 @@ mod game_actions {
         MAP_WIDTH, MAP_HEIGHT, DEV_PERCENT, CONFIRMATION_PERCENT, LTR_PERCENT,
         GAME_TRADE_TAX_PERCENT, EVENT_RADIUS_START, EVENT_RADIUS_INCREASE, OUTPOST_PRICE,
         MAX_OUTPOSTS, OUTPOST_INIT_LIFE, OUTPOST_MAX_REINFORCEMENT, REINFORCEMENT_TARGET_PRICE,
-        REINFORCEMENT_MAX_SELLABLE, REINFORCEMENT_DECAY_CONSTANT_MAG, REINFORCEMENT_TIME_SCALE_MAG
+        REINFORCEMENT_MAX_SELLABLE_PERCENTAGE, REINFORCEMENT_DECAY_CONSTANT_MAG,
+        REINFORCEMENT_TIME_SCALE_FACTOR_MAG
     };
 
 
@@ -93,8 +94,11 @@ mod game_actions {
                 target_price: REINFORCEMENT_TARGET_PRICE.convert(),
                 decay_constant_mag: REINFORCEMENT_DECAY_CONSTANT_MAG,
                 start_block_number: start_block,
-                max_sellable: REINFORCEMENT_MAX_SELLABLE,
-                time_scale_mag: REINFORCEMENT_TIME_SCALE_MAG,
+                max_sellable: REINFORCEMENT_MAX_SELLABLE_PERCENTAGE
+                    * OUTPOST_MAX_REINFORCEMENT
+                    * MAX_OUTPOSTS
+                    / 100,
+                time_scale_mag: REINFORCEMENT_TIME_SCALE_FACTOR_MAG * preparation_blocks.into(),
                 sold: 0,
             };
 
