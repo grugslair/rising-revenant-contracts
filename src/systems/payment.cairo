@@ -40,21 +40,21 @@ impl PaymentSystemImpl of PaymentSystemTrait {
         self: PaymentSystem, sender: ContractAddress, recipient: ContractAddress, amount: T
     ) {
         let mut sender_wallet: DevWallet = self.game_action.get(sender);
-        let mut recipiant_wallet: DevWallet = self.game_action.get(recipient);
+        let mut recipient_wallet: DevWallet = self.game_action.get(recipient);
         let amount_256 = amount.convert();
         if (!sender_wallet.init) {
             sender_wallet.init = true;
             sender_wallet.balance = PLAYER_STARTING_AMOUNT;
         }
-        if (!recipiant_wallet.init) {
-            recipiant_wallet.init = true;
-            recipiant_wallet.balance = PLAYER_STARTING_AMOUNT;
+        if (!recipient_wallet.init) {
+            recipient_wallet.init = true;
+            recipient_wallet.balance = PLAYER_STARTING_AMOUNT;
         }
         assert(sender_wallet.balance >= amount_256, 'not enough cash');
         sender_wallet.balance -= amount_256;
-        recipiant_wallet.balance += amount_256;
+        recipient_wallet.balance += amount_256;
         self.game_action.set(sender_wallet);
-        self.game_action.set(recipiant_wallet);
+        self.game_action.set(recipient_wallet);
     }
 
     fn pay_into_pot<T, +CurrencyTrait<T, u256>, +Copy<T>, +Drop<T>>(

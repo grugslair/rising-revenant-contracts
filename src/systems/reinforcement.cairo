@@ -1,7 +1,6 @@
 use starknet::{ContractAddress};
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use cubit::f128::types::fixed::{FixedTrait};
-use origami::defi::auction::vrgda::{LogisticVRGDA, LogisticVRGDATrait};
 
 use risingrevenant::components::game::{GameState};
 use risingrevenant::components::reinforcement::{ReinforcementMarket, ReinforcementMarketTrait};
@@ -24,11 +23,11 @@ impl ReinforcementActionImpl of ReinforcementActionTrait {
         player_info.reinforcements_available_count = new_reinforcements_count.try_into().unwrap();
         self.set(player_info);
     }
-    fn purchase_reinforcement(self: GameAction, player_id: ContractAddress, count: u32) {
+    fn purchase_reinforcements(self: GameAction, player_id: ContractAddress, count: u32) {
         self.assert_preparing();
         let mut market: ReinforcementMarket = self.get_game();
-        let cost = market.get_reinforcement_price(count);
-        market.count += count;
+        let cost: u128 = market.get_price(count);
+        market.sold += count;
 
         let payment_system = PaymentSystemTrait::new(self);
         payment_system.pay_into_pot(player_id, cost);
@@ -40,6 +39,11 @@ impl ReinforcementActionImpl of ReinforcementActionTrait {
 
         self.set(outposts_tracker);
         self.set(market);
+    }
+    fn get_reinforcements_price(self: GameAction, count: u32) -> u128 {
+        self.assert_preparing();
+        let market: ReinforcementMarket = self.get_game();
+        market.get_price(count)
     }
 }
 

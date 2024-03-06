@@ -1,7 +1,9 @@
-use cubit::f128::types::fixed::{Fixed, FixedTrait};
+use cubit::f128::types::fixed::{Fixed, FixedTrait, HALF_u128};
 use cubit::f128::math::ops::{ln, abs, exp};
 use starknet::{ContractAddress, get_block_timestamp};
-use origami::defi::auction::vrgda::{LogisticVRGDA, LogisticVRGDATrait};
+
+use risingrevenant::utils::vrgda::{LogisticVRGDA, VRGDATrait};
+// use origami::defi::auction::vrgda::{LogisticVRGDA, VRGDATrait}; // use when VRGDA fix is merged
 
 use risingrevenant::components::currency::{CurrencyTrait};
 
@@ -12,75 +14,41 @@ use risingrevenant::utils::get_block_number;
 struct ReinforcementMarket {
     #[key]
     game_id: u128,
-    target_price: Fixed,
+    target_price: u128,
+    decay_constant_mag: u128,
+    max_sellable: u32,
+    time_scale_mag: u128,
     start_block_number: u64,
-    decay_constant: Fixed,
-    units_per_time: Fixed,
+    sold: u32,
 }
-// #[generate_trait]
-// impl ReinforcementMarketImpl of ReinforcementMarketTrait {
-//     fn get_reinforcement_price(self: ReinforcementMarket, count: u32) -> u128 {
-//         let time_since_start: u128 = (get_block_number() - self.start_block_number).into();
-
-//         let vrgda = LogisticVRGDA {
-//             target_price: FixedTrait::new_unscaled(self.target_price, false),
-//             decay_constant: FixedTrait::new(self.decay_constant, false),
-//             max_sellable: FixedTrait::new_unscaled(self.max_sellable.into(), false),
-//             time_scale: FixedTrait::new(self.time_scale, false),
-//         };
-
-//         let time = FixedTrait::new_unscaled(time_since_start, false);
-//         let mut total_price = 0_u128;
-//         let mut p = 0_u32;
-//         loop {
-//             if p == count {
-//                 break;
-//             }
-//             let price = vrgda
-//                 .get_vrgda_price(time, FixedTrait::new_unscaled((self.count + p).into(), false));
-//             total_price += price.try_into().unwrap();
-//             p += 1;
-//         };
-//         total_price
-//     }
-// }
 
 #[generate_trait]
 impl ReinforcementMarketImpl of ReinforcementMarketTrait {
-    fn get_reinforcement_price(self: ReinforcementMarket, sold: u32, count: u32) -> u128 {
+    fn get_price<T, +CurrencyTrait<Fixed, T>>(self: ReinforcementMarket, count: u32) -> T {
         let blocks_since_start = FixedTrait::new_unscaled(
             (get_block_number() - self.start_block_number).into(), false
-        );
-        
+        )
+            + Fixed { mag: HALF_u128, sign: false };
+        let auction = LogisticVRGDA {
+            target_price: self.target_price.convert(),
+            decay_constant: FixedTrait::new(self.decay_constant_mag, false),
+            max_sellable: FixedTrait::new_unscaled(self.max_sellable.into(), false),
+            time_scale: FixedTrait::new(self.time_scale_mag, false),
+        };
 
-        let mut total_price = 0_u128;
+        let mut total_price = FixedTrait::ZERO();
         let mut p = 0_u32;
         loop {
-            if p == count {
+            if p >= count {
                 break;
             }
-            let price = vrgda
-                .get_vrgda_price(time, FixedTrait::new_unscaled((self.count + p).into(), false));
-            total_price += price.try_into().unwrap();
+            total_price += auction
+                .get_vrgda_price(
+                    blocks_since_start, FixedTrait::new_unscaled((self.sold + p).into(), false)
+                );
             p += 1;
         };
-        total_price
-    }
-
-    fn _get_price(self: @ReinforcementMarket, time_since_start: Fixed, sold: Fixed) -> Fixed {
-        *self.target_price
-            * exp(
-                *self.decay_constant
-                    * (self.get_target_sale_time(sold + FixedTrait::new(1, false))
-                        - time_since_start)
-            )
-    }
-    fn get_price(self: @ReinforcementMarket , sold: Fixed) -> Fixed {
-
-    }
-
-    fn get_target_sale_time(self: @ReinforcementMarket, sold: Fixed) -> Fixed {
-        sold / *self.units_per_time
+        total_price.convert()
     }
 }
 

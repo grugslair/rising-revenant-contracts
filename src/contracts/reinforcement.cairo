@@ -20,13 +20,12 @@ mod reinforcement_actions {
     impl ReinforcementActionsImpl of IReinforcementActions<ContractState> {
         fn get_price(self: @ContractState, game_id: u128, count: u32) -> u128 {
             let game_action = GameAction { world: self.world_dispatcher.read(), game_id };
-            let market: ReinforcementMarket = game_action.get_game();
-            market.get_reinforcement_price(count)
+            game_action.get_reinforcements_price(count)
         }
 
         fn purchase(self: @ContractState, game_id: u128, count: u32) {
             let game_action = GameAction { world: self.world_dispatcher.read(), game_id };
-            game_action.purchase_reinforcement(get_caller_address(), count);
+            game_action.purchase_reinforcements(get_caller_address(), count);
         }
     }
 }

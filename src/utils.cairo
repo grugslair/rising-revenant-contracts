@@ -1,4 +1,5 @@
 mod random;
+mod vrgda;
 use starknet::{get_block_info};
 use risingrevenant::components::outpost::Position;
 

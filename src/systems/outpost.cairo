@@ -85,7 +85,7 @@ impl OutpostActionsImpl of OutpostActionsTrait {
             assert(game_phase == GamePhase::Preparing, 'Game not running');
         }
 
-        self.update_reinforcements::<i64>(player_id, -count.into());
+        self.update_reinforcements::<i64>(player_id, -(count.into()));
         assert(count <= outpost.reinforces_remaining, 'Over reinforcement limit');
         outpost.reinforces_remaining -= count;
         outpost.life += count;

@@ -5,10 +5,10 @@ trait IGameActions<TContractState> {
 
 #[dojo::contract]
 mod game_actions {
-    use debug::PrintTrait;
+    use cubit::f128::types::fixed::{FixedTrait};
 
     use starknet::{ContractAddress, get_block_info, get_block_timestamp, get_caller_address};
-
+    use risingrevenant::components::currency::CurrencyTrait;
     use risingrevenant::components::game::{
         CurrentGame, GameStatus, GameMap, GameTradeTax, GamePotConsts, GameState, GamePot,
         GamePhases, Dimensions
@@ -23,7 +23,7 @@ mod game_actions {
         MAP_WIDTH, MAP_HEIGHT, DEV_PERCENT, CONFIRMATION_PERCENT, LTR_PERCENT,
         GAME_TRADE_TAX_PERCENT, EVENT_RADIUS_START, EVENT_RADIUS_INCREASE, OUTPOST_PRICE,
         MAX_OUTPOSTS, OUTPOST_INIT_LIFE, OUTPOST_MAX_REINFORCEMENT, REINFORCEMENT_TARGET_PRICE,
-        REINFORCEMENT_MAX_SELLABLE, REINFORCEMENT_DECAY_CONSTANT, REINFORCEMENT_TIME_SCALE
+        REINFORCEMENT_MAX_SELLABLE, REINFORCEMENT_DECAY_CONSTANT_MAG, REINFORCEMENT_TIME_SCALE_MAG
     };
 
 
@@ -90,11 +90,12 @@ mod game_actions {
 
             let reinforcement_market = ReinforcementMarket {
                 game_id,
-                target_price: REINFORCEMENT_TARGET_PRICE,
+                target_price: REINFORCEMENT_TARGET_PRICE.convert(),
+                decay_constant_mag: REINFORCEMENT_DECAY_CONSTANT_MAG,
                 start_block_number: start_block,
-                decay_constant: REINFORCEMENT_DECAY_CONSTANT,
                 max_sellable: REINFORCEMENT_MAX_SELLABLE,
-                time_scale: REINFORCEMENT_TIME_SCALE,
+                time_scale_mag: REINFORCEMENT_TIME_SCALE_MAG,
+                sold: 0,
             };
 
             game_action.set(current_game);
@@ -106,7 +107,6 @@ mod game_actions {
             game_action.set(game_phases);
             game_action.set(game_state);
             game_action.set(outpost_setup);
-            game_action.set(world_event_setup);
             game_action.set(reinforcement_market);
 
             game_id
