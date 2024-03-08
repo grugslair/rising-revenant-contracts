@@ -137,9 +137,9 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         assert(current_event.is_impacted(outpost_id), 'Outpost not impacted');
         let mut outpost = self.get_active_outpost(outpost_id);
 
-        outpost.life -= 1;
+        let damage = outpost.apply_world_event_damage(current_event);
         verified.verified = true;
-        game_state.remain_life_count -= 1;
+        game_state.remain_life_count -= damage;
 
         let mut caller_contribution = self.get_caller_contribution();
         caller_contribution.score += 1;

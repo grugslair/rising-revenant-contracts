@@ -1,11 +1,13 @@
+use risingrevenant::components::world_event::EventDefenseTrait;
 use starknet::ContractAddress;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
 use risingrevenant::components::player::{PlayerInfo,};
 use risingrevenant::components::game::{Dimensions, Position, PositionTrait};
-use risingrevenant::components::world_event::{WorldEvent};
+use risingrevenant::components::world_event::{CurrentWorldEvent, EventType};
+use risingrevenant::components::reinforcement::{ReinforcementType};
 
-use risingrevenant::utils::random::{Random};
+use risingrevenant::utils::random::{RandomTrait};
 use risingrevenant::utils::{calculate_distance};
 
 
@@ -18,6 +20,7 @@ struct Outpost {
     owner: ContractAddress,
     life: u32,
     reinforces_remaining: u32,
+    reinforcement_type: ReinforcementType,
     status: u8,
 }
 
@@ -54,8 +57,29 @@ impl OutpostImpl of OutpostTrait {
     fn assert_active(self: @Outpost) {
         assert(*self.status == OutpostStatus::active, 'Outpost has been destroyed');
     }
-    fn is_impacted_by_event(self: @Outpost, event: WorldEvent) -> bool {
+    fn is_impacted_by_event(self: @Outpost, event: CurrentWorldEvent) -> bool {
         let distance = calculate_distance(*self.position, event.position);
         distance <= event.radius
+    }
+    fn apply_world_event_damage(ref self: Outpost, event: CurrentWorldEvent) -> u32 {
+        // find better way of doing thing
+
+        let (probability, mut damage) = event
+            .event_type
+            .get_defense_probability(self.reinforcement_type);
+        if probability == 255 {
+            return 0;
+        } else if probability != 0 {
+            let mut random = RandomTrait::new();
+            if random.next() < probability {
+                return 0;
+            }
+        };
+        self.reinforcement_type = ReinforcementType::None;
+        if damage > self.life {
+            damage = self.life;
+        }
+        self.life -= damage;
+        return damage;
     }
 }

@@ -1,9 +1,9 @@
 use starknet::ContractAddress;
 
 use risingrevenant::components::game::Position;
+use risingrevenant::components::reinforcement::{ReinforcementType};
 
 use risingrevenant::utils::{calculate_distance};
-
 
 #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
 struct WorldEventSetup {
@@ -20,6 +20,7 @@ struct WorldEvent {
     #[key]
     event_id: u128,
     position: Position,
+    event_type: EventType,
     radius: u32,
     number: u32,
     block_number: u64,
@@ -33,6 +34,7 @@ struct CurrentWorldEvent {
     game_id: u128,
     event_id: u128,
     position: Position,
+    event_type: EventType,
     radius: u32,
     number: u32,
     block_number: u64,
@@ -58,6 +60,7 @@ impl CurrentWorldEventImpl of CurrentWorldEventTrait {
             game_id: *self.game_id,
             event_id: *self.event_id,
             position: *self.position,
+            event_type: *self.event_type,
             radius: *self.radius,
             number: *self.number,
             block_number: *self.block_number,
@@ -70,11 +73,53 @@ impl CurrentWorldEventImpl of CurrentWorldEventTrait {
         distance <= *self.radius
     }
 }
-// mod EventType {
-// const not_defined: u32 = 0;
-// TODO: Define world event 
-// const plague: u32 = 1;
-// Goblin / Earthquake / Hurricane / Dragon / etc...
-// }
+// This enum simply defines the states of a game.
+#[derive(Serde, Copy, Drop, Introspect, PartialEq, Print)]
+enum EventType {
+    None,
+    Dragon,
+    Goblin,
+    Earthquake,
+}
 
+// We define an into trait
+impl EventTypeFelt252 of Into<EventType, felt252> {
+    fn into(self: EventType) -> felt252 {
+        match self {
+            EventType::None => 0,
+            EventType::Dragon => 1,
+            EventType::Goblin => 2,
+            EventType::Earthquake => 3,
+        }
+    }
+}
+#[generate_trait]
+impl EventDefenseImpl of EventDefenseTrait {
+    fn get_defense_probability(
+        self: EventType, reinforcement_type: ReinforcementType
+    ) -> (u8, u32) {
+        return if reinforcement_type == ReinforcementType::None {
+            (128, 1)
+        } else {
+            match self {
+                EventType::None => (255, 0),
+                EventType::Dragon => if reinforcement_type == ReinforcementType::Wall {
+                    (179, 1)
+                } else {
+                    (0, 1)
+                },
+                EventType::Goblin => if reinforcement_type == ReinforcementType::Trench {
+                    (179, 1)
+                } else {
+                    (0, 1)
+                },
+                EventType::Earthquake => if reinforcement_type == ReinforcementType::Bunker {
+                    (179, 1)
+                } else {
+                    (0, 1)
+                },
+            }
+        };
+    }
+}
 

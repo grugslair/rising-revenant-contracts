@@ -52,3 +52,25 @@ impl ReinforcementMarketImpl of ReinforcementMarketTrait {
     }
 }
 
+
+// This enum simply defines the states of a game.
+#[derive(Serde, Copy, Drop, Introspect, PartialEq, Print)]
+enum ReinforcementType {
+    None,
+    Wall,
+    Trench,
+    Bunker,
+}
+
+// We define an into trait
+impl ReinforcementTypeFelt252 of Into<ReinforcementType, felt252> {
+    fn into(self: ReinforcementType) -> felt252 {
+        match self {
+            ReinforcementType::None => 0,
+            ReinforcementType::Wall => 1,
+            ReinforcementType::Trench => 2,
+            ReinforcementType::Bunker => 3,
+        }
+    }
+}
+
