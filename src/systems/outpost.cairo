@@ -140,8 +140,10 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         outpost.life -= 1;
         verified.verified = true;
         game_state.remain_life_count -= 1;
+
         let mut caller_contribution = self.get_caller_contribution();
         caller_contribution.score += 1;
+        game_state.contribution_score_total += 1;
 
         if outpost.life <= 0 {
             outpost.status = OutpostStatus::destroyed;
