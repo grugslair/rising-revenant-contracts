@@ -1,4 +1,5 @@
 use risingrevenant::components::game::{Position};
+use risingrevenant::components::reinforcement::{ReinforcementType};
 
 #[starknet::interface]
 trait IOutpostActions<TContractState> {
@@ -6,6 +7,12 @@ trait IOutpostActions<TContractState> {
     fn get_price(self: @TContractState, game_id: u128) -> u256;
     fn reinforce(self: @TContractState, game_id: u128, outpost_id: Position, count: u32);
     fn verify(self: @TContractState, game_id: u128, outpost_id: Position);
+    fn set_reinforcement_type(
+        self: @ContractState,
+        game_id: u128,
+        outpost_id: Position,
+        reinforcement_type: ReinforcementType
+    );
 }
 
 
@@ -16,7 +23,7 @@ mod outpost_actions {
     use risingrevenant::components::outpost::{OutpostTrait};
     use risingrevenant::components::game::{Position};
     use risingrevenant::components::player::{PlayerInfo};
-
+    use risingrevenant::components::reinforcement::{ReinforcementType};
 
     use risingrevenant::systems::game::{GameAction, GameActionTrait};
     use risingrevenant::systems::player::{PlayerActionsTrait};
@@ -43,6 +50,15 @@ mod outpost_actions {
         fn verify(self: @ContractState, game_id: u128, outpost_id: Position) {
             let outpost_action = GameAction { world: self.world_dispatcher.read(), game_id };
             outpost_action.verify_outpost(outpost_id);
+        }
+        fn set_reinforcement_type(
+            self: @ContractState,
+            game_id: u128,
+            outpost_id: Position,
+            reinforcement_type: ReinforcementType
+        ) {
+            let outpost_action = GameAction { world: self.world_dispatcher.read(), game_id };
+            outpost_action.set_outpost_reinforcement_type(outpost_id, reinforcement_type);
         }
     }
 }

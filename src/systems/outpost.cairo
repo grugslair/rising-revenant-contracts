@@ -10,6 +10,7 @@ use risingrevenant::components::game::{
 };
 use risingrevenant::components::player::PlayerInfo;
 use risingrevenant::components::world_event::{WorldEvent, CurrentWorldEvent, OutpostVerified};
+use risingrevenant::components::reinforcement::{ReinforcementType};
 
 use risingrevenant::systems::player::PlayerActionsTrait;
 use risingrevenant::systems::reinforcement::ReinforcementActionTrait;
@@ -49,6 +50,7 @@ impl OutpostActionsImpl of OutpostActionsTrait {
             owner: player_info.player_id,
             life: setup.life,
             reinforces_remaining: setup.max_reinforcements,
+            reinforcement_type: ReinforcementType::None,
             status: OutpostStatus::active,
         };
         loop {
@@ -165,6 +167,22 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         self.set(outpost);
         self.set(verified);
         self.set(game_state);
+    }
+    fn set_outpost_reinforcement_type(
+        self: GameAction, outpost_id: Position, reinforcement_type: ReinforcementType
+    ) {
+        let player_id = get_caller_address();
+        let mut outpost = self.get_active_outpost(outpost_id);
+        assert(outpost.owner == player_id, 'Not players outpost');
+        assert(outpost.life > 0, 'Outpost is destroyed');
+        let game_phase = self.get_phase();
+        if game_phase == GamePhase::Playing {
+            assert(self.check_outpost_verified(outpost_id), 'Not verified from last event');
+        } else {
+            assert(game_phase == GamePhase::Preparing, 'Game not running');
+        }
+        assert(outpost.life > 1, 'No reinforcements left');
+        outpost.reinforcement_type = reinforcement_type;
     }
 }
 
