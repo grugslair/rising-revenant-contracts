@@ -1,3 +1,6 @@
+use risingrevenant::components::world_event::{EventType};
+
+
 #[starknet::interface]
 trait IWorldEventActions<TContractState> {
     fn create(self: @TContractState, game_id: u128, event_type: EventType) -> u128;

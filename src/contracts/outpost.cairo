@@ -8,7 +8,7 @@ trait IOutpostActions<TContractState> {
     fn reinforce(self: @TContractState, game_id: u128, outpost_id: Position, count: u32);
     fn verify(self: @TContractState, game_id: u128, outpost_id: Position);
     fn set_reinforcement_type(
-        self: @ContractState,
+        self: @TContractState,
         game_id: u128,
         outpost_id: Position,
         reinforcement_type: ReinforcementType
