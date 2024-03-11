@@ -99,7 +99,7 @@ impl EventDefenseImpl of EventDefenseTrait {
         self: EventType, reinforcement_type: ReinforcementType
     ) -> (u8, u32) {
         return if reinforcement_type == ReinforcementType::None {
-            (128, 1)
+            (51, 1)
         } else {
             match self {
                 EventType::None => (255, 0),

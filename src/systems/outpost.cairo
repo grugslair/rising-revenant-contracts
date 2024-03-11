@@ -183,6 +183,7 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         }
         assert(outpost.life > 1, 'No reinforcements left');
         outpost.reinforcement_type = reinforcement_type;
+        self.set(outpost);
     }
 }
 
