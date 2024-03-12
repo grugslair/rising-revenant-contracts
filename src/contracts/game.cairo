@@ -30,7 +30,7 @@ mod game_actions {
 
     use super::IGameActions;
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl GameActionImpl of IGameActions<ContractState> {
         fn create(self: @ContractState, start_block: u64, preparation_blocks: u64) -> u128 {
             let world = self.world_dispatcher.read();
@@ -38,7 +38,7 @@ mod game_actions {
             let game_id = uuid(world);
             let game_action = GameAction { world, game_id };
             let mut current_game: CurrentGame = game_action.get(caller_id);
-            let last_game_id = current_game.game_id;
+            let _last_game_id = current_game.game_id;
             current_game.game_id = game_id;
 
             let game_map = GameMap {
@@ -58,10 +58,6 @@ mod game_actions {
 
             let outpost_market = OutpostMarket {
                 game_id, price: OUTPOST_PRICE, available: MAX_OUTPOSTS,
-            };
-
-            let world_event_setup = WorldEventSetup {
-                game_id, radius_start: EVENT_RADIUS_START, radius_increase: EVENT_RADIUS_INCREASE
             };
 
             let game_state = GameState {
