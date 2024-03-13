@@ -93,6 +93,18 @@ impl EventTypeFelt252 of Into<EventType, felt252> {
         }
     }
 }
+
+impl u8IntoEventType of TryInto<u8, EventType> {
+    fn try_into(self: u8) -> Option<EventType> {
+        match self {
+            0 => Option::Some(EventType::None),
+            1 => Option::Some(EventType::Dragon),
+            2 => Option::Some(EventType::Goblin),
+            3 => Option::Some(EventType::Earthquake),
+            _ => Option::None,
+        }
+    }
+}
 #[generate_trait]
 impl EventDefenseImpl of EventDefenseTrait {
     fn get_defense_probability(
