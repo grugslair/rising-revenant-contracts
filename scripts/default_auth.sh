@@ -40,70 +40,30 @@ echo " "
 echo trade reinforcements actions : $TRADE_REINFORCEMENTS_ACTIONS_ADDRESS
 echo "---------------------------------------------------------------------------"
 
-# enable system -> component authorizations
-COMPONENTS=(
-    "CurrentGame"
-    "GamePhases"
-    "GameMap"
-    "GameERC20"
-    "GameTradeTax"
-    "GamePotConsts"
-    "GameState"
-    "GamePot"
-    "DevWallet"
-    "Outpost"
-    "OutpostMarket"
-    "OutpostSetup"
-    "PlayerInfo"
-    "PlayerContribution"
-    "ReinforcementMarket"
-    "OutpostTrade"
-    "ReinforcementTrade"
-    "WorldEventSetup"
-    "WorldEvent"
-    "CurrentWorldEvent"
-    "OutpostVerified"
-)
 
-for component in ${COMPONENTS[@]}; do
-    sozo auth writer $component $WORLD_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 0.2 
-done
-
-for component in ${COMPONENTS[@]}; do
-    sozo auth writer $component $GAME_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 0.2 
-done
-
-for component in ${COMPONENTS[@]}; do
-    sozo auth writer $component $WORLD_EVENT_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 0.2 
-done
-
-for component in ${COMPONENTS[@]}; do
-    sozo auth writer $component $OUTPOST_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 0.2 
-done
-
-for component in ${COMPONENTS[@]}; do
-    sozo auth writer $component $REINFORCEMENTS_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 0.2 
-done
-
-for component in ${COMPONENTS[@]}; do
-    sozo auth writer $component $PAYMENT_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 0.2 
-done
-
-for component in ${COMPONENTS[@]}; do
-    sozo auth writer $component $TRADE_OUTPOST_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 0.2 
-done
-
-for component in ${COMPONENTS[@]}; do
-    sozo auth writer $component $TRADE_REINFORCEMENTS_ACTIONS_ADDRESS --world $WORLD_ADDRESS --rpc-url $RPC_URL
-    sleep 0.2 
-done
-
+# enable system -> models authorizations
+sozo auth grant --world $WORLD_ADDRESS --wait writer \
+ CurrentGame,$GAME_ADDRESS \
+ GamePhases,$GAME_ADDRESS \
+ GameMap,$GAME_ADDRESS \
+ GameERC20,$GAME_ADDRESS \
+ GameTradeTax,$GAME_ADDRESS \
+ GamePotConsts,$GAME_ADDRESS \
+ GameState,$GAME_ADDRESS \
+ GamePot,$GAME_ADDRESS \
+ DevWallet,$GAME_ADDRESS \
+ Outpost,$OUTPOST_ACTIONS_ADDRESS \
+ OutpostMarket,$OUTPOST_ACTIONS_ADDRESS \
+ OutpostSetup,$OUTPOST_ACTIONS_ADDRESS \
+ PlayerInfo,$PAYMENT_ACTIONS_ADDRESS \
+ PlayerContribution,$PAYMENT_ACTIONS_ADDRESS \
+ ReinforcementMarket,$REINFORCEMENTS_ACTIONS_ADDRESS \
+ OutpostTrade,$TRADE_OUTPOST_ACTIONS_ADDRESS \
+ ReinforcementTrade,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
+ WorldEventSetup,$WORLD_EVENT_ADDRESS \
+ WorldEvent,$WORLD_EVENT_ADDRESS \
+ CurrentWorldEvent,$WORLD_EVENT_ADDRESS \
+ OutpostVerified,$WORLD_EVENT_ADDRESS \
+ > /dev/null
 
 echo "Default authorizations have been successfully set."

@@ -3,7 +3,7 @@
 #[starknet::contract]
 mod FooErc20 {
     use integer::BoundedInt;
-    use openzeppelin::token::erc20::interface::IERC20;
+    // use openzeppelin::token::erc20::interface::IERC20;
     use starknet::{ContractAddress, get_caller_address};
 
     #[storage]

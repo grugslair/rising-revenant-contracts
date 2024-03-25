@@ -41,6 +41,8 @@ mod game_actions {
             let _last_game_id = current_game.game_id;
             current_game.game_id = game_id;
 
+            let current_block = get_block_info().unbox().block_number;
+
             let game_map = GameMap {
                 game_id, dimensions: Dimensions { x: MAP_WIDTH, y: MAP_HEIGHT },
             };
@@ -72,8 +74,8 @@ mod game_actions {
             let game_phases = GamePhases {
                 game_id,
                 status: GameStatus::created,
-                preparation_block_number: start_block,
-                play_block_number: start_block + preparation_blocks,
+                preparation_block_number: current_block,
+                play_block_number: current_block + preparation_blocks,
             };
 
             //we need this so the outpost dont start with 0 life
@@ -89,7 +91,7 @@ mod game_actions {
                 game_id,
                 target_price: REINFORCEMENT_TARGET_PRICE.convert(),
                 decay_constant_mag: REINFORCEMENT_DECAY_CONSTANT_MAG,
-                start_block_number: start_block,
+                start_block_number: current_block,
                 max_sellable: REINFORCEMENT_MAX_SELLABLE_PERCENTAGE
                     * OUTPOST_MAX_REINFORCEMENT
                     * MAX_OUTPOSTS
