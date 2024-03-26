@@ -31,7 +31,7 @@ private_key = "0x2bbf4f9fd0bbb2e60b0316c1fe0b76cf7a4d0198bd493ced9b8df2a3a24d68a
 #private_key = "0x44bcb4a4e4fccd06da386dd7a99a00a091d337240cf7d1d9946ca9625b9e816"
 #world_address = ""
 
-# local
+# testnet sepolia
 #rpc_url = "https://starknet-sepolia.public.blastapi.io/rpc/v0_6"
 #account_address = "0x00d8f5468626409c9af775c7994f4b4d1e7f17edbecd82ad548d3632b8773538"
 #private_key = "0x041004e1773bb07a806a03159d88ba1d2c480f283c85434040e35286c1ce1f7c"
