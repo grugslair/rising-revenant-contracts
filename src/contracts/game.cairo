@@ -37,6 +37,7 @@ mod game_actions {
             let caller_id = get_caller_address();
             let game_id = uuid(world);
             let game_action = GameAction { world, game_id };
+            game_action.assert_is_admin(caller_id);
             let mut current_game: CurrentGame = game_action.get(caller_id);
             let last_game_id = current_game.game_id;
             current_game.game_id = game_id;
