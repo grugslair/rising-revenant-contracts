@@ -13,6 +13,8 @@ trait ITradeOutpostActions<TContractState> {
 
     // Modify the price of an existing trade
     fn modify_price(self: @TContractState, game_id: u128, trade_id: u128, new_price: u128);
+
+    fn get_status(self: @TContractState, game_id: u128, trade_id: u128) -> u8;
 }
 
 // Trade for outpost
@@ -58,6 +60,11 @@ mod trade_outpost_actions {
         fn revoke(self: @ContractState, game_id: u128, trade_id: u128) {
             let _: OutpostTrade = GameAction { world: self.world_dispatcher.read(), game_id }
                 .revoke_trade(trade_id);
+        }
+        fn get_status(self: @ContractState, game_id: u128, trade_id: u128) -> u8 {
+            let trade: OutpostTrade = GameAction { world: self.world_dispatcher.read(), game_id }
+                .get(trade_id);
+            trade.status
         }
     }
 }

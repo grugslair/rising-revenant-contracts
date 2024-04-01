@@ -11,6 +11,8 @@ trait ITradeReinforcementsActions<TContractState> {
 
     // Modify the price of an existing trade
     fn modify_price(self: @TContractState, game_id: u128, trade_id: u128, new_price: u128);
+
+    fn get_status(self: @TContractState, game_id: u128, trade_id: u128) -> u8;
 }
 
 // Trade for outpost
@@ -54,6 +56,14 @@ mod trade_reinforcement_actions {
             let trade_action = GameAction { world: self.world_dispatcher.read(), game_id };
             let trade: ReinforcementTrade = trade_action.revoke_trade(trade_id);
             trade_action.update_reinforcements(trade.seller, trade.offer);
+        }
+
+        fn get_status(self: @ContractState, game_id: u128, trade_id: u128) -> u8 {
+            let trade: ReinforcementTrade = GameAction {
+                world: self.world_dispatcher.read(), game_id
+            }
+                .get(trade_id);
+            trade.status
         }
     }
 }
