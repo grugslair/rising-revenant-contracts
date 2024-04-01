@@ -2,8 +2,8 @@ use cubit::f128::types::fixed::{Fixed, FixedTrait, HALF_u128};
 use cubit::f128::math::ops::{ln, abs, exp};
 use starknet::{ContractAddress, get_block_timestamp};
 
-use risingrevenant::utils::vrgda::{LogisticVRGDA, VRGDATrait};
-// use origami::defi::auction::vrgda::{LogisticVRGDA, VRGDATrait}; // use when VRGDA fix is merged
+// use risingrevenant::utils::vrgda::{LogisticVRGDA, VRGDATrait};
+use origami::defi::auction::vrgda::{LogisticVRGDA, VRGDATrait}; // use when VRGDA fix is merged
 
 use risingrevenant::components::currency::{CurrencyTrait};
 

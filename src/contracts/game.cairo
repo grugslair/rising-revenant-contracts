@@ -30,16 +30,19 @@ mod game_actions {
 
     use super::IGameActions;
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl GameActionImpl of IGameActions<ContractState> {
         fn create(self: @ContractState, start_block: u64, preparation_blocks: u64) -> u128 {
             let world = self.world_dispatcher.read();
             let caller_id = get_caller_address();
             let game_id = uuid(world);
             let game_action = GameAction { world, game_id };
+            game_action.assert_is_admin(caller_id);
             let mut current_game: CurrentGame = game_action.get(caller_id);
-            let last_game_id = current_game.game_id;
+            let _last_game_id = current_game.game_id;
             current_game.game_id = game_id;
+
+            let current_block = get_block_info().unbox().block_number;
 
             let game_map = GameMap {
                 game_id, dimensions: Dimensions { x: MAP_WIDTH, y: MAP_HEIGHT },
@@ -60,10 +63,6 @@ mod game_actions {
                 game_id, price: OUTPOST_PRICE, available: MAX_OUTPOSTS,
             };
 
-            let world_event_setup = WorldEventSetup {
-                game_id, radius_start: EVENT_RADIUS_START, radius_increase: EVENT_RADIUS_INCREASE
-            };
-
             let game_state = GameState {
                 game_id,
                 outpost_created_count: 0,
@@ -76,8 +75,8 @@ mod game_actions {
             let game_phases = GamePhases {
                 game_id,
                 status: GameStatus::created,
-                preparation_block_number: start_block,
-                play_block_number: start_block + preparation_blocks,
+                preparation_block_number: current_block,
+                play_block_number: current_block + preparation_blocks,
             };
 
             //we need this so the outpost dont start with 0 life
@@ -93,7 +92,7 @@ mod game_actions {
                 game_id,
                 target_price: REINFORCEMENT_TARGET_PRICE.convert(),
                 decay_constant_mag: REINFORCEMENT_DECAY_CONSTANT_MAG,
-                start_block_number: start_block,
+                start_block_number: current_block,
                 max_sellable: REINFORCEMENT_MAX_SELLABLE_PERCENTAGE
                     * OUTPOST_MAX_REINFORCEMENT
                     * MAX_OUTPOSTS

@@ -17,7 +17,7 @@ mod payment_actions {
     use risingrevenant::systems::payment::{PaymentSystemTrait, PaymentSystem};
     use super::IPaymentActions;
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl PaymentActionsImpl of IPaymentActions<ContractState> {
         fn claim_jackpot(self: @ContractState, game_id: u128) {
             let (game_action, mut pot, payment_system) = self.get_claim_info(game_id);

@@ -31,7 +31,7 @@ mod outpost_actions {
     use risingrevenant::systems::outpost::{OutpostActionsTrait};
 
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl OutpostActionsImpl of IOutpostActions<ContractState> {
         fn purchase(self: @ContractState, game_id: u128) -> Position {
             let outpost_action = GameAction { world: self.world_dispatcher.read(), game_id };

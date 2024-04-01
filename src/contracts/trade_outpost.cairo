@@ -29,7 +29,7 @@ mod trade_outpost_actions {
     use risingrevenant::systems::trade::{TradeActionTrait};
     use risingrevenant::systems::outpost::{OutpostActionsTrait};
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl TradeOutpostActionImpl of ITradeOutpostActions<ContractState> {
         fn create(self: @ContractState, game_id: u128, price: u128, outpost_id: Position) -> u128 {
             let trade_action = GameAction { world: self.world_dispatcher.read(), game_id };

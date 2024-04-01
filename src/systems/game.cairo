@@ -1,7 +1,7 @@
 use debug::PrintTrait;
 use traits::{Into, TryInto};
 use dojo::database::introspect::Introspect;
-use starknet::{ContractAddress, get_block_info};
+use starknet::{ContractAddress, get_block_info, get_caller_address};
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use dojo::components::upgradeable::{IUpgradeableDispatcher, IUpgradeableDispatcherTrait};
 use risingrevenant::components::game::{
@@ -11,7 +11,7 @@ use risingrevenant::components::game::{
 use risingrevenant::components::player::{PlayerInfo};
 
 use risingrevenant::systems::get_set::{GetTrait, SetTrait, GetGameTrait};
-
+use risingrevenant::defaults::{ADMIN_ADDRESS};
 
 #[derive(Copy, Drop)]
 struct GameAction {
@@ -46,7 +46,9 @@ impl GameActionImpl of GameActionTrait {
         let phases: GamePhases = self.get_game();
         phases.get_phase()
     }
-
+    fn assert_is_admin(self: GameAction, player: ContractAddress) {
+        assert(player.into() == ADMIN_ADDRESS, 'Not admin');
+    }
     fn assert_preparing(self: GameAction) {
         assert(self.get_phase() == GamePhase::Preparing, 'Game not in preparing phase');
     }

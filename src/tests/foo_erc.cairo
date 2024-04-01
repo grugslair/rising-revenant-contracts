@@ -3,7 +3,7 @@
 #[starknet::contract]
 mod FooErc20 {
     use integer::BoundedInt;
-    use openzeppelin::token::erc20::interface::IERC20;
+    // use openzeppelin::token::erc20::interface::IERC20;
     use starknet::{ContractAddress, get_caller_address};
 
     #[storage]
@@ -52,7 +52,7 @@ mod FooErc20 {
     // External
     //
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ERC20Impl of IERC20<ContractState> {
         fn name(self: @ContractState) -> felt252 {
             self._name.read()

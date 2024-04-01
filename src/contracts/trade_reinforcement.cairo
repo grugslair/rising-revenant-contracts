@@ -26,7 +26,7 @@ mod trade_reinforcement_actions {
     use risingrevenant::systems::trade::{TradeActionImpl};
     use risingrevenant::systems::reinforcement::{ReinforcementActionTrait};
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl TradeReinforcementsActionsImpl of ITradeReinforcementsActions<ContractState> {
         fn create(self: @ContractState, game_id: u128, price: u128, count: u32,) -> u128 {
             let trade_action = GameAction { world: self.world_dispatcher.read(), game_id };

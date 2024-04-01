@@ -18,7 +18,7 @@ mod world_event_actions {
 
     use super::IWorldEventActions;
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl WorldEventActionImpl of IWorldEventActions<ContractState> {
         fn random(self: @ContractState, game_id: u128) -> u128 {
             let game_action = GameAction { game_id, world: self.world_dispatcher.read() };
