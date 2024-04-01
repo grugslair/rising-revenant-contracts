@@ -11,6 +11,81 @@ Embark on a journey into a new world, where revenants establish outposts amidst 
 
 The precise location of each outpost is stored securely on-chain. Every X (TBC) amount of blocks, a random event strikes, determined transparently via an immutable on-chain method. This is visually represented on the game's tactical map.
 
+**Game Flow**
+```mermaid
+graph TB
+    IG[Init game] --> PP
+    subgraph PP [Prep Phase]
+        direction TB
+        B[Players buy outposts\nand reinforcements]
+        B --> R1[Reinforce]
+    end
+    
+    PP --> GP
+    
+    subgraph GP [Game Phase]
+        direction TB
+        subgraph PE [Pre event]
+            direction TB
+            T[Trade outposts and reinforcements]
+            R2[Reinforce]
+        end
+        subgraph We [World event]
+            direction TB
+            ED[Dragon]
+            EG[Goblins]
+            EE[Earthquake]
+        end
+        We --> Oe{{Is outpost impacted}}
+        Oe --> Oey((yes))
+        Oe --> Oen((no))
+        subgraph VO [Verify outpost - Once for each outpost]
+            direction TB
+            CD{{Has specialised defense?}}-->Ry(yes)
+            CD-->Rn(No)
+            Ry-->Rm{{Right defense for event?}}
+            Rm-->Rmy(yes)
+            Rmy --> Rp1{{70% random chance}}
+            Rn --> Rp2{{20% random chance}}
+            Rp1--> Rmyw(Win)
+            Rp1--> Rmyl(Loose)-->LL
+            Rp2--> Rmyw
+            Rp2--> Rmyl
+            
+            Rm-->Rmn(no)
+            Rmn-->LL[Looses life\nand any specialised defense]
+            
+            LL --> LC[Outpost has lives remaining]
+            LC --> LCy((yes))
+            LC --> LCn((no))
+            LCn --> OD[Outpost Destroyed]
+
+        end
+        Rmyw --> VO
+        VO --> OR{{Only 1 outposts Remaining?}}
+        OR
+        OR --> ORn(No)
+        OR --> ORy(yes)
+        PE ----> We
+        Oey --> VO
+        Oen --> PE
+        ORn --> PE
+        
+
+    end
+
+
+    subgraph RP [Reinforce]
+        Ro[Reinforce outposts]
+        Ro --> S[Select Outposts Reinforcement Type]
+    end
+    ORy --> E[End of game]
+
+
+
+```
+
+
 **The Map**
 
 The Map is a vibrant realm of burgeoning outposts. While these outposts thrive, they are constantly under threat from five looming perils:
