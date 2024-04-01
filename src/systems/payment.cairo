@@ -1,8 +1,8 @@
 use starknet::ContractAddress;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-use openzeppelin::token::erc20::interface::{
-    IERC20, IERC20Dispatcher, IERC20DispatcherImpl, IERC20DispatcherTrait
-};
+// use openzeppelin::token::erc20::interface::{
+//     IERC20, IERC20Dispatcher, IERC20DispatcherImpl, IERC20DispatcherTrait
+// };
 
 use risingrevenant::components::game::{GamePot, DevWallet, GamePotConsts, GameERC20,};
 use risingrevenant::components::currency::{CurrencyTrait};

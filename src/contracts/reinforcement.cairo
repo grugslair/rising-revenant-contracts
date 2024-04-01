@@ -16,7 +16,7 @@ mod reinforcement_actions {
     use risingrevenant::systems::reinforcement::{ReinforcementActionTrait};
 
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ReinforcementActionsImpl of IReinforcementActions<ContractState> {
         fn get_price(self: @ContractState, game_id: u128, count: u32) -> u128 {
             let game_action = GameAction { world: self.world_dispatcher.read(), game_id };

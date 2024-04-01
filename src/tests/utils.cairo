@@ -3,9 +3,9 @@ use dojo::test_utils::{spawn_test_world, deploy_contract};
 use starknet::class_hash::Felt252TryIntoClassHash;
 use dojo::world::{IWorldDispatcherTrait, IWorldDispatcher};
 
-use openzeppelin::token::erc20::interface::{
-    IERC20, IERC20Dispatcher, IERC20DispatcherImpl, IERC20DispatcherTrait
-};
+// use openzeppelin::token::erc20::interface::{
+//     IERC20, IERC20Dispatcher, IERC20DispatcherImpl, IERC20DispatcherTrait
+// };
 
 // Models
 use risingrevenant::components::{
