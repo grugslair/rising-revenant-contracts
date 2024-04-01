@@ -98,17 +98,13 @@ impl u8IntoEventType of TryInto<u8, EventType> {
     fn try_into(self: u8) -> Option<EventType> {
         if self == 0 {
             return Option::Some(EventType::None);
-        }
-        else if self == 1 {
+        } else if self == 1 {
             return Option::Some(EventType::Dragon);
-        }
-        else if self == 2 {
+        } else if self == 2 {
             return Option::Some(EventType::Goblin);
-        }
-        else if self == 3 {
+        } else if self == 3 {
             return Option::Some(EventType::Earthquake);
-        }
-        else {
+        } else {
             return Option::None;
         }
     }
