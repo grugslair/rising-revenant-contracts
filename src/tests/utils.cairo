@@ -22,8 +22,9 @@ use risingrevenant::components::{
         current_game, game_phases, game_map, game_trade_tax, game_pot_consts, game_state, game_pot,
         dev_wallet
     },
-    outpost::{outpost, outpost_market, outpost_setup}, player::{player_info, player_contribution},
-    reinforcement::{reinforcement_market}, trade::{outpost_trade, reinforcement_trade},
+    outpost::{outpost_model, outpost_market, outpost_setup},
+    player::{player_info, player_contribution}, reinforcement::{reinforcement_market},
+    trade::{outpost_trade, reinforcement_trade},
     world_event::{world_event_setup, world_event, current_world_event, outpost_verified}
 };
 
@@ -82,7 +83,7 @@ fn setup_test_world() -> DefaultWorld {
         game_state::TEST_CLASS_HASH,
         game_pot::TEST_CLASS_HASH,
         dev_wallet::TEST_CLASS_HASH,
-        outpost::TEST_CLASS_HASH,
+        outpost_model::TEST_CLASS_HASH,
         outpost_market::TEST_CLASS_HASH,
         outpost_setup::TEST_CLASS_HASH,
         player_info::TEST_CLASS_HASH,
@@ -141,7 +142,7 @@ fn setup_test_world() -> DefaultWorld {
     world.grant_owner(admin, 'GameState');
     world.grant_owner(admin, 'GamePot');
     world.grant_owner(admin, 'DevWallet');
-    world.grant_owner(admin, 'Outpost');
+    world.grant_owner(admin, 'OutpostModel');
     world.grant_owner(admin, 'OutpostMarket');
     world.grant_owner(admin, 'OutpostSetup');
     world.grant_owner(admin, 'PlayerInfo');

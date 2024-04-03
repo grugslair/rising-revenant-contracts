@@ -10,12 +10,9 @@ use risingrevenant::components::reinforcement::{ReinforcementType};
 use risingrevenant::utils::random::{RandomTrait};
 use risingrevenant::utils::{calculate_distance};
 
-
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Print)]
 struct Outpost {
-    #[key]
     game_id: u128,
-    #[key]
     position: Position,
     owner: ContractAddress,
     life: u32,
@@ -23,6 +20,22 @@ struct Outpost {
     reinforcement_type: ReinforcementType,
     status: u8,
 }
+
+#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+struct OutpostModel {
+    #[key]
+    game_id: u128,
+    #[key]
+    x: u32,
+    #[key]
+    y: u32,
+    owner: ContractAddress,
+    life: u32,
+    reinforces_remaining: u32,
+    reinforcement_type: ReinforcementType,
+    status: u8,
+}
+
 
 #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
 struct OutpostMarket {
@@ -81,5 +94,33 @@ impl OutpostImpl of OutpostTrait {
         }
         self.life -= damage;
         return damage;
+    }
+}
+
+
+#[generate_trait]
+impl OutpostModelImpl of OutpostModelTrait {
+    fn to_model(self: @Outpost) -> OutpostModel {
+        OutpostModel {
+            game_id: *self.game_id,
+            x: *self.position.x,
+            y: *self.position.y,
+            owner: *self.owner,
+            life: *self.life,
+            reinforces_remaining: *self.reinforces_remaining,
+            reinforcement_type: *self.reinforcement_type,
+            status: *self.status,
+        }
+    }
+    fn from_model(self: @OutpostModel) -> Outpost {
+        Outpost {
+            game_id: *self.game_id,
+            position: Position { x: *self.x, y: *self.y },
+            owner: *self.owner,
+            life: *self.life,
+            reinforces_remaining: *self.reinforces_remaining,
+            reinforcement_type: *self.reinforcement_type,
+            status: *self.status,
+        }
     }
 }

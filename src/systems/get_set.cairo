@@ -5,8 +5,9 @@ use risingrevenant::components::{
         CurrentGame, GamePhases, GameMap, GameERC20, GameTradeTax, GamePotConsts, GameState,
         GamePot, DevWallet, Position,
     },
-    outpost::{Outpost, OutpostMarket, OutpostSetup}, player::{PlayerInfo, PlayerContribution},
-    reinforcement::{ReinforcementMarket}, trade::{OutpostTrade, ReinforcementTrade},
+    outpost::{Outpost, OutpostModel, OutpostMarket, OutpostSetup, OutpostModelTrait},
+    player::{PlayerInfo, PlayerContribution}, reinforcement::{ReinforcementMarket},
+    trade::{OutpostTrade, ReinforcementTrade},
     world_event::{WorldEventSetup, WorldEvent, CurrentWorldEvent, OutpostVerified}
 };
 
@@ -35,7 +36,7 @@ impl DevWalletGetImpl of GetTrait<DevWallet, ContractAddress> {
 }
 impl OutpostGetImpl of GetTrait<Outpost, Position> {
     fn get(world: IWorldDispatcher, game_id: u128, key: Position) -> Outpost {
-        get!(world, (game_id, key), Outpost)
+        get!(world, (game_id, key.x, key.y), OutpostModel).from_model()
     }
 }
 impl PlayerInfoGetImpl of GetTrait<PlayerInfo, ContractAddress> {
@@ -216,7 +217,7 @@ impl DevWalletSetImpl of SetTrait<DevWallet> {
 }
 impl OutpostSetImpl of SetTrait<Outpost> {
     fn set(self: @Outpost, world: IWorldDispatcher) {
-        set!(world, (*self,));
+        set!(world, (self.to_model(),));
     }
 }
 impl PlayerInfoSetImpl of SetTrait<PlayerInfo> {
