@@ -76,6 +76,7 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         self.get_game::<OutpostMarket>().price
     }
     fn reinforce_outpost(self: GameAction, outpost_id: Position, count: u32) {
+        assert(count > 0, 'Count must be more than 0');
         let player_id = get_caller_address();
         let mut outpost = self.get_active_outpost(outpost_id);
         assert(outpost.owner == player_id, 'Not players outpost');
