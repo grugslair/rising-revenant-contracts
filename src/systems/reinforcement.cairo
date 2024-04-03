@@ -41,6 +41,7 @@ impl ReinforcementActionImpl of ReinforcementActionTrait {
         self.set(market);
     }
     fn get_reinforcements_price(self: GameAction, count: u32) -> u128 {
+        assert(count > 0, 'Count must be more than 0');
         self.assert_preparing();
         let market: ReinforcementMarket = self.get_game();
         market.get_price(count)
