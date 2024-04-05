@@ -21,8 +21,8 @@ const EVENT_RADIUS_INCREASE: u32 = 15;
 // The reward score offered for destory a outpost
 const VERIFY_OUTPOST_SCORE: u32 = 5;
 
-const MAP_WIDTH: u32 = 10240;
-const MAP_HEIGHT: u32 = 5164;
+const MAP_WIDTH: u32 = 5120;
+const MAP_HEIGHT: u32 = 2582;
 
 // Game pot defaults 
 const DEV_PERCENT: u8 = 10;
