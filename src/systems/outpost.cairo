@@ -2,7 +2,7 @@ use starknet::{ContractAddress, get_caller_address};
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
 use risingrevenant::components::outpost::{
-    Outpost, OutpostTrait, OutpostStatus, OutpostMarket, OutpostSetup
+    Outpost, OutpostTrait, OutpostStatus, OutpostMarket, OutpostSetup, OutpostEventStatus
 };
 use risingrevenant::components::world_event::CurrentWorldEventTrait;
 use risingrevenant::components::game::{
@@ -185,6 +185,18 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         assert(outpost.life > 1, 'No reinforcements left');
         outpost.reinforcement_type = reinforcement_type;
         self.set(outpost);
+    }
+    fn get_outpost_event_status(self: GameAction, outpost_id: Position) -> OutpostEventStatus {
+        let current_event: CurrentWorldEvent = self.get_game();
+        if !current_event.is_impacted(outpost_id) {
+            return OutpostEventStatus::NotImpacted;
+        }
+        let verified: OutpostVerified = self.get((current_event.event_id, outpost_id));
+        if verified.verified {
+            return OutpostEventStatus::Verified;
+        } else {
+            return OutpostEventStatus::UnVerified;
+        }
     }
 }
 

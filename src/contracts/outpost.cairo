@@ -1,5 +1,7 @@
 use risingrevenant::components::game::{Position};
 use risingrevenant::components::reinforcement::{ReinforcementType};
+use risingrevenant::components::outpost::{OutpostEventStatus};
+
 
 #[starknet::interface]
 trait IOutpostActions<TContractState> {
@@ -13,6 +15,9 @@ trait IOutpostActions<TContractState> {
         outpost_id: Position,
         reinforcement_type: ReinforcementType
     );
+    fn get_event_status(
+        self: @TContractState, game_id: u128, outpost_id: Position
+    ) -> OutpostEventStatus;
 }
 
 
@@ -20,7 +25,7 @@ trait IOutpostActions<TContractState> {
 mod outpost_actions {
     use super::IOutpostActions;
 
-    use risingrevenant::components::outpost::{OutpostTrait};
+    use risingrevenant::components::outpost::{OutpostTrait, OutpostEventStatus};
     use risingrevenant::components::game::{Position};
     use risingrevenant::components::player::{PlayerInfo};
     use risingrevenant::components::reinforcement::{ReinforcementType};
@@ -59,6 +64,12 @@ mod outpost_actions {
         ) {
             let outpost_action = GameAction { world: self.world_dispatcher.read(), game_id };
             outpost_action.set_outpost_reinforcement_type(outpost_id, reinforcement_type);
+        }
+        fn get_event_status(
+            self: @ContractState, game_id: u128, outpost_id: Position
+        ) -> OutpostEventStatus {
+            let outpost_action = GameAction { world: self.world_dispatcher.read(), game_id };
+            outpost_action.get_outpost_event_status(outpost_id)
         }
     }
 }

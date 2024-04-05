@@ -83,3 +83,21 @@ impl OutpostImpl of OutpostTrait {
         return damage;
     }
 }
+
+
+#[derive(Serde, Copy, Drop, Introspect, PartialEq, Print)]
+enum OutpostEventStatus {
+    NotImpacted,
+    UnVerified,
+    Verified,
+}
+
+impl OutpostEventStatusFelt252 of Into<OutpostEventStatus, felt252> {
+    fn into(self: OutpostEventStatus) -> felt252 {
+        match self {
+            OutpostEventStatus::NotImpacted => 0,
+            OutpostEventStatus::UnVerified => 1,
+            OutpostEventStatus::Verified => 2,
+        }
+    }
+}
