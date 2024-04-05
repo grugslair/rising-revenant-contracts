@@ -4,7 +4,7 @@ version = 1
 [[package]]
 name = "cubit"
 version = "1.3.0"
-source = "git+https://github.com/ben-jay-amin/cubit#f6d7e2e707481c94e7e05b5ac54af692391a582c"
+source = "git+https://github.com/influenceth/cubit#adf7008c97c7537c265d43f98ce16336931cafca"
 
 [[package]]
 name = "dojo"
@@ -21,8 +21,8 @@ source = "git+https://github.com/dojoengine/dojo?tag=v0.3.11#1e651b5d4d3b79b14a7
 
 [[package]]
 name = "origami"
-version = "0.6.0-beta.1"
-source = "git+https://github.com/ben-jay-amin/origami?branch=v0.6.0-beta.1#5ce98e89a752be63cc9afee121ec37f7dcd997aa"
+version = "0.6.0"
+source = "git+https://github.com/ben-jay-amin/origami?branch=dojo-v0.6.0#11c24c303083d6b00b6bf6fce2b38c040d04b92c"
 dependencies = [
  "cubit",
  "dojo",
