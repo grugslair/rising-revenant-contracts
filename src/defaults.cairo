@@ -25,9 +25,9 @@ const MAP_WIDTH: u32 = 5120;
 const MAP_HEIGHT: u32 = 2582;
 
 // Game pot defaults 
-const DEV_PERCENT: u8 = 10;
-const CONFIRMATION_PERCENT: u8 = 10;
-const LTR_PERCENT: u8 = 5;
+const DEV_PERCENT: u8 = 0;
+const CONFIRMATION_PERCENT: u8 = 15;
+const LTR_PERCENT: u8 = 0;
 
 const GAME_TRADE_TAX_PERCENT: u8 = 10;
 
