@@ -1,3 +1,5 @@
+use traits::Into;
+
 use starknet::ContractAddress;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use risingrevenant::components::{
@@ -5,7 +7,7 @@ use risingrevenant::components::{
         CurrentGame, GamePhases, GameMap, GameERC20, GameTradeTax, GamePotConsts, GameState,
         GamePot, DevWallet, Position,
     },
-    outpost::{Outpost, OutpostModel, OutpostMarket, OutpostSetup, OutpostModelTrait},
+    outpost::{Outpost, OutpostModel, OutpostMarket, OutpostSetup},
     player::{PlayerInfo, PlayerContribution}, reinforcement::{ReinforcementMarket},
     trade::{OutpostTrade, ReinforcementTrade},
     world_event::{WorldEventSetup, WorldEvent, CurrentWorldEvent, OutpostVerified}
@@ -217,7 +219,8 @@ impl DevWalletSetImpl of SetTrait<DevWallet> {
 }
 impl OutpostSetImpl of SetTrait<Outpost> {
     fn set(self: @Outpost, world: IWorldDispatcher) {
-        set!(world, (self.to_model(),));
+        let model: OutpostModel = self.into();
+        set!(world, (model,));
     }
 }
 impl PlayerInfoSetImpl of SetTrait<PlayerInfo> {
