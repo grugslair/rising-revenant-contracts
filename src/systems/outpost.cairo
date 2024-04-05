@@ -182,7 +182,6 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         } else {
             assert(game_phase == GamePhase::Preparing, 'Game not running');
         }
-        assert(outpost.life > 1, 'No reinforcements left');
         outpost.reinforcement_type = reinforcement_type;
         self.set(outpost);
     }
