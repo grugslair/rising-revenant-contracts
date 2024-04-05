@@ -7,9 +7,9 @@ version = "0.3.0"
 sierra-replace-ids = true
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.6.0-alpha.8" }
-origami = { git = "https://github.com/ben-jay-amin/origami", branch = "v0.6.0-alpha.8" }
-cubit = { git = "https://github.com/notV4l/cubit.git", rev = "5aa99005" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.6.0" }
+origami = { git = "https://github.com/ben-jay-amin/origami", branch = "dojo-v0.6.0" }
+cubit = { git = "https://github.com/influenceth/cubit" }
 # openzeppelin = { git = "https://github.com/ben-jay-amin/cairo-contracts.git", branch = "release-v0.9.1" }
 
 [[target.dojo]]
