@@ -36,7 +36,7 @@ mod contracts_tests {
     use debug::PrintTrait;
     use dojo::test_utils::{deploy_contract};
     use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-    use risingrevenant::utils::vrgda::{LogisticVRGDA, VRGDATrait};
+    use origami::defi::auction::vrgda::{LogisticVRGDA, VRGDATrait};
     use cubit::f128::types::fixed::{Fixed, FixedTrait, ONE_u128};
 
     use risingrevenant::utils::get_block_number;
@@ -74,10 +74,7 @@ mod contracts_tests {
 
     use risingrevenant::systems::{game::{GameAction, GameActionTrait},};
 
-    use risingrevenant::defaults::{
-        REINFORCEMENT_TARGET_PRICE, REINFORCEMENT_MAX_SELLABLE, REINFORCEMENT_DECAY_CONSTANT_MAG,
-        REINFORCEMENT_TIME_SCALE_MAG
-    };
+    use risingrevenant::defaults::{REINFORCEMENT_TARGET_PRICE, REINFORCEMENT_DECAY_CONSTANT_MAG,};
 
     #[test]
     #[available_gas(3000000000)]

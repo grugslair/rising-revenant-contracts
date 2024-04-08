@@ -7,7 +7,9 @@ use risingrevenant::components::{
     },
     outpost::{Outpost, OutpostMarket, OutpostSetup}, player::{PlayerInfo, PlayerContribution},
     reinforcement::{ReinforcementMarket}, trade::{OutpostTrade, ReinforcementTrade},
-    world_event::{WorldEventSetup, WorldEvent, CurrentWorldEvent, OutpostVerified}
+    world_event::{
+        WorldEventSetup, WorldEvent, CurrentWorldEvent, OutpostVerified, WorldEventVerifications
+    }
 };
 
 
@@ -70,6 +72,12 @@ impl OutpostVerifiedGetImpl of GetTrait<OutpostVerified, (u128, Position)> {
     }
 }
 
+impl WorldEventVerificationsGetImpl of GetGameTrait<WorldEventVerifications> {
+    fn get(world: IWorldDispatcher, game_id: u128) -> WorldEventVerifications {
+        get!(world, game_id, WorldEventVerifications)
+    }
+}
+
 impl GameTradeTaxGetImpl of GetGameTrait<GameTradeTax> {
     fn get(world: IWorldDispatcher, game_id: u128) -> GameTradeTax {
         get!(world, game_id, GameTradeTax)
@@ -93,6 +101,7 @@ impl WorldEventSetupGetImpl of GetGameTrait<WorldEventSetup> {
         get!(world, game_id, WorldEventSetup)
     }
 }
+
 
 impl ReinforcementMarketGetImpl of GetGameTrait<ReinforcementMarket> {
     fn get(world: IWorldDispatcher, game_id: u128) -> ReinforcementMarket {
@@ -259,3 +268,10 @@ impl GameTradeTaxSetImpl of SetTrait<GameTradeTax> {
         set!(world, (*self,));
     }
 }
+
+impl WorldEventVerificationsSetImpl of SetTrait<WorldEventVerifications> {
+    fn set(self: @WorldEventVerifications, world: IWorldDispatcher) {
+        set!(world, (*self,));
+    }
+}
+
