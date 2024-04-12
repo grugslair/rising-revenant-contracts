@@ -5,8 +5,9 @@ use risingrevenant::components::{
         CurrentGame, GamePhases, GameMap, GameERC20, GameTradeTax, GamePotConsts, GameState,
         GamePot, DevWallet, Position,
     },
-    outpost::{Outpost, OutpostMarket, OutpostSetup}, player::{PlayerInfo, PlayerContribution},
-    reinforcement::{ReinforcementMarket}, trade::{OutpostTrade, ReinforcementTrade},
+    outpost::{Outpost, OutpostMarket, OutpostSetup, OutpostsSold},
+    player::{PlayerInfo, PlayerContribution}, reinforcement::{ReinforcementMarketConsts},
+    trade::{OutpostTrade, ReinforcementTrade},
     world_event::{WorldEventSetup, WorldEvent, CurrentWorldEvent, OutpostVerified}
 };
 
@@ -94,9 +95,9 @@ impl WorldEventSetupGetImpl of GetGameTrait<WorldEventSetup> {
     }
 }
 
-impl ReinforcementMarketGetImpl of GetGameTrait<ReinforcementMarket> {
-    fn get(world: IWorldDispatcher, game_id: u128) -> ReinforcementMarket {
-        get!(world, game_id, ReinforcementMarket)
+impl ReinforcementMarketConstsGetImpl of GetGameTrait<ReinforcementMarketConsts> {
+    fn get(world: IWorldDispatcher, game_id: u128) -> ReinforcementMarketConsts {
+        get!(world, game_id, ReinforcementMarketConsts)
     }
 }
 
@@ -160,8 +161,8 @@ impl WorldEventSetupSetImpl of SetTrait<WorldEventSetup> {
     }
 }
 
-impl ReinforcementMarketSetImpl of SetTrait<ReinforcementMarket> {
-    fn set(self: @ReinforcementMarket, world: IWorldDispatcher) {
+impl ReinforcementMarketConstsSetImpl of SetTrait<ReinforcementMarketConsts> {
+    fn set(self: @ReinforcementMarketConsts, world: IWorldDispatcher) {
         set!(world, (*self,));
     }
 }

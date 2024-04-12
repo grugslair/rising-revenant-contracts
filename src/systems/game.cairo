@@ -33,6 +33,7 @@ impl GameActionImpl of GameActionTrait {
     fn get<T, K, +GetTrait<T, K>>(self: GameAction, key: K) -> T {
         GetTrait::<T, K>::get(self.world, self.game_id, key)
     }
+
     fn set<T, +Drop<T>, +SetTrait<T>>(self: GameAction, model: T) {
         model.set(self.world);
     }
@@ -48,6 +49,9 @@ impl GameActionImpl of GameActionTrait {
     }
     fn assert_is_admin(self: GameAction, player: ContractAddress) {
         assert(player.into() == ADMIN_ADDRESS, 'Not admin');
+    }
+    fn assert_not_started(self: GameAction) {
+        assert(self.get_phase() == GamePhase::Created, 'Game Has started');
     }
     fn assert_preparing(self: GameAction) {
         assert(self.get_phase() == GamePhase::Preparing, 'Game not in preparing phase');

@@ -74,7 +74,7 @@ mod contracts_tests {
     #[test]
     #[available_gas(3000000000)]
     fn test_create_game() {
-        let DefaultWorld{world,
+        let DefaultWorld { world,
         game_actions,
         outpost_actions,
         payment_actions,
@@ -87,6 +87,7 @@ mod contracts_tests {
         let game_id = game_actions.create(1, 10);
         let game_action = GameAction { world, game_id };
         let game_phases: GamePhases = game_action.get_game();
+
         println!("Game ID {}", game_id);
         game_phases.print();
     }

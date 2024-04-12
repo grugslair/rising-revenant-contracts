@@ -36,7 +36,7 @@ mod contracts_tests {
     use debug::PrintTrait;
     use dojo::test_utils::{deploy_contract};
     use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-    use risingrevenant::utils::vrgda::{LogisticVRGDA, VRGDATrait};
+    use origami::defi::auction::vrgda::{LogisticVRGDA, VRGDATrait};
     use cubit::f128::types::fixed::{Fixed, FixedTrait, ONE_u128};
 
     use risingrevenant::utils::get_block_number;
@@ -72,11 +72,8 @@ mod contracts_tests {
         },
     };
 
-    use risingrevenant::systems::{game::{GameAction, GameActionTrait},};
-
-    use risingrevenant::defaults::{
-        REINFORCEMENT_TARGET_PRICE, REINFORCEMENT_MAX_SELLABLE, REINFORCEMENT_DECAY_CONSTANT_MAG,
-        REINFORCEMENT_TIME_SCALE_MAG
+    use risingrevenant::systems::{
+        game::{GameAction, GameActionTrait}, reinforcement::{ReinforcementActionTrait}
     };
 
     #[test]
@@ -99,11 +96,10 @@ mod contracts_tests {
         let mut n: u32 = 1;
         loop {
             let price = reinforcement_actions.get_price(game_id, 10);
-            let mut market: ReinforcementMarket = game_action.get_game();
+            let mut market: ReinforcementMarket = game_action.get_reinforcement_market();
             println!("Market count {} price {}", market.sold, price);
 
             market.sold = n * 10;
-            game_action.set(market);
 
             n += 1;
             if n >= 10 {

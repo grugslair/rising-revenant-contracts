@@ -26,22 +26,27 @@ impl OutpostActionsImpl of OutpostActionsTrait {
     fn purchase_outpost(self: GameAction) -> Outpost {
         self.assert_preparing();
 
-        let mut outpost_market: OutpostMarket = self.get_game();
-        assert(outpost_market.available > 0, 'No more outposts available');
+        let outpost_market: OutpostMarket = self.get_game();
+        let game_state: GameState = self.get_game();
+        assert(
+            game_state.outpost_created_count <= outpost_market.max_sellable,
+            'No more outposts available'
+        );
 
         let player_info = self.get_caller_info();
+        assert(player_info.outpost_count < outpost_market.max_per_player, 'Max outposts reached');
+
         let payment_system = PaymentSystemTrait::new(self);
         let cost = outpost_market.price;
 
         payment_system.pay_into_pot(player_info.player_id, cost);
-        let outpost = self.new_outpost(player_info);
-
-        outpost_market.available -= 1;
-        self.set(outpost_market);
+        let outpost = self.new_outpost(game_state, player_info);
         outpost
     }
 
-    fn new_outpost(self: GameAction, mut player_info: PlayerInfo) -> Outpost {
+    fn new_outpost(
+        self: GameAction, mut game_state: GameState, mut player_info: PlayerInfo
+    ) -> Outpost {
         let setup: OutpostSetup = self.get_game();
         let mut position_generator = PositionGeneratorTrait::new(self);
         let mut outpost = Outpost {
@@ -62,7 +67,6 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         };
         player_info.outpost_count += 1;
 
-        let mut game_state: GameState = self.get_game();
         game_state.outpost_created_count += 1;
         game_state.outpost_remaining_count += 1;
         game_state.remain_life_count += outpost.life;

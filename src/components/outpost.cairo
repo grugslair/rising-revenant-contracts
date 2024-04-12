@@ -29,7 +29,8 @@ struct OutpostMarket {
     #[key]
     game_id: u128,
     price: u256,
-    available: u32,
+    max_sellable: u32,
+    max_per_player: u32
 }
 
 #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
@@ -38,6 +39,12 @@ struct OutpostSetup {
     game_id: u128,
     life: u32,
     max_reinforcements: u32,
+}
+
+struct OutpostsSold {
+    #[key]
+    game_id: u128,
+    sold: u32,
 }
 
 

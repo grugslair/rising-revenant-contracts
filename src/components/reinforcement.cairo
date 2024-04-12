@@ -10,24 +10,31 @@ use risingrevenant::components::currency::{CurrencyTrait};
 
 use risingrevenant::utils::get_block_number;
 
+
 #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
-struct ReinforcementMarket {
+struct ReinforcementMarketConsts {
     #[key]
+    game_id: u128,
+    target_price: u128,
+    decay_constant_mag: u128,
+    max_sellable_percentage: u32,
+    time_scale_mag_factor: u128,
+}
+#[derive(Copy, Drop, Print)]
+struct ReinforcementMarket {
     game_id: u128,
     target_price: u128,
     decay_constant_mag: u128,
     max_sellable: u32,
     time_scale_mag: u128,
-    start_block_number: u64,
+    blocks: u64,
     sold: u32,
 }
 
 #[generate_trait]
 impl ReinforcementMarketImpl of ReinforcementMarketTrait {
     fn get_price<T, +CurrencyTrait<Fixed, T>>(self: ReinforcementMarket, count: u32) -> T {
-        let blocks_since_start = FixedTrait::new_unscaled(
-            (get_block_number() - self.start_block_number).into(), false
-        )
+        let blocks_since_start = FixedTrait::new_unscaled(self.blocks.into(), false)
             + Fixed { mag: HALF_u128, sign: false };
         let auction = LogisticVRGDA {
             target_price: self.target_price.convert(),

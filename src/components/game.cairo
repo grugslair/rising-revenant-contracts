@@ -128,3 +128,9 @@ enum GamePhase {
     Ended,
 }
 
+#[generate_trait]
+impl GamePhasesImpl of GamePhasesTrait {
+    fn get_preparation_blocks<T, +TryInto<u64, T>>(self: GamePhases) -> T {
+        (self.play_block_number - self.preparation_block_number).try_into().unwrap()
+    }
+}
