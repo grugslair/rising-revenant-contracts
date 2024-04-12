@@ -167,7 +167,7 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         }
 
         let mut outposts_verified: WorldEventVerifications = self.get_game();
-        outposts_verified.outposts_verified += 1;
+        outposts_verified.verifications += 1;
 
         self.set(caller_contribution);
         self.set(outpost);
