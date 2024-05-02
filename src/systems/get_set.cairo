@@ -104,9 +104,9 @@ impl WorldEventSetupGetImpl of GetGameTrait<WorldEventSetup> {
 }
 
 
-impl ReinforcementMarketGetImpl of GetGameTrait<ReinforcementMarket> {
-    fn get(world: IWorldDispatcher, game_id: u128) -> ReinforcementMarket {
-        get!(world, game_id, ReinforcementMarket)
+impl ReinforcementMarketConstsGetImpl of GetGameTrait<ReinforcementMarketConsts> {
+    fn get(world: IWorldDispatcher, game_id: u128) -> ReinforcementMarketConsts {
+        get!(world, game_id, ReinforcementMarketConsts)
     }
 }
 
