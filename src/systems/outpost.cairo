@@ -9,7 +9,9 @@ use risingrevenant::components::game::{
     GamePhases, GameState, Position, PositionTrait, GameMap, GameStatus,
 };
 use risingrevenant::components::player::PlayerInfo;
-use risingrevenant::components::world_event::{WorldEvent, CurrentWorldEvent, OutpostVerified};
+use risingrevenant::components::world_event::{
+    WorldEvent, CurrentWorldEvent, OutpostVerified, WorldEventVerifications
+};
 use risingrevenant::components::reinforcement::{ReinforcementType};
 
 use risingrevenant::systems::player::PlayerActionsTrait;
@@ -168,10 +170,14 @@ impl OutpostActionsImpl of OutpostActionsTrait {
             self.set(owner);
         }
 
+        let mut outposts_verified: WorldEventVerifications = self.get_game();
+        outposts_verified.verifications += 1;
+
         self.set(caller_contribution);
         self.set(outpost);
         self.set(verified);
         self.set(game_state);
+        self.set(outposts_verified)
     }
     fn set_outpost_reinforcement_type(
         self: GameAction, outpost_id: Position, reinforcement_type: ReinforcementType

@@ -22,6 +22,7 @@ struct WorldEvent {
     position: Position,
     event_type: EventType,
     radius: u32,
+    verifications: u32,
     number: u32,
     block_number: u64,
     previous_event: u128,
@@ -52,16 +53,24 @@ struct OutpostVerified {
     verified: bool,
 }
 
+#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+struct WorldEventVerifications {
+    #[key]
+    game_id: u128,
+    verifications: u32,
+}
+
 
 #[generate_trait]
 impl CurrentWorldEventImpl of CurrentWorldEventTrait {
-    fn to_event(self: @CurrentWorldEvent, next_event: u128,) -> WorldEvent {
+    fn to_event(self: @CurrentWorldEvent, next_event: u128, verifications: u32) -> WorldEvent {
         WorldEvent {
             game_id: *self.game_id,
             event_id: *self.event_id,
             position: *self.position,
             event_type: *self.event_type,
             radius: *self.radius,
+            verifications,
             number: *self.number,
             block_number: *self.block_number,
             previous_event: *self.previous_event,
