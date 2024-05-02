@@ -4,7 +4,6 @@ use risingrevenant::utils::random::{Random, RandomTrait};
 use dojo::database::introspect::Introspect;
 use dojo::model::{Model};
 
-
 #[derive(Copy, Drop, Print, Serde, SerdeLen, Introspect)]
 struct Dimensions {
     x: u32,

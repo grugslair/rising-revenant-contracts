@@ -12,6 +12,7 @@ use risingrevenant::{
 };
 #[starknet::interface]
 trait IGameActions<TContractState> {
+    fn set_defaults(self: @TContractState);
     fn create(self: @TContractState, start_block: u64, preparation_blocks: u64) -> u128;
     fn set_game_map(self: @TContractState, game_map: GameMap);
     fn set_game_pot_consts(self: @TContractState, game_pot_consts: GamePotConsts);
@@ -28,6 +29,7 @@ trait IGameActions<TContractState> {
 
 #[dojo::contract]
 mod game_actions {
+    use core::hash::HashStateTrait;
     use cubit::f128::types::fixed::{FixedTrait, ONE_u128};
 
     use starknet::{ContractAddress, get_block_info, get_block_timestamp, get_caller_address};
@@ -41,74 +43,22 @@ mod game_actions {
             reinforcement::{ReinforcementMarketConsts}, outpost::{OutpostMarket, OutpostSetup},
             world_event::{WorldEventSetup},
         },
-        systems::{get_set::SetTrait, game::{uuid, GameAction, GameActionTrait}},
-        defaults::{
-            MAP_WIDTH, MAP_HEIGHT, DEV_PERCENT, CONFIRMATION_PERCENT, LTR_PERCENT,
-            GAME_TRADE_TAX_PERCENT, EVENT_RADIUS_START, EVENT_RADIUS_INCREASE, OUTPOST_PRICE,
-            MAX_OUTPOSTS, OUTPOST_INIT_LIFE, OUTPOST_MAX_REINFORCEMENT, REINFORCEMENT_TARGET_PRICE,
-            REINFORCEMENT_MAX_SELLABLE_PERCENTAGE, REINFORCEMENT_DECAY_CONSTANT_MAG,
-            REINFORCEMENT_TIME_SCALE_FACTOR_MAG, MAX_OUTPOSTS_PER_PLAYER
-        }
+        systems::{get_set::SetTrait, game::{GameAction, GameActionTrait}},
     };
 
 
     use super::IGameActions;
-    #[constructor]
-    fn constructor(ref self: ContractState) {
-        let game_id: u128 = 0;
-        let game_map = GameMap { game_id, dimensions: Dimensions { x: MAP_WIDTH, y: MAP_HEIGHT }, };
-        let game_pot_consts = GamePotConsts {
-            game_id,
-            pot_address: get_caller_address(),
-            dev_percent: DEV_PERCENT,
-            confirmation_percent: CONFIRMATION_PERCENT,
-            ltr_percent: LTR_PERCENT,
-        };
-
-        let game_trade_tax = GameTradeTax { game_id, trade_tax_percent: GAME_TRADE_TAX_PERCENT, };
-
-        let outpost_market = OutpostMarket {
-            game_id,
-            price: OUTPOST_PRICE,
-            max_sellable: MAX_OUTPOSTS,
-            max_per_player: MAX_OUTPOSTS_PER_PLAYER
-        };
-        let outpost_setup = OutpostSetup {
-            game_id, life: OUTPOST_INIT_LIFE, max_reinforcements: OUTPOST_MAX_REINFORCEMENT,
-        };
-
-        let world_event_setup = WorldEventSetup {
-            game_id, radius_start: EVENT_RADIUS_START, radius_increase: EVENT_RADIUS_INCREASE,
-        };
-
-        let reinforcement_market = ReinforcementMarketConsts {
-            game_id,
-            target_price: REINFORCEMENT_TARGET_PRICE.convert(),
-            decay_constant_mag: REINFORCEMENT_DECAY_CONSTANT_MAG,
-            max_sellable_percentage: REINFORCEMENT_MAX_SELLABLE_PERCENTAGE,
-            time_scale_mag_factor: REINFORCEMENT_TIME_SCALE_FACTOR_MAG,
-        };
-        let world = self.world_dispatcher.read();
-        set!(
-            world,
-            (
-                game_map,
-                game_pot_consts,
-                world_event_setup,
-                outpost_market,
-                game_trade_tax,
-                outpost_setup,
-                reinforcement_market
-            )
-        );
-    }
 
     #[abi(embed_v0)]
     impl GameActionImpl of IGameActions<ContractState> {
+        fn set_defaults(self: @ContractState) {
+            GameActionTrait::set_defaults(self.world_dispatcher.read());
+        }
         fn create(self: @ContractState, start_block: u64, preparation_blocks: u64) -> u128 {
             let world = self.world_dispatcher.read();
             let caller_id = get_caller_address();
-            let game_id: u128 = uuid(world);
+            let game_id: u128 = world.get_uuid();
+            println!("Creating game with id: {}", game_id);
             let game_action = GameAction { world, game_id };
             game_action.assert_is_admin(caller_id);
             let mut current_game: CurrentGame = game_action.get(caller_id);
@@ -116,7 +66,6 @@ mod game_actions {
             current_game.game_id = game_id;
 
             let current_block = get_block_info().unbox().block_number;
-
             let mut game_map: GameMap = get!(world, 0, GameMap);
             let mut game_pot_consts: GamePotConsts = get!(world, 0, GamePotConsts);
             let mut game_trade_tax: GameTradeTax = get!(world, 0, GameTradeTax);
@@ -152,7 +101,6 @@ mod game_actions {
             game_action.set(game_phases);
             game_action.set(outpost_setup);
             game_action.set(reinforcement_market);
-
             game_id
         }
 

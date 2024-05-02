@@ -1,7 +1,6 @@
 use starknet::{ContractAddress};
 use risingrevenant::components::game::{Position};
-// use dojo::database::introspect::Introspect;
-// use dojo::model::{Model};
+
 
 #[derive(Copy, Drop)]
 struct Trade<T> {

@@ -1,17 +1,33 @@
+use core::hash::HashStateTrait;
 use debug::PrintTrait;
 use traits::{Into, TryInto};
 use dojo::database::introspect::Introspect;
 use starknet::{ContractAddress, get_block_info, get_caller_address};
+use core::poseidon::PoseidonTrait;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use dojo::components::upgradeable::{IUpgradeableDispatcher, IUpgradeableDispatcherTrait};
-use risingrevenant::components::game::{
-    GamePot, DevWallet, GamePotConsts, GameMap, Dimensions, GameState, GamePhase, GamePhases,
-    GameStatus
-};
-use risingrevenant::components::player::{PlayerInfo};
 
-use risingrevenant::systems::get_set::{GetTrait, SetTrait, GetGameTrait};
-use risingrevenant::defaults::{ADMIN_ADDRESS};
+
+use risingrevenant::{
+    components::{
+        currency::CurrencyTrait,
+        game::{
+            GamePot, DevWallet, GamePotConsts, GameMap, Dimensions, GameState, GamePhase,
+            GamePhases, GameStatus, GameTradeTax
+        },
+        player::{PlayerInfo}, reinforcement::{ReinforcementMarketConsts},
+        outpost::{OutpostMarket, OutpostSetup}, world_event::{WorldEventSetup},
+    },
+    systems::get_set::{GetTrait, SetTrait, GetGameTrait},
+    defaults::{
+        ADMIN_ADDRESS, MAP_WIDTH, MAP_HEIGHT, DEV_PERCENT, CONFIRMATION_PERCENT, LTR_PERCENT,
+        GAME_TRADE_TAX_PERCENT, EVENT_RADIUS_START, EVENT_RADIUS_INCREASE, OUTPOST_PRICE,
+        MAX_OUTPOSTS, OUTPOST_INIT_LIFE, OUTPOST_MAX_REINFORCEMENT, REINFORCEMENT_TARGET_PRICE,
+        REINFORCEMENT_MAX_SELLABLE_PERCENTAGE, REINFORCEMENT_DECAY_CONSTANT_MAG,
+        REINFORCEMENT_TIME_SCALE_FACTOR_MAG, MAX_OUTPOSTS_PER_PLAYER
+    }
+};
+
 
 #[derive(Copy, Drop)]
 struct GameAction {
@@ -19,9 +35,6 @@ struct GameAction {
     game_id: u128,
 }
 
-fn uuid(world: IWorldDispatcher) -> u128 {
-    IWorldDispatcherTrait::uuid(world).into()
-}
 
 fn get_block_number() -> u64 {
     get_block_info().unbox().block_number
@@ -30,6 +43,61 @@ fn get_block_number() -> u64 {
 #[inline(always)]
 #[generate_trait]
 impl GameActionImpl of GameActionTrait {
+    fn set_defaults(self: IWorldDispatcher) {
+        let game_id: u128 = 0;
+
+        let game_map = GameMap { game_id, dimensions: Dimensions { x: MAP_WIDTH, y: MAP_HEIGHT }, };
+        let game_pot_consts = GamePotConsts {
+            game_id,
+            pot_address: get_caller_address(),
+            dev_percent: DEV_PERCENT,
+            confirmation_percent: CONFIRMATION_PERCENT,
+            ltr_percent: LTR_PERCENT,
+        };
+
+        let game_trade_tax = GameTradeTax { game_id, trade_tax_percent: GAME_TRADE_TAX_PERCENT, };
+
+        let outpost_market = OutpostMarket {
+            game_id,
+            price: OUTPOST_PRICE,
+            max_sellable: MAX_OUTPOSTS,
+            max_per_player: MAX_OUTPOSTS_PER_PLAYER
+        };
+        let outpost_setup = OutpostSetup {
+            game_id, life: OUTPOST_INIT_LIFE, max_reinforcements: OUTPOST_MAX_REINFORCEMENT,
+        };
+
+        let world_event_setup = WorldEventSetup {
+            game_id, radius_start: EVENT_RADIUS_START, radius_increase: EVENT_RADIUS_INCREASE,
+        };
+
+        let reinforcement_market = ReinforcementMarketConsts {
+            game_id,
+            target_price: REINFORCEMENT_TARGET_PRICE.convert(),
+            decay_constant_mag: REINFORCEMENT_DECAY_CONSTANT_MAG,
+            max_sellable_percentage: REINFORCEMENT_MAX_SELLABLE_PERCENTAGE,
+            time_scale_mag_factor: REINFORCEMENT_TIME_SCALE_FACTOR_MAG,
+        };
+        set!(
+            self,
+            (
+                game_map,
+                game_pot_consts,
+                world_event_setup,
+                outpost_market,
+                game_trade_tax,
+                outpost_setup,
+                reinforcement_market
+            )
+        );
+    }
+    fn get_uuid(self: IWorldDispatcher) -> u128 {
+        let hash_felt = PoseidonTrait::new()
+            .update(get_caller_address().into())
+            .update(self.uuid().into())
+            .finalize();
+        (hash_felt.into() & 0xffffffffffffffffffffffffffffffff_u256).try_into().unwrap()
+    }
     fn get<T, K, +GetTrait<T, K>>(self: GameAction, key: K) -> T {
         GetTrait::<T, K>::get(self.world, self.game_id, key)
     }
@@ -41,7 +109,7 @@ impl GameActionImpl of GameActionTrait {
         GetGameTrait::<T>::get(self.world, self.game_id)
     }
     fn uuid(self: GameAction) -> u128 {
-        uuid(self.world)
+        self.world.get_uuid()
     }
     fn get_phase(self: GameAction) -> GamePhase {
         let phases: GamePhases = self.get_game();

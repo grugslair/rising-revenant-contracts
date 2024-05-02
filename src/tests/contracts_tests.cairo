@@ -84,11 +84,10 @@ mod contracts_tests {
         world_event_actions,
         admin } =
             setup_test_world();
+
+        game_actions.set_defaults();
         let game_id = game_actions.create(1, 10);
         let game_action = GameAction { world, game_id };
-        let game_phases: GamePhases = game_action.get_game();
-
-        println!("Game ID {}", game_id);
-        game_phases.print();
+    // let game_phases: GamePhases = game_action.get_game();
     }
 }
