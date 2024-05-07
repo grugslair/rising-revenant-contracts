@@ -10,16 +10,15 @@ sierra-replace-ids = true
 dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.6.0" }
 origami = { git = "https://github.com/dojoengine/origami", tag = "v0.6.0" }
 cubit = { git = "https://github.com/influenceth/cubit" }
-# openzeppelin = { git = "https://github.com/ben-jay-amin/cairo-contracts.git", branch = "release-v0.9.1" }
+openzeppelin = { git = "https://github.com/ben-jay-amin/cairo-contracts.git", branch = "release-v0.9.1" }
 
 [[target.dojo]]
 
 [tool.dojo]
 initializer_class_hash = "0xbeef"
 
-[tool.dojo.env]
-
 # local
+[profile.dev.tool.dojo.env]
 rpc_url = "http://localhost:5050"
 account_address = "0xb3ff441a68610b30fd5e2abbf3a1548eb6ba6f3559f2862bf2dc757e5828ca"
 private_key = "0x2bbf4f9fd0bbb2e60b0316c1fe0b76cf7a4d0198bd493ced9b8df2a3a24d68a"

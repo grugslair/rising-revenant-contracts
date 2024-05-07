@@ -20,6 +20,11 @@ version = "0.3.11"
 source = "git+https://github.com/dojoengine/dojo?tag=v0.3.11#1e651b5d4d3b79b14a7d8aa29a92062fcb9e6659"
 
 [[package]]
+name = "openzeppelin"
+version = "0.9.0"
+source = "git+https://github.com/ben-jay-amin/cairo-contracts.git?branch=release-v0.9.1#a1fc05d063eeda353f38e7c92f44ba14d0e1e683"
+
+[[package]]
 name = "origami"
 version = "0.6.0"
 source = "git+https://github.com/dojoengine/origami?tag=v0.6.0#61de20ff7bc80bfc33212ef3bfac93661ea61d45"
@@ -34,5 +39,6 @@ version = "0.3.0"
 dependencies = [
  "cubit",
  "dojo",
+ "openzeppelin",
  "origami",
 ]
