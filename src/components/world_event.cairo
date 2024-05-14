@@ -1,9 +1,10 @@
 use starknet::ContractAddress;
 
-use risingrevenant::components::game::Position;
-use risingrevenant::components::reinforcement::{ReinforcementType};
+use risingrevenant::{
+    components::{game::Position, reinforcement::{ReinforcementType}},
+    systems::position::calculate_distance
+};
 
-use risingrevenant::utils::{calculate_distance};
 
 #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
 struct WorldEventSetup {
@@ -79,7 +80,7 @@ impl CurrentWorldEventImpl of CurrentWorldEventTrait {
     }
     fn is_impacted(self: @CurrentWorldEvent, outpost_position: Position) -> bool {
         let distance = calculate_distance(*self.position, outpost_position);
-        distance <= *self.radius
+        distance <= (*self.radius).into()
     }
 }
 // This enum simply defines the states of a game.

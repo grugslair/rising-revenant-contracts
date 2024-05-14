@@ -1,26 +1,25 @@
 use starknet::{ContractAddress, get_caller_address};
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
-use risingrevenant::components::outpost::{
-    Outpost, OutpostTrait, OutpostStatus, OutpostMarket, OutpostSetup, OutpostEventStatus
-};
-use risingrevenant::components::world_event::CurrentWorldEventTrait;
-use risingrevenant::components::game::{
-    GamePhases, GameState, Position, PositionTrait, GameMap, GameStatus,
-};
-use risingrevenant::components::player::PlayerInfo;
-use risingrevenant::components::world_event::{
-    WorldEvent, CurrentWorldEvent, OutpostVerified, WorldEventVerifications
-};
-use risingrevenant::components::reinforcement::{ReinforcementType};
 
-use risingrevenant::systems::player::PlayerActionsTrait;
-use risingrevenant::systems::reinforcement::ReinforcementActionTrait;
-use risingrevenant::systems::game::{GameAction, GameActionTrait, GamePhaseTrait, GamePhase};
-use risingrevenant::systems::payment::{PaymentSystemTrait};
-use risingrevenant::systems::world_event::{WorldEventTrait};
-use risingrevenant::systems::position::{PositionGeneratorTrait};
-use risingrevenant::systems::get_set::GetTrait;
+use risingrevenant::{
+    components::{
+        outpost::{
+            Outpost, OutpostTrait, OutpostStatus, OutpostMarket, OutpostSetup, OutpostEventStatus
+        },
+        world_event::CurrentWorldEventTrait,
+        game::{GamePhases, GameState, Position, GameMap, GameStatus,}, player::PlayerInfo,
+        world_event::{WorldEvent, CurrentWorldEvent, OutpostVerified, WorldEventVerifications},
+        reinforcement::{ReinforcementType},
+    },
+    systems::{
+        player::PlayerActionsTrait, reinforcement::ReinforcementActionTrait,
+        game::{GameAction, GameActionTrait, GamePhaseTrait, GamePhase},
+        payment::{PaymentSystemTrait}, world_event::{WorldEventTrait},
+        position::{PositionGenerator, PositionGeneratorTrait}, get_set::GetTrait,
+    },
+    utils::random::{RandomTrait},
+};
 
 
 #[generate_trait]
@@ -42,30 +41,39 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         let cost = outpost_market.price;
 
         payment_system.pay_into_pot(player_info.player_id, cost);
-        let outpost = self.new_outpost(game_state, player_info);
+        let mut random_generator = self.world.new_generator_from_chain();
+        let mut position_generator = PositionGeneratorTrait::new(
+            ref random_generator, self.get_game::<GameMap>().dimensions
+        );
+        let position = self.get_random_outpost_position(ref position_generator);
+        let outpost = self.new_outpost(game_state, player_info, position);
         outpost
     }
-
+    fn get_random_outpost_position(
+        self: GameAction, ref position_generator: PositionGenerator
+    ) -> Position {
+        let mut position = position_generator.next();
+        loop {
+            let outpost = self.get_outpost(position);
+            if outpost.status == OutpostStatus::not_created {
+                break;
+            }
+            position = position_generator.next();
+        };
+        position
+    }
     fn new_outpost(
-        self: GameAction, mut game_state: GameState, mut player_info: PlayerInfo
+        self: GameAction, mut game_state: GameState, mut player_info: PlayerInfo, position: Position
     ) -> Outpost {
         let setup: OutpostSetup = self.get_game();
-        let mut position_generator = PositionGeneratorTrait::new(self);
         let mut outpost = Outpost {
             game_id: self.game_id,
-            position: position_generator.next(),
+            position,
             owner: player_info.player_id,
             life: setup.life,
             reinforces_remaining: setup.max_reinforcements,
             reinforcement_type: ReinforcementType::None,
             status: OutpostStatus::active,
-        };
-        loop {
-            let _outpost: Outpost = self.get_outpost(outpost.position);
-            if _outpost.status == OutpostStatus::not_created {
-                break;
-            }
-            outpost.position = position_generator.next();
         };
         player_info.outpost_count += 1;
 
@@ -145,8 +153,8 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         assert(!verified.verified, 'Already verified');
         assert(current_event.is_impacted(outpost_id), 'Outpost not impacted');
         let mut outpost = self.get_active_outpost(outpost_id);
-
-        let damage = outpost.apply_world_event_damage(current_event);
+        let mut random_generator = self.world.new_generator_from_chain();
+        let damage = outpost.apply_world_event_damage(current_event, ref random_generator);
         verified.verified = true;
         game_state.remain_life_count -= damage;
 

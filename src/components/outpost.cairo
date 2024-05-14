@@ -1,14 +1,13 @@
-use risingrevenant::components::world_event::EventDefenseTrait;
 use starknet::ContractAddress;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
-use risingrevenant::components::player::{PlayerInfo,};
-use risingrevenant::components::game::{Dimensions, Position, PositionTrait};
-use risingrevenant::components::world_event::{CurrentWorldEvent, EventType};
-use risingrevenant::components::reinforcement::{ReinforcementType};
-
-use risingrevenant::utils::random::{RandomTrait};
-use risingrevenant::utils::{calculate_distance};
+use risingrevenant::{
+    components::{
+        player::{PlayerInfo,}, world_event::EventDefenseTrait, game::{Dimensions, Position},
+        world_event::{CurrentWorldEvent, EventType}, reinforcement::{ReinforcementType},
+    },
+    systems::position::calculate_distance, utils::random::{RandomGenerator, RandomTrait},
+};
 
 
 #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
@@ -66,9 +65,11 @@ impl OutpostImpl of OutpostTrait {
     }
     fn is_impacted_by_event(self: @Outpost, event: CurrentWorldEvent) -> bool {
         let distance = calculate_distance(*self.position, event.position);
-        distance <= event.radius
+        distance <= event.radius.into()
     }
-    fn apply_world_event_damage(ref self: Outpost, event: CurrentWorldEvent) -> u32 {
+    fn apply_world_event_damage(
+        ref self: Outpost, event: CurrentWorldEvent, ref random_generator: RandomGenerator
+    ) -> u32 {
         // find better way of doing thing
 
         let (probability, mut damage) = event
@@ -77,8 +78,7 @@ impl OutpostImpl of OutpostTrait {
         if probability == 255 {
             return 0;
         } else if probability != 0 {
-            let mut random = RandomTrait::new();
-            if random.next() < probability {
+            if random_generator.next() < probability {
                 return 0;
             }
         };

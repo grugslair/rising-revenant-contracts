@@ -29,16 +29,14 @@ trait IGameActions<TContractState> {
 
 #[dojo::contract]
 mod game_actions {
-    use core::hash::HashStateTrait;
-    use cubit::f128::types::fixed::{FixedTrait, ONE_u128};
-
     use starknet::{ContractAddress, get_block_info, get_block_timestamp, get_caller_address};
+
     use risingrevenant::{
         components::{
             currency::CurrencyTrait,
             game::{
-                CurrentGame, GameStatus, GameMap, GameTradeTax, GamePotConsts, GameState, GamePot,
-                GamePhases, Dimensions
+                GameStatus, GameMap, GameTradeTax, GamePotConsts, GameState, GamePot, GamePhases,
+                Dimensions
             },
             reinforcement::{ReinforcementMarketConsts}, outpost::{OutpostMarket, OutpostSetup},
             world_event::{WorldEventSetup},
@@ -56,52 +54,7 @@ mod game_actions {
         }
         fn create(self: @ContractState, start_block: u64, preparation_blocks: u64) -> u128 {
             let world = self.world_dispatcher.read();
-            let caller_id = get_caller_address();
-            let game_id: u128 = world.get_uuid();
-            println!("Creating game with id: {}", game_id);
-            let game_action = GameAction { world, game_id };
-            game_action.assert_is_admin(caller_id);
-            let mut current_game: CurrentGame = game_action.get(caller_id);
-            let _last_game_id = current_game.game_id;
-            current_game.game_id = game_id;
-
-            let current_block = get_block_info().unbox().block_number;
-            let mut game_map: GameMap = get!(world, 0, GameMap);
-            let mut game_pot_consts: GamePotConsts = get!(world, 0, GamePotConsts);
-            let mut game_trade_tax: GameTradeTax = get!(world, 0, GameTradeTax);
-            let mut outpost_market: OutpostMarket = get!(world, 0, OutpostMarket);
-            let mut outpost_setup: OutpostSetup = get!(world, 0, OutpostSetup);
-            let mut world_event_setup: WorldEventSetup = get!(world, 0, WorldEventSetup);
-            let mut reinforcement_market: ReinforcementMarketConsts = get!(
-                world, 0, ReinforcementMarketConsts
-            );
-            game_map.game_id = game_id;
-            game_pot_consts.game_id = game_id;
-            game_trade_tax.game_id = game_id;
-            outpost_market.game_id = game_id;
-            outpost_setup.game_id = game_id;
-            world_event_setup.game_id = game_id;
-            reinforcement_market.game_id = game_id;
-
-            game_pot_consts.pot_address = caller_id;
-
-            let game_phases = GamePhases {
-                game_id,
-                status: GameStatus::created,
-                preparation_block_number: current_block,
-                play_block_number: current_block + preparation_blocks,
-            };
-
-            game_action.set(current_game);
-            game_action.set(game_map);
-            game_action.set(game_pot_consts);
-            game_action.set(world_event_setup);
-            game_action.set(outpost_market);
-            game_action.set(game_trade_tax);
-            game_action.set(game_phases);
-            game_action.set(outpost_setup);
-            game_action.set(reinforcement_market);
-            game_id
+            world.new_game(start_block, preparation_blocks)
         }
 
         fn set_game_map(self: @ContractState, game_map: GameMap) {

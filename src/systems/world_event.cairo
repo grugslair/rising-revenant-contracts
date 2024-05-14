@@ -1,15 +1,20 @@
+use starknet::get_block_number;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-use risingrevenant::components::world_event::{
-    WorldEventSetup, CurrentWorldEvent, CurrentWorldEventTrait, EventType, WorldEventVerifications
+use risingrevenant::{
+    components::world_event::{
+        WorldEventSetup, CurrentWorldEvent, CurrentWorldEventTrait, EventType,
+        WorldEventVerifications
+    },
+    systems::{game::{GameAction, GameActionTrait}, position::{Position, PositionGeneratorTrait}}
 };
-
-use risingrevenant::systems::game::{GameAction, GameActionTrait};
-use risingrevenant::systems::position::{PositionGeneratorTrait};
 
 
 #[generate_trait]
 impl WorldEventImpl of WorldEventTrait {
-    fn new_world_event(self: GameAction, event_type: EventType) -> CurrentWorldEvent {
+    fn new_random_event(self: GameAction, seed: felt252) {}
+    fn new_world_event(
+        self: GameAction, event_type: EventType, position: Position
+    ) -> CurrentWorldEvent {
         self.assert_playing();
         let event_setup: WorldEventSetup = self.get_game();
         let last_event: CurrentWorldEvent = self.get_game();
@@ -34,11 +39,11 @@ impl WorldEventImpl of WorldEventTrait {
         let event = CurrentWorldEvent {
             game_id: self.game_id,
             event_id: next_event_id,
-            position: PositionGeneratorTrait::single(self),
+            position: position,
             event_type,
             radius,
             number: last_event.number + 1,
-            block_number: starknet::get_block_info().unbox().block_number,
+            block_number: get_block_number(),
             previous_event: last_event.event_id,
         };
 

@@ -1,11 +1,6 @@
-use core::hash::HashStateTrait;
-use debug::PrintTrait;
-use traits::{Into, TryInto};
-use dojo::database::introspect::Introspect;
-use starknet::{ContractAddress, get_block_info, get_caller_address};
-use core::poseidon::PoseidonTrait;
+use starknet::{ContractAddress, get_block_info, get_caller_address, get_block_number};
+use core::{integer::BoundedInt, poseidon::{PoseidonTrait, HashStateTrait}, traits::BitAnd};
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-use dojo::components::upgradeable::{IUpgradeableDispatcher, IUpgradeableDispatcherTrait};
 
 
 use risingrevenant::{
@@ -13,7 +8,7 @@ use risingrevenant::{
         currency::CurrencyTrait,
         game::{
             GamePot, DevWallet, GamePotConsts, GameMap, Dimensions, GameState, GamePhase,
-            GamePhases, GameStatus, GameTradeTax
+            GamePhases, GameStatus, GameTradeTax, CurrentGame
         },
         player::{PlayerInfo}, reinforcement::{ReinforcementMarketConsts},
         outpost::{OutpostMarket, OutpostSetup}, world_event::{WorldEventSetup},
@@ -25,19 +20,20 @@ use risingrevenant::{
         MAX_OUTPOSTS, OUTPOST_INIT_LIFE, OUTPOST_MAX_REINFORCEMENT, REINFORCEMENT_TARGET_PRICE,
         REINFORCEMENT_MAX_SELLABLE_PERCENTAGE, REINFORCEMENT_DECAY_CONSTANT_MAG,
         REINFORCEMENT_TIME_SCALE_FACTOR_MAG, MAX_OUTPOSTS_PER_PLAYER
-    }
+    },
+    utils::{get_transaction_hash, random::{RandomTrait,}, felt252traits::BitAndFelt252Impl},
 };
-
-
 #[derive(Copy, Drop)]
 struct GameAction {
     world: IWorldDispatcher,
     game_id: u128,
 }
 
-
-fn get_block_number() -> u64 {
-    get_block_info().unbox().block_number
+fn make_uuid(world: IWorldDispatcher) -> u128 {
+    (PoseidonTrait::new().update(get_transaction_hash()).update(world.uuid().into()).finalize()
+        & BoundedInt::<u128>::max().into())
+        .try_into()
+        .unwrap()
 }
 
 #[inline(always)]
@@ -91,12 +87,57 @@ impl GameActionImpl of GameActionTrait {
             )
         );
     }
-    fn get_uuid(self: IWorldDispatcher) -> u128 {
-        let hash_felt = PoseidonTrait::new()
-            .update(get_caller_address().into())
-            .update(self.uuid().into())
-            .finalize();
-        (hash_felt.into() & 0xffffffffffffffffffffffffffffffff_u256).try_into().unwrap()
+
+    fn new_game(self: IWorldDispatcher, start_block: u64, preparation_blocks: u64) -> u128 {
+        let caller_id = get_caller_address();
+        let game_id: u128 = make_uuid(self);
+        println!("Creating game with id: {}", game_id);
+        let game_action = GameAction { world: self, game_id };
+        game_action.assert_is_admin(caller_id);
+        let mut current_game: CurrentGame = game_action.get(caller_id);
+        let _last_game_id = current_game.game_id;
+        current_game.game_id = game_id;
+
+        let current_block = get_block_info().unbox().block_number;
+        let mut game_map: GameMap = get!(self, 0, GameMap);
+        let mut game_pot_consts: GamePotConsts = get!(self, 0, GamePotConsts);
+        let mut game_trade_tax: GameTradeTax = get!(self, 0, GameTradeTax);
+        let mut outpost_market: OutpostMarket = get!(self, 0, OutpostMarket);
+        let mut outpost_setup: OutpostSetup = get!(self, 0, OutpostSetup);
+        let mut world_event_setup: WorldEventSetup = get!(self, 0, WorldEventSetup);
+        let mut reinforcement_market: ReinforcementMarketConsts = get!(
+            self, 0, ReinforcementMarketConsts
+        );
+        game_map.game_id = game_id;
+        game_pot_consts.game_id = game_id;
+        game_trade_tax.game_id = game_id;
+        outpost_market.game_id = game_id;
+        outpost_setup.game_id = game_id;
+        world_event_setup.game_id = game_id;
+        reinforcement_market.game_id = game_id;
+
+        game_pot_consts.pot_address = caller_id;
+
+        let game_phases = GamePhases {
+            game_id,
+            status: GameStatus::created,
+            preparation_block_number: current_block,
+            play_block_number: current_block + preparation_blocks,
+        };
+
+        game_action.set(current_game);
+        game_action.set(game_map);
+        game_action.set(game_pot_consts);
+        game_action.set(world_event_setup);
+        game_action.set(outpost_market);
+        game_action.set(game_trade_tax);
+        game_action.set(game_phases);
+        game_action.set(outpost_setup);
+        game_action.set(reinforcement_market);
+        game_id
+    }
+    fn uuid(self: GameAction) -> u128 {
+        make_uuid(self.world)
     }
     fn get<T, K, +GetTrait<T, K>>(self: GameAction, key: K) -> T {
         GetTrait::<T, K>::get(self.world, self.game_id, key)
@@ -107,9 +148,6 @@ impl GameActionImpl of GameActionTrait {
     }
     fn get_game<T, +GetGameTrait<T>>(self: GameAction) -> T {
         GetGameTrait::<T>::get(self.world, self.game_id)
-    }
-    fn uuid(self: GameAction) -> u128 {
-        self.world.get_uuid()
     }
     fn get_phase(self: GameAction) -> GamePhase {
         let phases: GamePhases = self.get_game();
@@ -129,9 +167,6 @@ impl GameActionImpl of GameActionTrait {
     }
     fn assert_ended(self: GameAction) {
         assert(self.get_phase() == GamePhase::Ended, 'Game not ended');
-    }
-    fn get_block_number(self: GameAction) -> u64 {
-        get_block_info().unbox().block_number
     }
 }
 
@@ -165,18 +200,4 @@ impl GamePhaseImpl of GamePhaseTrait {
         assert(self.get_phase() == GamePhase::Ended, 'Game not ended');
     }
 }
-// #[cfg(test)]
-// mod tests {
-//     use super::{GamePhases, GamePhase, get_block_number};
-//     use dojo::test_utils::spawn_test_world;
-//     #[test]
-//     #[available_gas(100000000)]
-//     fn test_phase_is_preparing() {
-//         let phase = GamePhase::Preparing;
-//         let world = spawn_test_world();
-//         println!("Block number {}", get_block_number());
-//         assert(phase == GamePhase::Preparing, 'not Preparing');
-//     }
-// }
-
 

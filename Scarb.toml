@@ -11,6 +11,7 @@ dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.6.0" }
 origami = { git = "https://github.com/dojoengine/origami", tag = "v0.6.0" }
 cubit = { git = "https://github.com/influenceth/cubit" }
 openzeppelin = { git = "https://github.com/ben-jay-amin/cairo-contracts.git", branch = "release-v0.9.1" }
+pragma_lib = { git = "https://github.com/astraly-labs/pragma-lib" }
 
 [[target.dojo]]
 

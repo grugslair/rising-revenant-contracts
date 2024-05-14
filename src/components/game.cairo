@@ -1,8 +1,5 @@
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use starknet::{ContractAddress, get_caller_address};
-use risingrevenant::utils::random::{Random, RandomTrait};
-use dojo::database::introspect::Introspect;
-use dojo::model::{Model};
 
 #[derive(Copy, Drop, Print, Serde, SerdeLen, Introspect)]
 struct Dimensions {
@@ -14,19 +11,6 @@ struct Dimensions {
 struct Position {
     x: u32,
     y: u32,
-}
-
-#[generate_trait]
-impl PositionImpl of PositionTrait {
-    fn new_random(mut random: Random, map_dims: Dimensions) -> Position {
-        Position { x: random.next_capped(map_dims.x), y: random.next_capped(map_dims.y) }
-    }
-}
-
-#[derive(Copy, Drop, Serde, SerdeLen)]
-struct PositionGenerator {
-    random: Random,
-    map_dims: Dimensions
 }
 
 #[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
@@ -126,6 +110,7 @@ enum GamePhase {
     Playing,
     Ended,
 }
+
 
 #[generate_trait]
 impl GamePhasesImpl of GamePhasesTrait {

@@ -34,6 +34,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "pragma_lib"
+version = "1.0.0"
+source = "git+https://github.com/astraly-labs/pragma-lib#2eca9b70dc505788423da1eedbf2d65563cc3102"
+
+[[package]]
 name = "risingrevenant"
 version = "0.3.0"
 dependencies = [
@@ -41,4 +46,5 @@ dependencies = [
  "dojo",
  "openzeppelin",
  "origami",
+ "pragma_lib",
 ]
