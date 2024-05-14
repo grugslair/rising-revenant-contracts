@@ -30,8 +30,6 @@ mod systems {
     mod position;
 }
 mod tests {
-    mod utils;
-    mod tests;
-    mod contracts_tests;
+    mod test_contracts;
 }
 mod utils;
