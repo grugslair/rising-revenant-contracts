@@ -1,3 +1,4 @@
+use starknet::ContractAddress;
 use risingrevenant::components::game::{Position};
 use risingrevenant::components::reinforcement::{ReinforcementType};
 use risingrevenant::components::outpost::{OutpostEventStatus};
@@ -20,6 +21,16 @@ trait IOutpostActions<TContractState> {
     ) -> OutpostEventStatus;
 }
 
+#[starknet::interface]
+trait IOutpostCallback<TContractState> {
+    fn receive_random_words(
+        self: @TContractState,
+        requestor_address: ContractAddress,
+        request_id: u64,
+        random_words: Span<felt252>,
+        calldata: Array<felt252>
+    );
+}
 
 #[dojo::contract]
 mod outpost_actions {
@@ -70,6 +81,26 @@ mod outpost_actions {
         ) -> OutpostEventStatus {
             let outpost_action = GameAction { world: self.world_dispatcher.read(), game_id };
             outpost_action.get_outpost_event_status(outpost_id)
+        }
+    }
+}
+
+
+#[dojo::contract]
+mod outpost_callback {
+    use super::IOutpostCallback;
+    use starknet::ContractAddress;
+    #[abi(embed_v0)]
+    impl OutpostCallbackImpl of IOutpostCallback<ContractState> {
+        fn receive_random_words(
+            self: @ContractState,
+            requestor_address: ContractAddress,
+            request_id: u64,
+            random_words: Span<felt252>,
+            calldata: Array<felt252>
+        ) {
+            let game_id: u128 = calldata[0].into();
+            let caller: ContractAddress = calldata[1].into();
         }
     }
 }
