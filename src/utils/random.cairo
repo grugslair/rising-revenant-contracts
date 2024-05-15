@@ -3,6 +3,8 @@ use starknet::{ContractAddress, get_contract_address, get_block_timestamp};
 use core::integer::BoundedInt;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
+use risingrevenant::utils::felt252traits::{TruncateTrait, RemFelt252Impl};
+
 #[derive(Model, Copy, Drop, Serde)]
 struct Seed {
     #[key]
@@ -40,16 +42,16 @@ impl RandomImpl of RandomTrait {
         self.seed.update(self.nonce).finalize()
     }
 
-    fn next<T, +BoundedInt<T>, +Into<T, u256>, +TryInto<u256, T>>(ref self: RandomGenerator) -> T {
-        let hash = self.next_felt();
-        let mask: u256 = BoundedInt::<T>::max().into();
-        (mask & hash.into()).try_into().unwrap()
+    fn next<T, +BoundedInt<T>, +Into<T, felt252>, +TryInto<felt252, T>>(
+        ref self: RandomGenerator
+    ) -> T {
+        self.next_felt().truncate()
     }
 
-    fn next_capped<T, +Into<T, u256>, +TryInto<u256, T>, +Drop<T>>(
+    fn next_capped<T, +Into<T, felt252>, +TryInto<felt252, T>, +Drop<T>>(
         ref self: RandomGenerator, cap: T
     ) -> T {
-        let hash: u256 = self.next_felt().into();
+        let hash = self.next_felt();
         (hash % cap.into()).try_into().unwrap()
     }
 }

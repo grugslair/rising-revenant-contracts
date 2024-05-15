@@ -104,7 +104,7 @@ impl EventTypeFelt252 of Into<EventType, felt252> {
     }
 }
 
-impl u8IntoEventType of TryInto<u8, EventType> {
+impl u8TryIntoEventType of TryInto<u8, EventType> {
     fn try_into(self: u8) -> Option<EventType> {
         if self == 0 {
             return Option::Some(EventType::None);
@@ -116,6 +116,18 @@ impl u8IntoEventType of TryInto<u8, EventType> {
             return Option::Some(EventType::Earthquake);
         } else {
             return Option::None;
+        }
+    }
+}
+
+impl u8IntoEventType of Into<u8, EventType> {
+    fn into(self: u8) -> EventType {
+        match self {
+            0 => EventType::None,
+            1 => EventType::Dragon,
+            2 => EventType::Goblin,
+            3 => EventType::Earthquake,
+            _ => panic!("Invalid event type"),
         }
     }
 }

@@ -14,13 +14,14 @@ trait IWorldEventActions<TContractState> {
 
 #[dojo::contract]
 mod world_event_actions {
+    use core::option::OptionTrait;
     use super::IWorldEventActions;
     use starknet::{get_caller_address, ContractAddress};
 
     use risingrevenant::{
         components::world_event::{WorldEvent, EventType},
         systems::{game::{GameAction, GameActionTrait}, world_event::{WorldEventTrait}},
-        utils::random::{RandomGenerator, RandomTrait}
+        utils::{random::{RandomGenerator, RandomTrait, RandomImpl}, felt252traits::TruncateTrait}
     };
 
 
@@ -37,9 +38,11 @@ mod world_event_actions {
             request_id: u64,
             random_words: Span<felt252>,
             calldata: Array<felt252>
-        ) { // let random = *random_words.at(0);
-        // let event_type = (random.next_capped(3) + 1_u8).try_into().unwrap();
-        // game_action.new_world_event(event_type).event_id
+        ) {
+            let random_word = *random_words.at(0);
+            let game_id: u128 = calldata.at(0).try_into().unwrap();
+            let game_action = GameAction { game_id, world: self.world_dispatcher.read() };
+            game_action.new_random_world_event(random_word);
         }
     }
 }
