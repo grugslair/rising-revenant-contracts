@@ -1,26 +1,37 @@
+use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
+
+
 #[starknet::interface]
 trait IPaymentActions<TContractState> {
-    fn claim_jackpot(self: @TContractState, game_id: u128);
-    fn claim_confirmation_contribution(self: @TContractState, game_id: u128);
+    fn claim_jackpot(self: @TContractState, world: IWorldDispatcher, game_id: u128);
+    fn claim_confirmation_contribution(
+        self: @TContractState, world: IWorldDispatcher, game_id: u128
+    );
 }
 
-#[dojo::contract]
+#[starknet::contract]
 mod payment_actions {
-    use risingrevenant::systems::game::GameActionTrait;
-    use risingrevenant::components::player::{PlayerInfo, PlayerContribution};
     use starknet::{get_caller_address};
+    use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
+    use risingrevenant::{
+        components::player::{PlayerInfo, PlayerContribution},
+        systems::{
+            game::{GameActionTrait, GameAction, GameActionImpl, GameState, GamePot},
+            player::{PlayerActionsTrait}, payment::{PaymentSystemTrait, PaymentSystem},
+        }
+    };
 
-    use risingrevenant::systems::game::{GameAction, GameActionImpl, GameState, GamePot};
-    use risingrevenant::systems::player::{PlayerActionsTrait};
-
-    use risingrevenant::systems::payment::{PaymentSystemTrait, PaymentSystem};
     use super::IPaymentActions;
+
+
+    #[storage]
+    struct Storage {}
 
     #[abi(embed_v0)]
     impl PaymentActionsImpl of IPaymentActions<ContractState> {
-        fn claim_jackpot(self: @ContractState, game_id: u128) {
-            let (game_action, mut pot, payment_system) = self.get_claim_info(game_id);
+        fn claim_jackpot(self: @ContractState, world: IWorldDispatcher, game_id: u128) {
+            let (game_action, mut pot, payment_system) = world.get_claim_info(game_id);
             let caller = game_action.get_caller_info();
             assert(caller.outpost_count > 0, 'Not winner');
             assert(!pot.claimed, 'Pot already claimed');
@@ -30,8 +41,10 @@ mod payment_actions {
             payment_system.pay_out_pot(caller.player_id, pot.winners_pot);
         }
 
-        fn claim_confirmation_contribution(self: @ContractState, game_id: u128) {
-            let (game_action, pot, payment_system) = self.get_claim_info(game_id);
+        fn claim_confirmation_contribution(
+            self: @ContractState, world: IWorldDispatcher, game_id: u128
+        ) {
+            let (game_action, pot, payment_system) = world.get_claim_info(game_id);
             let mut caller_contribution = game_action.get_caller_contribution();
 
             assert(caller_contribution.score > 0, 'No reward available');
@@ -50,9 +63,9 @@ mod payment_actions {
     #[generate_trait]
     impl Private of PrivateTrait {
         fn get_claim_info(
-            self: @ContractState, game_id: u128
+            self: IWorldDispatcher, game_id: u128
         ) -> (GameAction, GamePot, PaymentSystem) {
-            let game_action = GameAction { world: self.world_dispatcher.read(), game_id };
+            let game_action = GameAction { world: self, game_id };
             game_action.assert_ended();
             (game_action, game_action.get_game::<GamePot>(), PaymentSystemTrait::new(game_action))
         }

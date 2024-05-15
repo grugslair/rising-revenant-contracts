@@ -1,24 +1,32 @@
-use risingrevenant::components::trade::GenTradeTrait;
 use starknet::{get_caller_address};
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-use dojo::model::{Model};
-use dojo::database::introspect::Introspect;
 
-use risingrevenant::components::game::{GameTradeTax, Position};
-use risingrevenant::components::trade::{
-    Trade, TradeTrait, TradeStatus, OutpostTrade, ReinforcementTrade, TradeType
+use risingrevenant::{
+    components::{
+        game::{GameTradeTax, Position},
+        trade::{
+            Trade, TradeTrait, TradeStatus, OutpostTrade, ReinforcementTrade, TradeType,
+            GenTradeTrait
+        }
+    },
+    systems::{
+        game::{GameAction, GameActionTrait}, payment::{PaymentSystemTrait},
+        get_set::{GetTrait, SetTrait},
+    }
 };
 
-use risingrevenant::systems::game::{GameAction, GameActionTrait};
-use risingrevenant::systems::payment::{PaymentSystemTrait};
-use risingrevenant::systems::get_set::{GetTrait, SetTrait};
+trait TradeActionTrait<T, O> {
+    fn create_trade(self: GameAction, price: u128, offer: O) -> T;
+    fn purchase_trade(self: GameAction, trade_id: u128) -> T;
+    fn modify_trade_price(self: GameAction, trade_id: u128, new_price: u128);
+    fn revoke_trade(self: GameAction, trade_id: u128) -> T;
+    fn get_active_trade(self: GameAction, trade_id: u128) -> Trade<O>;
+    fn get_players_active_trade(self: GameAction, trade_id: u128) -> Trade<O>;
+}
 
-#[generate_trait]
 impl TradeActionImpl<
     T,
     O,
-    +Introspect<T>,
-    +Model<T>,
     +Drop<T>,
     +Copy<T>,
     +Serde<T>,

@@ -22,7 +22,7 @@ source = "git+https://github.com/dojoengine/dojo?tag=v0.3.11#1e651b5d4d3b79b14a7
 [[package]]
 name = "openzeppelin"
 version = "0.9.0"
-source = "git+https://github.com/ben-jay-amin/cairo-contracts.git?branch=release-v0.9.1#a1fc05d063eeda353f38e7c92f44ba14d0e1e683"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?tag=v0.9.0#364db5b1aecc1335d2e65db887291d19aa28937d"
 
 [[package]]
 name = "origami"
@@ -34,6 +34,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "pragma_lib"
+version = "1.0.0"
+source = "git+https://github.com/astraly-labs/pragma-lib?rev=24bb4da#24bb4da111ae7eb00e7cf40d4f1767c86d6447cd"
+
+[[package]]
 name = "risingrevenant"
 version = "0.3.0"
 dependencies = [
@@ -41,4 +46,5 @@ dependencies = [
  "dojo",
  "openzeppelin",
  "origami",
+ "pragma_lib",
 ]

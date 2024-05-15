@@ -1,11 +1,8 @@
-use starknet::{get_block_number, ContractAddress};
+use starknet::{get_block_number, ContractAddress, get_contract_address};
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-use pragma::randomness::randomness::{IRandomnessDispatcher, IRandomnessDispatcherTrait};
-use pragma::admin::admin::Ownable;
 use array::{ArrayTrait, SpanTrait};
-use openzeppelin::token::erc20::interface::{
-    ERC20CamelABIDispatcher, ERC20CamelABIDispatcherTrait
-};
+use pragma_lib::abi::{IRandomnessDispatcher, IRandomnessDispatcherTrait};
+use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use risingrevenant::{
     components::{
         game::{GameMap},
@@ -18,21 +15,28 @@ use risingrevenant::{
     utils::{felt252traits::{TruncateTrait}, random::{RandomTrait}}
 };
 
-
+const CALLBACK_FEE_LIMIT: u128 = 1000000000000000; // 0.001 ETH
 #[generate_trait]
 impl WorldEventImpl of WorldEventTrait {
-    fn request_random_world_event((self: GameAction, randomness_contract_address:ContractAddress, callback_address: ContractAddress) {
-        
-
+    fn request_random_world_event(
+        self: GameAction,
+        randomness_contract_address: ContractAddress,
+        callback_address: ContractAddress
+    ) {
         let randomness_dispatcher = IRandomnessDispatcher {
             contract_address: randomness_contract_address
         };
+        let callback_address = get_contract_address();
+        let seed: u64 = self.world.random_from_chain().truncate();
+        randomness_dispatcher.request_random(seed, callback_address, CALLBACK_FEE_LIMIT, 0, 1);
     }
     fn new_random_world_event(self: GameAction, seed: felt252) {
-        let mut generator = RandomTrait::new_generator(random_word);
+        let mut generator = RandomTrait::new_generator(seed);
         let event_type: EventType = (generator.next_capped(3) + 1_u8).into();
         let game_map: GameMap = self.get_game();
-        let mut position_generator = PositionGeneratorTrait::new(ref generator, game_map.dimensions);
+        let mut position_generator = PositionGeneratorTrait::new(
+            ref generator, game_map.dimensions
+        );
         self.new_world_event(seed.truncate(), event_type, position_generator.next());
     }
     fn new_world_event(
@@ -72,8 +76,5 @@ impl WorldEventImpl of WorldEventTrait {
         self.set(event);
 
         event
-    }
-    fn get_current_event(self: GameAction) -> CurrentWorldEvent {
-        self.get_game()
     }
 }

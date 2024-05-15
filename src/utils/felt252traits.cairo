@@ -29,9 +29,23 @@ impl TruncateFelt252Impl<
     }
 }
 
+impl TruncateFelt252SImpl<
+    T, +BoundedInt<T>, +Into<T, felt252>, +TryInto<felt252, T>
+> of TruncateTrait<@felt252, T> {
+    fn truncate(self: @felt252) -> T {
+        (BoundedInt::<T>::max().into() & *self).try_into().unwrap()
+    }
+}
 
 impl TruncateFelt252ToU8 = TruncateFelt252Impl<u8>;
 impl TruncateFelt252ToU16 = TruncateFelt252Impl<u16>;
 impl TruncateFelt252ToU32 = TruncateFelt252Impl<u32>;
 impl TruncateFelt252ToU64 = TruncateFelt252Impl<u64>;
 impl TruncateFelt252ToU128 = TruncateFelt252Impl<u128>;
+
+impl TruncateFelt252SToU8 = TruncateFelt252SImpl<u8>;
+impl TruncateFelt252SToU16 = TruncateFelt252SImpl<u16>;
+impl TruncateFelt252SToU32 = TruncateFelt252SImpl<u32>;
+impl TruncateFelt252SToU64 = TruncateFelt252SImpl<u64>;
+impl TruncateFelt252SToU128 = TruncateFelt252SImpl<u128>;
+
