@@ -1,4 +1,3 @@
-#[cfg(test)]
 use dojo::{
     test_utils::{deploy_contract, spawn_test_world,},
     world::{IWorldDispatcher, IWorldDispatcherTrait,},
@@ -22,7 +21,7 @@ use risingrevenant::{
         },
     },
     contracts::{
-        game::{game_actions, IGameActionsDispatcher,},
+        game::{game_actions, IGameActionsDispatcher, IGameActionsDispatcherTrait},
         outpost::{outpost_actions, IOutpostActionsDispatcher,},
         payment::{payment_actions, IPaymentActionsDispatcher,},
         reinforcement::{reinforcement_actions, IReinforcementActionsDispatcher,},
@@ -32,7 +31,6 @@ use risingrevenant::{
     },
 };
 
-#[cfg(test)]
 #[derive(Copy, Drop)]
 struct TestContracts {
     world: IWorldDispatcher,
@@ -45,8 +43,7 @@ struct TestContracts {
     world_event_actions: IWorldEventActionsDispatcher,
 }
 
-#[cfg(test)]
-fn make_test_world() -> TestContracts {
+fn get_test_world() -> IWorldDispatcher {
     let mut models = array![
         current_game::TEST_CLASS_HASH,
         dev_wallet::TEST_CLASS_HASH,
@@ -71,48 +68,73 @@ fn make_test_world() -> TestContracts {
         world_event_verifications::TEST_CLASS_HASH,
     ];
 
-    let world = spawn_test_world(models);
+    spawn_test_world(models)
+}
+
+#[cfg(test)]
+fn make_test_world() -> TestContracts {
+    let mut world = get_test_world();
+    println!("Made world");
+
+    let empty_felt_span: Span<felt252> = ArrayTrait::new().span();
+
     let game_actions_dispatcher = IGameActionsDispatcher {
         contract_address: world
-            .deploy_contract('game_actions', game_actions::TEST_CLASS_HASH.try_into().unwrap())
+            .deploy_contract(
+                'game_actions', game_actions::TEST_CLASS_HASH.try_into().unwrap(), empty_felt_span
+            )
     };
+
     let outpost_actions_dispatcher = IOutpostActionsDispatcher {
         contract_address: world
             .deploy_contract(
-                'outpost_actions', outpost_actions::TEST_CLASS_HASH.try_into().unwrap()
+                'outpost_actions',
+                outpost_actions::TEST_CLASS_HASH.try_into().unwrap(),
+                empty_felt_span
             )
     };
     let payment_actions_dispatcher = IPaymentActionsDispatcher {
         contract_address: world
             .deploy_contract(
-                'payment_actions', payment_actions::TEST_CLASS_HASH.try_into().unwrap()
+                'payment_actions',
+                payment_actions::TEST_CLASS_HASH.try_into().unwrap(),
+                empty_felt_span
             )
     };
     let reinforcement_actions_dispatcher = IReinforcementActionsDispatcher {
         contract_address: world
             .deploy_contract(
-                'reinforcement_actions', reinforcement_actions::TEST_CLASS_HASH.try_into().unwrap()
+                'reinforcement_actions',
+                reinforcement_actions::TEST_CLASS_HASH.try_into().unwrap(),
+                empty_felt_span
             )
     };
     let trade_outpost_actions_dispatcher = ITradeOutpostActionsDispatcher {
         contract_address: world
             .deploy_contract(
-                'trade_outpost_actions', trade_outpost_actions::TEST_CLASS_HASH.try_into().unwrap()
+                'trade_outpost_actions',
+                trade_outpost_actions::TEST_CLASS_HASH.try_into().unwrap(),
+                empty_felt_span
             )
     };
     let trade_reinforcement_actions_dispatcher = ITradeReinforcementsActionsDispatcher {
         contract_address: world
             .deploy_contract(
                 'trade_reinforcement_actions',
-                trade_reinforcement_actions::TEST_CLASS_HASH.try_into().unwrap()
+                trade_reinforcement_actions::TEST_CLASS_HASH.try_into().unwrap(),
+                empty_felt_span
             )
     };
     let world_event_actions_dispatcher = IWorldEventActionsDispatcher {
         contract_address: world
             .deploy_contract(
-                'world_event_actions', world_event_actions::TEST_CLASS_HASH.try_into().unwrap()
+                'world_event_actions',
+                world_event_actions::TEST_CLASS_HASH.try_into().unwrap(),
+                empty_felt_span
             )
     };
+
+    game_actions_dispatcher.set_defaults();
 
     TestContracts {
         world,

@@ -33,15 +33,17 @@ use risingrevenant::components::{
 
 #[cfg(test)]
 mod contracts_tests {
+    use core::option::OptionTrait;
+
     use debug::PrintTrait;
-    use dojo::test_utils::{deploy_contract};
+    use starknet::ContractAddress;
     use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
     use origami::defi::auction::vrgda::{LogisticVRGDA, VRGDATrait};
     use cubit::f128::types::fixed::{Fixed, FixedTrait, ONE_u128};
 
     use risingrevenant::utils::get_block_number;
 
-    use risingrevenant::tests::utils::{setup_test_world, DefaultWorld};
+    use risingrevenant::tests::test_contracts::{make_test_world, TestContracts};
     use risingrevenant::components::{
         game::{
             CurrentGame, GamePhases, GameMap, GameERC20, GameTradeTax, GamePotConsts, GameState,
@@ -75,32 +77,49 @@ mod contracts_tests {
     use risingrevenant::systems::{
         game::{GameAction, GameActionTrait}, reinforcement::{ReinforcementActionTrait}
     };
+    use risingrevenant::defaults::ADMIN_ADDRESS;
 
     #[test]
     #[available_gas(3000000000)]
     fn test_purchase() {
         println!("Test Purchase Reinforcements");
-        let DefaultWorld { world,
+        let TestContracts { world,
         game_actions,
         outpost_actions,
         payment_actions,
         reinforcement_actions,
         trade_outpost_actions,
         trade_reinforcement_actions,
-        world_event_actions,
-        admin } =
-            setup_test_world();
+        world_event_actions, } =
+            make_test_world();
+
+        starknet::testing::set_caller_address(ADMIN_ADDRESS.try_into().unwrap());
         let game_id = game_actions.create(1, 10);
         starknet::testing::set_block_number(1);
         let game_action = GameAction { world, game_id };
         let mut n: u32 = 1;
+        let pot: GamePot = game_action.get_game();
+        println!(
+            "total {} winners {} confirmation {} ltr {} dev {}",
+            pot.total_pot,
+            pot.winners_pot,
+            pot.confirmation_pot,
+            pot.ltr_pot,
+            pot.dev_pot,
+        );
         loop {
-            let price = reinforcement_actions.get_price(game_id, 10);
-            let mut market: ReinforcementMarket = game_action.get_reinforcement_market();
-            println!("Market count {} price {}", market.sold, price);
-
-            market.sold = n * 10;
-
+            let price = reinforcement_actions.get_price(game_id, n);
+            reinforcement_actions.purchase(game_id, 10);
+            println!("Ammount 10 price {}", price);
+            let pot: GamePot = game_action.get_game();
+            println!(
+                "total {} winners {} confirmation {} ltr {} dev {}",
+                pot.total_pot / 1_000_000_000_000_000_000,
+                pot.winners_pot / 1_000_000_000_000_000_000,
+                pot.confirmation_pot / 1_000_000_000_000_000_000,
+                pot.ltr_pot / 1_000_000_000_000_000_000,
+                pot.dev_pot / 1_000_000_000_000_000_000,
+            );
             n += 1;
             if n >= 10 {
                 break;

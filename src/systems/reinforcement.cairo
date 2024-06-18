@@ -27,7 +27,7 @@ impl ReinforcementActionImpl of ReinforcementActionTrait {
             game_id: self.game_id,
             target_price: consts.target_price,
             decay_constant_mag: consts.decay_constant_mag,
-            blocks: phases.preparation_block_number - get_block_number(),
+            blocks: get_block_number() - phases.preparation_block_number,
             max_sellable: consts.max_sellable_percentage
                 * outpost_market.max_sellable
                 * outpost_setup.max_reinforcements

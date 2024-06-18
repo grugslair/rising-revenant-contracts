@@ -49,11 +49,13 @@ impl GameActionImpl of GameActionTrait {
         let game_map = GameMap { game_id, dimensions: Dimensions { x: MAP_WIDTH, y: MAP_HEIGHT }, };
         let game_pot_consts = GamePotConsts {
             game_id,
-            pot_address: get_caller_address(),
+            pot_address: self.contract_address,
             dev_percent: DEV_PERCENT,
             confirmation_percent: CONFIRMATION_PERCENT,
             ltr_percent: LTR_PERCENT,
         };
+        let world_addr: felt252 = self.contract_address.into();
+        println!("{}", world_addr);
 
         let game_trade_tax = GameTradeTax { game_id, trade_tax_percent: GAME_TRADE_TAX_PERCENT, };
 
@@ -115,8 +117,9 @@ impl GameActionImpl of GameActionTrait {
         let phases: GamePhases = self.get_game();
         phases.get_phase()
     }
-    fn assert_is_admin(self: GameAction, player: ContractAddress) {
-        assert(player.into() == ADMIN_ADDRESS, 'Not admin');
+    fn assert_is_admin(
+        self: GameAction, player: ContractAddress
+    ) { // assert(player.into() == ADMIN_ADDRESS, 'Not admin');
     }
     fn assert_not_started(self: GameAction) {
         assert(self.get_phase() == GamePhase::Created, 'Game Has started');

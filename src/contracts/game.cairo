@@ -12,44 +12,29 @@ use risingrevenant::{
     }
 };
 
-#[starknet::interface]
-trait IGameActions<TContractState> {
-    fn set_defaults(self: @TContractState, world: IWorldDispatcher);
-    fn create(
-        self: @TContractState, world: IWorldDispatcher, start_block: u64, preparation_blocks: u64
-    ) -> u128;
-    fn set_game_map(self: @TContractState, world: IWorldDispatcher, game_map: GameMap);
-    fn set_game_pot_consts(
-        self: @TContractState, world: IWorldDispatcher, game_pot_consts: GamePotConsts
-    );
-    fn set_game_trade_tax(
-        self: @TContractState, world: IWorldDispatcher, game_trade_tax: GameTradeTax
-    );
-    fn set_outpost_market(
-        self: @TContractState, world: IWorldDispatcher, outpost_market: OutpostMarket
-    );
-    fn set_game_state(self: @TContractState, world: IWorldDispatcher, game_state: GameState);
-    fn set_game_phases(self: @TContractState, world: IWorldDispatcher, game_phases: GamePhases);
-    fn set_outpost_setup(
-        self: @TContractState, world: IWorldDispatcher, outpost_setup: OutpostSetup
-    );
-    fn set_world_event_setup(
-        self: @TContractState, world: IWorldDispatcher, world_event_setup: WorldEventSetup
-    );
+#[dojo::interface]
+trait IGameActions {
+    fn set_defaults(ref world: IWorldDispatcher,);
+    fn create(ref world: IWorldDispatcher, start_block: u64, preparation_blocks: u64) -> u128;
+    fn set_game_map(ref world: IWorldDispatcher, game_map: GameMap);
+    fn set_game_pot_consts(ref world: IWorldDispatcher, game_pot_consts: GamePotConsts);
+    fn set_game_trade_tax(ref world: IWorldDispatcher, game_trade_tax: GameTradeTax);
+    fn set_outpost_market(ref world: IWorldDispatcher, outpost_market: OutpostMarket);
+    fn set_game_state(ref world: IWorldDispatcher, game_state: GameState);
+    fn set_game_phases(ref world: IWorldDispatcher, game_phases: GamePhases);
+    fn set_outpost_setup(ref world: IWorldDispatcher, outpost_setup: OutpostSetup);
+    fn set_world_event_setup(ref world: IWorldDispatcher, world_event_setup: WorldEventSetup);
     fn set_reinforcement_market(
-        self: @TContractState,
-        world: IWorldDispatcher,
-        reinforcement_market: ReinforcementMarketConsts
+        ref world: IWorldDispatcher, reinforcement_market: ReinforcementMarketConsts
     );
 }
 
-#[starknet::contract]
+#[dojo::contract]
 mod game_actions {
     use core::hash::HashStateTrait;
     use cubit::f128::types::fixed::{FixedTrait, ONE_u128};
 
     use starknet::{ContractAddress, get_block_info, get_block_timestamp, get_caller_address};
-    use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
     use risingrevenant::{
         components::{
@@ -65,18 +50,13 @@ mod game_actions {
     };
     use super::IGameActions;
 
-    #[storage]
-    struct Storage {}
-
 
     #[abi(embed_v0)]
     impl GameActionImpl of IGameActions<ContractState> {
-        fn set_defaults(self: @ContractState, world: IWorldDispatcher) {
+        fn set_defaults(ref world: IWorldDispatcher) {
             GameActionTrait::set_defaults(world);
         }
-        fn create(
-            self: @ContractState, world: IWorldDispatcher, start_block: u64, preparation_blocks: u64
-        ) -> u128 {
+        fn create(ref world: IWorldDispatcher, start_block: u64, preparation_blocks: u64) -> u128 {
             let caller_id = get_caller_address();
             let game_id: u128 = world.get_uuid();
             println!("Creating game with id: {}", game_id);
@@ -104,8 +84,6 @@ mod game_actions {
             world_event_setup.game_id = game_id;
             reinforcement_market.game_id = game_id;
 
-            game_pot_consts.pot_address = caller_id;
-
             let game_phases = GamePhases {
                 game_id,
                 status: GameStatus::created,
@@ -125,44 +103,32 @@ mod game_actions {
             game_id
         }
 
-        fn set_game_map(self: @ContractState, world: IWorldDispatcher, game_map: GameMap) {
+        fn set_game_map(ref world: IWorldDispatcher, game_map: GameMap) {
             world.update_settings(game_map.game_id, game_map);
         }
-        fn set_game_pot_consts(
-            self: @ContractState, world: IWorldDispatcher, game_pot_consts: GamePotConsts
-        ) {
+        fn set_game_pot_consts(ref world: IWorldDispatcher, game_pot_consts: GamePotConsts) {
             world.update_settings(game_pot_consts.game_id, game_pot_consts);
         }
-        fn set_game_trade_tax(
-            self: @ContractState, world: IWorldDispatcher, game_trade_tax: GameTradeTax
-        ) {
+        fn set_game_trade_tax(ref world: IWorldDispatcher, game_trade_tax: GameTradeTax) {
             world.update_settings(game_trade_tax.game_id, game_trade_tax);
         }
-        fn set_outpost_market(
-            self: @ContractState, world: IWorldDispatcher, outpost_market: OutpostMarket
-        ) {
+        fn set_outpost_market(ref world: IWorldDispatcher, outpost_market: OutpostMarket) {
             world.update_settings(outpost_market.game_id, outpost_market);
         }
-        fn set_game_state(self: @ContractState, world: IWorldDispatcher, game_state: GameState) {
+        fn set_game_state(ref world: IWorldDispatcher, game_state: GameState) {
             world.update_settings(game_state.game_id, game_state);
         }
-        fn set_game_phases(self: @ContractState, world: IWorldDispatcher, game_phases: GamePhases) {
+        fn set_game_phases(ref world: IWorldDispatcher, game_phases: GamePhases) {
             world.update_settings(game_phases.game_id, game_phases);
         }
-        fn set_outpost_setup(
-            self: @ContractState, world: IWorldDispatcher, outpost_setup: OutpostSetup
-        ) {
+        fn set_outpost_setup(ref world: IWorldDispatcher, outpost_setup: OutpostSetup) {
             world.update_settings(outpost_setup.game_id, outpost_setup);
         }
-        fn set_world_event_setup(
-            self: @ContractState, world: IWorldDispatcher, world_event_setup: WorldEventSetup
-        ) {
+        fn set_world_event_setup(ref world: IWorldDispatcher, world_event_setup: WorldEventSetup) {
             world.update_settings(world_event_setup.game_id, world_event_setup);
         }
         fn set_reinforcement_market(
-            self: @ContractState,
-            world: IWorldDispatcher,
-            reinforcement_market: ReinforcementMarketConsts
+            ref world: IWorldDispatcher, reinforcement_market: ReinforcementMarketConsts
         ) {
             world.update_settings(reinforcement_market.game_id, reinforcement_market);
         }

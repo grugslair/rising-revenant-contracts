@@ -1,17 +1,13 @@
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
-#[starknet::interface]
-trait IPaymentActions<TContractState> {
-    fn claim_jackpot(self: @TContractState, world: IWorldDispatcher, game_id: u128);
-    fn claim_confirmation_contribution(
-        self: @TContractState, world: IWorldDispatcher, game_id: u128
-    );
+#[dojo::interface]
+trait IPaymentActions {
+    fn claim_jackpot(ref world: IWorldDispatcher, game_id: u128);
+    fn claim_confirmation_contribution(ref world: IWorldDispatcher, game_id: u128);
 }
 
-#[starknet::contract]
+#[dojo::contract]
 mod payment_actions {
-    use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-
     use risingrevenant::systems::game::GameActionTrait;
     use risingrevenant::components::player::{PlayerInfo, PlayerContribution};
     use starknet::{get_caller_address};
@@ -26,7 +22,7 @@ mod payment_actions {
     struct Storage {}
     #[abi(embed_v0)]
     impl PaymentActionsImpl of IPaymentActions<ContractState> {
-        fn claim_jackpot(self: @ContractState, world: IWorldDispatcher, game_id: u128) {
+        fn claim_jackpot(ref world: IWorldDispatcher, game_id: u128) {
             let (game_action, mut pot, payment_system) = world.get_claim_info(game_id);
             let caller = game_action.get_caller_info();
             assert(caller.outpost_count > 0, 'Not winner');
@@ -37,9 +33,7 @@ mod payment_actions {
             payment_system.pay_out_pot(caller.player_id, pot.winners_pot);
         }
 
-        fn claim_confirmation_contribution(
-            self: @ContractState, world: IWorldDispatcher, game_id: u128
-        ) {
+        fn claim_confirmation_contribution(ref world: IWorldDispatcher, game_id: u128) {
             let (game_action, pot, payment_system) = world.get_claim_info(game_id);
             let mut caller_contribution = game_action.get_caller_contribution();
 

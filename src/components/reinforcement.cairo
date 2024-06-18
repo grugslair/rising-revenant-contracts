@@ -35,12 +35,11 @@ struct ReinforcementMarket {
 #[generate_trait]
 impl ReinforcementMarketImpl of ReinforcementMarketTrait {
     fn get_price<T, +CurrencyTrait<Fixed, T>>(self: ReinforcementMarket, count: u32) -> T {
-        let blocks_since_start = FixedTrait::new_unscaled(self.blocks.into(), false)
-            + Fixed { mag: HALF_u128, sign: false };
+        let blocks_since_start: Fixed = self.blocks.into() + Fixed { mag: HALF_u128, sign: false };
         let auction = LogisticVRGDA {
             target_price: self.target_price.convert(),
             decay_constant: FixedTrait::new(self.decay_constant_mag, false),
-            max_sellable: FixedTrait::new_unscaled(self.max_sellable.into(), false),
+            max_sellable: self.max_sellable.into(),
             time_scale: FixedTrait::new(self.time_scale_mag, false),
         };
 
@@ -50,10 +49,7 @@ impl ReinforcementMarketImpl of ReinforcementMarketTrait {
             if p >= count {
                 break;
             }
-            total_price += auction
-                .get_vrgda_price(
-                    blocks_since_start, FixedTrait::new_unscaled((self.sold + p).into(), false)
-                );
+            total_price += auction.get_vrgda_price(blocks_since_start, (self.sold + p).into());
             p += 1;
         };
         total_price.convert()

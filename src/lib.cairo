@@ -29,7 +29,10 @@ mod systems {
     mod payment;
     mod position;
 }
+
+#[cfg(test)]
 mod tests {
     mod test_contracts;
+    mod reinforcement_test;
 }
 mod utils;
