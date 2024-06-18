@@ -29,14 +29,16 @@ struct PositionGenerator {
     map_dims: Dimensions
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct CurrentGame {
     #[key]
     owner: ContractAddress,
     game_id: u128,
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct GamePhases {
     #[key]
     game_id: u128,
@@ -45,28 +47,32 @@ struct GamePhases {
     play_block_number: u64,
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct GameMap {
     #[key]
     game_id: u128,
     dimensions: Dimensions,
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct GameERC20 {
     #[key]
     game_id: u128,
     address: ContractAddress, // The ERC20 token address for increasing reinforcement
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct GameTradeTax {
     #[key]
     game_id: u128,
     trade_tax_percent: u8,
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct GamePotConsts {
     #[key]
     game_id: u128,
@@ -77,7 +83,8 @@ struct GamePotConsts {
 }
 
 // Components to check ---------------------------------------------------------------------
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct GameState {
     #[key]
     game_id: u128,
@@ -89,7 +96,8 @@ struct GameState {
 }
 
 // Game pot
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct GamePot {
     #[key]
     game_id: u128,
@@ -102,7 +110,8 @@ struct GamePot {
 }
 
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct DevWallet {
     #[key]
     game_id: u128,

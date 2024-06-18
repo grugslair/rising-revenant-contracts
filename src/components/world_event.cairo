@@ -5,7 +5,8 @@ use risingrevenant::components::reinforcement::{ReinforcementType};
 
 use risingrevenant::utils::{calculate_distance};
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct WorldEventSetup {
     #[key]
     game_id: u128,
@@ -13,7 +14,8 @@ struct WorldEventSetup {
     radius_increase: u32,
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct WorldEvent {
     #[key]
     game_id: u128,
@@ -29,7 +31,8 @@ struct WorldEvent {
     next_event: u128,
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct CurrentWorldEvent {
     #[key]
     game_id: u128,
@@ -42,7 +45,8 @@ struct CurrentWorldEvent {
     previous_event: u128,
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct OutpostVerified {
     #[key]
     game_id: u128,
@@ -53,7 +57,8 @@ struct OutpostVerified {
     verified: bool,
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct WorldEventVerifications {
     #[key]
     game_id: u128,

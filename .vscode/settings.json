@@ -1,8 +1,6 @@
 {
-    // This works better until the dojo lang server gets fixed
-    "cairo1.languageServerPath": "${userHome}/.dojo/bin/dojo-language-server",
-    "cairo1.enableLanguageServer": true,
-    "cairo1.enableScarb": true,
+    "cairo1.languageServerPath": "${userHome}/.asdf/installs/scarb/2.6.3/bin/scarb-cairo-language-server",
+    "cairo1.scarbPath": "${userHome}/.asdf/installs/scarb/2.6.3/bin/scarb",
     "cSpell.words": [
         "risingrevenant"
     ]

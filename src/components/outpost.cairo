@@ -11,7 +11,8 @@ use risingrevenant::utils::random::{RandomTrait};
 use risingrevenant::utils::{calculate_distance};
 
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct Outpost {
     #[key]
     game_id: u128,
@@ -24,7 +25,8 @@ struct Outpost {
     status: u8,
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct OutpostMarket {
     #[key]
     game_id: u128,
@@ -33,7 +35,8 @@ struct OutpostMarket {
     max_per_player: u32
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct OutpostSetup {
     #[key]
     game_id: u128,

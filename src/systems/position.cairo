@@ -13,7 +13,7 @@ impl PositionGeneratorImpl of PositionGeneratorTrait {
         }
     }
     fn single(action: GameAction) -> Position {
-        let mut generator = PositionGeneratorImpl::new(action);
+        let mut generator = Self::new(action);
         generator.next()
     }
     fn next(ref self: PositionGenerator) -> Position {

@@ -14,7 +14,8 @@ struct Trade<T> {
     status: u8,
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct OutpostTrade {
     #[key]
     game_id: u128,
@@ -28,7 +29,8 @@ struct OutpostTrade {
     status: u8,
 }
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct ReinforcementTrade {
     #[key]
     game_id: u128,

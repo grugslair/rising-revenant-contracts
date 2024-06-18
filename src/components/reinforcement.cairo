@@ -11,7 +11,8 @@ use risingrevenant::components::currency::{CurrencyTrait};
 use risingrevenant::utils::get_block_number;
 
 
-#[derive(Model, Copy, Drop, Print, Serde, SerdeLen)]
+#[dojo::model]
+#[derive(Copy, Drop, Print, Serde, SerdeLen)]
 struct ReinforcementMarketConsts {
     #[key]
     game_id: u128,
