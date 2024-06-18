@@ -70,12 +70,17 @@ mod FooErc20 {
             self._total_supply.read()
         }
 
-        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+        fn balance_of(
+            self: @ContractState, world: IWorldDispatcher, account: ContractAddress
+        ) -> u256 {
             self._balances.read(account)
         }
 
         fn allowance(
-            self: @ContractState, owner: ContractAddress, spender: ContractAddress
+            self: @ContractState,
+            world: IWorldDispatcher,
+            owner: ContractAddress,
+            spender: ContractAddress
         ) -> u256 {
             self._allowances.read((owner, spender))
         }

@@ -1,13 +1,15 @@
+use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use risingrevenant::components::world_event::{EventType};
 
 
 #[starknet::interface]
 trait IWorldEventActions<TContractState> {
-    fn random(self: @TContractState, game_id: u128) -> u128;
+    fn random(self: @TContractState, world: IWorldDispatcher, game_id: u128) -> u128;
 }
 
-#[dojo::contract]
+#[starknet::contract]
 mod world_event_actions {
+    use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
     use risingrevenant::systems::game::GameActionTrait;
     use starknet::{get_caller_address};
 
@@ -20,10 +22,13 @@ mod world_event_actions {
 
     use super::IWorldEventActions;
 
+    #[storage]
+    struct Storage {}
+
     #[abi(embed_v0)]
     impl WorldEventActionImpl of IWorldEventActions<ContractState> {
-        fn random(self: @ContractState, game_id: u128) -> u128 {
-            let game_action = GameAction { game_id, world: self.world_dispatcher.read() };
+        fn random(self: @ContractState, world: IWorldDispatcher, game_id: u128) -> u128 {
+            let game_action = GameAction { game_id, world };
             let caller = get_caller_address();
             game_action.assert_is_admin(caller);
             let mut random = RandomTrait::new();
