@@ -102,7 +102,6 @@ mod game_actions {
             game_action.set(reinforcement_market);
             game_id
         }
-
         fn set_game_map(ref world: IWorldDispatcher, game_map: GameMap) {
             world.update_settings(game_map.game_id, game_map);
         }

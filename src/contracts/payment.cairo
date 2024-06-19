@@ -18,8 +18,7 @@ mod payment_actions {
 
     use risingrevenant::systems::payment::{PaymentSystemTrait, PaymentSystem};
     use super::IPaymentActions;
-    #[storage]
-    struct Storage {}
+
     #[abi(embed_v0)]
     impl PaymentActionsImpl of IPaymentActions<ContractState> {
         fn claim_jackpot(ref world: IWorldDispatcher, game_id: u128) {
@@ -53,9 +52,9 @@ mod payment_actions {
     #[generate_trait]
     impl Private of PrivateTrait {
         fn get_claim_info(
-            self: IWorldDispatcher, game_id: u128
+            self: @IWorldDispatcher, game_id: u128
         ) -> (GameAction, GamePot, PaymentSystem) {
-            let game_action = GameAction { world: self, game_id };
+            let game_action = GameAction { world: *self, game_id };
             game_action.assert_ended();
             (game_action, game_action.get_game::<GamePot>(), PaymentSystemTrait::new(game_action))
         }

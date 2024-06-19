@@ -36,7 +36,7 @@ mod contracts_tests {
     use core::option::OptionTrait;
 
     use debug::PrintTrait;
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, testing::{set_caller_address, set_block_number}};
     use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
     use origami::defi::auction::vrgda::{LogisticVRGDA, VRGDATrait};
     use cubit::f128::types::fixed::{Fixed, FixedTrait, ONE_u128};
@@ -93,9 +93,8 @@ mod contracts_tests {
         world_event_actions, } =
             make_test_world();
 
-        starknet::testing::set_caller_address(ADMIN_ADDRESS.try_into().unwrap());
         let game_id = game_actions.create(1, 10);
-        starknet::testing::set_block_number(1);
+        set_block_number(3);
         let game_action = GameAction { world, game_id };
         let mut n: u32 = 1;
         let pot: GamePot = game_action.get_game();
@@ -109,7 +108,7 @@ mod contracts_tests {
         );
         loop {
             let price = reinforcement_actions.get_price(game_id, n);
-            reinforcement_actions.purchase(game_id, 10);
+            reinforcement_actions.purchase(game_id, n);
             println!("Ammount 10 price {}", price);
             let pot: GamePot = game_action.get_game();
             println!(

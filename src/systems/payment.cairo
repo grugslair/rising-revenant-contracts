@@ -62,8 +62,6 @@ impl PaymentSystemImpl of PaymentSystemTrait {
     ) {
         let pot_conts: GamePotConsts = self.game_action.get_game();
         let amount_256 = amount.convert();
-        let sender_addr: felt252 = sender.into();
-        let pot_addr: felt252 = pot_conts.pot_address.into();
         self.transfer(sender, pot_conts.pot_address, amount_256);
         let mut game_pot: GamePot = self.game_action.get_game();
         game_pot.total_pot += amount_256;

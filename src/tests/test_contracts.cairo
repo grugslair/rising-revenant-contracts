@@ -1,8 +1,11 @@
+use starknet::{
+    class_hash::Felt252TryIntoClassHash, syscalls::deploy_syscall, ContractAddress,
+    testing::set_account_contract_address
+};
 use dojo::{
     test_utils::{deploy_contract, spawn_test_world,},
     world::{IWorldDispatcher, IWorldDispatcherTrait,},
 };
-use starknet::{class_hash::Felt252TryIntoClassHash, syscalls::deploy_syscall, ContractAddress,};
 use risingrevenant::{
     components::{
         game::{
@@ -135,7 +138,9 @@ fn make_test_world() -> TestContracts {
     };
 
     game_actions_dispatcher.set_defaults();
-
+    let mut game_pot_consts: GamePotConsts = get!(world, 0, GamePotConsts);
+    game_pot_consts.pot_address = payment_actions_dispatcher.contract_address;
+    set!(world, (game_pot_consts,));
     TestContracts {
         world,
         game_actions: game_actions_dispatcher,
