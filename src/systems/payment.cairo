@@ -93,7 +93,6 @@ impl PaymentSystemImpl of PaymentSystemTrait {
     fn pay_out_pot<T, +CurrencyTrait<T, u256>, +Copy<T>, +Drop<T>>(
         self: PaymentSystem, recipient: ContractAddress, amount: T
     ) {
-        let pot_conts: GamePotConsts = self.game_action.get_game();
         self.transfer(recipient, amount);
     }
 }
