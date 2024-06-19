@@ -60,7 +60,7 @@ struct GameMap {
 struct GameERC20 {
     #[key]
     game_id: u128,
-    address: ContractAddress, // The ERC20 token address for increasing reinforcement
+    address: ContractAddress,
 }
 
 #[dojo::model]

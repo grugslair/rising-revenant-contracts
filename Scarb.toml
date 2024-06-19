@@ -9,7 +9,7 @@ sierra-replace-ids = true
 [dependencies]
 dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.7.1" }
 origami = { git = "https://github.com/dojoengine/origami", tag = "v0.7.1" }
-# cubit = { git = "https://github.com/influenceth/cubit" }
+token = { git = "https://github.com/dojoengine/origami", tag = "v0.7.1" }
 cubit = { git = "https://github.com/notV4l/cubit.git", branch = "cairo_2.7" }
 # openzeppelin = { git = "https://github.com/ben-jay-amin/cairo-contracts.git", branch = "release-v0.9.1" }
 
@@ -21,7 +21,7 @@ initializer_class_hash = "0xbeef"
 [tool.dojo.env]
 
 # local
-rpc_url = "http://localhost:5050"
+# rpc_url = "http://localhost:5050"
 account_address = "0xb3ff441a68610b30fd5e2abbf3a1548eb6ba6f3559f2862bf2dc757e5828ca"
 private_key = "0x2bbf4f9fd0bbb2e60b0316c1fe0b76cf7a4d0198bd493ced9b8df2a3a24d68a"
 #world_address = "0x7a4adc3dc01142811d2db99848998828b30e8a3c3d2a3875751f427ff11ad35"
@@ -33,7 +33,7 @@ private_key = "0x2bbf4f9fd0bbb2e60b0316c1fe0b76cf7a4d0198bd493ced9b8df2a3a24d68a
 #world_address = ""
 
 # testnet sepolia
-#rpc_url = "https://starknet-sepolia.public.blastapi.io/rpc/v0_6"
+rpc_url = "https://starknet-sepolia.public.blastapi.io/rpc/v0_6"
 #account_address = "0x00d8f5468626409c9af775c7994f4b4d1e7f17edbecd82ad548d3632b8773538"
 #private_key = "0x041004e1773bb07a806a03159d88ba1d2c480f283c85434040e35286c1ce1f7c"
 #world_address = "0x7a4adc3dc01142811d2db99848998828b30e8a3c3d2a3875751f427ff11ad35"

@@ -1,3 +1,4 @@
+use core::option::OptionTrait;
 use starknet::{
     class_hash::Felt252TryIntoClassHash, syscalls::deploy_syscall, ContractAddress,
     testing::set_account_contract_address
@@ -6,12 +7,16 @@ use dojo::{
     test_utils::{deploy_contract, spawn_test_world,},
     world::{IWorldDispatcher, IWorldDispatcherTrait,},
 };
+use token::presets::erc20::tests_bridgeable::{
+    setup as erc20_setup, IERC20BridgeablePresetDispatcher, IERC20BridgeablePresetDispatcherTrait,
+    BRIDGE, DECIMALS
+};
 use risingrevenant::{
     components::{
         game::{
             CurrentGame, current_game, DevWallet, dev_wallet, GameMap, game_map, GamePhases,
             game_phases, GamePot, game_pot, GamePotConsts, game_pot_consts, GameState, game_state,
-            GameTradeTax, game_trade_tax,
+            GameTradeTax, game_trade_tax, GameERC20, game_erc_20,
         },
         outpost::{Outpost, outpost, OutpostMarket, outpost_market, OutpostSetup, outpost_setup,},
         player::{PlayerContribution, player_contribution, PlayerInfo, player_info,},
@@ -32,6 +37,7 @@ use risingrevenant::{
         trade_reinforcement::{trade_reinforcement_actions, ITradeReinforcementsActionsDispatcher,},
         world_event::{world_event_actions, IWorldEventActionsDispatcher,},
     },
+    tests::utils::{impersonate, ADMIN, PLAYER_1, PLAYER_2, OTHER}, constants::DECIMAL_MULTIPLIER,
 };
 
 #[derive(Copy, Drop)]
@@ -44,6 +50,7 @@ struct TestContracts {
     trade_outpost_actions: ITradeOutpostActionsDispatcher,
     trade_reinforcement_actions: ITradeReinforcementsActionsDispatcher,
     world_event_actions: IWorldEventActionsDispatcher,
+    erc20_actions: IERC20BridgeablePresetDispatcher,
 }
 
 fn get_test_world() -> IWorldDispatcher {
@@ -54,6 +61,7 @@ fn get_test_world() -> IWorldDispatcher {
         game_phases::TEST_CLASS_HASH,
         game_pot::TEST_CLASS_HASH,
         game_pot_consts::TEST_CLASS_HASH,
+        game_erc_20::TEST_CLASS_HASH,
         game_state::TEST_CLASS_HASH,
         game_trade_tax::TEST_CLASS_HASH,
         outpost::TEST_CLASS_HASH,
@@ -76,9 +84,14 @@ fn get_test_world() -> IWorldDispatcher {
 
 #[cfg(test)]
 fn make_test_world() -> TestContracts {
+    println!("Start deploy erc20");
+    let (erc20_world, erc20_dispatcher) = erc20_setup();
+
+    erc20_dispatcher.mint(PLAYER_1(), 1000 * DECIMAL_MULTIPLIER);
+    println!("Minted to player 1");
+    impersonate(ADMIN());
     let mut world = get_test_world();
     println!("Made world");
-
     let empty_felt_span: Span<felt252> = ArrayTrait::new().span();
 
     let game_actions_dispatcher = IGameActionsDispatcher {
@@ -139,8 +152,11 @@ fn make_test_world() -> TestContracts {
 
     game_actions_dispatcher.set_defaults();
     let mut game_pot_consts: GamePotConsts = get!(world, 0, GamePotConsts);
+    let mut game_erc20: GameERC20 = get!(world, 0, GameERC20);
     game_pot_consts.pot_address = payment_actions_dispatcher.contract_address;
-    set!(world, (game_pot_consts,));
+    game_erc20.address = erc20_dispatcher.contract_address;
+
+    set!(world, (game_pot_consts, game_erc20));
     TestContracts {
         world,
         game_actions: game_actions_dispatcher,
@@ -150,5 +166,6 @@ fn make_test_world() -> TestContracts {
         trade_outpost_actions: trade_outpost_actions_dispatcher,
         trade_reinforcement_actions: trade_reinforcement_actions_dispatcher,
         world_event_actions: world_event_actions_dispatcher,
+        erc20_actions: erc20_dispatcher,
     }
 }

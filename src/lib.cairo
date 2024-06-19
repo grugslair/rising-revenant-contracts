@@ -34,5 +34,6 @@ mod systems {
 mod tests {
     mod test_contracts;
     mod reinforcement_test;
+    mod utils;
 }
 mod utils;

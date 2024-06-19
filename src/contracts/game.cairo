@@ -5,7 +5,7 @@ use risingrevenant::{
         currency::CurrencyTrait,
         game::{
             CurrentGame, GameStatus, GameMap, GameTradeTax, GamePotConsts, GameState, GamePot,
-            GamePhases, Dimensions
+            GamePhases, Dimensions, GameERC20
         },
         reinforcement::{ReinforcementMarketConsts}, outpost::{OutpostMarket, OutpostSetup},
         world_event::{WorldEventSetup},
@@ -18,6 +18,7 @@ trait IGameActions {
     fn create(ref world: IWorldDispatcher, start_block: u64, preparation_blocks: u64) -> u128;
     fn set_game_map(ref world: IWorldDispatcher, game_map: GameMap);
     fn set_game_pot_consts(ref world: IWorldDispatcher, game_pot_consts: GamePotConsts);
+    fn set_game_erc20(ref world: IWorldDispatcher, game_erc20: GameERC20);
     fn set_game_trade_tax(ref world: IWorldDispatcher, game_trade_tax: GameTradeTax);
     fn set_outpost_market(ref world: IWorldDispatcher, outpost_market: OutpostMarket);
     fn set_game_state(ref world: IWorldDispatcher, game_state: GameState);
@@ -41,7 +42,7 @@ mod game_actions {
             currency::CurrencyTrait,
             game::{
                 CurrentGame, GameStatus, GameMap, GameTradeTax, GamePotConsts, GameState, GamePot,
-                GamePhases, Dimensions
+                GamePhases, Dimensions, GameERC20
             },
             reinforcement::{ReinforcementMarketConsts}, outpost::{OutpostMarket, OutpostSetup},
             world_event::{WorldEventSetup},
@@ -69,6 +70,7 @@ mod game_actions {
             let current_block = get_block_info().unbox().block_number;
             let mut game_map: GameMap = get!(world, 0, GameMap);
             let mut game_pot_consts: GamePotConsts = get!(world, 0, GamePotConsts);
+            let mut game_erc20: GameERC20 = get!(world, 0, GameERC20);
             let mut game_trade_tax: GameTradeTax = get!(world, 0, GameTradeTax);
             let mut outpost_market: OutpostMarket = get!(world, 0, OutpostMarket);
             let mut outpost_setup: OutpostSetup = get!(world, 0, OutpostSetup);
@@ -94,6 +96,7 @@ mod game_actions {
             game_action.set(current_game);
             game_action.set(game_map);
             game_action.set(game_pot_consts);
+            game_action.set(game_erc20);
             game_action.set(world_event_setup);
             game_action.set(outpost_market);
             game_action.set(game_trade_tax);
@@ -101,6 +104,9 @@ mod game_actions {
             game_action.set(outpost_setup);
             game_action.set(reinforcement_market);
             game_id
+        }
+        fn set_game_erc20(ref world: IWorldDispatcher, game_erc20: GameERC20) {
+            world.update_settings(game_erc20.game_id, game_erc20);
         }
         fn set_game_map(ref world: IWorldDispatcher, game_map: GameMap) {
             world.update_settings(game_map.game_id, game_map);

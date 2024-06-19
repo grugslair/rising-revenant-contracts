@@ -54,7 +54,6 @@ impl GameActionImpl of GameActionTrait {
             confirmation_percent: CONFIRMATION_PERCENT,
             ltr_percent: LTR_PERCENT,
         };
-        let world_addr: felt252 = self.contract_address.into();
 
         let game_trade_tax = GameTradeTax { game_id, trade_tax_percent: GAME_TRADE_TAX_PERCENT, };
 
