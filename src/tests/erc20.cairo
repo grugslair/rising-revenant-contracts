@@ -56,7 +56,6 @@ use token::components::tests::token::erc20::test_erc20_balance::{
 //
 
 fn setup() -> (IWorldDispatcher, IERC20BridgeablePresetDispatcher) {
-    println!("1");
     let world = spawn_test_world(
         array![
             erc_20_allowance_model::TEST_CLASS_HASH,
@@ -65,7 +64,6 @@ fn setup() -> (IWorldDispatcher, IERC20BridgeablePresetDispatcher) {
             erc_20_bridgeable_model::TEST_CLASS_HASH,
         ]
     );
-    println!("2");
 
     // deploy contract
     let mut erc20_bridgeable_dispatcher = IERC20BridgeablePresetDispatcher {
@@ -74,7 +72,6 @@ fn setup() -> (IWorldDispatcher, IERC20BridgeablePresetDispatcher) {
                 'salt', ERC20Bridgeable::TEST_CLASS_HASH.try_into().unwrap(), array![].span()
             )
     };
-    println!("4");
 
     // setup auth
     world
@@ -91,16 +88,13 @@ fn setup() -> (IWorldDispatcher, IERC20BridgeablePresetDispatcher) {
         .grant_writer(
             selector!("ERC20BridgeableModel"), erc20_bridgeable_dispatcher.contract_address
         );
-    println!("5");
 
     // initialize contracts
     erc20_bridgeable_dispatcher.initializer("NAME", "SYMBOL", SUPPLY, OWNER(), BRIDGE());
-    println!("6");
 
     // drop all events
     utils::drop_all_events(erc20_bridgeable_dispatcher.contract_address);
     utils::drop_all_events(world.contract_address);
-    println!("6");
 
     (world, erc20_bridgeable_dispatcher)
 }

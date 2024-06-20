@@ -8,9 +8,10 @@ use dojo::{
 };
 
 
-// use token::presets::erc20::tests_bridgeable::{
-//     IERC20BridgeablePresetDispatcher, IERC20BridgeablePresetDispatcherTrait, BRIDGE, DECIMALS
-// };
+use token::presets::erc20::tests_bridgeable::{
+    setup as erc20_setup, IERC20BridgeablePresetDispatcher, IERC20BridgeablePresetDispatcherTrait,
+    BRIDGE, DECIMALS
+};
 use risingrevenant::{
     components::{
         game::{
@@ -37,12 +38,10 @@ use risingrevenant::{
         trade_reinforcement::{trade_reinforcement_actions, ITradeReinforcementsActionsDispatcher,},
         world_event::{world_event_actions, IWorldEventActionsDispatcher,},
     },
-    tests::{
-        utils::{impersonate, ADMIN, PLAYER_1, PLAYER_2, OTHER},
-        erc20::{
-            setup as erc20_setup, IERC20BridgeablePresetDispatcher,
-            IERC20BridgeablePresetDispatcherTrait, BRIDGE, DECIMALS
-        }
+    tests::{utils::{impersonate, ADMIN, PLAYER_1, PLAYER_2, OTHER}, // erc20::{
+    //     setup as erc20_setup, IERC20BridgeablePresetDispatcher,
+    //     IERC20BridgeablePresetDispatcherTrait, BRIDGE, DECIMALS
+    // }
     },
     constants::DECIMAL_MULTIPLIER,
 };
@@ -92,7 +91,7 @@ fn get_test_world() -> IWorldDispatcher {
 #[cfg(test)]
 fn make_test_world() -> TestContracts {
     println!("Start deploy erc20");
-    let (erc20_world, mut erc20_dispatcher) = erc20_setup();
+    let (erc20_world, erc20_dispatcher) = erc20_setup();
     println!("Deployed erc20");
     impersonate(BRIDGE());
     erc20_dispatcher.mint(PLAYER_1(), 1000 * DECIMAL_MULTIPLIER);

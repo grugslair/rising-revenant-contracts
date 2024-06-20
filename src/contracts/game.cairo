@@ -1,3 +1,4 @@
+use starknet::ContractAddress;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
 use risingrevenant::{
@@ -18,7 +19,7 @@ trait IGameActions {
     fn create(ref world: IWorldDispatcher, start_block: u64, preparation_blocks: u64) -> u128;
     fn set_game_map(ref world: IWorldDispatcher, game_map: GameMap);
     fn set_game_pot_consts(ref world: IWorldDispatcher, game_pot_consts: GamePotConsts);
-    fn set_game_erc20(ref world: IWorldDispatcher, game_erc20: GameERC20);
+    fn set_game_erc20(ref world: IWorldDispatcher, game_id: u128, address: ContractAddress);
     fn set_game_trade_tax(ref world: IWorldDispatcher, game_trade_tax: GameTradeTax);
     fn set_outpost_market(ref world: IWorldDispatcher, outpost_market: OutpostMarket);
     fn set_game_state(ref world: IWorldDispatcher, game_state: GameState);
@@ -55,14 +56,15 @@ mod game_actions {
     #[abi(embed_v0)]
     impl GameActionImpl of IGameActions<ContractState> {
         fn set_defaults(ref world: IWorldDispatcher) {
+            let caller_id = get_caller_address();
+            world.assert_is_admin(caller_id);
             GameActionTrait::set_defaults(world);
         }
         fn create(ref world: IWorldDispatcher, start_block: u64, preparation_blocks: u64) -> u128 {
             let caller_id = get_caller_address();
             let game_id: u128 = world.get_uuid();
-            println!("Creating game with id: {}", game_id);
             let game_action = GameAction { world, game_id };
-            game_action.assert_is_admin(caller_id);
+            world.assert_is_admin(caller_id);
             let mut current_game: CurrentGame = game_action.get(caller_id);
             let _last_game_id = current_game.game_id;
             current_game.game_id = game_id;
@@ -105,8 +107,8 @@ mod game_actions {
             game_action.set(reinforcement_market);
             game_id
         }
-        fn set_game_erc20(ref world: IWorldDispatcher, game_erc20: GameERC20) {
-            world.update_settings(game_erc20.game_id, game_erc20);
+        fn set_game_erc20(ref world: IWorldDispatcher, game_id: u128, address: ContractAddress) {
+            world.update_settings(game_id, GameERC20 { game_id, address });
         }
         fn set_game_map(ref world: IWorldDispatcher, game_map: GameMap) {
             world.update_settings(game_map.game_id, game_map);
@@ -146,8 +148,10 @@ mod game_actions {
         ) {
             let caller_id = get_caller_address();
             let game_action = GameAction { world: self, game_id };
-            game_action.assert_not_started();
-            game_action.assert_is_admin(caller_id);
+            if game_id.is_non_zero() {
+                game_action.assert_not_started();
+            }
+            self.assert_is_admin(caller_id);
             game_action.set(settings);
         }
     }

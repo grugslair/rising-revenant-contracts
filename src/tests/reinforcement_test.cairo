@@ -106,19 +106,21 @@ mod contracts_tests {
         let balance = erc20_actions.balance_of(PLAYER_1());
         println!(
             "total {} winners {} confirmation {} ltr {} dev {}\t player: {}",
-            pot.total_pot,
-            pot.winners_pot,
-            pot.confirmation_pot,
-            pot.ltr_pot,
-            pot.dev_pot,
+            pot.total_pot / DECIMAL_MULTIPLIER,
+            pot.winners_pot / DECIMAL_MULTIPLIER,
+            pot.confirmation_pot / DECIMAL_MULTIPLIER,
+            pot.ltr_pot / DECIMAL_MULTIPLIER,
+            pot.dev_pot / DECIMAL_MULTIPLIER,
             balance / DECIMAL_MULTIPLIER,
         );
         impersonate(PLAYER_1());
         loop {
             let price = reinforcement_actions.get_price(game_id, n);
             reinforcement_actions.purchase(game_id, n);
-            println!("Ammount 10 price {}", price);
+
             let pot: GamePot = game_action.get_game();
+            println!("4");
+
             println!(
                 "total {} winners {} confirmation {} ltr {} dev {}\t player: {}",
                 pot.total_pot / DECIMAL_MULTIPLIER,

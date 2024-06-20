@@ -13,8 +13,6 @@ token = { git = "https://github.com/dojoengine/origami", tag = "v0.7.1" }
 cubit = { git = "https://github.com/notV4l/cubit.git", branch = "cairo_2.7" }
 # openzeppelin = { git = "https://github.com/ben-jay-amin/cairo-contracts.git", branch = "release-v0.9.1" }
 
-[[target.dojo]]
-
 [tool.dojo]
 initializer_class_hash = "0xbeef"
 
@@ -40,3 +38,13 @@ initializer_class_hash = "0xbeef"
 
 [tool.fmt]
 sort-module-level-items = true
+
+[[target.dojo]]
+# build-external-contracts = [
+#     "token::components::security::initializable::initializable_model",
+#     "token::components::token::erc20::erc20_metadata::erc_20_metadata_model",
+#     "token::components::token::erc20::erc20_balance::erc_20_balance_model",
+#     "token::components::token::erc20::erc20_allowance::erc_20_allowance_model",
+#     "token::components::token::erc20::erc20_mintable::erc_20_mintable_model",
+#     "token::components::token::erc20::erc20_burnable::erc_20_burnable_model",
+# ]
