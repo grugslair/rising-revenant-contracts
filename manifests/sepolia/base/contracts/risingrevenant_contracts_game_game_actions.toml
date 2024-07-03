@@ -1,0 +1,10 @@
+kind = "DojoContract"
+class_hash = "0x701083a17e423ed34b4606a888531b3bfdd5c493609f4b3e18a739cd8babf36"
+original_class_hash = "0x701083a17e423ed34b4606a888531b3bfdd5c493609f4b3e18a739cd8babf36"
+base_class_hash = "0x0"
+abi = "manifests/sepolia/abis/base/contracts/risingrevenant_contracts_game_game_actions.json"
+reads = []
+writes = []
+computed = []
+init_calldata = []
+name = "risingrevenant::contracts::game::game_actions"

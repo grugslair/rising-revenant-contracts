@@ -1,0 +1,25 @@
+kind = "DojoModel"
+class_hash = "0x4f619b1c6827ded83bf4950d1949d07e4ea91b9c2e31a6e2ba5f09a6a5d9e15"
+original_class_hash = "0x4f619b1c6827ded83bf4950d1949d07e4ea91b9c2e31a6e2ba5f09a6a5d9e15"
+abi = "manifests/dev/abis/base/models/risingrevenant_components_player_player_contribution.json"
+name = "risingrevenant::components::player::player_contribution"
+
+[[members]]
+name = "game_id"
+type = "u128"
+key = true
+
+[[members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[members]]
+name = "score"
+type = "u256"
+key = false
+
+[[members]]
+name = "claimed"
+type = "bool"
+key = false

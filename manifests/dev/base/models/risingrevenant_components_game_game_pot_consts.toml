@@ -1,0 +1,30 @@
+kind = "DojoModel"
+class_hash = "0x4321c2af890408d51782c3dd6ff01eeefa8e071c12764d3d80a5b70d768fb2c"
+original_class_hash = "0x4321c2af890408d51782c3dd6ff01eeefa8e071c12764d3d80a5b70d768fb2c"
+abi = "manifests/dev/abis/base/models/risingrevenant_components_game_game_pot_consts.json"
+name = "risingrevenant::components::game::game_pot_consts"
+
+[[members]]
+name = "game_id"
+type = "u128"
+key = true
+
+[[members]]
+name = "pot_address"
+type = "ContractAddress"
+key = false
+
+[[members]]
+name = "dev_percent"
+type = "u8"
+key = false
+
+[[members]]
+name = "confirmation_percent"
+type = "u8"
+key = false
+
+[[members]]
+name = "ltr_percent"
+type = "u8"
+key = false

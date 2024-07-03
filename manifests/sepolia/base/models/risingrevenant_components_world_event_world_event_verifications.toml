@@ -1,0 +1,15 @@
+kind = "DojoModel"
+class_hash = "0x4accc145f46385ee34e191100d0cf6acf1674ca7477c3009ba366603f961e76"
+original_class_hash = "0x4accc145f46385ee34e191100d0cf6acf1674ca7477c3009ba366603f961e76"
+abi = "manifests/sepolia/abis/base/models/risingrevenant_components_world_event_world_event_verifications.json"
+name = "risingrevenant::components::world_event::world_event_verifications"
+
+[[members]]
+name = "game_id"
+type = "u128"
+key = true
+
+[[members]]
+name = "verifications"
+type = "u32"
+key = false

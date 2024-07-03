@@ -1,0 +1,40 @@
+kind = "DojoModel"
+class_hash = "0x7236e3209ddd4349dad74f0ca5ce8902949068815c5339dc626a3f7ac6cce82"
+original_class_hash = "0x7236e3209ddd4349dad74f0ca5ce8902949068815c5339dc626a3f7ac6cce82"
+abi = "manifests/dev/abis/base/models/risingrevenant_components_game_game_pot.json"
+name = "risingrevenant::components::game::game_pot"
+
+[[members]]
+name = "game_id"
+type = "u128"
+key = true
+
+[[members]]
+name = "total_pot"
+type = "u256"
+key = false
+
+[[members]]
+name = "winners_pot"
+type = "u256"
+key = false
+
+[[members]]
+name = "confirmation_pot"
+type = "u256"
+key = false
+
+[[members]]
+name = "ltr_pot"
+type = "u256"
+key = false
+
+[[members]]
+name = "dev_pot"
+type = "u256"
+key = false
+
+[[members]]
+name = "claimed"
+type = "bool"
+key = false

@@ -1,0 +1,513 @@
+[
+  {
+    "type": "impl",
+    "name": "DojoResourceProviderImpl",
+    "interface_name": "dojo::world::IDojoResourceProvider"
+  },
+  {
+    "type": "interface",
+    "name": "dojo::world::IDojoResourceProvider",
+    "items": [
+      {
+        "type": "function",
+        "name": "dojo_resource",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::felt252"
+          }
+        ],
+        "state_mutability": "view"
+      }
+    ]
+  },
+  {
+    "type": "impl",
+    "name": "WorldProviderImpl",
+    "interface_name": "dojo::world::IWorldProvider"
+  },
+  {
+    "type": "struct",
+    "name": "dojo::world::IWorldDispatcher",
+    "members": [
+      {
+        "name": "contract_address",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "type": "interface",
+    "name": "dojo::world::IWorldProvider",
+    "items": [
+      {
+        "type": "function",
+        "name": "world",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "dojo::world::IWorldDispatcher"
+          }
+        ],
+        "state_mutability": "view"
+      }
+    ]
+  },
+  {
+    "type": "impl",
+    "name": "GameActionImpl",
+    "interface_name": "risingrevenant::contracts::game::IGameActions"
+  },
+  {
+    "type": "struct",
+    "name": "risingrevenant::components::game::Dimensions",
+    "members": [
+      {
+        "name": "x",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "y",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "risingrevenant::components::game::GameMap",
+    "members": [
+      {
+        "name": "game_id",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "dimensions",
+        "type": "risingrevenant::components::game::Dimensions"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "risingrevenant::components::game::GamePotConsts",
+    "members": [
+      {
+        "name": "game_id",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "pot_address",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "dev_percent",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "confirmation_percent",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "ltr_percent",
+        "type": "core::integer::u8"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "risingrevenant::components::game::GameTradeTax",
+    "members": [
+      {
+        "name": "game_id",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "trade_tax_percent",
+        "type": "core::integer::u8"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "core::integer::u256",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "risingrevenant::components::outpost::OutpostMarket",
+    "members": [
+      {
+        "name": "game_id",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "price",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "max_sellable",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "max_per_player",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "risingrevenant::components::game::GameState",
+    "members": [
+      {
+        "name": "game_id",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "outpost_created_count",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "outpost_remaining_count",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "remain_life_count",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "reinforcement_count",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "contribution_score_total",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "risingrevenant::components::game::GamePhases",
+    "members": [
+      {
+        "name": "game_id",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "status",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "preparation_block_number",
+        "type": "core::integer::u64"
+      },
+      {
+        "name": "play_block_number",
+        "type": "core::integer::u64"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "risingrevenant::components::outpost::OutpostSetup",
+    "members": [
+      {
+        "name": "game_id",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "life",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "max_reinforcements",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "risingrevenant::components::world_event::WorldEventSetup",
+    "members": [
+      {
+        "name": "game_id",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "radius_start",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "radius_increase",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "risingrevenant::components::reinforcement::ReinforcementMarketConsts",
+    "members": [
+      {
+        "name": "game_id",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "target_price",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "decay_constant_mag",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "max_sellable_percentage",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "time_scale_mag_factor",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "type": "interface",
+    "name": "risingrevenant::contracts::game::IGameActions",
+    "items": [
+      {
+        "type": "function",
+        "name": "set_defaults",
+        "inputs": [],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "create",
+        "inputs": [
+          {
+            "name": "start_block",
+            "type": "core::integer::u64"
+          },
+          {
+            "name": "preparation_blocks",
+            "type": "core::integer::u64"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u128"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_game_map",
+        "inputs": [
+          {
+            "name": "game_map",
+            "type": "risingrevenant::components::game::GameMap"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_game_pot_consts",
+        "inputs": [
+          {
+            "name": "game_pot_consts",
+            "type": "risingrevenant::components::game::GamePotConsts"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_game_erc20",
+        "inputs": [
+          {
+            "name": "game_id",
+            "type": "core::integer::u128"
+          },
+          {
+            "name": "address",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_game_trade_tax",
+        "inputs": [
+          {
+            "name": "game_trade_tax",
+            "type": "risingrevenant::components::game::GameTradeTax"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_outpost_market",
+        "inputs": [
+          {
+            "name": "outpost_market",
+            "type": "risingrevenant::components::outpost::OutpostMarket"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_game_state",
+        "inputs": [
+          {
+            "name": "game_state",
+            "type": "risingrevenant::components::game::GameState"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_game_phases",
+        "inputs": [
+          {
+            "name": "game_phases",
+            "type": "risingrevenant::components::game::GamePhases"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_outpost_setup",
+        "inputs": [
+          {
+            "name": "outpost_setup",
+            "type": "risingrevenant::components::outpost::OutpostSetup"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_world_event_setup",
+        "inputs": [
+          {
+            "name": "world_event_setup",
+            "type": "risingrevenant::components::world_event::WorldEventSetup"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_reinforcement_market",
+        "inputs": [
+          {
+            "name": "reinforcement_market",
+            "type": "risingrevenant::components::reinforcement::ReinforcementMarketConsts"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "type": "impl",
+    "name": "IDojoInitImpl",
+    "interface_name": "risingrevenant::contracts::game::game_actions::IDojoInit"
+  },
+  {
+    "type": "interface",
+    "name": "risingrevenant::contracts::game::game_actions::IDojoInit",
+    "items": [
+      {
+        "type": "function",
+        "name": "dojo_init",
+        "inputs": [],
+        "outputs": [],
+        "state_mutability": "view"
+      }
+    ]
+  },
+  {
+    "type": "impl",
+    "name": "UpgradableImpl",
+    "interface_name": "dojo::components::upgradeable::IUpgradeable"
+  },
+  {
+    "type": "interface",
+    "name": "dojo::components::upgradeable::IUpgradeable",
+    "items": [
+      {
+        "type": "function",
+        "name": "upgrade",
+        "inputs": [
+          {
+            "name": "new_class_hash",
+            "type": "core::starknet::class_hash::ClassHash"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "dojo::components::upgradeable::upgradeable::Upgraded",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "class_hash",
+        "type": "core::starknet::class_hash::ClassHash",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "dojo::components::upgradeable::upgradeable::Event",
+    "kind": "enum",
+    "variants": [
+      {
+        "name": "Upgraded",
+        "type": "dojo::components::upgradeable::upgradeable::Upgraded",
+        "kind": "nested"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "risingrevenant::contracts::game::game_actions::Event",
+    "kind": "enum",
+    "variants": [
+      {
+        "name": "UpgradeableEvent",
+        "type": "dojo::components::upgradeable::upgradeable::Event",
+        "kind": "nested"
+      }
+    ]
+  }
+]

@@ -1,0 +1,40 @@
+kind = "DojoModel"
+class_hash = "0x60c36bcc2828f2f0eb9681abbbddfce16c6a493626f8c7d22ed7d2dca57b1f3"
+original_class_hash = "0x60c36bcc2828f2f0eb9681abbbddfce16c6a493626f8c7d22ed7d2dca57b1f3"
+abi = "manifests/sepolia/abis/base/models/risingrevenant_components_outpost_outpost.json"
+name = "risingrevenant::components::outpost::outpost"
+
+[[members]]
+name = "game_id"
+type = "u128"
+key = true
+
+[[members]]
+name = "position"
+type = "Position"
+key = true
+
+[[members]]
+name = "owner"
+type = "ContractAddress"
+key = false
+
+[[members]]
+name = "life"
+type = "u32"
+key = false
+
+[[members]]
+name = "reinforces_remaining"
+type = "u32"
+key = false
+
+[[members]]
+name = "reinforcement_type"
+type = "ReinforcementType"
+key = false
+
+[[members]]
+name = "status"
+type = "u8"
+key = false

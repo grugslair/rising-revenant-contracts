@@ -1,0 +1,15 @@
+kind = "DojoModel"
+class_hash = "0x7184627466500b8560692db8ab27015172aa0c1cb4414b53afc2395f75a62f"
+original_class_hash = "0x7184627466500b8560692db8ab27015172aa0c1cb4414b53afc2395f75a62f"
+abi = "manifests/dev/abis/base/models/risingrevenant_components_game_game_erc_20.json"
+name = "risingrevenant::components::game::game_erc_20"
+
+[[members]]
+name = "game_id"
+type = "u128"
+key = true
+
+[[members]]
+name = "address"
+type = "ContractAddress"
+key = false

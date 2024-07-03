@@ -1,5 +1,5 @@
 {
-    "cairo1.languageServerPath": "${userHome}/.asdf/installs/dojo/0.7.1/bin/dojo-language-server",
+    "cairo1.languageServerPath": "${userHome}/.asdf/installs/dojo/0.7.2/bin/dojo-language-server",
     "cairo1.scarbPath": "${userHome}/.asdf/installs/scarb/2.6.3/bin/scarb",
     "cSpell.words": [
         "risingrevenant"

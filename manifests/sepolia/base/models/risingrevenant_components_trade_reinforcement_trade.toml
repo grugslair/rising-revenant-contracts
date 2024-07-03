@@ -1,0 +1,45 @@
+kind = "DojoModel"
+class_hash = "0x538e03f0507759c2cd336d1f81cd650d541943ed3878affc87daf58de134552"
+original_class_hash = "0x538e03f0507759c2cd336d1f81cd650d541943ed3878affc87daf58de134552"
+abi = "manifests/sepolia/abis/base/models/risingrevenant_components_trade_reinforcement_trade.json"
+name = "risingrevenant::components::trade::reinforcement_trade"
+
+[[members]]
+name = "game_id"
+type = "u128"
+key = true
+
+[[members]]
+name = "trade_id"
+type = "u128"
+key = true
+
+[[members]]
+name = "trade_type"
+type = "u8"
+key = false
+
+[[members]]
+name = "seller"
+type = "ContractAddress"
+key = false
+
+[[members]]
+name = "buyer"
+type = "ContractAddress"
+key = false
+
+[[members]]
+name = "price"
+type = "u128"
+key = false
+
+[[members]]
+name = "offer"
+type = "u32"
+key = false
+
+[[members]]
+name = "status"
+type = "u8"
+key = false

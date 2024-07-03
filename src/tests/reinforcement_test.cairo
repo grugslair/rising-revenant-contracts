@@ -82,6 +82,31 @@ mod contracts_tests {
     use risingrevenant::{
         tests::utils::{impersonate, ADMIN, PLAYER_1, PLAYER_2, OTHER}, constants::DECIMAL_MULTIPLIER
     };
+    use core::dict::{Felt252Dict, Felt252DictTrait, Felt252DictValue};
+    // #[derive(Drop, Serde, Copy)]
+    // struct Foo {
+    //     id: u128,
+    //     a: u8,
+    //     b: u8
+    // }
+
+    // impl Felt252DictValueImpl of Felt252DictValue<Foo> {
+    //     fn zero_default() -> Foo nopanic {
+    //         Foo { id: 0, a: 0, b: 0 }
+    //     }
+    // }
+    // impl U8TupleDrop
+
+    #[test]
+    #[available_gas(3000000000)]
+    fn test_dicts() {
+        let mut test: Felt252Dict<Foo> = Default::default();
+    // let box = BoxTrait::new(Foo { id: 1, a: 2, b: 3 });
+    // let mut foo = box.unbox();
+    // foo.a = 4;
+    // let foo2 = box.unbox();
+    // println!("foo2: {}", foo2.a);
+    }
 
     #[test]
     #[available_gas(3000000000)]

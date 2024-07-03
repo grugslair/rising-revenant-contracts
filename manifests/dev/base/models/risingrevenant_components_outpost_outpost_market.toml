@@ -1,0 +1,25 @@
+kind = "DojoModel"
+class_hash = "0x24aae2d4cbe62707981352c0f4be8f37617fabb29b098ba3f06f72e6fed5000"
+original_class_hash = "0x24aae2d4cbe62707981352c0f4be8f37617fabb29b098ba3f06f72e6fed5000"
+abi = "manifests/dev/abis/base/models/risingrevenant_components_outpost_outpost_market.json"
+name = "risingrevenant::components::outpost::outpost_market"
+
+[[members]]
+name = "game_id"
+type = "u128"
+key = true
+
+[[members]]
+name = "price"
+type = "u256"
+key = false
+
+[[members]]
+name = "max_sellable"
+type = "u32"
+key = false
+
+[[members]]
+name = "max_per_player"
+type = "u32"
+key = false

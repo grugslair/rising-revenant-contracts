@@ -1,0 +1,20 @@
+kind = "DojoModel"
+class_hash = "0x538b034b0f0f79dce20a59f63c54311748a0b358cd7f3c41224003ea9f48531"
+original_class_hash = "0x538b034b0f0f79dce20a59f63c54311748a0b358cd7f3c41224003ea9f48531"
+abi = "manifests/sepolia/abis/base/models/risingrevenant_components_outpost_outpost_setup.json"
+name = "risingrevenant::components::outpost::outpost_setup"
+
+[[members]]
+name = "game_id"
+type = "u128"
+key = true
+
+[[members]]
+name = "life"
+type = "u32"
+key = false
+
+[[members]]
+name = "max_reinforcements"
+type = "u32"
+key = false

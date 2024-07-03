@@ -1,0 +1,42 @@
+{
+  "owner": {},
+  "writer": {
+    "game_actions": [
+      "CurrentGame",
+      "GameERC20",
+      "GameMap",
+      "GamePhases",
+      "GamePot",
+      "GamePotConsts",
+      "GameState",
+      "GameTradeTax",
+      "OutpostMarket",
+      "OutpostSetup",
+      "ReinforcementMarketConsts",
+      "WorldEventSetup"
+    ],
+    "outpost_actions": [
+      "GamePhases",
+      "GamePot",
+      "GameState",
+      "Outpost",
+      "PlayerContribution",
+      "PlayerInfo",
+      "OutpostVerified",
+      "WorldEventVerifications"
+    ],
+    "reinforcement_actions": ["GamePot", "GameState", "PlayerInfo"],
+    "trade_outpost_actions": ["GamePot", "OutpostTrade"],
+    "payment_actions": ["GamePot"],
+    "trade_reinforcement_actions": [
+      "GamePot",
+      "PlayerInfo",
+      "ReinforcementTrade"
+    ],
+    "world_event_actions": [
+      "CurrentWorldEvent",
+      "WorldEvent",
+      "WorldEventVerifications"
+    ]
+  }
+}

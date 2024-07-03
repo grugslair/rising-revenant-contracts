@@ -1,0 +1,10 @@
+kind = "DojoContract"
+class_hash = "0x633d200041203439ddff5b7ae65b3304b79d68ff30844d62858785a09894724"
+original_class_hash = "0x633d200041203439ddff5b7ae65b3304b79d68ff30844d62858785a09894724"
+base_class_hash = "0x0"
+abi = "manifests/dev/abis/base/contracts/risingrevenant_contracts_trade_outpost_trade_outpost_actions.json"
+reads = []
+writes = []
+computed = []
+init_calldata = []
+name = "risingrevenant::contracts::trade_outpost::trade_outpost_actions"
