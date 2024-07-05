@@ -28,8 +28,6 @@ mod world_event_actions {
     impl WorldEventActionImpl of IWorldEventActions<ContractState> {
         fn random(ref world: IWorldDispatcher, game_id: u128) -> u128 {
             let game_action = GameAction { game_id, world };
-            let caller = get_caller_address();
-            world.assert_is_admin(caller);
             let mut random = RandomTrait::new();
             let event_type = (random.next_capped(3) + 1_u8).try_into().unwrap();
             game_action.new_world_event(event_type).event_id

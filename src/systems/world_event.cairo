@@ -1,10 +1,12 @@
+use starknet::{get_block_number, get_block_timestamp, get_caller_address};
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use risingrevenant::components::world_event::{
     WorldEventSetup, CurrentWorldEvent, CurrentWorldEventTrait, EventType, WorldEventVerifications
 };
 
-use risingrevenant::systems::game::{GameAction, GameActionTrait};
-use risingrevenant::systems::position::{PositionGeneratorTrait};
+use risingrevenant::{
+    components::game::{GameState},
+    systems::{game::{GameAction, GameActionTrait, }, position::{PositionGeneratorTrait}, player::PlayerActionsTrait}};
 
 
 #[generate_trait]
@@ -15,7 +17,8 @@ impl WorldEventImpl of WorldEventTrait {
         let last_event: CurrentWorldEvent = self.get_game();
         let next_event_id = self.uuid();
         let mut radius: u32 = last_event.radius;
-
+        let block_number = get_block_number();
+        assert(block_number > last_event.block_number + 1, 'Event only once per 2 blocks');
         if radius.is_zero() {
             radius = event_setup.radius_start;
         } else {
@@ -38,12 +41,18 @@ impl WorldEventImpl of WorldEventTrait {
             event_type,
             radius,
             number: last_event.number + 1,
-            block_number: starknet::get_block_info().unbox().block_number,
+            block_number,
             previous_event: last_event.event_id,
         };
 
-        self.set(event);
+        let mut game_state: GameState = self.get_game();
+        let mut caller_contribution = self.get_caller_contribution();
+        caller_contribution.score += 5;
+        game_state.contribution_score_total += 5;
 
+        self.set(event);
+        self.set(game_state);
+        self.set(caller_contribution);
         event
     }
     fn get_current_event(self: GameAction) -> CurrentWorldEvent {

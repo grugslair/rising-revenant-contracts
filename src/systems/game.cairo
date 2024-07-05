@@ -24,7 +24,8 @@ use risingrevenant::{
         GAME_TRADE_TAX_PERCENT, EVENT_RADIUS_START, EVENT_RADIUS_INCREASE, OUTPOST_PRICE,
         MAX_OUTPOSTS, OUTPOST_INIT_LIFE, OUTPOST_MAX_REINFORCEMENT, REINFORCEMENT_TARGET_PRICE,
         REINFORCEMENT_MAX_SELLABLE_PERCENTAGE, REINFORCEMENT_DECAY_CONSTANT_MAG,
-        REINFORCEMENT_TIME_SCALE_FACTOR_MAG, MAX_OUTPOSTS_PER_PLAYER
+        REINFORCEMENT_TIME_SCALE_FACTOR_MAG, MAX_OUTPOSTS_PER_PLAYER, PAYMENT_ACTIONS_ADDRESS
+        ,PAYMENT_TOKEN_ADDRESS
     }
 };
 
@@ -49,7 +50,7 @@ impl GameActionImpl of GameActionTrait {
         let game_map = GameMap { game_id, dimensions: Dimensions { x: MAP_WIDTH, y: MAP_HEIGHT }, };
         let game_pot_consts = GamePotConsts {
             game_id,
-            pot_address: self.contract_address,
+            pot_address: PAYMENT_ACTIONS_ADDRESS.try_into().unwrap(),
             dev_percent: DEV_PERCENT,
             confirmation_percent: CONFIRMATION_PERCENT,
             ltr_percent: LTR_PERCENT,

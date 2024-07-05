@@ -36,7 +36,8 @@
     "world_event_actions": [
       "CurrentWorldEvent",
       "WorldEvent",
-      "WorldEventVerifications"
+      "WorldEventVerifications",
+      "PlayerContribution"
     ]
   }
 }
