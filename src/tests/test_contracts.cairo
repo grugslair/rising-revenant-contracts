@@ -1,6 +1,6 @@
 use starknet::{
     class_hash::Felt252TryIntoClassHash, syscalls::deploy_syscall, ContractAddress,
-    testing::set_account_contract_address
+    testing::set_account_contract_address, get_contract_address, get_caller_address,
 };
 use dojo::{
     test_utils::{deploy_contract, spawn_test_world,},
@@ -15,9 +15,9 @@ use token::presets::erc20::tests_bridgeable::{
 use risingrevenant::{
     components::{
         game::{
-            CurrentGame, current_game, DevWallet, dev_wallet, GameMap, game_map, GamePhases,
-            game_phases, GamePot, game_pot, GamePotConsts, game_pot_consts, GameState, game_state,
-            GameTradeTax, game_trade_tax, GameERC20, game_erc_20,
+            CurrentGame, current_game, GameMap, game_map, GamePhases, game_phases, GamePot,
+            game_pot, GamePotConsts, game_pot_consts, GameState, game_state, GameTradeTax,
+            game_trade_tax, GameERC20, game_erc_20,
         },
         outpost::{Outpost, outpost, OutpostMarket, outpost_market, OutpostSetup, outpost_setup,},
         player::{PlayerContribution, player_contribution, PlayerInfo, player_info,},
@@ -62,7 +62,6 @@ struct TestContracts {
 fn get_test_world() -> IWorldDispatcher {
     let mut models = array![
         current_game::TEST_CLASS_HASH,
-        dev_wallet::TEST_CLASS_HASH,
         game_map::TEST_CLASS_HASH,
         game_phases::TEST_CLASS_HASH,
         game_pot::TEST_CLASS_HASH,
@@ -95,6 +94,8 @@ fn make_test_world() -> TestContracts {
     println!("Deployed erc20");
     impersonate(BRIDGE());
     erc20_dispatcher.mint(PLAYER_1(), 1000 * DECIMAL_MULTIPLIER);
+    erc20_dispatcher.mint(ADMIN(), 1000 * DECIMAL_MULTIPLIER);
+
     println!("Minted to player 1");
     impersonate(ADMIN());
     let mut world = get_test_world();

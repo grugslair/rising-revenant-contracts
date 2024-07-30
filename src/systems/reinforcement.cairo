@@ -53,7 +53,6 @@ impl ReinforcementActionImpl of ReinforcementActionTrait {
 
         let payment_system = PaymentSystemTrait::new(self);
         payment_system.pay_into_pot(player_id, cost);
-
         self.update_reinforcements(player_id, count);
 
         let mut outposts_tracker: GameState = self.get_game();
@@ -61,7 +60,7 @@ impl ReinforcementActionImpl of ReinforcementActionTrait {
 
         self.set(outposts_tracker);
     }
-    fn get_reinforcements_price(self: GameAction, count: u32) -> u128 {
+    fn get_reinforcements_price(self: GameAction, count: u32) -> u256 {
         assert(count > 0, 'Count must be more than 0');
         self.assert_preparing();
         let market = self.get_reinforcement_market();

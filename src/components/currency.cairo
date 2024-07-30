@@ -16,36 +16,35 @@ trait CurrencyTrait<T1, T2> {
 }
 
 
-impl Convert32To32Impl of CurrencyTrait<u32, u32> {
-    fn convert(self: u32) -> u32 {
-        self
-    }
-}
+// impl Convert32To32Impl of CurrencyTrait<u32, u32> {
+//     fn convert(self: u32) -> u32 {
+//         self
+//     }
+// }
 
-impl Convert32To128Impl of CurrencyTrait<u32, u128> {
-    fn convert(self: u32) -> u128 {
-        self.into() * DEMIDECIMAL_MULTIPLIER_128
-    }
-}
+// impl Convert32To128Impl of CurrencyTrait<u32, u128> {
+//     fn convert(self: u32) -> u128 {
+//         self.into() * DEMIDECIMAL_MULTIPLIER_128
+//     }
+// }
 
-impl Convert32To256Impl of CurrencyTrait<u32, u256> {
-    fn convert(self: u32) -> u256 {
-        self.into() * DECIMAL_MULTIPLIER
-    }
-}
+// impl Convert32To256Impl of CurrencyTrait<u32, u256> {
+//     fn convert(self: u32) -> u256 {
+//         self.into() * DECIMAL_MULTIPLIER
+//     }
+// }
 
-impl Convert32ToFixedImpl of CurrencyTrait<u32, Fixed> {
-    fn convert(self: u32) -> Fixed {
-        FixedTrait::new_unscaled(self.into(), false)
-    }
-}
+// impl Convert32ToFixedImpl of CurrencyTrait<u32, Fixed> {
+//     fn convert(self: u32) -> Fixed {
+//         FixedTrait::new_unscaled(self.into(), false)
+//     }
+// }
 
-
-impl Convert128To32Impl of CurrencyTrait<u128, u32> {
-    fn convert(self: u128) -> u32 {
-        (self / DEMIDECIMAL_MULTIPLIER_128).try_into().unwrap()
-    }
-}
+// impl Convert128To32Impl of CurrencyTrait<u128, u32> {
+//     fn convert(self: u128) -> u32 {
+//         (self / DEMIDECIMAL_MULTIPLIER_128).try_into().unwrap()
+//     }
+// }
 
 impl Convert128To128Impl of CurrencyTrait<u128, u128> {
     fn convert(self: u128) -> u128 {
@@ -68,11 +67,11 @@ impl Convert128ToFixedImpl of CurrencyTrait<u128, Fixed> {
 }
 
 
-impl Convert256To32Impl of CurrencyTrait<u256, u32> {
-    fn convert(self: u256) -> u32 {
-        (self / DECIMAL_MULTIPLIER).try_into().unwrap()
-    }
-}
+// impl Convert256To32Impl of CurrencyTrait<u256, u32> {
+//     fn convert(self: u256) -> u32 {
+//         (self / DECIMAL_MULTIPLIER).try_into().unwrap()
+//     }
+// }
 
 impl Convert256To128Impl of CurrencyTrait<u256, u128> {
     fn convert(self: u256) -> u128 {
@@ -93,11 +92,11 @@ impl Convert256ToFixedImpl of CurrencyTrait<u256, Fixed> {
 }
 
 
-impl ConvertFixedTo32Impl of CurrencyTrait<Fixed, u32> {
-    fn convert(self: Fixed) -> u32 {
-        self.try_into().unwrap()
-    }
-}
+// impl ConvertFixedTo32Impl of CurrencyTrait<Fixed, u32> {
+//     fn convert(self: Fixed) -> u32 {
+//         self.try_into().unwrap()
+//     }
+// }
 
 impl ConvertFixedTo128Impl of CurrencyTrait<Fixed, u128> {
     fn convert(self: Fixed) -> u128 {

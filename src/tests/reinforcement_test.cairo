@@ -82,35 +82,65 @@ mod contracts_tests {
     use risingrevenant::{
         tests::utils::{impersonate, ADMIN, PLAYER_1, PLAYER_2, OTHER}, constants::DECIMAL_MULTIPLIER
     };
-    use core::dict::{Felt252Dict, Felt252DictTrait, Felt252DictValue};
-    // #[derive(Drop, Serde, Copy)]
-    // struct Foo {
-    //     id: u128,
-    //     a: u8,
-    //     b: u8
-    // }
 
-    // impl Felt252DictValueImpl of Felt252DictValue<Foo> {
-    //     fn zero_default() -> Foo nopanic {
-    //         Foo { id: 0, a: 0, b: 0 }
-    //     }
+    // #[test]
+    // #[available_gas(3000000000)]
+    // fn test_purchase_outpost() {
+    //     println!("Test Purchase Reinforcements");
+    //     let TestContracts { world,
+    //     game_actions,
+    //     outpost_actions,
+    //     payment_actions,
+    //     reinforcement_actions,
+    //     trade_outpost_actions,
+    //     trade_reinforcement_actions,
+    //     world_event_actions,
+    //     erc20_actions } =
+    //         make_test_world();
+
+    //     let game_id = game_actions.create(1, 10);
+    //     set_block_number(3);
+    //     let game_action = GameAction { world, game_id };
+    //     let mut n: u32 = 1;
+    //     let pot: GamePot = game_action.get_game();
+    //     let balance = erc20_actions.balance_of(PLAYER_1());
+    //     println!(
+    //         "total {} winners {} confirmation {} ltr {} dev {}\t player: {}",
+    //         pot.total_pot / DECIMAL_MULTIPLIER,
+    //         pot.winners_pot / DECIMAL_MULTIPLIER,
+    //         pot.confirmation_pot / DECIMAL_MULTIPLIER,
+    //         pot.ltr_pot / DECIMAL_MULTIPLIER,
+    //         pot.dev_pot / DECIMAL_MULTIPLIER,
+    //         balance / DECIMAL_MULTIPLIER,
+    //     );
+    //     impersonate(PLAYER_1());
+    //     loop {
+    //         let price = reinforcement_actions.get_price(game_id, n);
+    //         reinforcement_actions.purchase(game_id, n);
+
+    //         let pot: GamePot = game_action.get_game();
+    //         println!("4");
+
+    //         println!(
+    //             "total {} winners {} confirmation {} ltr {} dev {}\t player: {}",
+    //             pot.total_pot / DECIMAL_MULTIPLIER,
+    //             pot.winners_pot / DECIMAL_MULTIPLIER,
+    //             pot.confirmation_pot / DECIMAL_MULTIPLIER,
+    //             pot.ltr_pot / DECIMAL_MULTIPLIER,
+    //             pot.dev_pot / DECIMAL_MULTIPLIER,
+    //             balance / DECIMAL_MULTIPLIER,
+    //         );
+    //         erc20_actions.balance_of(PLAYER_1());
+    //         n += 1;
+    //         if n >= 10 {
+    //             break;
+    //         }
+    //     };
     // }
-    // impl U8TupleDrop
 
     #[test]
     #[available_gas(3000000000)]
-    fn test_dicts() {
-        let mut test: Felt252Dict<Foo> = Default::default();
-    // let box = BoxTrait::new(Foo { id: 1, a: 2, b: 3 });
-    // let mut foo = box.unbox();
-    // foo.a = 4;
-    // let foo2 = box.unbox();
-    // println!("foo2: {}", foo2.a);
-    }
-
-    #[test]
-    #[available_gas(3000000000)]
-    fn test_purchase() {
+    fn test_purchase_reinforcement() {
         println!("Test Purchase Reinforcements");
         let TestContracts { world,
         game_actions,
@@ -138,13 +168,13 @@ mod contracts_tests {
             pot.dev_pot / DECIMAL_MULTIPLIER,
             balance / DECIMAL_MULTIPLIER,
         );
-        impersonate(PLAYER_1());
+        // impersonate(PLAYER_1());
+        erc20_actions.approve(reinforcement_actions.contract_address, balance);
         loop {
             let price = reinforcement_actions.get_price(game_id, n);
             reinforcement_actions.purchase(game_id, n);
 
             let pot: GamePot = game_action.get_game();
-            println!("4");
 
             println!(
                 "total {} winners {} confirmation {} ltr {} dev {}\t player: {}",
@@ -155,7 +185,6 @@ mod contracts_tests {
                 pot.dev_pot / DECIMAL_MULTIPLIER,
                 balance / DECIMAL_MULTIPLIER,
             );
-            erc20_actions.balance_of(PLAYER_1());
             n += 1;
             if n >= 10 {
                 break;

@@ -87,6 +87,7 @@ mod game_actions {
             outpost_setup.game_id = game_id;
             world_event_setup.game_id = game_id;
             reinforcement_market.game_id = game_id;
+            game_erc20.game_id = game_id;
 
             let game_phases = GamePhases {
                 game_id,

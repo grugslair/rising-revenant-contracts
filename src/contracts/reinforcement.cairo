@@ -2,7 +2,7 @@ use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
 #[dojo::interface]
 trait IReinforcementActions {
-    fn get_price(ref world: IWorldDispatcher, game_id: u128, count: u32) -> u128;
+    fn get_price(ref world: IWorldDispatcher, game_id: u128, count: u32) -> u256;
     fn purchase(ref world: IWorldDispatcher, game_id: u128, count: u32);
 }
 
@@ -23,7 +23,7 @@ mod reinforcement_actions {
 
     #[abi(embed_v0)]
     impl ReinforcementActionsImpl of IReinforcementActions<ContractState> {
-        fn get_price(ref world: IWorldDispatcher, game_id: u128, count: u32) -> u128 {
+        fn get_price(ref world: IWorldDispatcher, game_id: u128, count: u32) -> u256 {
             let game_action = GameAction { world, game_id };
             game_action.get_reinforcements_price(count)
         }
