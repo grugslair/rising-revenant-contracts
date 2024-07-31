@@ -1,6 +1,6 @@
 use starknet::ContractAddress;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-use token::components::token::erc20::erc20_balance::{
+use origami_token::components::token::erc20::erc20_balance::{
     IERC20BalanceDispatcher, IERC20BalanceDispatcherTrait
 };
 

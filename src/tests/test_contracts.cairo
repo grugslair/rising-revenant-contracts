@@ -8,7 +8,7 @@ use dojo::{
 };
 
 
-use token::presets::erc20::tests_bridgeable::{
+use origami_token::presets::erc20::tests_bridgeable::{
     setup as erc20_setup, IERC20BridgeablePresetDispatcher, IERC20BridgeablePresetDispatcherTrait,
     BRIDGE, DECIMALS
 };

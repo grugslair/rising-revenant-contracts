@@ -1,7 +1,9 @@
 use dojo::world::{IWorldDispatcherTrait, IWorldDispatcher};
 use dojo::database::introspect::Introspect;
 use dojo::model::Model;
-use token::presets::erc20::tests_bridgeable::{IERC20BridgeablePresetDispatcherTrait, BRIDGE};
+use origami_token::presets::erc20::tests_bridgeable::{
+    IERC20BridgeablePresetDispatcherTrait, BRIDGE
+};
 
 // contracts
 use risingrevenant::contracts::{
@@ -34,7 +36,7 @@ use risingrevenant::components::{
 
 #[cfg(test)]
 mod contracts_tests {
-    use token::presets::erc20::bridgeable::IERC20BridgeablePresetDispatcherTrait;
+    use origami_token::presets::erc20::bridgeable::IERC20BridgeablePresetDispatcherTrait;
     use core::option::OptionTrait;
 
     use debug::PrintTrait;

@@ -2,7 +2,6 @@ use risingrevenant::components::trade::GenTradeTrait;
 use starknet::{get_caller_address};
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use dojo::model::{Model};
-use dojo::database::introspect::Introspect;
 
 use risingrevenant::components::game::{GameTradeTax, Position};
 use risingrevenant::components::trade::{

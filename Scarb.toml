@@ -1,21 +1,23 @@
 [package]
-cairo-version = "2.6.3"
+cairo-version = "=2.7.0-rc.3"
 name = "risingrevenant"
-version = "0.3.0"
+version = "0.4.0"
 
 [cairo]
 sierra-replace-ids = true
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.7.2" }
-origami = { git = "https://github.com/dojoengine/origami", tag = "v0.7.2" }
-token = { git = "https://github.com/dojoengine/origami", tag = "v0.7.2" }
-cubit = { git = "https://github.com/notV4l/cubit.git", branch = "cairo_2.7" }
-# openzeppelin = { git = "https://github.com/ben-jay-amin/cairo-contracts.git", branch = "release-v0.9.1" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.0-alpha.3" }
+origami_token = { git = "https://github.com/dojoengine/origami", tag = "v1.0.0-alpha.3" }
+origami_defi = { git = "https://github.com/dojoengine/origami", tag = "v1.0.0-alpha.3" }
+cubit = { git = "https://github.com/dojoengine/cubit", branch = "cairo_2.7" }
+
 
 [tool.dojo]
 initializer_class_hash = "0xbeef"
 
+[tool.dojo.world.namespace]
+default = "risingrevenant"
 
 # local
 [profile.dev.tool.dojo.env]

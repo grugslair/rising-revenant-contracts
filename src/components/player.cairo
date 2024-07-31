@@ -2,7 +2,7 @@ use starknet::ContractAddress;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct PlayerInfo {
     #[key]
     game_id: u128,
@@ -14,7 +14,7 @@ struct PlayerInfo {
 }
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct PlayerContribution {
     #[key]
     game_id: u128,

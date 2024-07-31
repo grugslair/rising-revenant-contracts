@@ -12,7 +12,7 @@ use risingrevenant::utils::{calculate_distance};
 
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct Outpost {
     #[key]
     game_id: u128,
@@ -26,7 +26,7 @@ struct Outpost {
 }
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct OutpostMarket {
     #[key]
     game_id: u128,
@@ -36,7 +36,7 @@ struct OutpostMarket {
 }
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct OutpostSetup {
     #[key]
     game_id: u128,
@@ -95,7 +95,7 @@ impl OutpostImpl of OutpostTrait {
 }
 
 
-#[derive(Serde, Copy, Drop, Introspect, PartialEq, Print)]
+#[derive(Serde, Copy, Drop, Introspect, PartialEq)]
 enum OutpostEventStatus {
     NotImpacted,
     UnVerified,

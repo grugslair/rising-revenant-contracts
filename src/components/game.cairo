@@ -1,16 +1,15 @@
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use starknet::{ContractAddress, get_caller_address};
 use risingrevenant::utils::random::{Random, RandomTrait};
-use dojo::database::introspect::Introspect;
 use dojo::model::{Model};
 
-#[derive(Copy, Drop, Print, Serde, SerdeLen, Introspect)]
+#[derive(Copy, Drop, Serde, Introspect)]
 struct Dimensions {
     x: u32,
     y: u32
 }
 
-#[derive(Copy, Drop, Print, Serde, SerdeLen, Introspect)]
+#[derive(Copy, Drop, Serde, Introspect)]
 struct Position {
     x: u32,
     y: u32,
@@ -23,22 +22,14 @@ impl PositionImpl of PositionTrait {
     }
 }
 
-#[derive(Copy, Drop, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct PositionGenerator {
     random: Random,
     map_dims: Dimensions
 }
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
-struct CurrentGame {
-    #[key]
-    owner: ContractAddress,
-    game_id: u128,
-}
-
-#[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct GamePhases {
     #[key]
     game_id: u128,
@@ -48,7 +39,7 @@ struct GamePhases {
 }
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct GameMap {
     #[key]
     game_id: u128,
@@ -56,7 +47,7 @@ struct GameMap {
 }
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct GameERC20 {
     #[key]
     game_id: u128,
@@ -64,7 +55,7 @@ struct GameERC20 {
 }
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct GameTradeTax {
     #[key]
     game_id: u128,
@@ -72,7 +63,7 @@ struct GameTradeTax {
 }
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct GamePotConsts {
     #[key]
     game_id: u128,
@@ -84,7 +75,7 @@ struct GamePotConsts {
 
 // Components to check ---------------------------------------------------------------------
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct GameState {
     #[key]
     game_id: u128,
@@ -97,7 +88,7 @@ struct GameState {
 
 // Game pot
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct GamePot {
     #[key]
     game_id: u128,
@@ -109,25 +100,13 @@ struct GamePot {
     claimed: bool,
 }
 
-
-#[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
-struct DevWallet {
-    #[key]
-    game_id: u128,
-    #[key]
-    owner: ContractAddress,
-    balance: u256,
-    init: bool,
-}
-
 mod GameStatus {
     const not_created: u8 = 0;
     const created: u8 = 1;
     const ended: u8 = 2;
 }
 
-#[derive(Serde, Copy, Drop, Introspect, PartialEq, Print)]
+#[derive(Serde, Copy, Drop, Introspect, PartialEq)]
 enum GamePhase {
     NotCreated,
     Created,

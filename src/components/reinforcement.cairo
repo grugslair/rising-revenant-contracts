@@ -12,7 +12,7 @@ use risingrevenant::utils::get_block_number;
 
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct ReinforcementMarketConsts {
     #[key]
     game_id: u128,
@@ -21,7 +21,7 @@ struct ReinforcementMarketConsts {
     max_sellable_percentage: u32,
     time_scale_mag_factor: u128,
 }
-#[derive(Copy, Drop, Print)]
+#[derive(Copy, Drop)]
 struct ReinforcementMarket {
     game_id: u128,
     target_price: u128,
@@ -58,7 +58,7 @@ impl ReinforcementMarketImpl of ReinforcementMarketTrait {
 
 
 // This enum simply defines the states of a game.
-#[derive(Serde, Copy, Drop, Introspect, PartialEq, Print)]
+#[derive(Serde, Copy, Drop, Introspect, PartialEq)]
 enum ReinforcementType {
     None,
     Wall,

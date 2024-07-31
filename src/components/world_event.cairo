@@ -6,7 +6,7 @@ use risingrevenant::components::reinforcement::{ReinforcementType};
 use risingrevenant::utils::{calculate_distance};
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct WorldEventSetup {
     #[key]
     game_id: u128,
@@ -15,7 +15,7 @@ struct WorldEventSetup {
 }
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct WorldEvent {
     #[key]
     game_id: u128,
@@ -32,7 +32,7 @@ struct WorldEvent {
 }
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct CurrentWorldEvent {
     #[key]
     game_id: u128,
@@ -46,7 +46,7 @@ struct CurrentWorldEvent {
 }
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct OutpostVerified {
     #[key]
     game_id: u128,
@@ -58,7 +58,7 @@ struct OutpostVerified {
 }
 
 #[dojo::model]
-#[derive(Copy, Drop, Print, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
 struct WorldEventVerifications {
     #[key]
     game_id: u128,
@@ -88,7 +88,7 @@ impl CurrentWorldEventImpl of CurrentWorldEventTrait {
     }
 }
 // This enum simply defines the states of a game.
-#[derive(Serde, Copy, Drop, Introspect, PartialEq, Print)]
+#[derive(Serde, Copy, Drop, Introspect, PartialEq)]
 enum EventType {
     None,
     Dragon,
