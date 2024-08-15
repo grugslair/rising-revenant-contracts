@@ -7,11 +7,13 @@ version = "0.4.0"
 sierra-replace-ids = true
 
 [dependencies]
+# dojo = { git = "https://github.com/bengineer42/dojo", branch = "interalise-world-in-models" }
 dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.0-alpha.3" }
 origami_token = { git = "https://github.com/dojoengine/origami", tag = "v1.0.0-alpha.3" }
-origami_defi = { git = "https://github.com/dojoengine/origami", tag = "v1.0.0-alpha.3" }
-cubit = { git = "https://github.com/dojoengine/cubit", branch = "cairo_2.7" }
+# origami_defi = { git = "https://github.com/dojoengine/origami", tag = "v1.0.0-alpha.3" }
+# cubit = { git = "https://github.com/dojoengine/cubit", branch = "cairo_2.7" }
 
+[[target.dojo]]
 
 [tool.dojo]
 initializer_class_hash = "0xbeef"
@@ -19,28 +21,23 @@ initializer_class_hash = "0xbeef"
 [tool.dojo.world.namespace]
 default = "risingrevenant"
 
-# local
-[profile.dev.tool.dojo.env]
-rpc_url = "http://localhost:5050"
-account_address = "0xb3ff441a68610b30fd5e2abbf3a1548eb6ba6f3559f2862bf2dc757e5828ca"
-private_key = "0x2bbf4f9fd0bbb2e60b0316c1fe0b76cf7a4d0198bd493ced9b8df2a3a24d68a"
-world_address = "0x403df785de33e6f468419bf138db7ccaccfbd6801e13e452a252df38b2b9657"
+[tool.dojo.world]
+name = "Rising Revenant"
+description = "Rising Revenant"
+seed = "risingrevenant"
 
-# testnet sepolia
-[profile.sepolia.tool.dojo.env]
-rpc_url = "https://api.cartridge.gg/rpc/starknet-sepolia/v0_7"
-account_address = "0x058e3B49d870f08C96a02f794C82b5f6C868c074DeaDD6bA04E8d2194723B5bd"
-world_address = "0x403df785de33e6f468419bf138db7ccaccfbd6801e13e452a252df38b2b9657"
+# # local
+# [profile.dev.tool.dojo.env]
+# rpc_url = "http://localhost:5050"
+# account_address = "0xb3ff441a68610b30fd5e2abbf3a1548eb6ba6f3559f2862bf2dc757e5828ca"
+# private_key = "0x2bbf4f9fd0bbb2e60b0316c1fe0b76cf7a4d0198bd493ced9b8df2a3a24d68a"
+# world_address = "0x403df785de33e6f468419bf138db7ccaccfbd6801e13e452a252df38b2b9657"
+
+# # testnet sepolia
+# [profile.sepolia.tool.dojo.env]
+# rpc_url = "https://api.cartridge.gg/rpc/starknet-sepolia/v0_7"
+# account_address = "0x058e3B49d870f08C96a02f794C82b5f6C868c074DeaDD6bA04E8d2194723B5bd"
+# world_address = "0x403df785de33e6f468419bf138db7ccaccfbd6801e13e452a252df38b2b9657"
 
 [tool.fmt]
 sort-module-level-items = true
-
-[[target.dojo]]
-build-external-contracts = [
-    "token::components::security::initializable::initializable_model",
-    "token::components::token::erc20::erc20_metadata::erc_20_metadata_model",
-    "token::components::token::erc20::erc20_balance::erc_20_balance_model",
-    "token::components::token::erc20::erc20_allowance::erc_20_allowance_model",
-    "token::components::token::erc20::erc20_mintable::erc_20_mintable_model",
-    "token::components::token::erc20::erc20_burnable::erc_20_burnable_model",
-]

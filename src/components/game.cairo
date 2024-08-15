@@ -100,11 +100,6 @@ struct GamePot {
     claimed: bool,
 }
 
-mod GameStatus {
-    const not_created: u8 = 0;
-    const created: u8 = 1;
-    const ended: u8 = 2;
-}
 
 #[derive(Serde, Copy, Drop, Introspect, PartialEq)]
 enum GamePhase {
