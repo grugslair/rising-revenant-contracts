@@ -12,8 +12,6 @@ pub struct ERC20TotalSupplyModel {
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
 struct ERC20BalanceModel {
-    #[namespace]
-    namespace: felt252,
     #[key]
     token: ContractAddress,
     #[key]

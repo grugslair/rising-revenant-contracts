@@ -145,7 +145,6 @@ mod erc20_core {
             world.increase_balance_value(recipient, amount);
             true
         }
-        let my_model = world.get(namespace, key, key)
     }
 
 
@@ -189,7 +188,7 @@ mod erc20_core {
             assert(balance >= amount, Errors::INSUFFICIENT_BALANCE);
             self.set_balance_value(account, balance - amount);
         }
-        
+
         fn get_allowance_value(
             self: @IWorldDispatcher, owner: ContractAddress, spender: ContractAddress
         ) -> u256 {
