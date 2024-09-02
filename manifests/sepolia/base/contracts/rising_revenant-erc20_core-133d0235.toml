@@ -1,0 +1,10 @@
+kind = "DojoContract"
+class_hash = "0x514175bd2fe0068773594c51e6630db059426dd111062bc6069e0c530fd0c69"
+original_class_hash = "0x514175bd2fe0068773594c51e6630db059426dd111062bc6069e0c530fd0c69"
+base_class_hash = "0x0"
+abi = "manifests/sepolia/base/abis/contracts/rising_revenant-erc20_core-133d0235.json"
+reads = []
+writes = []
+init_calldata = []
+tag = "rising_revenant-erc20_core"
+manifest_name = "rising_revenant-erc20_core-133d0235"

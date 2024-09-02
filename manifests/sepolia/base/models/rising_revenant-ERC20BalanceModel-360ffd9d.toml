@@ -1,0 +1,21 @@
+kind = "DojoModel"
+class_hash = "0x5a161701b6a479ce6e534ce11d3a6910ccb4385db23de85378e1c51c4319f1c"
+original_class_hash = "0x5a161701b6a479ce6e534ce11d3a6910ccb4385db23de85378e1c51c4319f1c"
+abi = "manifests/sepolia/base/abis/models/rising_revenant-ERC20BalanceModel-360ffd9d.json"
+tag = "rising_revenant-ERC20BalanceModel"
+manifest_name = "rising_revenant-ERC20BalanceModel-360ffd9d"
+
+[[members]]
+name = "token"
+type = "ContractAddress"
+key = true
+
+[[members]]
+name = "account"
+type = "ContractAddress"
+key = true
+
+[[members]]
+name = "amount"
+type = "u256"
+key = false
