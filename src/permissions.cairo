@@ -1,18 +1,6 @@
 use starknet::{get_caller_address};
 use dojo::{world::{IWorldDispatcher, IWorldDispatcherTrait}};
 
-#[dojo::model]
-#[derive(Copy, Drop, Serde)]
-struct PermissionsModel {
-    #[key]
-    namespace: felt252,
-    #[key]
-    resource: felt252,
-    #[key]
-    requester: felt252,
-    permissions: felt252,
-}
-
 
 trait Permissions<R, S, P> {
     fn get_permissions(self: @IWorldDispatcher, namespace: felt252, resource: R, requester: S) -> P;
@@ -28,19 +16,7 @@ impl Felt252PermissionsImpl<
         self: @IWorldDispatcher, namespace: felt252, resource: R, requester: S
     ) -> felt252 {
         let (resource, requester): felt252 = resource.into();
-        // let permissions_entity: PermissionsModel = self
-        //     .get_from_id(resource.into(), requester.into());
-        // let permissions: PermissionsModel = self.get(resource.into(), requester.into());
-        // permissions.permissions
-        // PermissionsModelEntityStore::get(
-        //     *self,
-        // )
-        //     .permissions
-
-        // PermissionsModelStore::get_permissions(
-        //     *self, resource.into(), requester.into()
-        // )
-        12
+        PermissionsModelStore::get_permissions(*self, resource.into(), requester.into())
     }
     fn set_permissions(
         self: IWorldDispatcher, namespace: felt252, resource: R, requester: S, permissions: felt252
@@ -70,32 +46,6 @@ impl BoolPermissionsImpl<
                 0_felt252
             }
         );
-    }
-}
-
-impl OtherPermissionsImpl<
-    R,
-    S,
-    P,
-    +Into<R, felt252>,
-    +Into<S, felt252>,
-    +Into<P, felt252>,
-    +TryInto<felt252, P>,
-    +Drop<R>,
-    +Drop<S>,
-    +Drop<P>
-> of Permissions<R, S, P> {
-    fn get_permissions(self: @IWorldDispatcher, namespace: N, resource: R, requester: S) -> P {
-        Felt252PermissionsImpl::get_permissions(self, namespace, resource, requester)
-            .try_into()
-            .unwrap()
-    }
-    fn set_permissions(
-        self: IWorldDispatcher, namespace: N, resource: R, requester: S, permissions: P
-    ) {
-        Felt252PermissionsImpl::set_permissions(
-            self, namespace, resource, requester, permissions.into()
-        );
-    }
+    } 
 }
 

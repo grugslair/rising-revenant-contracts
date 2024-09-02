@@ -49,14 +49,24 @@
 // }
 mod tokens {
     mod erc20 {
-        mod core;
-        mod internals;
+        mod core {
+            mod contract;
+            mod interface;
+            mod models;
+        }
+        use super::erc20::core::{
+            interface::{IERC20Core, IERC20CoreDispatcher, IERC20CoreDispatcherTrait},
+            models::{ERC20Read}
+        };
+        // mod internals;
         mod basic;
-        mod models;
-        // mod template;
+        mod template;
     }
 }
-// mod permissions;
+mod permissions {
+    mod models;
+    mod contract;
+}
 // mod utils;
 
 

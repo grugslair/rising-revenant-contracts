@@ -1,59 +1,22 @@
 use starknet::ContractAddress;
-use dojo::world::IWorldDispatcher;
-
-
-use ERC20_basic_component::{Transfer, Approval};
-
-mod Errors {
-    const CALLER_IS_NOT_OWNER: felt252 = 'ERC20: caller is not owner';
-    const TRANSFER_FROM_ZERO: felt252 = 'ERC20: transfer from 0';
-    const TRANSFER_TO_ZERO: felt252 = 'ERC20: transfer to 0';
-    const APPROVE_FROM_ZERO: felt252 = 'ERC20: approve from 0';
-    const APPROVE_TO_ZERO: felt252 = 'ERC20: approve to 0';
-    const INSUFFICIENT_ALLOWANCE: felt252 = 'ERC20: insufficient allowance';
-    const INSUFFICIENT_BALANCE: felt252 = 'ERC20: insufficient balance';
-    const INSUFFICIENT_TOTAL_SUPPLY: felt252 = 'ERC20: insufficient supply';
-}
-
-#[event]
-#[derive(Copy, Drop, starknet::Event)]
-enum Event {
-    Transfer: Transfer,
-    Approval: Approval
-}
-
+use dojo::world::{IWorldDispatcher};
+use super::IERC20CoreDispatcher;
 trait IERC20MintTrait {
-    fn mint(self: IWorldDispatcher, recipient: ContractAddress, amount: u256) -> Transfer;
+    fn mint(
+        self: IWorldDispatcher, core: IERC20CoreDispatcher, recipient: ContractAddress, amount: u256
+    ) -> bool;
 }
 
 trait IERC20BurnTrait {
-    fn burn(self: IWorldDispatcher, account: ContractAddress, amount: u256) -> Transfer;
+    fn burn(
+        self: IWorldDispatcher, core: IERC20CoreDispatcher, account: ContractAddress, amount: u256
+    ) -> bool;
 }
 
 trait IERC20MetadataTrait {
-    fn name(self: @IWorldDispatcher) -> ByteArray;
-    fn symbol(self: @IWorldDispatcher) -> felt252;
-    fn decimals(self: @IWorldDispatcher) -> u8;
-}
-
-trait IERC20TotalSupplyTrait {
-    fn total_supply(self: @IWorldDispatcher) -> u256;
-}
-
-trait IERC20BalanceTrait {
-    fn balance_of(self: @IWorldDispatcher, account: ContractAddress) -> u256;
-}
-
-trait IERC20TransferTrait {
-    fn transfer(self: IWorldDispatcher, recipient: ContractAddress, amount: u256) -> Transfer;
-    fn transfer_from(
-        self: IWorldDispatcher, sender: ContractAddress, recipient: ContractAddress, amount: u256
-    ) -> (Transfer, Approval);
-}
-
-trait IERC20AllowanceTrait {
-    fn allowance(self: @IWorldDispatcher, owner: ContractAddress, spender: ContractAddress) -> u256;
-    fn approve(self: IWorldDispatcher, spender: ContractAddress, amount: u256) -> Approval;
+    fn name() -> ByteArray;
+    fn symbol() -> felt252;
+    fn decimals() -> u8;
 }
 
 #[starknet::interface]
@@ -63,44 +26,42 @@ trait IERC20Mint<TState> {
 
 #[starknet::interface]
 trait IERC20Basic<TState> {
-    fn mint(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
-    // IERC20Metadata
     fn decimals(self: @TState,) -> u8;
     fn name(self: @TState,) -> ByteArray;
     fn symbol(self: @TState,) -> felt252;
 
     fn total_supply(self: @TState,) -> u256;
-    fn totalSupply(self: @TState,) -> u256;
 
-    // IERC20Balance
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
+
+    fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
+    fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
+
     fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
     fn transfer_from(
         ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
+
+    fn totalSupply(self: @TState,) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn transferFrom(
         ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
-
-    fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
-    fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 }
 
 #[starknet::component]
 pub mod ERC20_basic_component {
-    use super::{
-        IERC20Basic, IERC20MintTrait, IERC20MetadataTrait, IERC20TotalSupplyTrait,
-        IERC20BalanceTrait, IERC20TransferTrait, IERC20AllowanceTrait,
-    };
-
-    use starknet::ContractAddress;
+    use super::super::{ERC20Read, IERC20CoreDispatcher, IERC20CoreDispatcherTrait};
+    use super::{IERC20Basic, IERC20MetadataTrait};
+    use starknet::{ContractAddress, get_caller_address, get_contract_address};
     use dojo::world::{
         IWorldProvider, IWorldProviderDispatcher, IWorldDispatcher, IWorldDispatcherTrait
     };
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        core_contract_address: ContractAddress,
+    }
 
     #[derive(Copy, Drop, Serde, starknet::Event)]
     struct Transfer {
@@ -126,74 +87,63 @@ pub mod ERC20_basic_component {
     #[embeddable_as(ERC20BasicImpl)]
     impl ERC20Basic<
         TContractState,
-        impl MintImpl: IERC20MintTrait,
         impl MetaDataImpl: IERC20MetadataTrait,
-        impl TotalSupplyImpl: IERC20TotalSupplyTrait,
-        impl BalanceImpl: IERC20BalanceTrait,
-        impl TransferImpl: IERC20TransferTrait,
-        impl AllowanceImpl: IERC20AllowanceTrait,
         +HasComponent<TContractState>,
         +IWorldProvider<TContractState>,
         +Drop<TContractState>,
     > of IERC20Basic<ComponentState<TContractState>> {
-        fn mint(
-            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
-        ) -> bool {
-            self.emit(MintImpl::mint(self.get_contract().world(), recipient, amount));
-            true
-        }
         fn name(self: @ComponentState<TContractState>) -> ByteArray {
-            MetaDataImpl::name(@self.get_contract().world())
+            MetaDataImpl::name()
         }
         fn symbol(self: @ComponentState<TContractState>) -> felt252 {
-            MetaDataImpl::symbol(@self.get_contract().world())
+            MetaDataImpl::symbol()
         }
         fn decimals(self: @ComponentState<TContractState>) -> u8 {
-            MetaDataImpl::decimals(@self.get_contract().world())
+            MetaDataImpl::decimals()
         }
+
         fn total_supply(self: @ComponentState<TContractState>) -> u256 {
-            TotalSupplyImpl::total_supply(@self.get_contract().world(),)
+            self.get_total_supply_value()
         }
 
         fn balance_of(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
-            BalanceImpl::balance_of(@self.get_contract().world(), account)
+            self.get_balance_value(account)
+        }
+
+        fn allowance(
+            self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress
+        ) -> u256 {
+            self.get_allowance_value(owner, spender)
+        }
+        fn approve(
+            ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256
+        ) -> bool {
+            let owner = get_caller_address();
+            self.get_core_dispatcher().set_allowance(owner, spender, amount);
+            self.emit_approval_event(owner, spender, amount);
+            true
         }
 
         fn transfer(
             ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
         ) -> bool {
-            self.emit(TransferImpl::transfer(self.get_contract().world(), recipient, amount));
+            let sender = get_caller_address();
+            self.get_core_dispatcher().transfer(sender, recipient, amount);
+            self.emit_transfer_event(sender, recipient, amount);
             true
         }
-
         fn transfer_from(
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
             recipient: ContractAddress,
             amount: u256
         ) -> bool {
-            let (transfer_event, approval_event) = TransferImpl::transfer_from(
-                self.get_contract().world(), sender, recipient, amount
-            );
-            self.emit(transfer_event);
-            self.emit(approval_event);
+            let caller = get_caller_address();
+            self.get_core_dispatcher().transfer_from(caller, sender, recipient, amount);
+            self.emit_transfer_event(sender, recipient, amount);
             true
         }
 
-        fn allowance(
-            self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress
-        ) -> u256 {
-            AllowanceImpl::allowance(@self.get_contract().world(), owner, spender)
-        }
-        fn approve(
-            ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256
-        ) -> bool {
-            let approval_event = AllowanceImpl::approve(
-                self.get_contract().world(), spender, amount
-            );
-            self.emit(approval_event);
-            true
-        }
         fn transferFrom(
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
@@ -207,6 +157,52 @@ pub mod ERC20_basic_component {
         }
         fn balanceOf(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
             Self::balance_of(self, account)
+        }
+    }
+
+
+    #[generate_trait]
+    impl PrivateImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        +IWorldProvider<TContractState>,
+        +Drop<TContractState>,
+    > of PrivateTrait<TContractState> {
+        fn get_total_supply_value(self: @ComponentState<TContractState>) -> u256 {
+            self.get_contract().world().get_total_supply(get_contract_address())
+        }
+        fn get_balance_value(
+            self: @ComponentState<TContractState>, account: ContractAddress
+        ) -> u256 {
+            self.get_contract().world().get_balance(get_contract_address(), account)
+        }
+        fn get_allowance_value(
+            self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress
+        ) -> u256 {
+            self.get_contract().world().get_allowance(get_contract_address(), owner, spender)
+        }
+        fn get_core_dispatcher(self: @ComponentState<TContractState>) -> IERC20CoreDispatcher {
+            IERC20CoreDispatcher { contract_address: self.core_contract_address.read() }
+        }
+        fn emit_transfer_event(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            value: u256
+        ) {
+            let transfer_event = Transfer { from, to, value };
+            self.emit(transfer_event.clone());
+            emit!(self.get_contract().world(), (Event::Transfer(transfer_event)));
+        }
+        fn emit_approval_event(
+            ref self: ComponentState<TContractState>,
+            owner: ContractAddress,
+            spender: ContractAddress,
+            value: u256
+        ) {
+            let approval_event = Approval { owner, spender, value };
+            self.emit(approval_event.clone());
+            emit!(self.get_contract().world(), (Event::Approval(approval_event)));
         }
     }
 }

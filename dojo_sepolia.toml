@@ -3,7 +3,7 @@ name = "rising-revenant"
 seed = "rising-revenant-0.4.0"
 
 [namespace]
-default = "rising-revenant"
+default = "rising_revenant"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
