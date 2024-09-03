@@ -35,13 +35,4 @@ dependencies = [
  "cubit",
  "dojo",
  "origami",
- "token",
-]
-
-[[package]]
-name = "token"
-version = "0.0.0"
-source = "git+https://github.com/dojoengine/origami?tag=v0.7.2#c537966098c9c6a42421a920cfb83d82ed8e120c"
-dependencies = [
- "dojo",
 ]

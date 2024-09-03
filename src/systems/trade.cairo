@@ -46,14 +46,7 @@ impl TradeActionImpl<
         trade.status = TradeStatus::sold;
         trade.buyer = buyer;
 
-        let payment_system = PaymentSystemTrait::new(self);
         let taxes: GameTradeTax = self.get_game();
-
-        let pot_contribution = trade.price * (taxes.trade_tax_percent).into() / 100_u128;
-        let seller_payout = trade.price - pot_contribution;
-
-        payment_system.transfer_from(buyer, trade.seller, seller_payout);
-        payment_system.pay_into_pot(buyer, pot_contribution);
 
         let _trade = TradeTrait::from_generic(trade);
         self.set(_trade);

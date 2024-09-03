@@ -8,52 +8,8 @@ use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use dojo::test_utils::spawn_test_world;
 use token::tests::constants::{ZERO, OWNER, SPENDER, RECIPIENT, BRIDGE, DECIMALS, SUPPLY, VALUE};
 
-use token::tests::utils;
-
-use token::components::token::erc20::erc20_metadata::{erc_20_metadata_model, ERC20MetadataModel,};
-use token::components::token::erc20::erc20_metadata::erc20_metadata_component::{
-    ERC20MetadataImpl, ERC20MetadataTotalSupplyImpl, InternalImpl as ERC20MetadataInternalImpl
-};
-
-use token::components::token::erc20::erc20_balance::{erc_20_balance_model, ERC20BalanceModel,};
-use token::components::token::erc20::erc20_balance::erc20_balance_component::{
-    Transfer, ERC20BalanceImpl, InternalImpl as ERC20BalanceInternalImpl
-};
-
-use token::components::token::erc20::erc20_allowance::{
-    erc_20_allowance_model, ERC20AllowanceModel,
-};
-use token::components::token::erc20::erc20_allowance::erc20_allowance_component::{
-    Approval, ERC20AllowanceImpl, InternalImpl as ERC20AllownceInternalImpl,
-};
-
-use token::components::token::erc20::erc20_bridgeable::{
-    erc_20_bridgeable_model, ERC20BridgeableModel
-};
-use token::components::token::erc20::erc20_bridgeable::erc20_bridgeable_component::{
-    ERC20BridgeableImpl
-};
-
-use token::components::token::erc20::erc20_mintable::erc20_mintable_component::InternalImpl as ERC20MintableInternalImpl;
-use token::components::token::erc20::erc20_burnable::erc20_burnable_component::InternalImpl as ERC20BurnableInternalImpl;
-
-use token::presets::erc20::bridgeable::{
-    ERC20Bridgeable, IERC20BridgeablePresetDispatcher, IERC20BridgeablePresetDispatcherTrait
-};
-use token::presets::erc20::bridgeable::ERC20Bridgeable::{ERC20InitializerImpl};
 use starknet::storage::{StorageMemberAccessTrait};
 
-use token::components::tests::token::erc20::test_erc20_allowance::{
-    assert_event_approval, assert_only_event_approval
-};
-use token::components::tests::token::erc20::test_erc20_balance::{
-    assert_event_transfer, assert_only_event_transfer
-};
-
-
-//
-// Setup
-//
 
 fn setup() -> (IWorldDispatcher, IERC20BridgeablePresetDispatcher) {
     let world = spawn_test_world(

@@ -9,7 +9,6 @@ sierra-replace-ids = true
 [dependencies]
 dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.7.2" }
 origami = { git = "https://github.com/dojoengine/origami", tag = "v0.7.2" }
-token = { git = "https://github.com/dojoengine/origami", tag = "v0.7.2" }
 cubit = { git = "https://github.com/notV4l/cubit.git", branch = "cairo_2.7" }
 # openzeppelin = { git = "https://github.com/ben-jay-amin/cairo-contracts.git", branch = "release-v0.9.1" }
 
@@ -25,10 +24,10 @@ private_key = "0x2bbf4f9fd0bbb2e60b0316c1fe0b76cf7a4d0198bd493ced9b8df2a3a24d68a
 world_address = "0x403df785de33e6f468419bf138db7ccaccfbd6801e13e452a252df38b2b9657"
 
 # testnet sepolia
-[profile.sepolia.tool.dojo.env]
-rpc_url = "https://api.cartridge.gg/rpc/starknet-sepolia/v0_7"
-account_address = "0x058e3B49d870f08C96a02f794C82b5f6C868c074DeaDD6bA04E8d2194723B5bd"
-world_address = "0x403df785de33e6f468419bf138db7ccaccfbd6801e13e452a252df38b2b9657"
+#[profile.sepolia.tool.dojo.env]
+#rpc_url = "https://api.cartridge.gg/rpc/starknet-sepolia/v0_7"
+#account_address = "0x058e3B49d870f08C96a02f794C82b5f6C868c074DeaDD6bA04E8d2194723B5bd"
+#world_address = "0x403df785de33e6f468419bf138db7ccaccfbd6801e13e452a252df38b2b9657"
 
 [tool.fmt]
 sort-module-level-items = true

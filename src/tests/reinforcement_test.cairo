@@ -1,8 +1,6 @@
 use dojo::world::{IWorldDispatcherTrait, IWorldDispatcher};
 use dojo::database::introspect::Introspect;
 use dojo::model::Model;
-use token::presets::erc20::tests_bridgeable::{IERC20BridgeablePresetDispatcherTrait, BRIDGE};
-
 // contracts
 use risingrevenant::contracts::{
     game::{game_actions, IGameActionsDispatcher, IGameActionsDispatcherTrait},
@@ -34,7 +32,6 @@ use risingrevenant::components::{
 
 #[cfg(test)]
 mod contracts_tests {
-    use token::presets::erc20::bridgeable::IERC20BridgeablePresetDispatcherTrait;
     use core::option::OptionTrait;
 
     use debug::PrintTrait;
@@ -108,58 +105,5 @@ mod contracts_tests {
     // println!("foo2: {}", foo2.a);
     }
 
-    #[test]
-    #[available_gas(3000000000)]
-    fn test_purchase() {
-        println!("Test Purchase Reinforcements");
-        let TestContracts { world,
-        game_actions,
-        outpost_actions,
-        payment_actions,
-        reinforcement_actions,
-        trade_outpost_actions,
-        trade_reinforcement_actions,
-        world_event_actions,
-        erc20_actions } =
-            make_test_world();
-
-        let game_id = game_actions.create(1, 10);
-        set_block_number(3);
-        let game_action = GameAction { world, game_id };
-        let mut n: u32 = 1;
-        let pot: GamePot = game_action.get_game();
-        let balance = erc20_actions.balance_of(PLAYER_1());
-        println!(
-            "total {} winners {} confirmation {} ltr {} dev {}\t player: {}",
-            pot.total_pot / DECIMAL_MULTIPLIER,
-            pot.winners_pot / DECIMAL_MULTIPLIER,
-            pot.confirmation_pot / DECIMAL_MULTIPLIER,
-            pot.ltr_pot / DECIMAL_MULTIPLIER,
-            pot.dev_pot / DECIMAL_MULTIPLIER,
-            balance / DECIMAL_MULTIPLIER,
-        );
-        impersonate(PLAYER_1());
-        loop {
-            let price = reinforcement_actions.get_price(game_id, n);
-            reinforcement_actions.purchase(game_id, n);
-
-            let pot: GamePot = game_action.get_game();
-            println!("4");
-
-            println!(
-                "total {} winners {} confirmation {} ltr {} dev {}\t player: {}",
-                pot.total_pot / DECIMAL_MULTIPLIER,
-                pot.winners_pot / DECIMAL_MULTIPLIER,
-                pot.confirmation_pot / DECIMAL_MULTIPLIER,
-                pot.ltr_pot / DECIMAL_MULTIPLIER,
-                pot.dev_pot / DECIMAL_MULTIPLIER,
-                balance / DECIMAL_MULTIPLIER,
-            );
-            erc20_actions.balance_of(PLAYER_1());
-            n += 1;
-            if n >= 10 {
-                break;
-            }
-        };
-    }
+    
 }

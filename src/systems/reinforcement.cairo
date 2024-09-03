@@ -49,11 +49,6 @@ impl ReinforcementActionImpl of ReinforcementActionTrait {
     fn purchase_reinforcements(self: GameAction, player_id: ContractAddress, count: u32) {
         self.assert_preparing();
 
-        let cost = self.get_reinforcements_price(count);
-
-        let payment_system = PaymentSystemTrait::new(self);
-        payment_system.pay_into_pot(player_id, cost);
-
         self.update_reinforcements(player_id, count);
 
         let mut outposts_tracker: GameState = self.get_game();

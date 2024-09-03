@@ -38,10 +38,6 @@ impl OutpostActionsImpl of OutpostActionsTrait {
         let player_info = self.get_caller_info();
         assert(player_info.outpost_count < outpost_market.max_per_player, 'Max outposts reached');
 
-        let payment_system = PaymentSystemTrait::new(self);
-        let cost = outpost_market.price;
-
-        payment_system.pay_into_pot(player_info.player_id, cost);
         let outpost = self.new_outpost(game_state, player_info);
         outpost
     }

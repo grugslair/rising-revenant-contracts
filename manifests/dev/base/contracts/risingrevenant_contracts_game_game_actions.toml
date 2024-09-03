@@ -1,6 +1,6 @@
 kind = "DojoContract"
-class_hash = "0x701083a17e423ed34b4606a888531b3bfdd5c493609f4b3e18a739cd8babf36"
-original_class_hash = "0x701083a17e423ed34b4606a888531b3bfdd5c493609f4b3e18a739cd8babf36"
+class_hash = "0x269266edc3ad1796ddd92a66866d3002a9f7a66ef7d92aec9a0289a612d57f5"
+original_class_hash = "0x269266edc3ad1796ddd92a66866d3002a9f7a66ef7d92aec9a0289a612d57f5"
 base_class_hash = "0x0"
 abi = "manifests/dev/abis/base/contracts/risingrevenant_contracts_game_game_actions.json"
 reads = []

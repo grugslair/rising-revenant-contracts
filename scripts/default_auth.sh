@@ -6,21 +6,19 @@ export RPC_URL="http://localhost:5050";
 # export RPC_URL="https://api.cartridge.gg/x/rr-demo/katana";
 # export RPC_URL="https://starknet-sepolia.public.blastapi.io/rpc/v0_6";
 
-export WORLD_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.world.address')
+export WORLD_ADDRESS="0x403df785de33e6f468419bf138db7ccaccfbd6801e13e452a252df38b2b9657"
 
-export GAME_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::contracts::game::game_actions").address')
+export GAME_ADDRESS="0x796bdacfdd83b316cb83560f2e0a471b37acc9b851af2dd0ce9c51668ea2b6d"
 
-export WORLD_EVENT_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::contracts::world_event::world_event_actions").address')
+export WORLD_EVENT_ADDRESS=""
 
-export OUTPOST_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::contracts::outpost::outpost_actions").address')
+export OUTPOST_ACTIONS_ADDRESS="0x5e2e39c65bb8f60f2976796a304644a097b6201f810b6b2745ae03d90004937"
 
-export REINFORCEMENTS_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::contracts::reinforcement::reinforcement_actions").address')
+export REINFORCEMENTS_ACTIONS_ADDRESS="0x6ee2ef201d285ad87fa639427d35ac55b5af466ba9db1e2f5730e69bb81256d"
 
-export PAYMENT_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::contracts::payment::payment_actions").address')
+export TRADE_OUTPOST_ACTIONS_ADDRESS="0x257c0538f358fd138fe4c8d5df0620ce4c7539fa2b5bc7e19284eb2ddb2b562"
 
-export TRADE_OUTPOST_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::contracts::trade_outpost::trade_outpost_actions").address')
-
-export TRADE_REINFORCEMENTS_ACTIONS_ADDRESS=$(cat ./target/dev/manifest.json | jq -r '.contracts[] | select(.name == "risingrevenant::contracts::trade_reinforcement::trade_reinforcement_actions").address')
+export TRADE_REINFORCEMENTS_ACTIONS_ADDRESS="0x2c85167ce5857a532fb23ef55fae7cb6a3cd2e81992c7ff0d6c691e83954580"
 
 
 echo "---------------------------------------------------------------------------"
@@ -33,8 +31,6 @@ echo " "
 echo outpost actions : $OUTPOST_ACTIONS_ADDRESS
 echo " "
 echo reinforcements actions : $REINFORCEMENTS_ACTIONS_ADDRESS
-echo " "
-echo payment actions : $PAYMENT_ACTIONS_ADDRESS
 echo " "
 echo trade outpost actions : $TRADE_OUTPOST_ACTIONS_ADDRESS
 echo " "
@@ -49,7 +45,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  CurrentGame,$WORLD_EVENT_ADDRESS \
  CurrentGame,$OUTPOST_ACTIONS_ADDRESS \
  CurrentGame,$REINFORCEMENTS_ACTIONS_ADDRESS \
- CurrentGame,$PAYMENT_ACTIONS_ADDRESS \
  CurrentGame,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  CurrentGame,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  GamePhases,$WORLD_ADDRESS \
@@ -57,7 +52,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  GamePhases,$WORLD_EVENT_ADDRESS \
  GamePhases,$OUTPOST_ACTIONS_ADDRESS \
  GamePhases,$REINFORCEMENTS_ACTIONS_ADDRESS \
- GamePhases,$PAYMENT_ACTIONS_ADDRESS \
  GamePhases,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  GamePhases,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  GameMap,$WORLD_ADDRESS \
@@ -65,7 +59,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  GameMap,$WORLD_EVENT_ADDRESS \
  GameMap,$OUTPOST_ACTIONS_ADDRESS \
  GameMap,$REINFORCEMENTS_ACTIONS_ADDRESS \
- GameMap,$PAYMENT_ACTIONS_ADDRESS \
  GameMap,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  GameMap,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  GameERC20,$WORLD_ADDRESS \
@@ -73,7 +66,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  GameERC20,$WORLD_EVENT_ADDRESS \
  GameERC20,$OUTPOST_ACTIONS_ADDRESS \
  GameERC20,$REINFORCEMENTS_ACTIONS_ADDRESS \
- GameERC20,$PAYMENT_ACTIONS_ADDRESS \
  GameERC20,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  GameERC20,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  GameTradeTax,$WORLD_ADDRESS \
@@ -81,7 +73,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  GameTradeTax,$WORLD_EVENT_ADDRESS \
  GameTradeTax,$OUTPOST_ACTIONS_ADDRESS \
  GameTradeTax,$REINFORCEMENTS_ACTIONS_ADDRESS \
- GameTradeTax,$PAYMENT_ACTIONS_ADDRESS \
  GameTradeTax,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  GameTradeTax,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  GamePotConsts,$WORLD_ADDRESS \
@@ -89,7 +80,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  GamePotConsts,$WORLD_EVENT_ADDRESS \
  GamePotConsts,$OUTPOST_ACTIONS_ADDRESS \
  GamePotConsts,$REINFORCEMENTS_ACTIONS_ADDRESS \
- GamePotConsts,$PAYMENT_ACTIONS_ADDRESS \
  GamePotConsts,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  GamePotConsts,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  GameState,$WORLD_ADDRESS \
@@ -97,7 +87,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  GameState,$WORLD_EVENT_ADDRESS \
  GameState,$OUTPOST_ACTIONS_ADDRESS \
  GameState,$REINFORCEMENTS_ACTIONS_ADDRESS \
- GameState,$PAYMENT_ACTIONS_ADDRESS \
  GameState,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  GameState,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  GamePot,$WORLD_ADDRESS \
@@ -105,7 +94,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  GamePot,$WORLD_EVENT_ADDRESS \
  GamePot,$OUTPOST_ACTIONS_ADDRESS \
  GamePot,$REINFORCEMENTS_ACTIONS_ADDRESS \
- GamePot,$PAYMENT_ACTIONS_ADDRESS \
  GamePot,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  GamePot,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  DevWallet,$WORLD_ADDRESS \
@@ -113,7 +101,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  DevWallet,$WORLD_EVENT_ADDRESS \
  DevWallet,$OUTPOST_ACTIONS_ADDRESS \
  DevWallet,$REINFORCEMENTS_ACTIONS_ADDRESS \
- DevWallet,$PAYMENT_ACTIONS_ADDRESS \
  DevWallet,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  DevWallet,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  Outpost,$WORLD_ADDRESS \
@@ -121,7 +108,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  Outpost,$WORLD_EVENT_ADDRESS \
  Outpost,$OUTPOST_ACTIONS_ADDRESS \
  Outpost,$REINFORCEMENTS_ACTIONS_ADDRESS \
- Outpost,$PAYMENT_ACTIONS_ADDRESS \
  Outpost,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  Outpost,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  OutpostMarket,$WORLD_ADDRESS \
@@ -129,7 +115,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  OutpostMarket,$WORLD_EVENT_ADDRESS \
  OutpostMarket,$OUTPOST_ACTIONS_ADDRESS \
  OutpostMarket,$REINFORCEMENTS_ACTIONS_ADDRESS \
- OutpostMarket,$PAYMENT_ACTIONS_ADDRESS \
  OutpostMarket,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  OutpostMarket,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  OutpostSetup,$WORLD_ADDRESS \
@@ -137,7 +122,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  OutpostSetup,$WORLD_EVENT_ADDRESS \
  OutpostSetup,$OUTPOST_ACTIONS_ADDRESS \
  OutpostSetup,$REINFORCEMENTS_ACTIONS_ADDRESS \
- OutpostSetup,$PAYMENT_ACTIONS_ADDRESS \
  OutpostSetup,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  OutpostSetup,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  PlayerInfo,$WORLD_ADDRESS \
@@ -145,7 +129,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  PlayerInfo,$WORLD_EVENT_ADDRESS \
  PlayerInfo,$OUTPOST_ACTIONS_ADDRESS \
  PlayerInfo,$REINFORCEMENTS_ACTIONS_ADDRESS \
- PlayerInfo,$PAYMENT_ACTIONS_ADDRESS \
  PlayerInfo,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  PlayerInfo,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  PlayerContribution,$WORLD_ADDRESS \
@@ -153,7 +136,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  PlayerContribution,$WORLD_EVENT_ADDRESS \
  PlayerContribution,$OUTPOST_ACTIONS_ADDRESS \
  PlayerContribution,$REINFORCEMENTS_ACTIONS_ADDRESS \
- PlayerContribution,$PAYMENT_ACTIONS_ADDRESS \
  PlayerContribution,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  PlayerContribution,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  ReinforcementMarket,$WORLD_ADDRESS \
@@ -161,7 +143,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  ReinforcementMarket,$WORLD_EVENT_ADDRESS \
  ReinforcementMarket,$OUTPOST_ACTIONS_ADDRESS \
  ReinforcementMarket,$REINFORCEMENTS_ACTIONS_ADDRESS \
- ReinforcementMarket,$PAYMENT_ACTIONS_ADDRESS \
  ReinforcementMarket,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  ReinforcementMarket,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  OutpostTrade,$WORLD_ADDRESS \
@@ -169,7 +150,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  OutpostTrade,$WORLD_EVENT_ADDRESS \
  OutpostTrade,$OUTPOST_ACTIONS_ADDRESS \
  OutpostTrade,$REINFORCEMENTS_ACTIONS_ADDRESS \
- OutpostTrade,$PAYMENT_ACTIONS_ADDRESS \
  OutpostTrade,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  OutpostTrade,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  ReinforcementTrade,$WORLD_ADDRESS \
@@ -177,7 +157,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  ReinforcementTrade,$WORLD_EVENT_ADDRESS \
  ReinforcementTrade,$OUTPOST_ACTIONS_ADDRESS \
  ReinforcementTrade,$REINFORCEMENTS_ACTIONS_ADDRESS \
- ReinforcementTrade,$PAYMENT_ACTIONS_ADDRESS \
  ReinforcementTrade,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  ReinforcementTrade,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  WorldEventSetup,$WORLD_ADDRESS \
@@ -185,7 +164,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  WorldEventSetup,$WORLD_EVENT_ADDRESS \
  WorldEventSetup,$OUTPOST_ACTIONS_ADDRESS \
  WorldEventSetup,$REINFORCEMENTS_ACTIONS_ADDRESS \
- WorldEventSetup,$PAYMENT_ACTIONS_ADDRESS \
  WorldEventSetup,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  WorldEventSetup,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  WorldEvent,$WORLD_ADDRESS \
@@ -193,7 +171,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  WorldEvent,$WORLD_EVENT_ADDRESS \
  WorldEvent,$OUTPOST_ACTIONS_ADDRESS \
  WorldEvent,$REINFORCEMENTS_ACTIONS_ADDRESS \
- WorldEvent,$PAYMENT_ACTIONS_ADDRESS \
  WorldEvent,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  WorldEvent,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  CurrentWorldEvent,$WORLD_ADDRESS \
@@ -201,7 +178,6 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  CurrentWorldEvent,$WORLD_EVENT_ADDRESS \
  CurrentWorldEvent,$OUTPOST_ACTIONS_ADDRESS \
  CurrentWorldEvent,$REINFORCEMENTS_ACTIONS_ADDRESS \
- CurrentWorldEvent,$PAYMENT_ACTIONS_ADDRESS \
  CurrentWorldEvent,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  CurrentWorldEvent,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
  OutpostVerified,$WORLD_ADDRESS \
@@ -209,10 +185,22 @@ sozo auth grant --world $WORLD_ADDRESS --wait writer \
  OutpostVerified,$WORLD_EVENT_ADDRESS \
  OutpostVerified,$OUTPOST_ACTIONS_ADDRESS \
  OutpostVerified,$REINFORCEMENTS_ACTIONS_ADDRESS \
- OutpostVerified,$PAYMENT_ACTIONS_ADDRESS \
  OutpostVerified,$TRADE_OUTPOST_ACTIONS_ADDRESS \
  OutpostVerified,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
-
+ ReinforcementMarketConsts,$WORLD_ADDRESS \
+    ReinforcementMarketConsts,$GAME_ADDRESS \
+    ReinforcementMarketConsts,$WORLD_EVENT_ADDRESS \
+    ReinforcementMarketConsts,$OUTPOST_ACTIONS_ADDRESS \
+    ReinforcementMarketConsts,$REINFORCEMENTS_ACTIONS_ADDRESS \
+    ReinforcementMarketConsts,$TRADE_OUTPOST_ACTIONS_ADDRESS \
+    ReinforcementMarketConsts,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
+    WorldEventVerifications,$WORLD_ADDRESS \
+    WorldEventVerifications,$GAME_ADDRESS \
+    WorldEventVerifications,$WORLD_EVENT_ADDRESS \
+    WorldEventVerifications,$OUTPOST_ACTIONS_ADDRESS \
+    WorldEventVerifications,$REINFORCEMENTS_ACTIONS_ADDRESS \
+    WorldEventVerifications,$TRADE_OUTPOST_ACTIONS_ADDRESS \
+    WorldEventVerifications,$TRADE_REINFORCEMENTS_ACTIONS_ADDRESS \
 
  > /dev/null
  

@@ -116,7 +116,7 @@ impl GameActionImpl of GameActionTrait {
         phases.get_phase()
     }
     fn assert_is_admin(self: IWorldDispatcher, player: ContractAddress) {
-        assert(self.is_owner(player, 0), 'Not admin');
+        
     }
     fn assert_not_started(self: GameAction) {
         assert(self.get_phase() == GamePhase::Created, 'Game Has started');
