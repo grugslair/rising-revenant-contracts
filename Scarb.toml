@@ -1,6 +1,6 @@
 [package]
 cairo-version = "=2.7.0"
-name = "risingrevenant"
+name = "rising_revenant"
 version = "0.4.0"
 
 [cairo]

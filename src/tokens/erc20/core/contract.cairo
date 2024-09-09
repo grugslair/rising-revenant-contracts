@@ -1,5 +1,3 @@
-mod Errors {}
-
 #[dojo::contract]
 mod erc20_core {
     use dojo::model::Model;
@@ -51,26 +49,8 @@ mod erc20_core {
         fn get_total_supply(self: @ContractState) -> u256 {
             self.get_total_supply_value()
         }
-        fn set_total_supply(ref self: ContractState, total_supply: u256) {
-            self.set_total_supply_value(total_supply)
-        }
-        fn increase_total_supply(ref self: ContractState, amount: u256) {
-            self.increase_total_supply_value(amount);
-        }
-        fn decrease_total_supply(ref self: ContractState, amount: u256) {
-            self.decrease_total_supply_value(amount);
-        }
         fn get_balance(self: @ContractState, account: ContractAddress) -> u256 {
             self.get_balance_value(account)
-        }
-        fn set_balance(ref self: ContractState, account: ContractAddress, amount: u256) {
-            self.set_balance_value(account, amount)
-        }
-        fn increase_balance(ref self: ContractState, account: ContractAddress, amount: u256) {
-            self.increase_balance_value(account, amount)
-        }
-        fn decrease_balance(ref self: ContractState, account: ContractAddress, amount: u256) {
-            self.decrease_balance_value(account, amount)
         }
         fn get_allowance(
             self: @ContractState, owner: ContractAddress, spender: ContractAddress
@@ -93,7 +73,6 @@ mod erc20_core {
         ) {
             self.decrease_allowance_value(owner, spender, amount);
         }
-
         fn transfer(
             ref self: ContractState,
             sender: ContractAddress,

@@ -12,6 +12,16 @@ struct ContractPermissionsModel {
     permissions: felt252,
 }
 
+struct ContractPermissionsWriterModel {
+    #[key]
+    owner: ContractAddress,
+    #[key]
+    writer: ContractAddress,
+    writer: bool,
+}
+
+
+
 #[generate_trait]
 impl PermissionsStoreImpl of PermissionsStore {
     fn get_permissions(

@@ -11,6 +11,8 @@ use risingrevenant::utils::random::{RandomTrait};
 use risingrevenant::utils::{calculate_distance};
 
 
+
+
 #[dojo::model]
 #[derive(Copy, Drop, Serde)]
 struct Outpost {

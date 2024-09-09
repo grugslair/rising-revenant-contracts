@@ -37,17 +37,16 @@ mod name_erc20 {
     }
 
     #[abi(embed_v0)]
-    impl IERC20MintImpl of IERC20Mint<ContractState> {
+    impl IERC20MintImp< // impl ERC20Basic: ERC20_basic_component::HasComponent<TContractState>,
+    > of IERC20Mint<ContractState> {
         fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
+            // get_dep_component_mut!(ref self, ERC20Basic);
             let world: IWorldDispatcher = self.world();
-
-            // world
-            //     .is_writer(
-            //         IContractDispatcher { contract_address: get_contract_address() }.selector(),
-            //         get_caller_address()
-            //     );
             world.is_writer(self.selector(), get_caller_address());
-            IERC20CoreDispatcher { contract_address: self.core_contract_address.read() }
+
+            IERC20CoreDispatcher {
+                contract_address: self.erc20_basic_storage.core_contract_address.read()
+            }
                 .mint(recipient, amount);
             true
         }

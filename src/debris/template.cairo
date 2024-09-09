@@ -1,32 +1,26 @@
-use dojo::world::IWorldDispatcher;
-use risingrevenant::tokens::erc20::basic::IERC20MetadataTrait;
+use risingrevenant::tokens::erc20::{basic::{IERC20MetadataTrait, IERC20MintTrait}};
 
-impl ERC20DebrisMetaDataImpl of IERC20MetadataTrait {
-    fn name(self: @IWorldDispatcher) -> ByteArray {
+impl ERC20TemplateMetaDataImpl of IERC20MetadataTrait {
+    fn name() -> ByteArray {
         "Name"
     }
-    fn symbol(self: @IWorldDispatcher) -> felt252 {
+    fn symbol() -> felt252 {
         'SYM'
     }
-    fn decimals(self: @IWorldDispatcher) -> u8 {
+    fn decimals() -> u8 {
         18
     }
 }
 
-
 #[dojo::contract]
 mod name_erc20 {
-    use risingrevenant::{
-        tokens::erc20::{
-            basic::{ERC20_basic_component, IERC20Mint},
-            internals::{
-                ERC20BasicTotalSupplyImpl, ERC20BasicBalanceImpl, ERC20BasicTransferImpl,
-                ERC20BasicAllowanceImpl
-            }
-        },
-        debris::utils::ERC20DebrisMintImpl
+    use starknet::{ContractAddress, get_contract_address, get_caller_address};
+    use dojo::contract::{IContractDispatcher, IContractDispatcherTrait};
+    use risingrevenant::tokens::erc20::{
+        basic::{ERC20_basic_component, IERC20Mint}, IERC20CoreDispatcher, IERC20CoreDispatcherTrait
     };
-    use super::{ERC20DebrisMetaDataImpl};
+    use super::{ERC20TemplateMetaDataImpl};
+
     component!(path: ERC20_basic_component, storage: erc20_basic_storage, event: ERC20BasicEvent);
 
     #[storage]
@@ -42,16 +36,18 @@ mod name_erc20 {
         ERC20BasicEvent: ERC20_basic_component::Event,
     }
 
+    #[abi(embed_v0)]
+    impl IERC20MintImpl of IERC20Mint<ContractState> {
+        fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
+            let world: IWorldDispatcher = self.world();
+            world.is_writer(self.selector(), get_caller_address());
+            IERC20CoreDispatcher { contract_address: self.core_contract_address.read() }
+                .mint(recipient, amount);
+            true
+        }
+    }
 
     #[abi(embed_v0)]
     impl IERC20BasicImpl =
-        ERC20_basic_component::ERC20BasicImpl<
-            ContractState,
-            ERC20DebrisMintImpl,
-            ERC20DebrisMetaDataImpl,
-            ERC20BasicTotalSupplyImpl,
-            ERC20BasicBalanceImpl,
-            ERC20BasicTransferImpl,
-            ERC20BasicAllowanceImpl
-        >;
+        ERC20_basic_component::ERC20BasicImpl<ContractState, ERC20TemplateMetaDataImpl,>;
 }

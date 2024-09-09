@@ -4,7 +4,7 @@ use risingrevenant::tokens::erc20::{basic::IERC20MintTrait, internals::{Transfer
 
 
 impl ERC20DebrisMintImpl of IERC20MintTrait {
-    fn mint(self: IWorldDispatcher, recipient: ContractAddress, amount: u256) -> Transfer {
+    fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) -> Transfer {
         assert(
             self.can_write_namespace(get_contract_address(), get_caller_address()),
             'ERC20: Unauthorized to mint'
