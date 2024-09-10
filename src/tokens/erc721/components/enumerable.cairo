@@ -8,7 +8,7 @@ trait IERC721BurnTrait {
     ) -> bool;
 }
 
-trait IERC721MetadataTrait {
+trait IERC721Metadata {
     fn name() -> ByteArray;
     fn symbol() -> felt252;
     fn token_uri(token_id: u256) -> ByteArray;
@@ -78,7 +78,8 @@ pub mod ERC721_basic_component {
     };
 
     use super::super::super::{
-        ERC721CoreInternalTrait, ERC721BasicInternalTrait, ERC721Event, GetERC721CoreDispatcherTrait
+        ERC721CoreInternalTrait, ERC721EnumerableInternalTrait, ERC721Event,
+        GetERC721CoreDispatcherTrait
     };
     use super::{IERC721Core, IERC721Transfer};
 
