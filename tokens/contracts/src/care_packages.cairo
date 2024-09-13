@@ -1,14 +1,5 @@
-use starknet::ContractAddress;
-#[starknet::interface]
-trait IERC721MintableBurnable<TContractState> {
-    fn set_writer(ref self: TContractState, writer: ContractAddress, authorized: bool);
-    fn mint(ref self: TContractState, to: ContractAddress, token_id: u256);
-    fn burn_from(ref self: TContractState, from: ContractAddress, token_id: u256);
-}
-
-
 #[starknet::contract]
-mod MyNFT {
+mod care_package {
     use core::num::traits::Zero;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
@@ -16,7 +7,7 @@ mod MyNFT {
         ContractAddress, get_caller_address,
         storage::{StoragePointerReadAccess, StoragePointerWriteAccess, StoragePathEntry, Map}
     };
-    use super::IERC721MintableBurnable;
+    use rr_tokens::care_packages::{interface::ICarePackage, Rarity};
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
@@ -33,6 +24,8 @@ mod MyNFT {
         src5: SRC5Component::Storage,
         owner: ContractAddress,
         writers: Map<ContractAddress, bool>,
+        rarity: Map<u256, Rarity>,
+        total_minted: u256,
     }
 
     #[event]
@@ -46,21 +39,29 @@ mod MyNFT {
 
     #[constructor]
     fn constructor(
-        ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        base_uri: ByteArray,
+        owner: ContractAddress
     ) {
         self.erc721.initializer(name, symbol, base_uri);
+        self.owner.write(owner);
     }
 
-    impl ERC721MintableBurnableImpl of IERC721MintableBurnable<ContractState> {
-        fn mint(ref self: ContractState, to: ContractAddress, token_id: u256) {
+    impl CarePackageImpl of ICarePackage<ContractState> {
+        fn mint(ref self: ContractState, to: ContractAddress, rarity: Rarity) {
             assert(
                 self.writers.entry(get_caller_address()).read(),
                 ERC721Component::Errors::UNAUTHORIZED
             );
+            let token_id = self.total_minted.read();
+            self.total_minted.write(token_id + 1);
+            self.rarity.entry(token_id).write(rarity);
             self.erc721.mint(to, token_id);
         }
 
-        fn burn_from(ref self: ContractState, from: ContractAddress, token_id: u256) {
+        fn burn_from(ref self: ContractState, token_id: u256) {
             let previous_owner = self.erc721.update(Zero::zero(), token_id, get_caller_address());
             assert(!previous_owner.is_zero(), ERC721Component::Errors::INVALID_TOKEN_ID);
         }
@@ -69,6 +70,9 @@ mod MyNFT {
                 self.owner.read() == get_caller_address(), ERC721Component::Errors::UNAUTHORIZED
             );
             self.writers.entry(writer).write(authorized);
+        }
+        fn get_rarity(self: @ContractState, token_id: u256) -> Rarity {
+            self.rarity.entry(token_id).read()
         }
     }
 }

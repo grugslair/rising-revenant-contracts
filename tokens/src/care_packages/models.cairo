@@ -1,4 +1,4 @@
-#[derive(Serde, Copy, Drop, Introspect, PartialEq, starknet::Store)]
+#[derive(Serde, Copy, Drop, PartialEq, starknet::Store)]
 enum Rarity {
     None,
     Common,

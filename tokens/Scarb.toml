@@ -1,21 +1,19 @@
 [package]
-name = "tokens"
+cairo-version = "^2.7.0"
+name = "rr_tokens"
 version = "0.1.0"
-edition = "2023_11"
 
-# See more keys and their definitions at https://docs.swmansion.com/scarb/docs/reference/manifest.html
-
-[dependencies]
-starknet = "2.7.1"
-openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v0.15.1" }
-openzeppelin_introspection = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v0.15.1" }
+[requirments]
+starknet = "^2.7.0"
 
 
-[dev-dependencies]
-snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry", tag = "v0.30.0" }
+[cairo]
+sierra-replace-ids = true
+
+[tool.fmt]
+sort-module-level-items = true
+
+[lib]
 
 [[target.starknet-contract]]
 sierra = true
-
-[scripts]
-test = "snforge test"

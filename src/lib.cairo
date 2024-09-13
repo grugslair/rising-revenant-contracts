@@ -53,7 +53,6 @@
 //     mod systems;
 // }
 mod debris {
-    mod wood;
 }
 // mod fortifications {
 //     mod models;
@@ -107,10 +106,12 @@ mod debris {
 // }
 mod utils;
 mod care_packages{
-    mod contract;
-    mod models;
+    use rr_tokens::care_packages::{interface::ICarePackageDispatcher, ICarePackageDispatcherTrait, Rarity};
     mod systems;
+    mod contract;
 }
 mod fortifications{
     mod models;
 }
+
+mod addresses;

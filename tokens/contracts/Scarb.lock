@@ -2,24 +2,6 @@
 version = 1
 
 [[package]]
-name = "cubit"
-version = "1.3.0"
-source = "git+https://github.com/dojoengine/cubit?branch=cairo_2.7#53020b6320a10f2ab55b661be9b8d895aca945e9"
-
-[[package]]
-name = "dojo"
-version = "1.0.0-alpha.4"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.0.0-alpha.5#6878242e120d3135d3bc1bb94135d7135693069b"
-dependencies = [
- "dojo_plugin",
-]
-
-[[package]]
-name = "dojo_plugin"
-version = "1.0.0-alpha.4"
-source = "git+https://github.com/dojoengine/dojo?rev=f15def33#f15def330c0d099e79351d11c197f63e8cc1ff36"
-
-[[package]]
 name = "openzeppelin_access"
 version = "0.15.1"
 source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v0.15.1#2f8a93d762858714095a1d391afffa9e21df6983"
@@ -67,14 +49,13 @@ version = "0.15.1"
 source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v0.15.1#2f8a93d762858714095a1d391afffa9e21df6983"
 
 [[package]]
-name = "rising_revenant"
-version = "0.4.0"
+name = "rr_token_contracts"
+version = "0.1.0"
 dependencies = [
- "cubit",
- "dojo",
+ "openzeppelin_introspection",
  "openzeppelin_token",
  "rr_tokens",
- "tokens",
+ "snforge_std",
 ]
 
 [[package]]
@@ -82,6 +63,14 @@ name = "rr_tokens"
 version = "0.1.0"
 
 [[package]]
-name = "tokens"
+name = "snforge_scarb_plugin"
 version = "0.1.0"
-source = "git+https://github.com/bengineer42/cairo-tokens#7b15a0175982d60cd37e06caec77fc8aa762f77e"
+source = "git+https://github.com/foundry-rs/starknet-foundry?tag=v0.30.0#196f06b251926697c3d66800f2a93ae595e76496"
+
+[[package]]
+name = "snforge_std"
+version = "0.30.0"
+source = "git+https://github.com/foundry-rs/starknet-foundry?tag=v0.30.0#196f06b251926697c3d66800f2a93ae595e76496"
+dependencies = [
+ "snforge_scarb_plugin",
+]

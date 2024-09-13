@@ -1,88 +1,55 @@
 use starknet::ContractAddress;
-use super::models::Rarity;
+use rising_revenant::fortifications::models::Fortification;
+const CARE_PACKAGE_SELECTOR: felt252 = 'erc721-care-packages';
 
-#[starknet::interface]
-trait ICarePackage<TContractState> {
-    fn mint(ref self: TContractState, to: ContractAddress, rarity: Rarity);
-    fn burn_from(ref self: TContractState, from: ContractAddress, token_id: u256);
-    fn set_writer(ref self: TContractState, writer: ContractAddress, authorized: bool);
-    fn get_rarity(self: @TContractState, token_id: u256) -> Rarity;
+#[dojo::interface]
+pub trait ICarePackage<TContractState> {
+    fn set_fortification_address(
+        ref self: TContractState,
+        fortification_type: Fortification,
+        fortification_address: ContractAddress
+    );
+    fn purchase(ref self: TContractState);
+    fn open(ref self: TContractState, token_id: u256);
 }
 
 
-#[starknet::contract]
+#[dojo::contract]
 mod care_package {
-    use core::Zeroable;
-    use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
-    use starknet::{
-        ContractAddress, get_caller_address,
-        storage::{StoragePointerReadAccess, StoragePointerWriteAccess, StoragePathEntry, Map}
+    use starknet::{get_caller_address, ContractAddress};
+    use openzeppelin_token::erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
+    use tokens::erc20::interfaces::{
+        IERC20MintableBurnableDispatcher, IERC20MintableBurnableDispatcherTrait
     };
-    use super::ICarePackage;
-    use super::super::models::Rarity;
-    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
-
-    // ERC721 Mixin
-    #[abi(embed_v0)]
-    impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
-    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
-
-    #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        erc721: ERC721Component::Storage,
-        #[substorage(v0)]
-        src5: SRC5Component::Storage,
-        owner: ContractAddress,
-        writers: Map<ContractAddress, bool>,
-        rarity: Map<u256, Rarity>,
-        total_minted: u256,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC721Event: ERC721Component::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event
-    }
-
-    #[constructor]
-    fn constructor(
-        ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray
-    ) {
-        self.erc721.initializer(name, symbol, base_uri);
-    }
-
-    impl CarePackageImpl of ICarePackage<ContractState> {
-        fn mint(ref self: ContractState, to: ContractAddress, rarity: Rarity) {
-            assert(
-                self.writers.entry(get_caller_address()).read(),
-                ERC721Component::Errors::UNAUTHORIZED
-            );
-            let token_id = self.total_minted.read();
-            self.total_minted.write(token_id + 1);
-            self.rarity.entry(token_id).write(rarity);
-            self.erc721.mint(to, token_id);
+    use rr_tokens::care_packages::{ICarePackageDispatcher, ICarePackageDispatcherTrait, Rarity};
+    use rising_revenant::{addresses::GetAddressTrait, fortifications::models::Fortification};
+    use super::CARE_PACKAGE_SELECTOR;
+    use super::super::systems::{get_fortifications_types, get_number_of_fortifications};
+    #[generate_trait]
+    impl PrivateImpl of PrivateTrait {
+        fn min_fortifications(
+            self: IWorldDispatcher,
+            fortification: Fortification,
+            recipient: ContractAddress,
+            amount: u256
+        ) {
+            IERC20MintableBurnableDispatcher { contract_address: self.get_address(fortification), }
+                .mint(recipient, amount);
         }
 
-        fn burn_from(ref self: ContractState, from: ContractAddress, token_id: u256) {
-            let previous_owner = self
-                .erc721
-                .update(Zeroable::zero(), token_id, get_caller_address());
-            assert(!previous_owner.is_zero(), ERC721Component::Errors::INVALID_TOKEN_ID);
-        }
-        fn set_writer(ref self: ContractState, writer: ContractAddress, authorized: bool) {
-            assert(
-                self.owner.read() == get_caller_address(), ERC721Component::Errors::UNAUTHORIZED
-            );
-            self.writers.entry(writer).write(authorized);
-        }
-        fn get_rarity(self: @ContractState, token_id: u256) -> Rarity {
-            self.rarity.entry(token_id).read()
+        fn open_care_package(self: IWorldDispatcher, token_id: u256, randomness: felt252) {
+            let caller = get_caller_address();
+            let erc721_contract_address = self.get_address_from_selector(CARE_PACKAGE_SELECTOR);
+            let custom_dispatcher = ICarePackageDispatcher {
+                contract_address: erc721_contract_address,
+            };
+            let erc721_dispatcher = ERC721ABIDispatcher {
+                contract_address: erc721_contract_address,
+            };
+            assert(caller == erc721_dispatcher.owner_of(token_id), 'Unauthorized');
+            let rarity = custom_dispatcher.get_rarity(token_id);
+            custom_dispatcher.burn_from(token_id);
+            let num_of_fortifications = get_number_of_fortifications(rarity, randomness);
         }
     }
 }

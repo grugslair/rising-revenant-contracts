@@ -16,6 +16,7 @@
   ],
   "deployments": [
     {
+      "contract_address": "0x077162449b9ff655cb6a66682bb02256f030ca1e690cbcff0f8e9aabbf8bcb4b",
       "formatted_args": [
         "RR Palisades",
         "RRPALI",
@@ -32,6 +33,7 @@
       ]
     },
     {
+      "contract_address": "0x04863260e85d60e58c643da231f1d7d58e2778490173ce3669196b4c5ab64a70",
       "formatted_args": [
         "RR Trenches",
         "RRTREN",
@@ -48,6 +50,7 @@
       ]
     },
     {
+      "contract_address": "0x05e80acf61a47b24ba3c56e904352a1cc9776fe96170856b29b4cb10cc5205c6",
       "formatted_args": [
         "RR Walls",
         "RRWALL",
@@ -64,6 +67,7 @@
       ]
     },
     {
+      "contract_address": "0x01f1933bfcd9485b6f57914b1d64a4392d5a9527640d8b70c993881be5f6b162",
       "formatted_args": [
         "RR Basements",
         "RRBCMT",

@@ -11,9 +11,9 @@ sort-module-level-items = true
 
 [dependencies]
 dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.0-alpha.5" }
-origami_token = { git = "https://github.com/dojoengine/origami", tag = "v1.0.0-alpha.5" }
 openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v0.15.1" }
-
+rr_tokens = { path = "./tokens" }
+tokens = { git = "https://github.com/bengineer42/cairo-tokens" }
 # origami_defi = { git = "https://github.com/dojoengine/origami", tag = "v1.0.0-alpha.3" }
 cubit = { git = "https://github.com/dojoengine/cubit", branch = "cairo_2.7" }
 

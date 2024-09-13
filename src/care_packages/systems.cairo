@@ -1,4 +1,4 @@
-use super::models::{Rarity};
+use super::Rarity;
 use rising_revenant::fortifications::models::Fortifications;
 use rising_revenant::utils::felt252_to_u128;
 use core::integer::u128_safe_divmod;
@@ -16,7 +16,7 @@ fn get_fortifications_types(total: u128, randomness: felt252) -> Fortifications 
     Fortifications { palisades, trenches, walls, basements, }
 }
 
-fn get_fortifications(rarity: Rarity, randomness: felt252) -> u128 {
+fn get_number_of_fortifications(rarity: Rarity, randomness: felt252) -> u128 {
     let randomness = felt252_to_u128(randomness);
     match rarity {
         Rarity::None => { panic!("Rarity not set") },

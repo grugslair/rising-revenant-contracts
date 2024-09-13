@@ -1,7 +1,7 @@
-mod erc20 {
-    mod mintable_burnable;
-}
-
-mod erc721 {
-    mod mintable_burnable;
+mod care_packages {
+    mod interface;
+    mod models;
+    use super::care_packages::{
+        interface::{ICarePackageDispatcher, ICarePackageDispatcherTrait}, models::Rarity
+    };
 }
