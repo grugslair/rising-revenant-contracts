@@ -1,27 +1,21 @@
-#[derive(Serde, Copy, Drop, Introspect, PartialEq)]
+#[derive(Serde, Copy, Drop, Introspect, PartialEq, starknet::Store)]
 enum Rarity {
-    Origin,
-    Midnight,
-    Eclipse,
-    Eternal,
+    None,
+    Common,
+    Rare,
+    Epic,
+    Legendary,
 }
 
 impl UTIntoRarity<T, +TryInto<T, u8>,> of Into<T, Rarity> {
     fn into(self: T) -> Rarity {
         match self.try_into().unwrap() {
-            0_u8 => Rarity::Origin,
-            1_u8 => Rarity::Midnight,
-            2_u8 => Rarity::Eclipse,
-            3_u8 => Rarity::Eternal,
+            0_u8 => Rarity::None,
+            1_u8 => Rarity::Common,
+            2_u8 => Rarity::Rare,
+            3_u8 => Rarity::Epic,
+            4_u8 => Rarity::Legendary,
             _ => panic!("Invalid rarity"),
         }
     }
-}
-
-#[dojo::model]
-#[derive(Copy, Drop, Serde)]
-struct CarePackage {
-    #[key]
-    token_id: u128,
-    rarity: Rarity,
 }

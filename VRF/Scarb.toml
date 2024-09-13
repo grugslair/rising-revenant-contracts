@@ -15,7 +15,7 @@ origami_token = { git = "https://github.com/dojoengine/origami", tag = "v1.0.0-a
 openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v0.15.1" }
 
 # origami_defi = { git = "https://github.com/dojoengine/origami", tag = "v1.0.0-alpha.3" }
-cubit = { git = "https://github.com/dojoengine/cubit", branch = "cairo_2.7" }
+# cubit = { git = "https://github.com/dojoengine/cubit", branch = "cairo_2.7" }
 
 [[target.dojo]]
 

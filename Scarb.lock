@@ -2,6 +2,11 @@
 version = 1
 
 [[package]]
+name = "cubit"
+version = "1.3.0"
+source = "git+https://github.com/dojoengine/cubit?branch=cairo_2.7#53020b6320a10f2ab55b661be9b8d895aca945e9"
+
+[[package]]
 name = "dojo"
 version = "1.0.0-alpha.4"
 source = "git+https://github.com/dojoengine/dojo?tag=v1.0.0-alpha.5#6878242e120d3135d3bc1bb94135d7135693069b"
@@ -15,6 +20,53 @@ version = "1.0.0-alpha.4"
 source = "git+https://github.com/dojoengine/dojo?rev=f15def33#f15def330c0d099e79351d11c197f63e8cc1ff36"
 
 [[package]]
+name = "openzeppelin_access"
+version = "0.15.1"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v0.15.1#2f8a93d762858714095a1d391afffa9e21df6983"
+dependencies = [
+ "openzeppelin_introspection",
+ "openzeppelin_utils",
+]
+
+[[package]]
+name = "openzeppelin_account"
+version = "0.15.1"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v0.15.1#2f8a93d762858714095a1d391afffa9e21df6983"
+dependencies = [
+ "openzeppelin_introspection",
+ "openzeppelin_utils",
+]
+
+[[package]]
+name = "openzeppelin_governance"
+version = "0.15.1"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v0.15.1#2f8a93d762858714095a1d391afffa9e21df6983"
+dependencies = [
+ "openzeppelin_access",
+ "openzeppelin_introspection",
+]
+
+[[package]]
+name = "openzeppelin_introspection"
+version = "0.15.1"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v0.15.1#2f8a93d762858714095a1d391afffa9e21df6983"
+
+[[package]]
+name = "openzeppelin_token"
+version = "0.15.1"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v0.15.1#2f8a93d762858714095a1d391afffa9e21df6983"
+dependencies = [
+ "openzeppelin_account",
+ "openzeppelin_governance",
+ "openzeppelin_introspection",
+]
+
+[[package]]
+name = "openzeppelin_utils"
+version = "0.15.1"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v0.15.1#2f8a93d762858714095a1d391afffa9e21df6983"
+
+[[package]]
 name = "origami_token"
 version = "1.0.0-alpha.5"
 source = "git+https://github.com/dojoengine/origami?tag=v1.0.0-alpha.5#d942d89c892cf166bc535a7f6116575b439d6aad"
@@ -26,6 +78,8 @@ dependencies = [
 name = "rising_revenant"
 version = "0.4.0"
 dependencies = [
+ "cubit",
  "dojo",
+ "openzeppelin_token",
  "origami_token",
 ]

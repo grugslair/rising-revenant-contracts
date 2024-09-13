@@ -52,55 +52,65 @@
 //     mod models;
 //     mod systems;
 // }
-
+mod debris {
+    mod wood;
+}
 // mod fortifications {
 //     mod models;
 // }
-mod tokens {
-    // mod erc20 {
-    //     mod core {
-    //         mod contract;
-    //         mod interface;
-    //         mod models;
-    //     }
-    //     use super::erc20::core::{
-    //         interface::{IERC20Core, IERC20CoreDispatcher, IERC20CoreDispatcherTrait},
-    //         models::{ERC20Read}
-    //     };
-    //     mod basic;
-    //     mod template;
-    // }
-    mod erc721 {
-        mod core {
-            mod contract;
-            mod interface;
-            mod models;
-        }
-        mod components {
-            mod basic;
-        }
-        use super::erc721::{
-            core::{
-                interface::{
-                    IERC721Core, IERC721CoreDispatcher, IERC721CoreDispatcherTrait,
-                    IERC721CoreBasicDispatcher, IERC721CoreBasicDispatcherTrait,
-                    IERC721CoreEnumerableDispatcher, IERC721CoreEnumerableDispatcherTrait
-                },
-                models::{ERC721Read}
-            },
-            internals::{
-                ERC721Event, GetERC721CoreDispatcherTrait, ERC721CoreInternalTrait,
-                ERC721BasicInternalTrait, ERC721EnumerableInternalTrait
-            },
-        };
-        mod internals;
-        // use super::erc721::internals::GetERC721CoreDispatcherTrait;
-    // mod template;
-    }
-}
+// mod tokens {
+//     // mod erc20 {
+//     //     mod core {
+//     //         mod contract;
+//     //         mod interface;
+//     //         mod models;
+//     //     }
+//     //     use super::erc20::core::{
+//     //         interface::{IERC20Core, IERC20CoreDispatcher, IERC20CoreDispatcherTrait},
+//     //         models::{ERC20Read}
+//     //     };
+//     //     mod basic;
+//     //     mod template;
+//     // }
+//     mod erc721 {
+//         mod core {
+//             mod contract;
+//             mod interface;
+//             mod models;
+//         }
+//         mod components {
+//             mod basic;
+//         }
+//         use super::erc721::{
+//             core::{
+//                 interface::{
+//                     IERC721Core, IERC721CoreDispatcher, IERC721CoreDispatcherTrait,
+//                     IERC721CoreBasicDispatcher, IERC721CoreBasicDispatcherTrait,
+//                     IERC721CoreEnumerableDispatcher, IERC721CoreEnumerableDispatcherTrait
+//                 },
+//                 models::{ERC721Read}
+//             },
+//             internals::{
+//                 ERC721Event, GetERC721CoreDispatcherTrait, ERC721CoreInternalTrait,
+//                 ERC721BasicInternalTrait, ERC721EnumerableInternalTrait
+//             },
+//         };
+//         mod internals;
+//         // use super::erc721::internals::GetERC721CoreDispatcherTrait;
+//     // mod template;
+//     }
+// }
 // mod dns;
 // mod permissions {
 //     mod models;
 //     mod contract;
 // }
 mod utils;
+mod care_packages{
+    mod contract;
+    mod models;
+    mod systems;
+}
+mod fortifications{
+    mod models;
+}

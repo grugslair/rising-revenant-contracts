@@ -1,7 +1,14 @@
+enum Fortification {
+    Palisade,
+    Trench,
+    Wall,
+    Basement,
+}
+
 #[derive(Copy, Drop, Serde)]
 struct Fortifications {
-    palisade: u8,
-    obsidian: u8,
-    stone: u8,
-    trench: u8,
+    palisades: u128,
+    trenches: u128,
+    walls: u128,
+    basements: u128,
 }

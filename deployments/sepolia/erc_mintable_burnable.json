@@ -1,0 +1,83 @@
+{
+  "class_hash": "0x00852aeda5d102845cf58fe057e997a3684eb2d47c5693a811b182db9e14a028",
+  "args": [
+    {
+      "name": "name",
+      "type": "ByteArray"
+    },
+    {
+      "name": "symbol",
+      "type": "ByteArray"
+    },
+    {
+      "name": "owner",
+      "type": "ContractAddress"
+    }
+  ],
+  "deployments": [
+    {
+      "formatted_args": [
+        "RR Palisades",
+        "RRPALI",
+        "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
+      ],
+      "raw_args": [
+        "0x0",
+        "0x52522050616c697361646573",
+        "0xc",
+        "0x0",
+        "0x525250414c49",
+        "0x6",
+        "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
+      ]
+    },
+    {
+      "formatted_args": [
+        "RR Trenches",
+        "RRTREN",
+        "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
+      ],
+      "raw_args": [
+        "0x0",
+        "0x5252205472656e63686573",
+        "0xb",
+        "0x0",
+        "0x52525452454e",
+        "0x6",
+        "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
+      ]
+    },
+    {
+      "formatted_args": [
+        "RR Walls",
+        "RRWALL",
+        "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
+      ],
+      "raw_args": [
+        "0x0",
+        "0x52522057616c6c73",
+        "0x8",
+        "0x0",
+        "0x525257414c4c",
+        "0x6",
+        "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
+      ]
+    },
+    {
+      "formatted_args": [
+        "RR Basements",
+        "RRBCMT",
+        "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
+      ],
+      "raw_args": [
+        "0x0",
+        "0x525220426173656d656e7473",
+        "0xc",
+        "0x0",
+        "0x525242434d54",
+        "0x6",
+        "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
+      ]
+    }
+  ]
+}
