@@ -52,8 +52,7 @@
 //     mod models;
 //     mod systems;
 // }
-mod debris {
-}
+mod debris {}
 // mod fortifications {
 //     mod models;
 // }
@@ -105,12 +104,15 @@ mod debris {
 //     mod contract;
 // }
 mod utils;
-mod care_packages{
-    use rr_tokens::care_packages::{interface::ICarePackageDispatcher, ICarePackageDispatcherTrait, Rarity};
+mod market;
+mod care_packages {
+    use rr_tokens::care_packages::{
+        interface::ICarePackageDispatcher, ICarePackageDispatcherTrait, Rarity
+    };
     mod systems;
     mod contract;
 }
-mod fortifications{
+mod fortifications {
     mod models;
 }
 
