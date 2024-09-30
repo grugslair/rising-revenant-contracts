@@ -1,3 +1,5 @@
+const N_RARITIES: u128 = 5;
+
 #[derive(Serde, Copy, Drop, PartialEq, starknet::Store)]
 enum Rarity {
     None,

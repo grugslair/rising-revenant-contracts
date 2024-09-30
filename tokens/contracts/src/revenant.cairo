@@ -1,7 +1,29 @@
+struct Revenant {
+    id: u256,
+    age: u32,
+    height: u32,
+    weight: u32,
+    element: Element,
+    home_cave: HomeCave, 
+    order: Order, 
+    honor: Honor,
+    morality: Morality,
+    rockiness: u16,
+    personality: u128,
+}
 
+
+
+
+
+
+
+trait IOutpost<TContractState> {
+    fn get_outpost() -> Outpost;
+}
 
 #[starknet::contract]
-mod care_package {
+mod outpost {
     use core::num::traits::Zero;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
@@ -26,8 +48,8 @@ mod care_package {
         src5: SRC5Component::Storage,
         owner: ContractAddress,
         writers: Map<ContractAddress, bool>,
-        rarity: Map<u256, Rarity>,
         total_minted: u256,
+        outpost_contract_address: ContractAddress,
     }
 
     #[event]
@@ -45,27 +67,30 @@ mod care_package {
         name: ByteArray,
         symbol: ByteArray,
         base_uri: ByteArray,
-        owner: ContractAddress
+        owner: ContractAddress,
+        outpost_contract_address: ContractAddress,
     ) {
         self.erc721.initializer(name, symbol, base_uri);
         self.owner.write(owner);
     }
-
-
-    impl CarePackageImpl of ICarePackage<ContractState> {
-        fn mint(ref self: ContractState, to: ContractAddress, rarity: Rarity) {
+    #[abi(embed_v0)]
+    impl OutpostERC721Impl of IOutpostERC721<ContractState> {
+        fn mint(ref self: ContractState, to: ContractAddress, token_id: u256) {
             assert(
                 self.writers.entry(get_caller_address()).read(),
                 ERC721Component::Errors::UNAUTHORIZED
             );
             let token_id = self.total_minted.read();
             self.total_minted.write(token_id + 1);
-            self.rarity.entry(token_id).write(rarity);
             self.erc721.mint(to, token_id);
         }
-        fn open(self: @ContractState, token_id: u256) {
-            let rarity = self.rarity.entry(token_id).read();
-            
+        fn set_outpost_contract_adddress(
+            ref self: ContractState, outpost_contract_address: ContractAddress
+        ) {
+            assert(
+                self.owner.read() == get_caller_address(), ERC721Component::Errors::UNAUTHORIZED
+            );
+            self.outpost_contract_address.write(outpost_contract_address);
         }
 
         fn burn_from(ref self: ContractState, token_id: u256) {
@@ -77,9 +102,6 @@ mod care_package {
                 self.owner.read() == get_caller_address(), ERC721Component::Errors::UNAUTHORIZED
             );
             self.writers.entry(writer).write(authorized);
-        }
-        fn get_rarity(self: @ContractState, token_id: u256) -> Rarity {
-            self.rarity.entry(token_id).read()
         }
     }
 }

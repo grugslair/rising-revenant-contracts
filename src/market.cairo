@@ -188,10 +188,10 @@ mod discretionary_auction {
         }
         fn accept(ref world: IWorldDispatcher, offer_id: u128, bid_id: u128) {
             let caller = get_caller_address();
-            let mut offer = AuctionOfferStore::get(world, offer_id);
+            let mut offer: AuctionOffer = AuctionOfferStore::get(world, offer_id);
             assert(offer.seller == caller, 'Not allowed');
 
-            let mut bid = AuctionBidStore::get(world, bid_id);
+            let mut bid: AuctionBid = AuctionBidStore::get(world, bid_id);
             let timestamp = get_block_timestamp();
             offer.check_open(timestamp);
             bid.check_open(timestamp);

@@ -1,81 +1,82 @@
-use starknet::ContractAddress;
+use super::models::{Outpost, Fortifications};
 
-#[starknet::interface]
-trait ICarePackage<TContractState> {
-    fn burn_from(ref self: TContractState, from: ContractAddress, token_id: u256);
-    fn set_writer(ref self: ContractState, writer: ContractAddress, authorized: bool);
+
+#[dojo::interface]
+trait IOutpost<TContractState> {
+    fn purchase(ref world: IWorldDispatcher) -> felt252;
+    fn get(world: @IWorldDispatcher, outpost_id: felt252) -> Outpost;
+    fn run_event(ref world: IWorldDispatcher, outpost_id: felt252, event: felt252);
+    fn fortify(ref world: IWorldDispatcher, outpost_id: felt252, fortifications: Fortifications);
 }
 
-
-#[starknet::contract]
-mod care_package {
-    use core::num::traits::Zero;
-    use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
-    use starknet::{
-        ContractAddress, get_caller_address,
-        storage::{StoragePointerReadAccess, StoragePointerWriteAccess, StoragePathEntry, Map}
+#[dojo::contract]
+mod outpost_actions {
+    use starknet::get_caller_address;
+    use super::{IOutpost};
+    use risingrevenant::{
+        utils::get_hash_state,
+        fortifications::models::{Fortifications, Fortification, FortificationsTrait},
+        outpost::models::{Outpost, OutpostTrait, OutpostsActiveTrait},
+        world_event::models::{CurrentEvent, CurrentEventTrait},
+        models::{Point, PointTrait},
+        addresses::{GetAddressTrait, selectors}
     };
-    use super::IERC721MintableBurnable;
-    use super::super::models::Rarity;
-    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
-
-    // ERC721 Mixin
+    use openzeppelin_token::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
+    use tokens::erc20::interfaces::{
+        IERC20MintableBurnableDispatcher, IERC20MintableBurnableDispatcherTrait
+    };
     #[abi(embed_v0)]
-    impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
-    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+    impl OutpostImpl of IOutpost<ContractState>{
+        fn purchase(ref world: IWorldDispatcher){
+            // TODO: get_outpost_price
+            let randomness: felt252 = 0;
+            let price: u256 = 0;
+            let location: Point{x:0, y:0};
+            let caller = get_caller_address();
+            let erc20 = ERC20ABIDispatcher{contract_address: self.get_address_from_selector(selectors::GAME_TOKEN)};
+            // erc20.transfer_from(caller, self.get_address_from_selector(selectors::GAME_WALLET), price);
+            // let outpost = Outpost{
+            //     game_id: 0,
+            //     outpost_id: randomness,
+            //     position: location,
+            //     fortifications: Fortifications::new(),
+            //     hp: 100
+            // };
 
-    #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        erc721: ERC721Component::Storage,
-        #[substorage(v0)]
-        src5: SRC5Component::Storage,
-        owner: ContractAddress,
-        writers: Map<ContractAddress, bool>,
-        total_minted: u256,
+        }
+
+        fn get(world: @IWorldDispatcher, outpost_id: felt252) -> Outpost {
+            self.get_outpost(world, outpost_id)
+        }
+
+        fn apply_event(ref world: IWorldDispatcher, outpost_id: felt252) {
+            let mut outpost = world.get_outpost(outpost_id);
+            let event = world.get_current_event(outpost.game_id);
+
+            world.assert_playing(outpost.game_id);
+            assert(outpost.is_active(), 'Outpost is not active');
+            assert(outpost.game_id == game_id, 'Outpost not in game');
+            assert(event.in_range(outpost.position), 'Outpost not in radius');
+            
+            outpost.apply_event(event, get_hash_state((event.seed, outpost.id)));
+            if !outpost.is_active() {
+                let outposts_left = self.reduce_active_outposts(game_id);
+            }
+        
+        }
+
+        fn fortify(ref world: IWorldDispatcher, id: felt252, fortification_type: Fortification, amount: u256) {
+            let caller = get_caller_address();
+            let mut outpost = self.get_outpost(world, outpost_id);
+            outpost.fortifications.add(fortification_type, amount);
+            outpost.set(world);
+            IERC20MintableBurnableDispatcher { contract_address: self.get_address(Fortification), }
+                .burn_from(recipient, amount);
+        }
     }
 
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC721Event: ERC721Component::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event
-    }
+    #[generate_trait]
+    impl PrivateImpl of PrivateTrait {
 
-    #[constructor]
-    fn constructor(
-        ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray
-    ) {
-        self.erc721.initializer(name, symbol, base_uri);
-    }
-
-    impl ERC721MintableBurnableImpl of IERC721MintableBurnable<ContractState> {
-        fn mint(ref self: ContractState, to: ContractAddress, rarity: Rarity) {
-            assert(
-                self.writers.entry(get_caller_address()).read(),
-                ERC721Component::Errors::UNAUTHORIZED
-            );
-            let token_id = self.total_minted.read();
-            self.total_minted.write(token_id + 1);
-            self.erc721.mint(to, token_id);
-        }
-
-        fn burn_from(ref self: ContractState, from: ContractAddress, token_id: u256) {
-            let previous_owner = self.erc721.update(Zero::zero(), token_id, get_caller_address());
-            assert(!previous_owner.is_zero(), ERC721Component::Errors::INVALID_TOKEN_ID);
-        }
-        fn set_writer(ref self: ContractState, writer: ContractAddress, authorized: bool) {
-            assert(
-                self.owner.read() == get_caller_address(), ERC721Component::Errors::UNAUTHORIZED
-            );
-            self.writers.entry(writer).write(authorized);
-        }
-        fn get_rarity(self: ContractState, token_id: u256) -> Rarity {
-            self.rarity.entry(token_id).read()
-        }
     }
 }

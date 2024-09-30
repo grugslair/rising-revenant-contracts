@@ -9,7 +9,7 @@ source = "git+https://github.com/dojoengine/cubit?branch=cairo_2.7#53020b6320a10
 [[package]]
 name = "dojo"
 version = "1.0.0-alpha.4"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.0.0-alpha.5#6878242e120d3135d3bc1bb94135d7135693069b"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.0.0-alpha.12#b391948911356cbf8a91daa93314809c87411098"
 dependencies = [
  "dojo_plugin",
 ]

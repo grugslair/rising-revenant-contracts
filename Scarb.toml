@@ -10,7 +10,7 @@ sierra-replace-ids = true
 sort-module-level-items = true
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.0-alpha.5" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.0-alpha.12" }
 openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v0.15.1" }
 rr_tokens = { path = "./tokens" }
 tokens = { git = "https://github.com/bengineer42/cairo-tokens" }

@@ -1,5 +1,5 @@
 {
-  "class_hash": "0x00852aeda5d102845cf58fe057e997a3684eb2d47c5693a811b182db9e14a028",
+  "class_hash": "0x00433b1df901f6ba4372dd1cdd3172950952b69b2db8c99507ee0078a50d320f",
   "args": [
     {
       "name": "name",
@@ -8,6 +8,10 @@
     {
       "name": "symbol",
       "type": "ByteArray"
+    },
+    {
+      "name": "decimals",
+      "type": "u8"
     },
     {
       "name": "owner",
@@ -20,7 +24,7 @@
       "formatted_args": [
         "RR Palisades",
         "RRPALI",
-        "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
+        "0x00c1ccb49ae9a2735cca59e8450e33cc08de458936f51890e6aefaa77a38a993"
       ],
       "raw_args": [
         "0x0",
@@ -29,11 +33,12 @@
         "0x0",
         "0x525250414c49",
         "0x6",
+        "0x0",
         "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
       ]
     },
     {
-      "contract_address": "0x04863260e85d60e58c643da231f1d7d58e2778490173ce3669196b4c5ab64a70",
+      "contract_address": "0x070e91b6bceea1d86261219745bfab1a39d436401a3dbc6b02be35d64f273d8c",
       "formatted_args": [
         "RR Trenches",
         "RRTREN",
@@ -46,11 +51,12 @@
         "0x0",
         "0x52525452454e",
         "0x6",
+        "0x0",
         "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
       ]
     },
     {
-      "contract_address": "0x05e80acf61a47b24ba3c56e904352a1cc9776fe96170856b29b4cb10cc5205c6",
+      "contract_address": "0x027dac26e1f820306c6fa2e36ea705343d5124ddf6e6c82f2b50ae20cec462e1",
       "formatted_args": [
         "RR Walls",
         "RRWALL",
@@ -63,11 +69,12 @@
         "0x0",
         "0x525257414c4c",
         "0x6",
+        "0x0",
         "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
       ]
     },
     {
-      "contract_address": "0x01f1933bfcd9485b6f57914b1d64a4392d5a9527640d8b70c993881be5f6b162",
+      "contract_address": "0x075ebdc2c5971cb62489800b6f46b134a4dfa5037d7b5161818ce19d15e64f44",
       "formatted_args": [
         "RR Basements",
         "RRBCMT",
@@ -80,6 +87,7 @@
         "0x0",
         "0x525242434d54",
         "0x6",
+        "0x0",
         "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
       ]
     }

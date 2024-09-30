@@ -1,18 +1,18 @@
 use super::Rarity;
-use rising_revenant::fortifications::models::Fortifications;
-use rising_revenant::utils::felt252_to_u128;
+use rising_revenant::{
+    fortifications::models::Fortifications, core::ToNonZero, utils::felt252_to_u128
+};
 use core::integer::u128_safe_divmod;
 
 fn get_fortifications_types(total: u128, randomness: felt252) -> Fortifications {
     let randomness = felt252_to_u128(randomness);
-    let (randomness, trenches_s) = u128_safe_divmod(randomness, (total + 1).try_into().unwrap());
-    let (randomness, palisades) = u128_safe_divmod(
-        randomness, (trenches_s + 1).try_into().unwrap()
-    );
-    let (_, walls_s) = u128_safe_divmod(randomness, (total - trenches_s + 1).try_into().unwrap());
-    let trenches = trenches_s - palisades;
-    let walls = walls_s - trenches_s;
-    let basements = total - walls_s;
+    let (randomness, trenches_s) = u128_safe_divmod(randomness, (total + 1).non_zero());
+    let (randomness, palisades) = u128_safe_divmod(randomness, (trenches_s + 1).non_zero());
+    let (_, walls_s) = u128_safe_divmod(randomness, (total - trenches_s + 1).non_zero());
+    let trenches = (trenches_s - palisades).try_into().unwrap();
+    let walls = (walls_s - trenches_s).try_into().unwrap();
+    let basements = (total - walls_s).try_into().unwrap();
+    let palisades = palisades.try_into().unwrap();
     Fortifications { palisades, trenches, walls, basements, }
 }
 
