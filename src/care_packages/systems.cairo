@@ -1,8 +1,13 @@
 use super::Rarity;
 use rising_revenant::{
-    fortifications::models::Fortifications, core::ToNonZero, utils::felt252_to_u128
+    fortifications::models::Fortifications, core::ToNonZero, utils::felt252_to_u128,
+    care_packages::models::{CarePackageMarket}, vrgda::{LogisticVRGDA, VRGDATrait},
+    fixed::FixedToDecimal
 };
 use core::integer::u128_safe_divmod;
+// use origami_defi::auction::vrgda::{LogisticVRGDA, VRGDATrait};
+use cubit::f128::types::fixed::{Fixed, FixedTrait};
+
 
 fn get_fortifications_types(total: u128, randomness: felt252) -> Fortifications {
     let randomness = felt252_to_u128(randomness);
@@ -37,5 +42,38 @@ fn get_rarity(randomness: felt252) -> Rarity {
         Rarity::Epic
     } else {
         Rarity::Legendary
+    }
+}
+
+#[generate_trait]
+impl CarePackageMarketImpl of CarePackageMarketTrait {
+    fn to_logistic_vrgda(self: @CarePackageMarket) -> LogisticVRGDA {
+        LogisticVRGDA {
+            target_price: (*self.target_price).decimal_to_fixed(18),
+            decay_constant: FixedTrait::new(*self.decay_constant_mag, false),
+            max_sellable: FixedTrait::new(*self.max_sellable_mag, false),
+            time_scale: FixedTrait::new(*self.time_scale_mag, false),
+        }
+    }
+    fn get_price(self: @CarePackageMarket, time: u64) -> u256 {
+        self.to_logistic_vrgda().get_vrgda_price(time.into(), (*self.sold).into()).to_decimal(18)
+    }
+
+    fn get_multiple_price(self: @CarePackageMarket, time: u128, mut count: u128) -> u256 {
+        let vrgda = self.to_logistic_vrgda();
+        let mut total = FixedTrait::ZERO();
+        let mut sold: Fixed = (*self.sold).into();
+        loop {
+            if count == 0 {
+                break;
+            };
+            total += vrgda
+                .get_vrgda_price(
+                    FixedTrait::new_unscaled(time, false), FixedTrait::new_unscaled(count, false)
+                );
+            sold += FixedTrait::ONE();
+            count -= 1;
+        };
+        total.to_decimal(18)
     }
 }

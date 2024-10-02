@@ -1,0 +1,9 @@
+tag = "rising_revenant-game_actions"
+writes = [
+    "GameSetup",
+    "MapSize",
+    "CarePackageMarket",
+    "FortificationAttributes",
+    "WorldEventSetup",
+    "ContributionValue",
+]

@@ -31,7 +31,7 @@ use risingrevenant::components::{
     },
     outpost::{Outpost, OutpostMarket, OutpostSetup}, player::{PlayerInfo, PlayerContribution},
     reinforcement::{ReinforcementMarket}, trade::{OutpostTrade, ReinforcementTrade},
-    world_event::{WorldEventSetup, WorldEvent, CurrentWorldEvent, OutpostVerified}
+    world_event::{WorldEventSetup, WorldEventType, CurrentWorldEvent, OutpostVerified}
 };
 
 #[cfg(test)]
@@ -55,7 +55,7 @@ mod contracts_tests {
         },
         outpost::{Outpost, OutpostMarket, OutpostSetup}, player::{PlayerInfo, PlayerContribution},
         reinforcement::{ReinforcementMarket}, trade::{OutpostTrade, ReinforcementTrade},
-        world_event::{WorldEventSetup, WorldEvent, CurrentWorldEvent, OutpostVerified}
+        world_event::{WorldEventSetup, WorldEventType, CurrentWorldEvent, OutpostVerified}
     };
     use risingrevenant::contracts::{
         game::{game_actions, IGameActionsDispatcher, IGameActionsDispatcherTrait},

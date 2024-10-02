@@ -24,9 +24,9 @@ use risingrevenant::{
         reinforcement::{ReinforcementMarketConsts, reinforcement_market_consts,},
         trade::{OutpostTrade, outpost_trade, ReinforcementTrade, reinforcement_trade,},
         world_event::{
-            CurrentWorldEvent, current_world_event, OutpostVerified, outpost_verified, WorldEvent,
-            world_event, WorldEventSetup, world_event_setup, WorldEventVerifications,
-            world_event_verifications,
+            CurrentWorldEvent, current_world_event, OutpostVerified, outpost_verified,
+            WorldEventType, world_event, WorldEventSetup, world_event_setup,
+            WorldEventVerifications, world_event_verifications,
         },
     },
     contracts::{

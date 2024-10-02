@@ -1,0 +1,2 @@
+tag = "rising_revenant-world_event_actions"
+writes = ["CurrentEvent", "Contribution"]

@@ -1,6 +1,6 @@
 use core::num::traits::Bounded;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-use rising_revenant::{addresses::{AddressSelectorTrait}, world_events::models::WorldEvent};
+use rising_revenant::{addresses::{AddressSelectorTrait}, world_events::models::WorldEventType};
 
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
 enum Fortification {
@@ -37,7 +37,7 @@ impl FortificationsIntoArray of Into<Fortifications, Array<u64>> {
 #[generate_trait]
 impl FortificationAttributesImpl of FortificationAttributesTrait {
     fn get_fortification_attributes(
-        self: @IWorldDispatcher, game_id: felt252, event_type: WorldEvent
+        self: @IWorldDispatcher, game_id: felt252, event_type: WorldEventType
     ) -> FortificationAttributes {
         FortificationAttributesStore::get(*self, game_id, event_type)
     }
@@ -49,7 +49,7 @@ struct FortificationAttributes {
     #[key]
     game_id: felt252,
     #[key]
-    event_type: WorldEvent,
+    event_type: WorldEventType,
     efficacy: Fortifications,
     mortalities: Fortifications,
 }

@@ -1,26 +1,11 @@
-use core::{
-    num::traits::Bounded, hash::{HashStateTrait, HashStateExTrait, Hash},
-    poseidon::{PoseidonTrait, HashState}
-};
-use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-use rising_revenant::{
-    models::{Point, GeneratePointTrait}, game::models::{Map, MapStore, GameSetup, GameSetupStore}
-};
+use super::{GamePhasesTrait, GamePhase};
 
 #[generate_trait]
-impl MapImpl of MapTrait {
-    fn is_position_empty(self: @IWorldDispatcher, game_id: felt252, position: Point) -> bool {
-        MapStore::get_outpost(*self, game_id, position).is_zero()
+impl GameImpl of GameTrait {
+    fn get_game_phase(self: @IWorldDispatcher, game_id: felt252) -> GamePhase {
+        self.get_game_phases(game_id).get_phase()
     }
-    fn get_empty_point(self: @IWorldDispatcher, game_id: felt252, mut hash: HashState) -> Point {
-        let map_size: Point = GameSetupStore::get_map_size(*self, game_id);
-
-        loop {
-            let point = map_size.generate_point(hash.finalize());
-            if self.is_position_empty(game_id, point) {
-                break point;
-            }
-            hash = hash.update('butter');
-        }
+    fn assert_claiming(self: @IWorldDispatcher, game_id: felt252) {
+        self.get_game_phases(game_id).assert_claiming()
     }
 }

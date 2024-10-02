@@ -1,8 +1,11 @@
+use dojo::world::IWorldDispatcher;
 use rising_revenant::{utils::felt252_to_u128, core::{ToNonZero, BoundedT}};
-use core::{integer::u128_safe_divmod, zeroable::NonZero};
+use core::{
+    integer::u128_safe_divmod, zeroable::NonZero, hash::HashStateTrait, poseidon::{HashState}
+};
 
 
-#[derive(Drop, Serde, Copy, Introspect, Default)]
+#[derive(Drop, Serde, Copy, Introspect, Default,)]
 struct Point {
     x: u16,
     y: u16,
@@ -53,3 +56,40 @@ impl Felt252PointImpl of GeneratePointTrait<felt252> {
     }
 }
 
+#[dojo::model]
+#[derive(Drop, Serde, Copy)]
+struct MapSize {
+    #[key]
+    game_id: felt252,
+    size: Point,
+}
+
+
+#[dojo::model]
+#[derive(Drop, Serde, Copy)]
+struct Map {
+    #[key]
+    game_id: felt252,
+    #[key]
+    position: Point,
+    outpost: felt252,
+}
+
+
+#[generate_trait]
+impl MapImpl of MapTrait {
+    fn is_position_empty(self: @IWorldDispatcher, game_id: felt252, position: Point) -> bool {
+        MapStore::get_outpost(*self, game_id, position).is_zero()
+    }
+    fn get_empty_point(self: @IWorldDispatcher, game_id: felt252, mut hash: HashState) -> Point {
+        let map_size: Point = MapSizeStore::get_size(*self, game_id);
+
+        loop {
+            let point = map_size.generate_point(hash.finalize());
+            if self.is_position_empty(game_id, point) {
+                break point;
+            }
+            hash = hash.update('butter');
+        }
+    }
+}

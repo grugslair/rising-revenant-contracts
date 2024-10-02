@@ -1,5 +1,12 @@
-use dojo::world::{IWorldDispatcher};
-use rising_revenant::{models::Point, fortifications::models::{Fortifications}, utils::hash_value};
+use rising_revenant::{map::Point, fortifications::models::Fortifications};
+
+#[dojo::model]
+#[derive(Drop, Serde, Copy, Default)]
+struct OutpostSetup{
+    #[key]
+    game_id: felt252,
+    hp: u64,
+}
 
 #[dojo::model]
 #[derive(Drop, Serde, Copy, Default)]
@@ -12,12 +19,15 @@ struct Outpost {
     hp: u64,
 }
 
+
 #[dojo::model]
 #[derive(Drop, Serde, Copy)]
-struct OutpostLastEvent {
+struct OutpostEvent {
     #[key]
     outpost_id: felt252,
+    #[key]
     event_id: felt252,
+    applied: bool,
 }
 
 #[dojo::model]
@@ -26,23 +36,5 @@ struct OutpostsActive {
     #[key]
     game_id: felt252,
     active: u32,
-}
-
-#[generate_trait]
-impl OutpostImpl of OutpostTrait {
-    fn get_outpost(self: @IWorldDispatcher, id: felt252) -> Outpost {
-        OutpostStore::get(*self, id)
-    }
-}
-
-#[generate_trait]
-impl OutpostsActiveImpl of OutpostsActiveTrait {
-    fn reduce_active_outposts(self: IWorldDispatcher, game_id: felt252) -> u32 {
-        let mut model = OutpostsActiveStore::get(self, game_id);
-        assert(model.active > 1, 'No active outposts');
-        model.active -= 1;
-        model.set(self);
-        model.active
-    }
 }
 

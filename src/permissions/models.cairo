@@ -1,41 +1,43 @@
 use starknet::{ContractAddress};
 use dojo::world::IWorldDispatcher;
+use rising_revenant::world::WorldTrait;
+
 #[dojo::model]
 #[derive(Copy, Drop, Serde)]
-struct ContractPermissionsModel {
-    #[key]
-    owner: ContractAddress,
+struct PermissionsModel {
     #[key]
     resource: felt252,
     #[key]
-    requester: felt252,
+    requester: ContractAddress,
     permissions: felt252,
 }
 
-struct ContractPermissionsWriterModel {
-    #[key]
-    owner: ContractAddress,
-    #[key]
-    writer: ContractAddress,
-    writer: bool,
+trait Permissions<R, P> {
+    fn get_permissions(self: @IWorldDispatcher, resource: R, requester: ContractAddress) -> P;
 }
 
-
-
-#[generate_trait]
-impl PermissionsStoreImpl of PermissionsStore {
-    fn get_permissions(
-        self: @IWorldDispatcher, owner: ContractAddress, resource: felt252, requester: felt252
-    ) -> felt252 {
-        ContractPermissionsModelStore::get_permissions(*self, owner, resource, requester)
-    }
+trait WritePermissions<R, P> {
     fn set_permissions(
-        self: IWorldDispatcher,
-        owner: ContractAddress,
-        resource: felt252,
-        requester: felt252,
-        permissions: felt252
-    ) {
-        ContractPermissionsModel { owner, resource, requester, permissions }.set(self);
+        self: IWorldDispatcher, resource: R, requester: ContractAddress, permissions: P
+    );
+}
+
+impl PermissionsImpl<R, P, +Into<R, felt252>, +TryInto<felt252, P>> of Permissions<R, P> {
+    fn get_permissions(self: @IWorldDispatcher, resource: R, requester: ContractAddress) -> P {
+        PermissionsModelStore::get_permissions(*self, resource.into(), requester)
+            .try_into()
+            .unwrap()
     }
 }
+
+impl WritePermissionsImpl<
+    R, P, +Into<R, felt252>, +Into<P, felt252>, +Drop<P>
+> of WritePermissions<R, P> {
+    fn set_permissions(
+        self: IWorldDispatcher, resource: R, requester: ContractAddress, permissions: P
+    ) {
+        PermissionsModel { resource: resource.into(), requester, permissions: permissions.into() }
+            .set(self)
+    }
+}
+

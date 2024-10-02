@@ -6,6 +6,4 @@ mod care_packages {
         models::{Rarity, N_RARITIES}
     };
 }
-mod erc721_enumerable {
-    mod interface;
-}
+

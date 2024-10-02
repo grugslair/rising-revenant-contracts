@@ -1,12 +1,17 @@
 use core::{hash::HashStateTrait, poseidon::{PoseidonTrait, HashState}, num::traits::Bounded};
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use rising_revenant::{
-    game::systems::MapTrait, utils::{felt252_to_u128, clipped_felt252, ToHash}, core::SubBounded,
+    map::MapTrait, utils::{felt252_to_u128, clipped_felt252, ToHash, get_hash_state},
+    core::SubBounded,
     fortifications::models::{
         Fortifications, FortificationsTrait, Fortification, FortificationAttributes,
         FortificationAttributesStore
     },
-    outposts::models::{Outpost}, world_events::models::CurrentEvent,
+    outposts::models::{
+        Outpost, OutpostsActive, OutpostEvent, OutpostStore, OutpostsActiveStore, OutpostEventStore,
+        OutpostSetupStore
+    },
+    world_events::models::{CurrentEvent, WorldEventSetup},
 };
 use cubit::f128::{Fixed, FixedTrait, ONE_u128};
 
@@ -19,9 +24,35 @@ struct DamageVars {
 
 
 #[generate_trait]
+impl OutpostsActiveImpl of OutpostsActiveTrait {
+    fn reduce_active_outposts(self: IWorldDispatcher, game_id: felt252) -> u32 {
+        let mut model = OutpostsActiveStore::get(self, game_id);
+        assert(model.active > 1, 'No active outposts');
+        model.active -= 1;
+        model.set(self);
+        model.active
+    }
+    fn get_active_outposts(self: @IWorldDispatcher, game_id: felt252) -> u32 {
+        OutpostsActiveStore::get_active(*self, game_id)
+    }
+}
+
+#[generate_trait]
+impl OutpostEventImpl of OutpostEventTrait {
+    fn event_applied(self: @IWorldDispatcher, outpost_id: felt252, event_id: felt252) {
+        OutpostEventStore::get_applied(*self, outpost_id, event_id);
+    }
+
+    fn set_event_applied(self: IWorldDispatcher, outpost_id: felt252, event_id: felt252) {
+        OutpostEvent { outpost_id, event_id, applied: true, }.set(self);
+    }
+}
+
+
+#[generate_trait]
 impl DamageVarsImpl of DamageVarsTrait {
     #[inline(always)]
-    fn get_damage_vars(self: @CurrentEvent, efficacy: Fortifications) -> DamageVars {
+    fn get_damage_vars(self: @WorldEventSetup, efficacy: Fortifications) -> DamageVars {
         DamageVars { efficacy, decay: *self.decay, power: *self.power }
     }
     #[inline(always)]
@@ -34,15 +65,18 @@ impl DamageVarsImpl of DamageVarsTrait {
 
 #[generate_trait]
 impl OutpostImpl of OutpostTrait {
-    fn make_outpost(self: IWorldDispatcher, game_id: felt252, seed: felt252) -> Outpost {
-        let hash_state = PoseidonTrait::new().update(seed);
-        let hp = 0;
+    fn get_outpost(self: @IWorldDispatcher, id: felt252) -> Outpost {
+        OutpostStore::get(*self, id)
+    }
+    fn make_outpost(
+        self: IWorldDispatcher, id: felt252, game_id: felt252, owner: ContractAddress, seed: felt252
+    ) -> Outpost {
         Outpost {
-            id: seed,
+            id,
             game_id,
-            position: self.get_empty_point(game_id, hash_state),
+            position: self.get_empty_point(game_id, get_hash_state(seed)),
             fortifications: Default::default(),
-            hp,
+            hp: self.get_starting_hp(game_id),
         }
     }
     fn apply_damage(ref self: Outpost, event: DamageVars) {
@@ -54,7 +88,7 @@ impl OutpostImpl of OutpostTrait {
     }
     fn apply_event(
         ref self: Outpost,
-        event: CurrentEvent,
+        event: WorldEvent,
         attributes: FortificationAttributes,
         hash_state: HashState
     ) {
@@ -66,6 +100,14 @@ impl OutpostImpl of OutpostTrait {
     #[inline(always)]
     fn is_active(self: @Outpost) -> bool {
         (*self.hp).is_non_zero()
+    }
+    fn assert_is_winner(self: @IWorldDispatcher, outpost: Outpost) {
+        assert(outpost.game_id.is_non_zero(), 'Outpost not in game');
+        assert(self.get_active_outposts(outpost.game_id) == 1, 'Game not ended');
+        assert(outpost.is_active(), 'Outpost not active');
+    }
+    fn get_starting_hp(self: @IWorldDispatcher, game_id: felt252) -> u64 {
+        OutpostSetupStore::get_hp(*self, game_id)
     }
 }
 
