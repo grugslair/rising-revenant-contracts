@@ -1,0 +1,2 @@
+tag = "rising_revenant-jackpot_actions"
+writes = ["JackpotClaimed", "Claimed"]

@@ -6,4 +6,5 @@ writes = [
     "FortificationAttributes",
     "WorldEventSetup",
     "ContributionValue",
+    "JackpotSplit",
 ]

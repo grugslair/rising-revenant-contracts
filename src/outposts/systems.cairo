@@ -1,4 +1,5 @@
 use core::{hash::HashStateTrait, poseidon::{PoseidonTrait, HashState}, num::traits::Bounded};
+use starknet::ContractAddress;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 use rising_revenant::{
     map::MapTrait, utils::{felt252_to_u128, clipped_felt252, ToHash, get_hash_state},
@@ -7,9 +8,11 @@ use rising_revenant::{
         Fortifications, FortificationsTrait, Fortification, FortificationAttributes,
         FortificationAttributesStore
     },
-    outposts::models::{
-        Outpost, OutpostsActive, OutpostEvent, OutpostStore, OutpostsActiveStore, OutpostEventStore,
-        OutpostSetupStore
+    outposts::{
+        models::{
+            Outpost, OutpostsActive, OutpostEvent, OutpostStore, OutpostsActiveStore,
+            OutpostEventStore, OutpostSetupStore
+        }
     },
     world_events::models::{CurrentEvent, WorldEventSetup},
 };

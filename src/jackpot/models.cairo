@@ -1,3 +1,4 @@
+use starknet::ContractAddress;
 use dojo::world::{IWorldDispatcher};
 
 #[dojo::model]
@@ -5,7 +6,7 @@ use dojo::world::{IWorldDispatcher};
 struct JackpotTotal {
     #[key]
     game_id: felt252,
-    total: u128,
+    total: u256,
 }
 
 #[dojo::model]
@@ -13,7 +14,14 @@ struct JackpotTotal {
 struct JackpotClaimed {
     #[key]
     game_id: felt252,
-    total: u128,
+    amount: u256,
+}
+
+#[derive(Drop, Serde, Copy, PartialEq, Introspect)]
+enum Claimant {
+    Dev,
+    Winner,
+    Contributor: ContractAddress,
 }
 
 #[dojo::model]
@@ -21,8 +29,9 @@ struct JackpotClaimed {
 struct Claimed {
     #[key]
     game_id: felt252,
-    dev: bool,
-    winner: bool,
+    #[key]
+    claimant: Claimant,
+    claimed: bool,
 }
 
 #[dojo::model]

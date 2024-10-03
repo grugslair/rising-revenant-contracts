@@ -17,7 +17,6 @@ struct Contribution {
     #[key]
     user: ContractAddress,
     score: u128,
-    claimed: bool
 }
 
 #[dojo::model]
@@ -33,7 +32,9 @@ struct ContributionValue {
 
 #[generate_trait]
 impl ContributionImpl of ContributionTrait {
-    fn get_contribution(self: @IWorldDispatcher, game_id: felt252, user: ContractAddress) -> u128 {
+    fn get_contribution(
+        self: @IWorldDispatcher, game_id: felt252, user: ContractAddress
+    ) -> Contribution {
         ContributionStore::get(*self, game_id, user)
     }
     fn get_contribution_score(
@@ -41,8 +42,8 @@ impl ContributionImpl of ContributionTrait {
     ) -> u128 {
         ContributionStore::get_score(*self, game_id, user)
     }
-    fn get_total_contribution(self: @IWorldDispatcher, game_id: felt252) -> u128 {
-        self.get_contribution(game_id, Zero::zero())
+    fn get_total_contribution_score(self: @IWorldDispatcher, game_id: felt252) -> u128 {
+        self.get_contribution_score(game_id, Zero::zero())
     }
     fn increase_contribution(
         self: IWorldDispatcher, game_id: felt252, user: ContractAddress, event: ContributionEvent

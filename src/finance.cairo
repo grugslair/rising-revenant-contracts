@@ -12,12 +12,12 @@ struct FinanceAccount {
 
 #[generate_trait]
 impl FinanceInfoImpl of Finance {
-    fn get_finance_account(self: @IWorldDispatcher, game_id: felt252) -> FinanceAccount {
+    fn get_finance_account(self: @IWorldDispatcher) -> FinanceAccount {
         FinanceAccount {
             erc20_address: ERC20ABIDispatcher {
-                contract_address: self.get_address(address_selectors::GAME_TOKEN)
+                contract_address: self.get_address(address_selectors::GAME_TOKEN_SELECTOR)
             },
-            wallet_address: self.get_address(address_selectors::GAME_WALLET),
+            wallet_address: self.get_address(address_selectors::GAME_WALLET_SELECTOR),
         }
     }
     fn receive(ref self: FinanceAccount, from: ContractAddress, amount: u256) {

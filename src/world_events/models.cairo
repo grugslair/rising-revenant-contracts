@@ -40,6 +40,16 @@ struct CurrentEvent {
 }
 
 
+#[derive(Copy, Drop, Serde, Default)]
+struct WorldEvent {
+    event_type: WorldEventType,
+    position: Point,
+    radius_sq: u32,
+    power: u64,
+    decay: u64,
+}
+
+
 impl U8IntoWorldEvent<T, +TryInto<T, u8>> of Into<T, WorldEventType> {
     #[inline(always)]
     fn into(self: T) -> WorldEventType {

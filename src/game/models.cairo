@@ -35,10 +35,10 @@ struct GamePhases {
 
 #[generate_trait]
 impl WinnerImpl of WinnerTrait {
-    fn set_winner(self: IWorldDispatcher, game_id: felt252, outpost_id: felt252) {
+    fn set_winning_outpost(self: IWorldDispatcher, game_id: felt252, outpost_id: felt252) {
         Winner { game_id, outpost_id }.set(self)
     }
-    fn get_winner(self: @IWorldDispatcher, game_id: felt252) -> felt252 {
+    fn get_winning_outpost(self: @IWorldDispatcher, game_id: felt252) -> felt252 {
         WinnerStore::get_outpost_id(*self, game_id)
     }
 }
@@ -49,19 +49,19 @@ impl GamePhasesImpl of GamePhasesTrait {
         GamePhasesStore::get(*self, game_id)
     }
     fn get_phase(self: @GamePhases) -> GamePhase {
-        let block_number = get_block_timestamp();
+        let timestamp = get_block_timestamp();
         if (*self.prep_start).is_non_zero() {
-            if block_number < *self.prep_start {
+            if timestamp < *self.prep_start {
                 GamePhase::Created
-            } else if block_number < *self.prep_stop {
+            } else if timestamp < *self.prep_stop {
                 GamePhase::Preparing
-            } else if block_number < *self.events_start {
+            } else if timestamp < *self.events_start {
                 GamePhase::Hold
             } else {
                 GamePhase::Playing
             }
         } else if *self.ended > 0 {
-            if *self.ended + *self.claim_period > block_number {
+            if self.get_claim_end() >= timestamp {
                 GamePhase::Claim
             } else {
                 GamePhase::Ended
@@ -69,6 +69,9 @@ impl GamePhasesImpl of GamePhasesTrait {
         } else {
             GamePhase::NotCreated
         }
+    }
+    fn get_claim_end(self: @GamePhases) -> u64 {
+        *self.ended + *self.claim_period
     }
     fn is_phase(self: @GamePhases, phase: GamePhase) -> bool {
         self.get_phase() == phase
@@ -81,6 +84,15 @@ impl GamePhasesImpl of GamePhasesTrait {
     }
     fn assert_claiming(self: @GamePhases) {
         assert(self.is_phase(GamePhase::Claim), 'Not in claim phase');
+    }
+    fn assert_prep_ended(self: @GamePhases) {
+        assert(
+            (*self.prep_start).is_non_zero() && *self.prep_stop >= get_block_timestamp(),
+            'Preparation not started'
+        );
+    }
+    fn assert_ended(self: @GamePhases) {
+        assert(*self.ended > 0 && get_block_timestamp() > self.get_claim_end(), 'Game not ended');
     }
 }
 
