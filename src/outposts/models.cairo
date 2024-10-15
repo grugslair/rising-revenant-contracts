@@ -6,6 +6,7 @@ use rising_revenant::{map::Point, fortifications::models::Fortifications};
 struct OutpostSetup {
     #[key]
     game_id: felt252,
+    price: u256,
     hp: u64,
 }
 

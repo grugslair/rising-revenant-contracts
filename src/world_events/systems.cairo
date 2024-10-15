@@ -1,6 +1,9 @@
 use rising_revenant::{
     utils::felt252_to_u128,
-    world_events::models::{CurrentEvent, WorldEventType, NUM_WORLD_EVENTS, WorldEventSetup},
+    world_events::models::{
+        CurrentEvent, WorldEventType, NUM_WORLD_EVENTS, WorldEventSetup, WorldEvent,
+        WorldEventSetupTrait, CurrentEventTrait
+    },
     map::{Point, GeneratePointTrait, PointTrait}, core::ToNonZero
 };
 use core::{integer::u128_safe_divmod, zeroable::NonZero};
@@ -9,7 +12,19 @@ use starknet::{get_block_timestamp};
 
 
 #[generate_trait]
-impl WorldEventImpl of WorldEvenTrait {
+impl WorldEventImpl of WorldEventTrait {
+    fn get_world_event(self: @IWorldDispatcher, game_id: felt252) -> WorldEvent {
+        let current = self.get_current_event(game_id);
+        let setup = self.get_world_event_setup(game_id);
+        WorldEvent {
+            event_id: current.event_id,
+            event_type: current.event_type,
+            position: current.position,
+            radius_sq: current.radius_sq,
+            power: setup.power,
+            decay: setup.decay,
+        }
+    }
     fn generate_event(
         self: @WorldEventSetup,
         mut last_event: CurrentEvent,
@@ -36,7 +51,7 @@ impl WorldEventImpl of WorldEvenTrait {
         last_event
     }
 
-    fn in_range(self: @CurrentEvent, location: Point) -> bool {
+    fn in_range(self: @WorldEvent, location: Point) -> bool {
         self.position.in_range(location, *self.radius_sq)
     }
 }

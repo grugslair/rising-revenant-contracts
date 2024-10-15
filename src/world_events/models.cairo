@@ -42,6 +42,7 @@ struct CurrentEvent {
 
 #[derive(Copy, Drop, Serde, Default)]
 struct WorldEvent {
+    event_id: felt252,
     event_type: WorldEventType,
     position: Point,
     radius_sq: u32,
@@ -69,20 +70,6 @@ impl CurrentEventImpl of CurrentEventTrait {
     }
 }
 
-#[generate_trait]
-impl WorldEventImpl of WorldEventTrait {
-    fn get_world_event(self: @IWorldDispatcher, game_id: felt252) -> WorldEvent {
-        let current = self.get_current_event(game_id);
-        let setup = self.get_world_event_setup(game_id);
-        WorldEvent {
-            event_type: current.event_type,
-            position: current.position,
-            radius_sq: current.radius_sq,
-            power: setup.power,
-            decay: setup.decay,
-        }
-    }
-}
 
 #[generate_trait]
 impl WorldEventSetupImpl of WorldEventSetupTrait {

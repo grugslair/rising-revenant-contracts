@@ -94,6 +94,10 @@ struct Map {
 
 #[generate_trait]
 impl MapImpl of MapTrait {
+    fn get_map_size(self: @IWorldDispatcher, game_id: felt252) -> Point {
+        MapSizeStore::get_size(*self, game_id)
+    }
+
     fn is_position_empty(self: @IWorldDispatcher, game_id: felt252, position: Point) -> bool {
         MapStore::get_outpost(*self, game_id, position).is_zero()
     }

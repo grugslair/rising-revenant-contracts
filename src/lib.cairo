@@ -53,11 +53,13 @@ mod world_events {
     mod systems;
 
     use models::{WorldEventType};
+    use systems::{WorldEventTrait};
 }
 mod outposts {
     mod models;
     mod systems;
     mod token;
+    mod contract;
 
     use models::{Outpost, OutpostModels};
     use systems::{OutpostTrait};

@@ -10,8 +10,14 @@ impl GameImpl of GameTrait {
     fn get_game_phase(self: @IWorldDispatcher, game_id: felt252) -> GamePhase {
         self.get_game_phases(game_id).get_phase()
     }
+    fn assert_preparing(self: @IWorldDispatcher, game_id: felt252) {
+        self.get_game_phases(game_id).assert_preparing()
+    }
     fn assert_claiming(self: @IWorldDispatcher, game_id: felt252) {
         self.get_game_phases(game_id).assert_claiming()
+    }
+    fn assert_playing(self: @IWorldDispatcher, game_id: felt252) {
+        self.get_game_phases(game_id).assert_playing()
     }
     fn assert_prep_ended(self: @IWorldDispatcher, game_id: felt252) {
         self.get_game_phases(game_id).assert_prep_ended()

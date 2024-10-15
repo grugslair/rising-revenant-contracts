@@ -5,7 +5,7 @@ use core::{
 use starknet::ContractAddress;
 use dojo::{world::{IWorldDispatcher, IWorldDispatcherTrait}, model::Model};
 use rising_revenant::{
-    map::MapTrait, utils::{felt252_to_u128, clipped_felt252, ToHash, get_hash_state},
+    map::MapTrait, utils::{felt252_to_u128, clipped_felt252, ToHash, get_hash_state, hash_value},
     fortifications::models::{
         Fortifications, FortificationsTrait, Fortification, FortificationAttributes,
     },
@@ -66,10 +66,10 @@ impl DamageVarsImpl of DamageVarsTrait {
 #[generate_trait]
 impl OutpostImpl of OutpostTrait {
     fn make_outpost(
-        self: IWorldDispatcher, id: felt252, game_id: felt252, owner: ContractAddress, seed: felt252
+        self: IWorldDispatcher, game_id: felt252, owner: ContractAddress, seed: felt252
     ) -> Outpost {
         Outpost {
-            id,
+            id: hash_value(('outpost', self.uuid())),
             game_id,
             position: self.get_empty_point(game_id, get_hash_state(seed)),
             fortifications: Default::default(),
