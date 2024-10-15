@@ -1,20 +1,21 @@
-use core::{hash::HashStateTrait, poseidon::{PoseidonTrait, HashState}, num::traits::Bounded};
+use core::{
+    hash::HashStateTrait, poseidon::{PoseidonTrait, HashState}, num::traits::Bounded,
+    cmp::{min, max}
+};
 use starknet::ContractAddress;
-use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
+use dojo::{world::{IWorldDispatcher, IWorldDispatcherTrait}, model::Model};
 use rising_revenant::{
     map::MapTrait, utils::{felt252_to_u128, clipped_felt252, ToHash, get_hash_state},
-    core::SubBounded,
     fortifications::models::{
         Fortifications, FortificationsTrait, Fortification, FortificationAttributes,
-        FortificationAttributesStore
     },
     outposts::{
         models::{
-            Outpost, OutpostsActive, OutpostEvent, OutpostStore, OutpostsActiveStore,
-            OutpostEventStore, OutpostSetupStore
+            Outpost, OutpostsActive, OutpostEvent, OutpostModels, OutpostsActiveStore,
+            OutpostEventStore
         }
     },
-    world_events::models::{CurrentEvent, WorldEventSetup},
+    world_events::models::WorldEvent,
 };
 use cubit::f128::{Fixed, FixedTrait, ONE_u128};
 
@@ -25,29 +26,25 @@ struct DamageVars {
     power: u64,
 }
 
-
 #[generate_trait]
 impl OutpostsActiveImpl of OutpostsActiveTrait {
     fn reduce_active_outposts(self: IWorldDispatcher, game_id: felt252) -> u32 {
-        let mut model = OutpostsActiveStore::get(self, game_id);
+        let mut model = self.get_outposts_active(game_id);
         assert(model.active > 1, 'No active outposts');
         model.active -= 1;
         model.set(self);
         model.active
     }
-    fn get_active_outposts(self: @IWorldDispatcher, game_id: felt252) -> u32 {
-        OutpostsActiveStore::get_active(*self, game_id)
-    }
 }
+
 
 #[generate_trait]
 impl OutpostEventImpl of OutpostEventTrait {
-    fn event_applied(self: @IWorldDispatcher, outpost_id: felt252, event_id: felt252) {
-        OutpostEventStore::get_applied(*self, outpost_id, event_id);
-    }
-
     fn set_event_applied(self: IWorldDispatcher, outpost_id: felt252, event_id: felt252) {
-        OutpostEvent { outpost_id, event_id, applied: true, }.set(self);
+        let mut model = self.get_outpost_event(outpost_id, event_id);
+        assert(!model.applied, 'Event already applied');
+        model.applied = true;
+        model.set(self);
     }
 }
 
@@ -55,7 +52,7 @@ impl OutpostEventImpl of OutpostEventTrait {
 #[generate_trait]
 impl DamageVarsImpl of DamageVarsTrait {
     #[inline(always)]
-    fn get_damage_vars(self: @WorldEventSetup, efficacy: Fortifications) -> DamageVars {
+    fn get_damage_vars(self: @WorldEvent, efficacy: Fortifications) -> DamageVars {
         DamageVars { efficacy, decay: *self.decay, power: *self.power }
     }
     #[inline(always)]
@@ -68,9 +65,6 @@ impl DamageVarsImpl of DamageVarsTrait {
 
 #[generate_trait]
 impl OutpostImpl of OutpostTrait {
-    fn get_outpost(self: @IWorldDispatcher, id: felt252) -> Outpost {
-        OutpostStore::get(*self, id)
-    }
     fn make_outpost(
         self: IWorldDispatcher, id: felt252, game_id: felt252, owner: ContractAddress, seed: felt252
     ) -> Outpost {
@@ -83,8 +77,7 @@ impl OutpostImpl of OutpostTrait {
         }
     }
     fn apply_damage(ref self: Outpost, event: DamageVars) {
-        let damage = event.get_damage(self.fortifications);
-        self.hp.subeq_bounded(damage);
+        self.hp -= min(self.hp, event.get_damage(self.fortifications));
     }
     fn apply_destruction(ref self: Outpost, mortalities: Fortifications, hash_state: HashState) {
         self.fortifications.apply_destruction(mortalities, hash_state);
@@ -109,9 +102,6 @@ impl OutpostImpl of OutpostTrait {
         assert(self.get_active_outposts(outpost.game_id) == 1, 'Game not ended');
         assert(outpost.is_active(), 'Outpost not active');
     }
-    fn get_starting_hp(self: @IWorldDispatcher, game_id: felt252) -> u64 {
-        OutpostSetupStore::get_hp(*self, game_id)
-    }
 }
 
 #[generate_trait]
@@ -120,25 +110,35 @@ impl OutpostFortificationsImpl of OutpostFortificationsTrait {
         ref self: Fortifications, mortalities: Fortifications, hash_state: HashState
     ) {
         self
-            .palisades
-            .subeq_bounded(
-                fortifications_destroyed(mortalities.palisades, hash_state, Fortification::Palisade)
-            );
+            .palisades -=
+                min(
+                    self.palisades,
+                    fortifications_destroyed(
+                        mortalities.palisades, hash_state, Fortification::Palisade
+                    )
+                );
         self
-            .trenches
-            .subeq_bounded(
-                fortifications_destroyed(mortalities.trenches, hash_state, Fortification::Trench)
-            );
+            .trenches -=
+                min(
+                    self.trenches,
+                    fortifications_destroyed(
+                        mortalities.trenches, hash_state, Fortification::Trench
+                    )
+                );
         self
-            .walls
-            .subeq_bounded(
-                fortifications_destroyed(mortalities.walls, hash_state, Fortification::Wall)
-            );
+            .walls -=
+                min(
+                    self.walls,
+                    fortifications_destroyed(mortalities.walls, hash_state, Fortification::Wall)
+                );
         self
-            .basements
-            .subeq_bounded(
-                fortifications_destroyed(mortalities.basements, hash_state, Fortification::Basement)
-            );
+            .basements -=
+                min(
+                    self.basements,
+                    fortifications_destroyed(
+                        mortalities.basements, hash_state, Fortification::Basement
+                    )
+                );
     }
 }
 

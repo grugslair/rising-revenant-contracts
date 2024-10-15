@@ -1,7 +1,10 @@
+use starknet::ContractAddress;
+use rising_revenant::{fortifications::Fortifications, contribution::ContributionEvent, world_events::WorldEventType};
+
 #[dojo::interface]
-trait IGameActions<TContractState> {
-    fn create(ref world: IWorldDispatcher);
-    fn claim_win(ref world: IWorldDispatcher, game_id: felt252);
+trait ISettings<TContractState> {
+    
+    fn set_map_size(ref world: IWorldDispatcher, game_id: felt252, x: u16, y: u16);
     fn set_care_package_market(
         ref world: IWorldDispatcher,
         game_id: felt252,
@@ -27,44 +30,68 @@ trait IGameActions<TContractState> {
         power: u64,
         decay: u64
     );
-    fn set_contribution_value(
-        ref world: IWorldDispatcher, game_id: felt252, event: ContributionEvent, value: u128,
-    );
+    
 }
 
 #[dojo::interface]
-trait ISettings<TContractState> {}
+trait IGameActions<TContractState> {
+    fn create_game(
+        ref world: IWorldDispatcher,
+        prep_start: u64,
+        prep_stop: u64,
+        events_start: u64,
+        claim_period: u64,
+    ) -> felt252;
+    fn end_game(ref world: IWorldDispatcher, outpost_id: felt252);
+    fn get_winner(world: @IWorldDispatcher, game_id: felt252) -> ContractAddress;
+}
 
 #[dojo::contract]
 mod game_actions {
-    use starknet::get_block_timestamp;
+    use starknet::{get_block_timestamp, ContractAddress, get_caller_address};
+    use dojo::model::Model;
+    use super::{ISettings, IGameActions};
     use rising_revenant::{
-        addresses::{GetDispatcher}
-        Permissions, models::Point, game::models::{GameSetup, GameSetupTrait, MapSize, WinnerTrait},
-        care_packages::models::CarePackageMarket,
-        fortifications::models::{Fortifications, Fortification, FortificationAttributes},
-        world_events::models::WorldEventSetup, contribution::{ContributionValue, ContributionEvent},
-        outposts::{
-            models::OutpostsActiveTrait, IOutpostTokenDispatcher, IOutpostTokenDispatcherTrait
-        },
+        addresses::{GetDispatcher},
+        Permissions, map::{Point, MapSize, MapSizeStore}, game::{models::{GamePhases, GamePhase, GamePhasesStore, Winner, WinnerStore}, GamePhasesTrait, GameTrait, },
+        care_packages::models::{CarePackageMarket, CarePackageMarketStore},
+        outposts::OutpostModels,
+        fortifications::models::{Fortifications, Fortification, FortificationAttributes, FortificationAttributesStore},
+        world_events::{models::{WorldEventSetup, WorldEventSetupStore}, WorldEventType}, contribution::{ContributionValue, ContributionEvent},
+        utils::hash_value,
     };
 
     #[abi(embed_v0)]
-    impl SettingsImpl of ISettings<ContractState> {
+    impl GameActionsImp of IGameActions<ContractState>{
         fn create_game(
-            self: IWorldDispatcher,
-            map_size: Point,
+            ref world: IWorldDispatcher,
             prep_start: u64,
             prep_stop: u64,
-            events_start: u64
+            events_start: u64,
+            claim_period: u64,
         ) -> felt252 {
-            let game_id = hash_value(('game', self.uuid()));
-            GameSetup { game_id, map_size, prep_start, prep_stop, events_start, ended: false, }
-                .set(self);
+            let game_id = hash_value(('game', world.uuid()));
+            GamePhases { game_id, prep_start, prep_stop, events_start, claim_period, ended: 0, }
+                .set(world);
             game_id
         }
+        fn end_game(ref world: IWorldDispatcher, outpost_id: felt252) {
+            let outpost = world.get_outpost(outpost_id);
+            let mut game_phases = world.get_game_phases(outpost.game_id);
+            game_phases.assert_playing();
+            game_phases.ended = get_block_timestamp();
+            game_phases.set(world);
+            Winner {game_id: outpost.game_id, outpost_id: outpost.id,}.set(world);
+        }
 
-        fn set_map_size(ref world: IWorldDispatcher, game_id: felt252, x: u32, y: u32) {
+        fn get_winner(world: @IWorldDispatcher, game_id: felt252) -> ContractAddress {
+            world.get_winner(game_id)
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl SettingsImpl of ISettings<ContractState> {
+        fn set_map_size(ref world: IWorldDispatcher, game_id: felt252, x: u16, y: u16) {
             world.assert_can_setup(game_id);
             MapSize { game_id, size: Point { x, y } }.set(world);
         }
@@ -78,8 +105,9 @@ mod game_actions {
             time_scale_mag: u128,
         ) {
             world.assert_can_setup(game_id);
+            let start_time = world.get_prep_start(game_id);
             CarePackageMarket {
-                game_id, target_price, decay_constant_mag, max_sellable_mag, time_scale_mag,
+                game_id, target_price, decay_constant_mag, max_sellable_mag, time_scale_mag, start_time, sold: 0,
             }
                 .set(world);
         }
@@ -116,40 +144,21 @@ mod game_actions {
                 decay,
             }
                 .set(world);
-        }
-
-        fn set_contribution_value(
-            ref world: IWorldDispatcher, game_id: felt252, event: ContributionEvent, value: u128,
-        ) {
-            world.assert_can_setup(game_id);
-            ContributionValue { game_id, event, value }.set(world);
-        }
-
-        fn end_game(ref world: IWorldDispatcher, outpost_id: felt252) {
-            let outpost = world.get_outpost(outpost_id);
-            let mut game_phases = self.get_game_phases(outpost.game_id);
-            game_phases.assert_playing();
-            game_phases.ended = get_block_timestamp();
-            game_phases.set(world);
-            Winner {game_id: outpost.game_id,outpost_id: outpost.id,}.set(world);
-        }
-
-        fn get_winner(self: IWorldDispatcher, game_id: felt252) -> felt252 {
-            self.get_winner(game_id)
-        }
+        }       
     }
 
+    #[generate_trait]
     impl PrivateImpl of PrivateTrait {
-        fn assert_can_setup(self: IWorldDispatcher, game_id: felt252) {
+        fn assert_can_setup(self: @IWorldDispatcher, game_id: felt252) {
             self.assert_admin();
             self.assert_game_created(game_id);
         }
-        fn assert_admin(self: IWorldDispatcher) {
+        fn assert_admin(self: @IWorldDispatcher) {
             assert(self.get_permissions('admin', get_caller_address()), 'Not an admin');
         }
-        fn assert_game_created(self: IWorldDispatcher, game_id: felt252) {
+        fn assert_game_created(self: @IWorldDispatcher, game_id: felt252) {
             assert(
-                get_block_timestamp() < GameSetupStore::prep_start(self, game_id),
+                get_block_timestamp() < self.get_prep_start(game_id),
                 'Game not in creation phase'
             );
         }

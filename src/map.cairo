@@ -1,7 +1,8 @@
 use dojo::world::IWorldDispatcher;
 use rising_revenant::{utils::felt252_to_u128, core::{ToNonZero, BoundedT}};
 use core::{
-    integer::u128_safe_divmod, zeroable::NonZero, hash::HashStateTrait, poseidon::{HashState}
+    num::traits::Bounded, integer::{u128_safe_divmod, u32_safe_divmod}, zeroable::NonZero,
+    hash::HashStateTrait, poseidon::{HashState}
 };
 
 
@@ -11,10 +12,24 @@ struct Point {
     y: u16,
 }
 
+
 impl PointIntoFelt252 of Into<Point, felt252> {
     #[inline(always)]
     fn into(self: Point) -> felt252 {
-        (self.x.into() * BoundedT::<u16, u32>::max() + self.y.into()).into()
+        (self.x.into() * 0x10000_u32 + self.y.into()).into()
+    }
+}
+
+impl Felt252TryIntoPoint of TryInto<felt252, Point> {
+    #[inline(always)]
+    fn try_into(self: felt252) -> Option<Point> {
+        match self.try_into() {
+            Option::Some(value) => {
+                let (x, y) = u32_safe_divmod(value, 0x10000_u32.non_zero());
+                Option::Some(Point { x: x.try_into().unwrap(), y: y.try_into().unwrap() })
+            },
+            Option::None => Option::None,
+        }
     }
 }
 
@@ -26,6 +41,7 @@ fn abs_sub<T, +PartialOrd<T>, +Sub<T>, +Copy<T>, +Drop<T>>(lhs: T, rhs: T) -> T 
         lhs - rhs
     }
 }
+
 #[generate_trait]
 impl PointImpl of PointTrait {
     fn in_range(self: @Point, other: Point, range_sq: u32) -> bool {
@@ -40,7 +56,7 @@ trait GeneratePointTrait<T> {
     fn generate_point(self: @Point, seed: T) -> Point;
 }
 
-impl U182PointImpl of GeneratePointTrait<u128> {
+impl U128PointImpl of GeneratePointTrait<u128> {
     #[inline(always)]
     fn generate_point(self: @Point, seed: u128) -> Point {
         let (seed, x) = u128_safe_divmod(seed, (*self.x).non_zero());

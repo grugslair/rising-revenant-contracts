@@ -1,6 +1,6 @@
 use starknet::{ContractAddress};
 use dojo::world::IWorldDispatcher;
-use rising_revenant::world::WorldTrait;
+use rising_revenant::core::{BoolIntoFelt252Impl, Felt252TryIntoBoolImpl};
 
 #[dojo::model]
 #[derive(Copy, Drop, Serde)]

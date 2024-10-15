@@ -37,7 +37,7 @@ mod outpost_actions {
 
         fn apply_event(ref world: IWorldDispatcher, outpost_id: felt252) {
             let mut outpost = world.get_outpost(outpost_id);
-            let event = world.get_current_event(outpost.game_id);
+            let event = world.get_world_event(outpost.game_id);
 
             world.assert_playing(outpost.game_id);
             assert(outpost.is_active(), 'Outpost is not active');

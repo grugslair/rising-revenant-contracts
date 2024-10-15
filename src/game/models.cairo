@@ -48,6 +48,9 @@ impl GamePhasesImpl of GamePhasesTrait {
     fn get_game_phases(self: @IWorldDispatcher, game_id: felt252) -> GamePhases {
         GamePhasesStore::get(*self, game_id)
     }
+    fn get_prep_start(self: @IWorldDispatcher, game_id: felt252) -> u64{
+        GamePhasesStore::get_prep_start(*self, game_id)
+    }
     fn get_phase(self: @GamePhases) -> GamePhase {
         let timestamp = get_block_timestamp();
         if (*self.prep_start).is_non_zero() {

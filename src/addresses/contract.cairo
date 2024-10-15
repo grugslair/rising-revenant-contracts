@@ -19,6 +19,7 @@ mod address_actions {
         }
 
         fn set_address(ref world: IWorldDispatcher, name: felt252, address: ContractAddress) {
+            // TODO: permissions
             Address { name, address }.set(self)
         }
     }

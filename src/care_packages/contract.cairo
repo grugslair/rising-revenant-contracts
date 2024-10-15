@@ -4,8 +4,8 @@ const CARE_PACKAGE_SELECTOR: felt252 = 'erc721-care-packages';
 
 #[dojo::interface]
 pub trait ICarePackage<TContractState> {
-    fn purchase(ref self: TContractState) -> felt252;
-    fn receive(ref self: TContractState);
+    fn get_price(self: @IWorldDispatcher, game_id: felt252) -> u64;
+    fn purchase(ref self: TContractState, game_id: felt252);
     fn open(ref self: TContractState, token_id: u256);
 }
 
@@ -17,58 +17,63 @@ mod care_package {
     use tokens::erc20::interfaces::{
         IERC20MintableBurnableDispatcher, IERC20MintableBurnableDispatcherTrait
     };
-    use rr_tokens::care_packages::{
-        ICarePackageDispatcher, ICarePackageDispatcherTrait, Rarity, N_RARITIES
-    };
     use rising_revenant::{
-        addresses::AddressTrait, fortifications::models::{Fortification, Fortifications},
-        accounts::{AccountInfo, Account}, utils::{felt252_to_u128, hash_value},
-        care_packages::systems::{
-            get_fortifications_types, get_number_of_fortifications, get_rarity
-        },
+        addresses::{AddressBook, GetDispatcher}, fortifications::models::{Fortification, Fortifications},
+        finance::{Finance}, utils::{felt252_to_u128, hash_value},
+        game::GameTrait,
+        care_packages::{Rarity, N_RARITIES, systems::{
+            get_fortifications, get_rarity, CarePackageMarketTrait
+        }, ICarePackageTokenDispatcher, ICarePackageTokenDispatcherTrait},
+        vrf::{VRF, Source},
+
     };
+    
+    use rising_revenant::vrgda::{LogisticVRGDA, VRGDATrait};
     use super::{CARE_PACKAGE_SELECTOR, ICarePackage};
+
 
     #[abi(embed_v0)]
     impl CarePackagesImpl of ICarePackage<ContractState> {
-        fn purchase(ref world: IWorldDispatcher) -> felt252 {
-            let caller = get_caller_address();
-            let mut account = world.get_account();
-            let key = hash_value((caller, 'purchase'));
-            account.receive(caller, world.get_care_package_price());
-            key
+        fn get_price(self: @IWorldDispatcher, game_id: felt252) -> u64 {
+            self.assert_preparing(game_id);
+            let market = self.get_care_package_market(game_id);
+            market.get_price(game_id, get_block_timestamp())
         }
-
-        fn receive(world: @IWorldDispatcher) {
+        fn purchase(ref world: IWorldDispatcher, game_id: felt252) {
+            self.assert_preparing(game_id);
             let caller = get_caller_address();
-            let randomness = 12; //TODO: get_randomness();
-            let key = hash_value((caller, 'purchase'));
-            let rarity = get_rarity(randomness);
-            let dispatcher = world.get_care_package_dispatcher().mint(caller, rarity);
+
+            let mut account = world.get_finance_account();
+            let mut market = self.get_care_package_market();
+            
+            account.receive(caller, market.get_price(game_id, get_block_timestamp()));
+            market.sold += 1;
+
+            let rarity = get_rarity(world.randomness(Source::Nonce(caller)));
+            world.get_care_package_dispatcher().mint(caller, rarity);
         }
 
         fn open(ref world: IWorldDispatcher, token_id: u256) {
-            let key = hash_value((token_id, 'open'));
             let caller = get_caller_address();
-            let dispatcher = self.get_care_package_dispatcher();
-            assert(caller == dispatcher.owner_of(token_id), 'Not Owner');
-            let rarity = dispatcher.get_rarity(token_id);
-            let erc721_dispatcher = dispatcher.burn_from(token_id);
-            let randomness: felt252 = 0;
+            let key: felt252  = token_id.try_into().unwrap();
 
-            let num_of_fortifications = get_number_of_fortifications(rarity, randomness);
-            let fortifications = get_fortifications_types(
-                rarity, hash_value((randomness, 'types'))
-            );
+            let token_dispatcher = world.get_care_package_dispatcher();
+            assert(caller == token_dispatcher.owner_of(token_id), 'Not Owner');
+            
+            token_dispatcher.burn_from(token_id);
 
-            self.mint_fortifications(caller, fortifications);
+            let randomness = world.randomness(Source::Salt(key));
+            let rarity = token_dispatcher.get_rarity(token_id);
+            let fortifications = get_fortifications(rarity, randomness);
+
+            world.mint_fortifications(caller, fortifications);
         }
     }
 
     #[generate_trait]
     impl PrivateImpl of PrivateTrait {
-        fn get_care_package_dispatcher(self: IWorldDispatcher) -> ICarePackageDispatcher {
-            ICarePackageDispatcher { contract_address: self.get_address(CARE_PACKAGE_SELECTOR), }
+        fn get_care_package_dispatcher(self: @IWorldDispatcher) -> ICarePackageTokenDispatcher {
+            self.get_dispatcher()
         }
         fn mint_fortification(
             self: IWorldDispatcher,
@@ -77,7 +82,7 @@ mod care_package {
             amount: u64
         ) {
             IERC20MintableBurnableDispatcher {
-                contract_address: self.get_address_of(fortification),
+                contract_address: self.get_address(fortification),
             }
                 .mint(recipient, amount.into());
         }
@@ -89,7 +94,5 @@ mod care_package {
             self.mint_fortification(Fortification::Wall, recipient, fortifications.walls);
             self.mint_fortification(Fortification::Basement, recipient, fortifications.basements);
         }
-
-        fn get_care_package_price(self: IWorldDispatcher) -> u256 {}
     }
 }

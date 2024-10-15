@@ -8,6 +8,8 @@ mod vrgda;
 mod contribution;
 mod map;
 mod address_selectors;
+mod market;
+
 mod addresses {
     mod systems;
     // mod contract;
@@ -17,24 +19,26 @@ mod addresses {
 
 mod permissions {
     mod models;
-    // mod contract;
+    mod contract;
+    mod systems;
+    use models::{Permissions};
+    use systems::{HasPermissions, AssertPermissions};
 }
 
 mod care_packages {
     mod token;
     mod systems;
     mod models;
-    // mod contract;
-
-    use models::{Rarity, N_RARITIES};
+    mod contract;
+    use rr_tokens::care_packages::{Rarity, N_RARITIES};
     use token::{ICarePackageTokenDispatcher, ICarePackageTokenDispatcherTrait};
 }
-mod market;
 mod game {
     mod models;
     mod systems;
+    mod contract;
 
-    use models::{GamePhase, GamePhases, GamePhasesTrait, WinnerTrait};
+    use models::{GamePhase, GamePhases, GamePhasesTrait, WinnerTrait, Winner};
     use systems::{GameTrait};
 }
 mod fortifications {
@@ -47,13 +51,15 @@ mod world_events {
     // mod contract;
     mod models;
     mod systems;
+
+    use models::{WorldEventType};
 }
 mod outposts {
     mod models;
     mod systems;
     mod token;
 
-    use models::{Outpost};
+    use models::{Outpost, OutpostModels};
     use systems::{OutpostTrait};
     use token::{IOutpostTokenDispatcher, IOutpostTokenDispatcherTrait};
 }
@@ -67,7 +73,11 @@ mod jackpot {
 }
 mod debris {}
 
-use permissions::models::Permissions;
+mod vrf;
+
+use permissions::Permissions;
+use addresses::AddressBook;
+
 
 #[cfg(test)]
 mod tests;
