@@ -1,4 +1,4 @@
-use dojo::world::{IWorldDispatcherTrait, IWorldDispatcher};
+use dojo::world::{IWorldDispatcherTrait, WorldStorage};
 use dojo::database::introspect::Introspect;
 use dojo::model::Model;
 use origami_token::presets::erc20::tests_bridgeable::{
@@ -41,7 +41,7 @@ mod contracts_tests {
 
     use debug::PrintTrait;
     use starknet::{ContractAddress, testing::{set_caller_address, set_block_number}};
-    use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
+    use dojo::world::{WorldStorage, IWorldDispatcherTrait};
     use origami::defi::auction::vrgda::{LogisticVRGDA, VRGDATrait};
     use cubit::f128::types::fixed::{Fixed, FixedTrait, ONE_u128};
 

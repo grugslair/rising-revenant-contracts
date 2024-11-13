@@ -1,5 +1,5 @@
 use starknet::ContractAddress;
-use dojo::world::IWorldDispatcher;
+use dojo::{world::WorldStorage, model::ModelStorage};
 use rising_revenant::{
     addresses::{AddressBook, GetDispatcher}, address_selectors::OUTPOST_TOKEN_SELECTOR
 };
@@ -29,7 +29,7 @@ pub trait IOutpostToken<TContractState> {
 }
 
 impl CarePackageTokenImpl of GetDispatcher<IOutpostTokenDispatcher> {
-    fn get_dispatcher(self: @IWorldDispatcher) -> IOutpostTokenDispatcher {
+    fn get_dispatcher(self: @WorldStorage) -> IOutpostTokenDispatcher {
         IOutpostTokenDispatcher { contract_address: self.get_address(OUTPOST_TOKEN_SELECTOR) }
     }
 }

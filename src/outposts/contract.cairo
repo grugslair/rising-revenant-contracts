@@ -1,15 +1,15 @@
-use dojo::world::IWorldDispatcher;
+use dojo::{world::WorldStorage, model::ModelStorage};
 
 use super::models::Outpost;
 use rising_revenant::fortifications::Fortification;
 
 #[dojo::interface]
 trait IOutpost<TContractState> {
-    fn purchase(ref world: IWorldDispatcher, game_id: felt252);
-    fn get(world: @IWorldDispatcher, outpost_id: felt252) -> Outpost;
-    fn apply_event(ref world: IWorldDispatcher, outpost_id: felt252);
+    fn purchase(ref self: ContractState, game_id: felt252);
+    fn get(self: @ContractState, outpost_id: felt252) -> Outpost;
+    fn apply_event(ref self: ContractState, outpost_id: felt252);
     fn fortify(
-        ref world: IWorldDispatcher,
+        ref self: ContractState,
         outpost_id: felt252,
         fortification_type: Fortification,
         amount: u256
@@ -38,18 +38,18 @@ mod outpost_actions {
     };
     #[abi(embed_v0)]
     impl OutpostImpl of IOutpost<ContractState> {
-        fn purchase(ref world: IWorldDispatcher, game_id: felt252) {
+        fn purchase(ref self: ContractState, game_id: felt252) -> felt252 {
             world.assert_preparing(game_id);
             let randomness = world.randomness(Source::Nonce(get_caller_address()));
 
             world.make_outpost(game_id, get_caller_address(), randomness);
         }
 
-        fn get(world: @IWorldDispatcher, outpost_id: felt252) -> Outpost {
+        fn get(self: @ContractState, outpost_id: felt252) -> Outpost {
             world.get_outpost(outpost_id)
         }
 
-        fn apply_event(ref world: IWorldDispatcher, outpost_id: felt252) {
+        fn apply_event(ref self: ContractState, outpost_id: felt252) {
             let mut outpost = world.get_outpost(outpost_id);
             let event = world.get_world_event(outpost.game_id);
 
@@ -75,7 +75,7 @@ mod outpost_actions {
         }
 
         fn fortify(
-            ref world: IWorldDispatcher,
+            ref self: ContractState,
             outpost_id: felt252,
             fortification_type: Fortification,
             amount: u256

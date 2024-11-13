@@ -1,8 +1,8 @@
-use dojo::world::IWorldDispatcher;
+use dojo::{world::WorldStorage, model::ModelStorage};
 
 #[dojo::interface]
 trait IWorldEventActions<TContractState> {
-    fn new_event(ref world: IWorldDispatcher, game_id: felt252);
+    fn new_event(ref self: ContractState, game_id: felt252);
 }
 
 
@@ -22,7 +22,7 @@ mod world_event_actions {
 
     #[abi(embed_v0)]
     impl WorldEventActionsImpl of IWorldEventActions<ContractState> {
-        fn new_event(ref world: IWorldDispatcher, game_id: felt252) {
+        fn new_event(ref self: ContractState, game_id: felt252) {
             world.assert_playing(game_id);
 
             let current_event = world.get_current_event(game_id);

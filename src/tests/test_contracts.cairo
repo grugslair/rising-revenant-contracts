@@ -4,7 +4,7 @@ use starknet::{
 };
 use dojo::{
     test_utils::{deploy_contract, spawn_test_world,},
-    world::{IWorldDispatcher, IWorldDispatcherTrait,},
+    world::{WorldStorage, IWorldDispatcherTrait,},
 };
 
 
@@ -48,7 +48,7 @@ use risingrevenant::{
 
 #[derive(Copy, Drop)]
 struct TestContracts {
-    world: IWorldDispatcher,
+    world: WorldStorage,
     game_actions: IGameActionsDispatcher,
     outpost_actions: IOutpostActionsDispatcher,
     payment_actions: IPaymentActionsDispatcher,
@@ -59,7 +59,7 @@ struct TestContracts {
     erc20_actions: IERC20BridgeablePresetDispatcher,
 }
 
-fn get_test_world() -> IWorldDispatcher {
+fn get_test_world() -> WorldStorage {
     let mut models = array![
         current_game::TEST_CLASS_HASH,
         game_map::TEST_CLASS_HASH,

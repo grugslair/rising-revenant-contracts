@@ -1,6 +1,6 @@
 use starknet::ContractAddress;
 use openzeppelin_token::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
-use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
+use dojo::world::{WorldStorage, IWorldDispatcherTrait};
 use rising_revenant::{addresses::{AddressBook}, address_selectors};
 
 
@@ -12,7 +12,7 @@ struct FinanceAccount {
 
 #[generate_trait]
 impl FinanceInfoImpl of Finance {
-    fn get_finance_account(self: @IWorldDispatcher) -> FinanceAccount {
+    fn get_finance_account(self: @WorldStorage) -> FinanceAccount {
         FinanceAccount {
             erc20_address: ERC20ABIDispatcher {
                 contract_address: self.get_address(address_selectors::GAME_TOKEN_SELECTOR)

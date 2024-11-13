@@ -1,10 +1,9 @@
 use starknet::ContractAddress;
-use dojo::world::{IWorldDispatcher};
 
 #[dojo::interface]
 trait IAddress<TContractState> {
-    fn get_address(world: @IWorldDispatcher, name: felt252) -> ContractAddress;
-    fn set_address(ref world: IWorldDispatcher, name: felt252, address: ContractAddress);
+    fn get_address(self: @ContractState, name: felt252) -> ContractAddress;
+    fn set_address(ref self: ContractState, name: felt252, address: ContractAddress);
 }
 
 mod address_actions {
@@ -14,11 +13,11 @@ mod address_actions {
 
     #[abi(embed_v0)]
     impl AddressImpl of IAddress<ContractState> {
-        fn get_address(world: @IWorldDispatcher, name: felt252) -> ContractAddress {
+        fn get_address(self: @ContractState, name: felt252) -> ContractAddress {
             world.get_address(name)
         }
 
-        fn set_address(ref world: IWorldDispatcher, name: felt252, address: ContractAddress) {
+        fn set_address(ref self: ContractState, name: felt252, address: ContractAddress) {
             // TODO: permissions
             Address { name, address }.set(self)
         }

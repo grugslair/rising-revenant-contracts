@@ -7,13 +7,13 @@ use rising_revenant::{
     map::{Point, GeneratePointTrait, PointTrait}, core::ToNonZero
 };
 use core::{integer::u128_safe_divmod, zeroable::NonZero};
-use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
+use dojo::world::{WorldStorage, IWorldDispatcherTrait};
 use starknet::{get_block_timestamp};
 
 
 #[generate_trait]
 impl WorldEventImpl of WorldEventTrait {
-    fn get_world_event(self: @IWorldDispatcher, game_id: felt252) -> WorldEvent {
+    fn get_world_event(self: @WorldStorage, game_id: felt252) -> WorldEvent {
         let current = self.get_current_event(game_id);
         let setup = self.get_world_event_setup(game_id);
         WorldEvent {

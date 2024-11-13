@@ -1,4 +1,4 @@
-use dojo::world::{IWorldDispatcher};
+use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
 use rising_revenant::{map::Point, fortifications::models::Fortifications};
 
 #[dojo::model]
@@ -43,30 +43,25 @@ struct OutpostsActive {
 #[generate_trait]
 impl OutpostModelsImpl of OutpostModels {
     #[inline(always)]
-    fn get_outpost(self: @IWorldDispatcher, id: felt252) -> Outpost {
-        OutpostStore::get(*self, id)
+    fn get_outpost(self: @WorldStorage, id: felt252) -> Outpost {
+        self.read_model(id)
     }
-    #[inline(always)]
-    fn get_outpost_setup(self: @IWorldDispatcher, game_id: felt252) -> OutpostSetup {
-        OutpostSetupStore::get(*self, game_id)
+    fn get_outpost_setup(self: @WorldStorage, game_id: felt252) -> OutpostSetup {
+        self.read_model(game_id)
     }
-    #[inline(always)]
     fn get_outpost_event(
-        self: @IWorldDispatcher, outpost_id: felt252, event_id: felt252
+        self: @WorldStorage, outpost_id: felt252, event_id: felt252
     ) -> OutpostEvent {
-        OutpostEventStore::get(*self, outpost_id, event_id)
+        self.read_model((outpost_id, event_id))
     }
-    #[inline(always)]
-    fn get_outposts_active(self: @IWorldDispatcher, game_id: felt252) -> OutpostsActive {
-        OutpostsActiveStore::get(*self, game_id)
+    fn get_outposts_active(self: @WorldStorage, game_id: felt252) -> OutpostsActive {
+        self.read_model(game_id)
     }
-    #[inline(always)]
-    fn get_starting_hp(self: @IWorldDispatcher, game_id: felt252) -> u64 {
-        OutpostSetupStore::get_hp(*self, game_id)
+    fn get_starting_hp(self: @WorldStorage, game_id: felt252) -> u64 {
+        self.read_member(Model::<OutpostSetup>::ptr_from_keys(game_id), selector!("hp"))
     }
-    #[inline(always)]
-    fn get_active_outposts(self: @IWorldDispatcher, game_id: felt252) -> u32 {
-        OutpostsActiveStore::get_active(*self, game_id)
+    fn get_active_outposts(self: @WorldStorage, game_id: felt252) -> u32 {
+        self.read_member(Model::<OutpostsActive>::ptr_from_keys(game_id), selector!("active"))
     }
 }
 

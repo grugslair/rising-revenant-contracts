@@ -1,5 +1,3 @@
-
-
 #[starknet::contract]
 mod care_package {
     use core::num::traits::Zero;
@@ -62,10 +60,6 @@ mod care_package {
             self.total_minted.write(token_id + 1);
             self.rarity.entry(token_id).write(rarity);
             self.erc721.mint(to, token_id);
-        }
-        fn open(self: @ContractState, token_id: u256) {
-            let rarity = self.rarity.entry(token_id).read();
-            
         }
 
         fn burn_from(ref self: ContractState, token_id: u256) {

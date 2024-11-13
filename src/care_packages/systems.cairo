@@ -1,9 +1,9 @@
-use dojo::world::{IWorldDispatcher};
+use dojo::{world::WorldStorage, model::ModelStorage};
 
 use super::Rarity;
 use rising_revenant::{
     fortifications::models::Fortifications, core::ToNonZero, utils::felt252_to_u128,
-    care_packages::models::{CarePackageMarket, CarePackageMarketStore}, vrgda::{LogisticVRGDA, VRGDATrait},
+    care_packages::models::{CarePackageMarket,}, vrgda::{LogisticVRGDA, VRGDATrait},
     fixed::FixedToDecimal
 };
 use core::integer::u128_safe_divmod;
@@ -36,7 +36,6 @@ fn get_fortifications(rarity: Rarity, randomness: felt252) -> Fortifications {
     let (base, divmod) = get_range_of_fortifications(rarity);
     let (randomness, value) = u128_safe_divmod(randomness, divmod.non_zero());
     get_fortifications_types(base + value, randomness)
-
 }
 
 fn get_rarity(randomness: felt252) -> Rarity {
@@ -54,8 +53,8 @@ fn get_rarity(randomness: felt252) -> Rarity {
 
 #[generate_trait]
 impl CarePackageMarketImpl of CarePackageMarketTrait {
-    fn get_care_package_market(self: @IWorldDispatcher, game_id: felt252) -> CarePackageMarket {
-        CarePackageMarketStore::get(*self, game_id)
+    fn get_care_package_market(self: @WorldStorage, game_id: felt252) -> CarePackageMarket {
+        self.read_model(game_id)
     }
     fn to_logistic_vrgda(self: @CarePackageMarket) -> LogisticVRGDA {
         LogisticVRGDA {

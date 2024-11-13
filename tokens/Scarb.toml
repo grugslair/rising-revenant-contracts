@@ -1,10 +1,10 @@
 [package]
-cairo-version = "^2.7.0"
+cairo-version = "2.8.4"
 name = "rr_tokens"
 version = "0.1.0"
 
 [requirments]
-starknet = "^2.7.0"
+starknet = "2.8.4"
 
 
 [cairo]

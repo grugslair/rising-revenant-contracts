@@ -3,18 +3,13 @@ use core::{
     cmp::{min, max}
 };
 use starknet::ContractAddress;
-use dojo::{world::{IWorldDispatcher, IWorldDispatcherTrait}, model::Model};
+use dojo::{world::WorldStorage, model::{ModelStorage}};
 use rising_revenant::{
     map::MapTrait, utils::{felt252_to_u128, clipped_felt252, ToHash, get_hash_state, hash_value},
     fortifications::models::{
         Fortifications, FortificationsTrait, Fortification, FortificationAttributes,
     },
-    outposts::{
-        models::{
-            Outpost, OutpostsActive, OutpostEvent, OutpostModels, OutpostsActiveStore,
-            OutpostEventStore
-        }
-    },
+    outposts::{models::{Outpost, OutpostsActive, OutpostEvent, OutpostModels}},
     world_events::models::WorldEvent,
 };
 use cubit::f128::{Fixed, FixedTrait, ONE_u128};
@@ -28,11 +23,11 @@ struct DamageVars {
 
 #[generate_trait]
 impl OutpostsActiveImpl of OutpostsActiveTrait {
-    fn reduce_active_outposts(self: IWorldDispatcher, game_id: felt252) -> u32 {
+    fn reduce_active_outposts(ref self: WorldStorage, game_id: felt252) -> u32 {
         let mut model = self.get_outposts_active(game_id);
         assert(model.active > 1, 'No active outposts');
         model.active -= 1;
-        model.set(self);
+        self.write_model(@model);
         model.active
     }
 }
@@ -40,11 +35,11 @@ impl OutpostsActiveImpl of OutpostsActiveTrait {
 
 #[generate_trait]
 impl OutpostEventImpl of OutpostEventTrait {
-    fn set_event_applied(self: IWorldDispatcher, outpost_id: felt252, event_id: felt252) {
+    fn set_event_applied(ref self: WorldStorage, outpost_id: felt252, event_id: felt252) {
         let mut model = self.get_outpost_event(outpost_id, event_id);
         assert(!model.applied, 'Event already applied');
         model.applied = true;
-        model.set(self);
+        self.write_model(@model);
     }
 }
 
@@ -66,15 +61,21 @@ impl DamageVarsImpl of DamageVarsTrait {
 #[generate_trait]
 impl OutpostImpl of OutpostTrait {
     fn make_outpost(
-        self: IWorldDispatcher, game_id: felt252, owner: ContractAddress, seed: felt252
-    ) -> Outpost {
-        Outpost {
-            id: hash_value(('outpost', self.uuid())),
+        ref self: WorldStorage, game_id: felt252, owner: ContractAddress, seed: felt252
+    ) -> felt252 {
+        let mut outposts_active = self.get_outposts_active(game_id);
+        let outpost = Outpost {
+            id: hash_value(('outpost', game_id, outposts_active.active)),
             game_id,
             position: self.get_empty_point(game_id, get_hash_state(seed)),
             fortifications: Default::default(),
             hp: self.get_starting_hp(game_id),
-        }
+        };
+        self.write_model(@outpost);
+
+        outposts_active.active += 1;
+        self.write_model(@outposts_active);
+        outpost.id
     }
     fn apply_damage(ref self: Outpost, event: DamageVars) {
         self.hp -= min(self.hp, event.get_damage(self.fortifications));
@@ -97,7 +98,7 @@ impl OutpostImpl of OutpostTrait {
     fn is_active(self: @Outpost) -> bool {
         (*self.hp).is_non_zero()
     }
-    fn assert_is_winner(self: @IWorldDispatcher, outpost: Outpost) {
+    fn assert_is_winner(self: @WorldStorage, outpost: Outpost) {
         assert(outpost.game_id.is_non_zero(), 'Outpost not in game');
         assert(self.get_active_outposts(outpost.game_id) == 1, 'Game not ended');
         assert(outpost.is_active(), 'Outpost not active');

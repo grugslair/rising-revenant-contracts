@@ -1,5 +1,5 @@
 [package]
-cairo-version = "=2.7.0"
+cairo-version = "=2.8.4"
 name = "rising_revenant"
 version = "0.4.0"
 
@@ -10,25 +10,21 @@ sierra-replace-ids = true
 sort-module-level-items = true
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.0-alpha.16" }
-openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts", rev = "a13bae3" }
+starknet = "2.8.4"
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.0" }
+openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v0.19.0" }
 rr_tokens = { path = "./tokens" }
-tokens = { git = "https://github.com/bengineer42/cairo-tokens" }
-origami_defi = { git = "https://github.com/dojoengine/origami", tag = "v1.0.0-alpha.16" }
-cubit = { git = "https://github.com/dojoengine/cubit", branch = "update_to_2.7.0" }
-cartridge_vrf = { git = "https://github.com/cartridge-gg/vrf-server" }
+tokens = { git = "https://github.com/bengineer42/cairo-tokens", tag = "cairo-2.8.4" }
+cubit = { git = "https://github.com/bal7hazar/cubit", rev = "6bce623d5c735c097be47a4045c0e0432bad38e7" }
+# cartridge_vrf = { git = "https://github.com/cartridge-gg/vrf-server" }
 
 
-[[target.dojo]]
+[[target.starknet-contract]]
+sierra = true
+build-external-contracts = ["dojo::world::world_contract::world"]
 
-[tool.dojo]
-initializer_class_hash = "0xbeef"
-
-[tool.dojo.world.namespace]
-default = "rising_revenant"
-
-[tool.dojo.world]
-name = "Rising Revenant"
-description = "Rising Revenant"
 
 [profile.sepolia]
+
+[features]
+default = []

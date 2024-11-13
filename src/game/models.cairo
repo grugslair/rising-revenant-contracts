@@ -1,4 +1,4 @@
-use dojo::world::IWorldDispatcher;
+use dojo::{world::WorldStorage, model::{Model, ModelStorage}};
 use starknet::get_block_timestamp;
 
 
@@ -35,21 +35,21 @@ struct GamePhases {
 
 #[generate_trait]
 impl WinnerImpl of WinnerTrait {
-    fn set_winning_outpost(self: IWorldDispatcher, game_id: felt252, outpost_id: felt252) {
-        Winner { game_id, outpost_id }.set(self)
+    fn set_winning_outpost(ref self: WorldStorage, game_id: felt252, outpost_id: felt252) {
+        self.write_model(@Winner { game_id, outpost_id });
     }
-    fn get_winning_outpost(self: @IWorldDispatcher, game_id: felt252) -> felt252 {
-        WinnerStore::get_outpost_id(*self, game_id)
+    fn get_winning_outpost(self: @WorldStorage, game_id: felt252) -> felt252 {
+        self.read_member(Model::<Winner>::ptr_from_keys(game_id), selector!("outpost_id"))
     }
 }
 
 #[generate_trait]
 impl GamePhasesImpl of GamePhasesTrait {
-    fn get_game_phases(self: @IWorldDispatcher, game_id: felt252) -> GamePhases {
-        GamePhasesStore::get(*self, game_id)
+    fn get_game_phases(self: @WorldStorage, game_id: felt252) -> GamePhases {
+        self.read_model(game_id)
     }
-    fn get_prep_start(self: @IWorldDispatcher, game_id: felt252) -> u64{
-        GamePhasesStore::get_prep_start(*self, game_id)
+    fn get_prep_start(self: @WorldStorage, game_id: felt252) -> u64{
+        self.read_member(Model::<GamePhases>::ptr_from_keys(game_id), selector!("prep_start"))
     }
     fn get_phase(self: @GamePhases) -> GamePhase {
         let timestamp = get_block_timestamp();

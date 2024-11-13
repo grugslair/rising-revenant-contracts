@@ -1,5 +1,5 @@
 use starknet::ContractAddress;
-use dojo::world::{IWorldDispatcher};
+use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
 
 
 #[dojo::model]
@@ -11,7 +11,7 @@ struct Address {
 }
 
 trait AddressBook<T> {
-    fn get_address(self: @IWorldDispatcher, name: T) -> ContractAddress;
+    fn get_address(self: @WorldStorage, name: T) -> ContractAddress;
 }
 
 trait AddressSelectorTrait<T> {
@@ -19,18 +19,18 @@ trait AddressSelectorTrait<T> {
 }
 
 trait GetDispatcher<D> {
-    fn get_dispatcher(self: @IWorldDispatcher) -> D;
+    fn get_dispatcher(self: @WorldStorage) -> D;
 }
 
 impl AddressBookImpl of AddressBook<felt252> {
-    fn get_address(self: @IWorldDispatcher, name: felt252) -> ContractAddress {
-        AddressStore::get_address(*self, name)
+    fn get_address(self: @WorldStorage, name: felt252) -> ContractAddress {
+        self.read_member(Model::<Address>::ptr_from_keys(name), selector!("address"))
     }
 }
 
 
 impl AddressBookObjImpl<T, +AddressSelectorTrait<T>, +Drop<T>> of AddressBook<T> {
-    fn get_address(self: @IWorldDispatcher, name: T) -> ContractAddress {
+    fn get_address(self: @WorldStorage, name: T) -> ContractAddress {
         self.get_address(name.get_address_selector())
     }
 }

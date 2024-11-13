@@ -1,4 +1,4 @@
-use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
+use dojo::{world::WorldStorage, model::ModelStorage};
 use starknet::ContractAddress;
 use rising_revenant::{map::Point, fortifications::{Fortifications, FortificationsTrait}};
 
@@ -65,15 +65,15 @@ impl U8IntoWorldEvent<T, +TryInto<T, u8>> of Into<T, WorldEventType> {
 
 #[generate_trait]
 impl CurrentEventImpl of CurrentEventTrait {
-    fn get_current_event(self: @IWorldDispatcher, game_id: felt252) -> CurrentEvent {
-        CurrentEventStore::get(*self, game_id)
+    fn get_current_event(self: @WorldStorage, game_id: felt252) -> CurrentEvent {
+        self.read_model(game_id)
     }
 }
 
 
 #[generate_trait]
 impl WorldEventSetupImpl of WorldEventSetupTrait {
-    fn get_world_event_setup(self: @IWorldDispatcher, game_id: felt252) -> WorldEventSetup {
-        WorldEventSetupStore::get(*self, game_id)
+    fn get_world_event_setup(self: @WorldStorage, game_id: felt252) -> WorldEventSetup {
+        self.read_model(game_id)
     }
 }

@@ -1,4 +1,4 @@
-use dojo::world::IWorldDispatcher;
+use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
 use rising_revenant::{utils::felt252_to_u128, core::{ToNonZero, BoundedT}};
 use core::{
     num::traits::Bounded, integer::{u128_safe_divmod, u32_safe_divmod}, zeroable::NonZero,
@@ -6,7 +6,7 @@ use core::{
 };
 
 
-#[derive(Drop, Serde, Copy, Introspect, Default,)]
+#[derive(Drop, Serde, Copy, IntrospectPacked, Default,)]
 struct Point {
     x: u16,
     y: u16,
@@ -94,15 +94,19 @@ struct Map {
 
 #[generate_trait]
 impl MapImpl of MapTrait {
-    fn get_map_size(self: @IWorldDispatcher, game_id: felt252) -> Point {
-        MapSizeStore::get_size(*self, game_id)
+    fn get_map_size(self: @WorldStorage, game_id: felt252) -> Point {
+        self.read_member(Model::<MapSize>::ptr_from_keys(game_id), selector!("size"))
     }
 
-    fn is_position_empty(self: @IWorldDispatcher, game_id: felt252, position: Point) -> bool {
-        MapStore::get_outpost(*self, game_id, position).is_zero()
+    fn is_position_empty(self: @WorldStorage, game_id: felt252, position: Point) -> bool {
+        self
+            .read_member::<
+                felt252
+            >(Model::<Map>::ptr_from_keys((game_id, position)), selector!("outpost"))
+            .is_zero()
     }
-    fn get_empty_point(self: @IWorldDispatcher, game_id: felt252, mut hash: HashState) -> Point {
-        let map_size: Point = MapSizeStore::get_size(*self, game_id);
+    fn get_empty_point(self: @WorldStorage, game_id: felt252, mut hash: HashState) -> Point {
+        let map_size = self.get_map_size(game_id);
 
         loop {
             let point = map_size.generate_point(hash.finalize());

@@ -1,5 +1,5 @@
 use starknet::ContractAddress;
-use dojo::world::{IWorldDispatcher};
+use dojo::{world::WorldStorage, model::ModelStorage};
 
 #[dojo::model]
 #[derive(Copy, Drop, Serde)]
@@ -35,7 +35,7 @@ struct Claimed {
 }
 
 #[dojo::model]
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, IntrospectPacked)]
 struct JackpotSplit {
     #[key]
     game_id: felt252,

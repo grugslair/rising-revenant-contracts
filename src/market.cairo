@@ -1,5 +1,5 @@
 use starknet::{ContractAddress, get_contract_address};
-use dojo::world::IWorldDispatcher;
+use dojo::{world::WorldStorage, model::ModelStorage};
 use openzeppelin_token::{
     erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait},
     erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait}
@@ -142,11 +142,11 @@ impl AuctionBidOpenImpl of CheckOpen<AuctionBid> {
 
 #[dojo::interface]
 trait IDiscretionaryAuction<TContractState> {
-    fn offer(ref world: IWorldDispatcher, offer: Goods, expiration: u64) -> u128;
-    fn bid(ref world: IWorldDispatcher, offer_id: u128, bid: Goods, expiration: u64) -> u128;
-    fn accept(ref world: IWorldDispatcher, offer_id: u128, bid_id: u128);
-    fn rescind_offer(ref world: IWorldDispatcher, offer_id: u128);
-    fn rescind_bid(ref world: IWorldDispatcher, bid_id: u128);
+    fn offer(ref self: ContractState, offer: Goods, expiration: u64) -> u128;
+    fn bid(ref self: ContractState, offer_id: u128, bid: Goods, expiration: u64) -> u128;
+    fn accept(ref self: ContractState, offer_id: u128, bid_id: u128);
+    fn rescind_offer(ref self: ContractState, offer_id: u128);
+    fn rescind_bid(ref self: ContractState, bid_id: u128);
 }
 
 
@@ -164,7 +164,7 @@ mod discretionary_auction {
     };
 
     impl IDiscretionaryAuctionImpl of IDiscretionaryAuction<ContractState> {
-        fn offer(ref world: IWorldDispatcher, mut offer: Goods, expiration: u64) -> u128 {
+        fn offer(ref self: ContractState, mut offer: Goods, expiration: u64) -> u128 {
             let seller = get_caller_address();
             let offer_id = world.uuid().into();
             AuctionOffer {
@@ -175,9 +175,7 @@ mod discretionary_auction {
 
             offer_id
         }
-        fn bid(
-            ref world: IWorldDispatcher, offer_id: u128, mut bid: Goods, expiration: u64
-        ) -> u128 {
+        fn bid(ref self: ContractState, offer_id: u128, mut bid: Goods, expiration: u64) -> u128 {
             let bidder = get_caller_address();
             let bid_id = world.uuid().into();
             AuctionBid { bid_id, offer_id, bidder, bid: bid.clone(), expiration, open: true }
@@ -186,7 +184,7 @@ mod discretionary_auction {
             assert(bid.has_goods(bidder), 'Not allowed');
             bid_id
         }
-        fn accept(ref world: IWorldDispatcher, offer_id: u128, bid_id: u128) {
+        fn accept(ref self: ContractState, offer_id: u128, bid_id: u128) {
             let caller = get_caller_address();
             let mut offer: AuctionOffer = AuctionOfferStore::get(world, offer_id);
             assert(offer.seller == caller, 'Not allowed');
@@ -207,14 +205,14 @@ mod discretionary_auction {
             offer.set_accepted_bid(world, bid_id);
             bid.set_open(world, false);
         }
-        fn rescind_offer(ref world: IWorldDispatcher, offer_id: u128) {
+        fn rescind_offer(ref self: ContractState, offer_id: u128) {
             let mut offer = AuctionOfferStore::get(world, offer_id);
             let caller = get_caller_address();
             assert(offer.seller == caller, 'Not allowed');
             offer.check_open(get_block_timestamp());
             offer.set_open(world, false);
         }
-        fn rescind_bid(ref world: IWorldDispatcher, bid_id: u128) {
+        fn rescind_bid(ref self: ContractState, bid_id: u128) {
             let mut bid = AuctionBidStore::get(world, bid_id);
             let caller = get_caller_address();
             assert(bid.bidder == caller, 'Not allowed');

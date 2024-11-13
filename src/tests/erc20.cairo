@@ -4,7 +4,7 @@ use starknet::testing;
 use zeroable::Zeroable;
 
 use integer::BoundedInt;
-use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
+use dojo::world::{WorldStorage, IWorldDispatcherTrait};
 use dojo::test_utils::spawn_test_world;
 use origami_token::tests::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, BRIDGE, DECIMALS, SUPPLY, VALUE
@@ -61,7 +61,7 @@ use origami_token::components::tests::token::erc20::test_erc20_balance::{
 // Setup
 //
 
-fn setup() -> (IWorldDispatcher, IERC20BridgeablePresetDispatcher) {
+fn setup() -> (WorldStorage, IERC20BridgeablePresetDispatcher) {
     let world = spawn_test_world(
         array![
             erc_20_allowance_model::TEST_CLASS_HASH,

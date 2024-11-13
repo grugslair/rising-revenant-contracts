@@ -8,7 +8,7 @@ mod vrgda;
 mod contribution;
 mod map;
 mod address_selectors;
-mod market;
+// mod market;
 
 mod addresses {
     mod systems;
@@ -19,7 +19,7 @@ mod addresses {
 
 mod permissions {
     mod models;
-    mod contract;
+    // mod contract;
     mod systems;
     use models::{Permissions};
     use systems::{HasPermissions, AssertPermissions};
@@ -29,21 +29,20 @@ mod care_packages {
     mod token;
     mod systems;
     mod models;
-    mod contract;
+    // mod contract;
     use rr_tokens::care_packages::{Rarity, N_RARITIES};
     use token::{ICarePackageTokenDispatcher, ICarePackageTokenDispatcherTrait};
 }
 mod game {
     mod models;
     mod systems;
-    mod contract;
+    // mod contract;
 
     use models::{GamePhase, GamePhases, GamePhasesTrait, WinnerTrait, Winner};
     use systems::{GameTrait};
 }
 mod fortifications {
     mod models;
-    mod systems;
 
     use models::{Fortification, Fortifications, FortificationAttributes, FortificationsTrait};
 }
@@ -59,7 +58,7 @@ mod outposts {
     mod models;
     mod systems;
     mod token;
-    mod contract;
+    // mod contract;
 
     use models::{Outpost, OutpostModels};
     use systems::{OutpostTrait};
@@ -68,7 +67,7 @@ mod outposts {
 mod jackpot {
     mod models;
     mod systems;
-    mod contract;
+    // mod contract;
 
     use systems::{JackpotTrait};
     use models::{Claimant};
