@@ -1,19 +1,23 @@
 use core::{
-    num::traits::{Bounded, Zero, OverflowingSub, OverflowingAdd, OverflowingMul}, cmp::{min, max}
+    traits::Neg, num::traits::{Bounded, Zero, One, OverflowingSub, OverflowingAdd, OverflowingMul},
+    cmp::{min, max}
 };
+
+#[derive(Copy, Drop)]
+type TTupleSize5<T> = (T, T, T, T, T);
 
 trait BoundedT<T, S> {
     fn min() -> S;
     fn max() -> S;
 }
 
-impl BoundedTImpl<T, S, +Bounded<T>, +Into<T, S>> of BoundedT<T, S> {
+impl BoundedTImpl<T, S, +Bounded<T>, +TryInto<T, S>> of BoundedT<T, S> {
     fn min() -> S {
-        Bounded::<T>::MIN.into()
+        Bounded::<T>::MIN.try_into().unwrap()
     }
 
     fn max() -> S {
-        Bounded::<T>::MAX.into()
+        Bounded::<T>::MAX.try_into().unwrap()
     }
 }
 
@@ -106,8 +110,6 @@ pub impl TSaturatingIntoS<
         }
     }
 }
-
-
 trait ToNonZero<T, S> {
     fn non_zero(self: T) -> NonZero<S>;
 }
@@ -115,6 +117,44 @@ trait ToNonZero<T, S> {
 impl ToNonZeroImpl<T, S, +Into<T, S>, +TryInto<S, NonZero<S>>> of ToNonZero<T, S> {
     fn non_zero(self: T) -> NonZero<S> {
         Into::<T, S>::into(self).try_into().unwrap()
+    }
+}
+
+impl Felt252BitAnd of BitAnd<felt252> {
+    #[inline(always)]
+    fn bitand(lhs: felt252, rhs: felt252) -> felt252 {
+        (Into::<felt252, u256>::into(lhs) & rhs.into()).try_into().unwrap()
+    }
+}
+
+fn in_range<T, +PartialOrd<T>, +Drop<T>, +Copy<T>>(lower: T, upper: T, value: T) -> T {
+    max(lower, min(upper, value))
+}
+
+#[derive(Copy, Drop, Serde, PartialEq, Introspect)]
+struct Signed<T> {
+    value: T,
+    sign: bool,
+}
+
+impl SignedIntoI<T, S, +TryInto<T, S>, +Neg<S>> of Into<Signed<T>, S> {
+    fn into(self: Signed<T>) -> S {
+        if self.sign {
+            Neg::<S>::neg(self.value.try_into().unwrap())
+        } else {
+            self.value.try_into().unwrap()
+        }
+    }
+}
+
+impl SignedTryIntoI<T, S, +TryInto<T, S>, +Neg<S>> of TryInto<Signed<T>, S> {
+    fn try_into(self: Signed<T>) -> Option<S> {
+        let value: S = self.value.try_into().unwrap();
+        Option::Some(if self.sign {
+            Neg::<S>::neg(value)
+        } else {
+            value
+        })
     }
 }
 
@@ -143,3 +183,7 @@ impl Felt252TryIntoBoolImpl of TryInto<felt252, bool> {
         }
     }
 }
+// impl U8ArrayCopyImpl of Copy<Array<u8>>;
+// impl U128ArrayCopyImpl of Copy<Array<u128>>;
+
+

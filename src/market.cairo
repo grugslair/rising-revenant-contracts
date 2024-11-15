@@ -140,13 +140,13 @@ impl AuctionBidOpenImpl of CheckOpen<AuctionBid> {
     }
 }
 
-#[dojo::interface]
+#[starknet::interface]
 trait IDiscretionaryAuction<TContractState> {
-    fn offer(ref self: ContractState, offer: Goods, expiration: u64) -> u128;
-    fn bid(ref self: ContractState, offer_id: u128, bid: Goods, expiration: u64) -> u128;
-    fn accept(ref self: ContractState, offer_id: u128, bid_id: u128);
-    fn rescind_offer(ref self: ContractState, offer_id: u128);
-    fn rescind_bid(ref self: ContractState, bid_id: u128);
+    fn offer(ref self: TContractState, offer: Goods, expiration: u64) -> u128;
+    fn bid(ref self: TContractState, offer_id: u128, bid: Goods, expiration: u64) -> u128;
+    fn accept(ref self: TContractState, offer_id: u128, bid_id: u128);
+    fn rescind_offer(ref self: TContractState, offer_id: u128);
+    fn rescind_bid(ref self: TContractState, bid_id: u128);
 }
 
 

@@ -1,15 +1,13 @@
-use dojo::{world::WorldStorage, model::ModelStorage};
-
 use super::models::Outpost;
 use rising_revenant::fortifications::Fortification;
 
-#[dojo::interface]
+#[starknet::interface]
 trait IOutpost<TContractState> {
-    fn purchase(ref self: ContractState, game_id: felt252);
-    fn get(self: @ContractState, outpost_id: felt252) -> Outpost;
-    fn apply_event(ref self: ContractState, outpost_id: felt252);
+    fn purchase(ref self: TContractState, game_id: felt252) -> felt252;
+    fn get(self: @TContractState, outpost_id: felt252) -> Outpost;
+    fn apply_event(ref self: TContractState, outpost_id: felt252);
     fn fortify(
-        ref self: ContractState,
+        ref self: TContractState,
         outpost_id: felt252,
         fortification_type: Fortification,
         amount: u256
@@ -20,17 +18,18 @@ trait IOutpost<TContractState> {
 mod outpost_actions {
     use starknet::get_caller_address;
     use super::{IOutpost};
+    use dojo::model::ModelStorage;
     use rising_revenant::{
         utils::get_hash_state,
         fortifications::models::{
             Fortifications, Fortification, FortificationsTrait, FortificationAttributesTrait
         },
         outposts::{
-            Outpost, OutpostTrait, OutpostModels, models::OutpostStore,
-            systems::{OutpostsActiveTrait, OutpostEventTrait}
+            Outpost, OutpostTrait, OutpostModels, systems::{OutpostsActiveTrait, OutpostEventTrait}
         },
         world_events::WorldEventTrait, map::{Point, PointTrait}, addresses::{AddressBook},
         contribution::{ContributionTrait, ContributionEvent}, game::GameTrait, vrf::{VRF, Source},
+        world::default_namespace
     };
     use openzeppelin_token::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
     use tokens::erc20::interfaces::{
@@ -39,17 +38,20 @@ mod outpost_actions {
     #[abi(embed_v0)]
     impl OutpostImpl of IOutpost<ContractState> {
         fn purchase(ref self: ContractState, game_id: felt252) -> felt252 {
+            let mut world = self.world(default_namespace());
             world.assert_preparing(game_id);
             let randomness = world.randomness(Source::Nonce(get_caller_address()));
 
-            world.make_outpost(game_id, get_caller_address(), randomness);
+            world.make_outpost(game_id, get_caller_address(), randomness)
         }
 
         fn get(self: @ContractState, outpost_id: felt252) -> Outpost {
+            let world = self.world(default_namespace());
             world.get_outpost(outpost_id)
         }
 
         fn apply_event(ref self: ContractState, outpost_id: felt252) {
+            let mut world = self.world(default_namespace());
             let mut outpost = world.get_outpost(outpost_id);
             let event = world.get_world_event(outpost.game_id);
 
@@ -80,6 +82,7 @@ mod outpost_actions {
             fortification_type: Fortification,
             amount: u256
         ) {
+            let mut world = self.world(default_namespace());
             let caller = get_caller_address();
             let mut outpost = world.get_outpost(outpost_id);
             let event = world.get_world_event(outpost.game_id);
@@ -90,7 +93,7 @@ mod outpost_actions {
             );
             outpost.fortifications.add(fortification_type, amount.try_into().unwrap());
 
-            outpost.set(world);
+            world.write_model(@outpost);
             IERC20MintableBurnableDispatcher {
                 contract_address: world.get_address(fortification_type),
             }

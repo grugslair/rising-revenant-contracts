@@ -2,16 +2,17 @@ use starknet::ContractAddress;
 use rising_revenant::fortifications::models::Fortification;
 const CARE_PACKAGE_SELECTOR: felt252 = 'erc721-care-packages';
 
-#[dojo::interface]
+#[starknet::interface]
 pub trait ICarePackage<TContractState> {
-    fn get_price(self: @ContractState, game_id: felt252) -> u256;
-    fn purchase(ref self: ContractState, game_id: felt252);
-    fn open(ref self: ContractState, token_id: u256);
+    fn get_price(self: @TContractState, game_id: felt252) -> u256;
+    fn purchase(ref self: TContractState, game_id: felt252);
+    fn open(ref self: TContractState, token_id: u256);
 }
 
 
 #[dojo::contract]
 mod care_package {
+    use dojo::world::WorldStorage;
     use starknet::{get_caller_address, ContractAddress, get_block_timestamp};
     use openzeppelin_token::erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
     use tokens::erc20::interfaces::{IERC20Dispatcher, IERC20DispatcherTrait};
@@ -23,7 +24,7 @@ mod care_package {
             Rarity, N_RARITIES, systems::{get_fortifications, get_rarity, CarePackageMarketTrait},
             ICarePackageTokenDispatcher, ICarePackageTokenDispatcherTrait
         },
-        vrf::{VRF, Source},
+        world::default_namespace, vrf::{VRF, Source},
     };
 
     use rising_revenant::vrgda::{LogisticVRGDA, VRGDATrait};
@@ -33,11 +34,14 @@ mod care_package {
     #[abi(embed_v0)]
     impl CarePackagesImpl of ICarePackage<ContractState> {
         fn get_price(self: @ContractState, game_id: felt252) -> u256 {
+            let world = self.world(default_namespace());
             world.assert_preparing(game_id);
             let market = world.get_care_package_market(game_id);
             market.get_price(get_block_timestamp())
         }
         fn purchase(ref self: ContractState, game_id: felt252) {
+            let mut world = self.world(default_namespace());
+
             world.assert_preparing(game_id);
             let caller = get_caller_address();
 
@@ -52,6 +56,7 @@ mod care_package {
         }
 
         fn open(ref self: ContractState, token_id: u256) {
+            let mut world = self.world(default_namespace());
             let caller = get_caller_address();
             let key: felt252 = token_id.try_into().unwrap();
 
@@ -83,7 +88,7 @@ mod care_package {
                 .mint_to(recipient, amount.into());
         }
         fn mint_fortifications(
-            self: WorldStoragecipient: ContractAddress, fortifications: Fortifications,
+            ref self: WorldStorage, recipient: ContractAddress, fortifications: Fortifications,
         ) {
             self.mint_fortification(Fortification::Palisade, recipient, fortifications.palisades);
             self.mint_fortification(Fortification::Trench, recipient, fortifications.trenches);
