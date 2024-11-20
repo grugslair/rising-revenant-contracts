@@ -1,11 +1,24 @@
 use starknet::ContractAddress;
 
+/// Interface for managing named contract addresses in the system
+/// Allows getting and setting addresses associated with specific names
 #[starknet::interface]
 trait IAddress<TContractState> {
+    /// Retrieves the contract address associated with the given name
+    /// # Arguments
+    /// * `name` - The name identifier for the address
+    /// # Returns
+    /// * `ContractAddress` - The associated contract address
     fn get_address(self: @TContractState, name: felt252) -> ContractAddress;
+
+    /// Sets a contract address for a given name
+    /// # Arguments
+    /// * `name` - The name identifier for the address
+    /// * `address` - The contract address to associate with the name
     fn set_address(ref self: TContractState, name: felt252, address: ContractAddress);
 }
 
+/// Contract implementation for address management
 #[dojo::contract]
 mod address_actions {
     use super::IAddress;

@@ -3,7 +3,7 @@ use dojo::{world::WorldStorage, model::ModelStorage};
 use rising_revenant::{
     addresses::{AddressBook, GetDispatcher}, address_selectors::OUTPOST_TOKEN_SELECTOR
 };
-
+// Copy of the Outpost ERC721 interface
 #[starknet::interface]
 pub trait IOutpostToken<TContractState> {
     fn mint(ref self: TContractState, to: ContractAddress);

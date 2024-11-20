@@ -2,6 +2,15 @@ use starknet::ContractAddress;
 use rising_revenant::fortifications::models::Fortification;
 const CARE_PACKAGE_SELECTOR: felt252 = 'erc721-care-packages';
 
+
+/// Interface for the Care Package contract.
+///
+/// This interface defines the methods for interacting with care packages in the game.
+///
+/// # Methods
+/// - `get_price`: Retrieves the price of a care package for a given game ID.
+/// - `purchase`: Purchases a care package for a given game ID.
+/// - `open`: Opens a purchased care package using its token ID.
 #[starknet::interface]
 pub trait ICarePackage<TContractState> {
     fn get_price(self: @TContractState, game_id: felt252) -> u256;
@@ -75,9 +84,20 @@ mod care_package {
 
     #[generate_trait]
     impl PrivateImpl of PrivateTrait {
+        /// Retrieves the care package dispatcher from the world storage.
+        ///
+        /// # Returns
+        /// An instance of `ICarePackageTokenDispatcher`.
         fn get_care_package_dispatcher(self: @WorldStorage) -> ICarePackageTokenDispatcher {
             self.get_dispatcher()
         }
+
+        /// Mints a specified amount of a fortification type to a recipient.
+        ///
+        /// # Parameters
+        /// - `fortification`: The type of fortification to mint.
+        /// - `recipient`: The address of the recipient.
+        /// - `amount`: The amount of fortification to mint.
         fn mint_fortification(
             ref self: WorldStorage,
             fortification: Fortification,
@@ -87,6 +107,12 @@ mod care_package {
             IERC20Dispatcher { contract_address: self.get_address(fortification), }
                 .mint_to(recipient, amount.into());
         }
+
+        /// Mints various types of fortifications to a recipient.
+        ///
+        /// # Parameters
+        /// - `recipient`: The address of the recipient.
+        /// - `fortifications`: The fortifications to mint, including palisades, trenches, walls, and basements.
         fn mint_fortifications(
             ref self: WorldStorage, recipient: ContractAddress, fortifications: Fortifications,
         ) {

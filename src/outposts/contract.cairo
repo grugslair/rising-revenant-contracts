@@ -1,11 +1,39 @@
 use super::models::Outpost;
 use rising_revenant::fortifications::Fortification;
 
+/// Interface for managing outposts in the Rising Revenant game
 #[starknet::interface]
 trait IOutpost<TContractState> {
+    /// Creates a new outpost for the caller in the specified game
+    /// # Arguments
+    /// * `game_id` - The ID of the game to create the outpost in
+    /// # Returns
+    /// * The ID of the newly created outpost
     fn purchase(ref self: TContractState, game_id: felt252) -> felt252;
+
+    /// Retrieves an outpost's data by its ID
+    /// # Arguments
+    /// * `outpost_id` - The ID of the outpost to retrieve
+    /// # Returns
+    /// * The Outpost struct containing all outpost data
     fn get(self: @TContractState, outpost_id: felt252) -> Outpost;
+
+    /// Applies the current world event's effects to the specified outpost
+    /// # Arguments
+    /// * `outpost_id` - The ID of the outpost to apply the event to
+    /// # Panics
+    /// * If the outpost is not active
+    /// * If the outpost is not in the event's radius
     fn apply_event(ref self: TContractState, outpost_id: felt252);
+
+    /// Adds fortifications to an outpost
+    /// # Arguments
+    /// * `outpost_id` - The ID of the outpost to fortify
+    /// * `fortification_type` - The type of fortification to add
+    /// * `amount` - The amount of fortification to add
+    /// # Panics
+    /// * If the outpost is not active
+    /// * If the outpost is under an active event
     fn fortify(
         ref self: TContractState,
         outpost_id: felt252,

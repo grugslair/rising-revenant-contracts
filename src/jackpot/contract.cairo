@@ -3,26 +3,39 @@ use dojo::{world::WorldStorage, model::ModelStorage};
 use rising_revenant::{jackpot::Claimant};
 
 
+/// Interface for managing jackpot claims and retrieving jackpot information
 #[starknet::interface]
 trait IJackpot<TContractState> {
+    /// Returns the total amount in the jackpot for a given game
     fn get_total_amount(self: @TContractState, game_id: felt252) -> u256;
+    /// Returns the total amount that has been claimed from the jackpot
     fn get_claimed_amount(self: @TContractState, game_id: felt252) -> u256;
+    /// Returns the remaining unclaimed amount in the jackpot
     fn get_unclaimed_amount(self: @TContractState, game_id: felt252) -> u256;
 
+    /// Allows the winner to claim their winnings from the jackpot
     fn claim_win(ref self: TContractState, game_id: felt252);
+    /// Allows contributors to claim their contribution rewards
     fn claim_contribution(ref self: TContractState, game_id: felt252);
+    /// Allows dev team to claim their allocated portion
     fn claim_dev(ref self: TContractState, game_id: felt252, receiver: ContractAddress);
+    /// Claims any remaining funds in the jackpot after all other claims
     fn claim_remainder(ref self: TContractState, game_id: felt252);
 
+    /// Checks if the winner has claimed their prize
     fn win_claimed(self: @TContractState, game_id: felt252) -> bool;
+    /// Checks if a specific contributor has claimed their reward
     fn contribution_claimed(self: @TContractState, game_id: felt252, user: ContractAddress) -> bool;
+    /// Checks if the dev portion has been claimed
     fn dev_claimed(self: @TContractState, game_id: felt252) -> bool;
+    /// Checks if the remainder has been claimed for a specific claimant type
     fn remainder_claimed(self: @TContractState, game_id: felt252, claimant: Claimant) -> bool;
 
+    /// Returns the amount available to be claimed by the winner
     fn get_win_amount(self: @TContractState, game_id: felt252) -> u256;
-    fn get_contribution_amount(
-        self: @TContractState, game_id: felt252, user: ContractAddress
-    ) -> u256;
+    /// Returns the amount available to be claimed by a specific contributor
+    fn get_contribution_amount(self: @TContractState, game_id: felt252, user: ContractAddress) -> u256;
+    /// Returns the amount allocated for the dev team
     fn get_dev_amount(self: @TContractState, game_id: felt252) -> u256;
 }
 
@@ -126,13 +139,23 @@ mod jackpot_actions {
         }
     }
 
+    /// Private implementation for handling jackpot payments and claims
     #[generate_trait]
     impl PrivateImpl of PrivateTrait {
+        /// Sends the specified amount to a receiver address using the finance account
+        /// # Arguments
+        /// * `receiver` - The address that will receive the funds
+        /// * `amount` - The amount of tokens to send
         fn send_amount(ref self: WorldStorage, receiver: ContractAddress, amount: u256) {
             let mut finance = self.get_finance_account();
             finance.send(receiver, amount);
         }
 
+        /// Claims an amount for a specific claimant and sends it to the receiver
+        /// # Arguments
+        /// * `game_id` - The ID of the game to claim from
+        /// * `claimant` - The type of claimant (Winner, Contributor, or Dev)
+        /// * `receiver` - The address that will receive the claimed amount
         fn claim(
             ref self: WorldStorage, game_id: felt252, claimant: Claimant, receiver: ContractAddress
         ) {

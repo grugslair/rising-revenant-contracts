@@ -1,7 +1,12 @@
 use starknet::ContractAddress;
 use dojo::world::{WorldStorage, IWorldDispatcherTrait};
-use rising_revenant::{addresses::{AddressBook, GetDispatcher}, address_selectors::CARE_PACKAGE_TOKEN_SELECTOR, care_packages::Rarity};
+use rising_revenant::{
+    addresses::{AddressBook, GetDispatcher}, address_selectors::CARE_PACKAGE_TOKEN_SELECTOR,
+    care_packages::Rarity
+};
 
+
+// interface of the care package token
 #[starknet::interface]
 pub trait ICarePackageToken<TContractState> {
     fn mint(ref self: TContractState, to: ContractAddress, rarity: Rarity);
@@ -27,6 +32,7 @@ pub trait ICarePackageToken<TContractState> {
     ) -> bool;
 }
 
+// gets the dispatcher for the care package token
 impl CarePackageTokenImpl of GetDispatcher<ICarePackageTokenDispatcher> {
     fn get_dispatcher(self: @WorldStorage) -> ICarePackageTokenDispatcher {
         ICarePackageTokenDispatcher {
