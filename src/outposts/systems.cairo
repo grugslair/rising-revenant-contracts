@@ -1,5 +1,16 @@
+use core::{cmp::min, poseidon::HashState, num::traits::Bounded};
+use starknet::ContractAddress;
+use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
+use cubit::f128::{Fixed, FixedTrait};
+use rising_revenant::{
+    world_events::{WorldEvent, models::WorldEventEffectTrait},
+    fortifications::{Fortifications, Fortification, FortificationsTrait},
+    outposts::{Outpost, models::{OutpostsActive, OutpostSetup, OutpostEvent}},
+    hash::{hash_value, make_hash_state}, map::MapTrait, core::BoundedT,
+};
+
 //! Outpost system implementations for managing outposts and their interactions in the game.
-//! 
+//!
 //! This module provides core functionality for:
 //! * Creating and managing outposts
 //! * Calculating and applying damage
@@ -8,14 +19,8 @@
 
 /// Variables used in damage calculations
 /// * `efficacy` - The effectiveness of fortifications (0-100%)
-/// * `decay` - Decay factor that reduces damage effectiveness
+/// * `f_value` - Decay factor that reduces damage effectiveness
 /// * `power` - Base power of the damage being applied
-#[derive(Copy, Drop)]
-struct DamageVars {
-    efficacy: Fortifications,
-    decay: u64,
-    power: u64,
-}
 
 #[generate_trait]
 impl OutpostsActiveImpl of OutpostsActiveTrait {
@@ -54,25 +59,39 @@ impl OutpostEventImpl of OutpostEventTrait {
 
 
 #[generate_trait]
-impl DamageVarsImpl of DamageVarsTrait {
-    /// Creates a new DamageVars instance from a WorldEvent and efficacy values
-    #[inline(always)]
-    fn get_damage_vars(self: @WorldEvent, efficacy: Fortifications) -> DamageVars {
-        DamageVars { efficacy, decay: *self.decay, power: *self.power }
-    }
-    /// Calculates the actual damage based on fortification levels
-    /// # Returns
-    /// * Amount of damage to be applied
-    #[inline(always)]
-    fn get_damage(self: @DamageVars, fortifications: Fortifications) -> u64 {
-        let total: u128 = (fortifications * *self.efficacy).sum().into();
-        (total * (*self.power).into() / (total + (*self.decay).into())).try_into().unwrap()
-    }
-}
-
-
-#[generate_trait]
 impl OutpostImpl of OutpostTrait {
+    #[inline(always)]
+    fn get_outpost(self: @WorldStorage, id: felt252) -> Outpost {
+        self.read_model(id)
+    }
+
+    /// Retrieves outpost setup configuration for a game
+    fn get_outpost_setup(self: @WorldStorage, game_id: felt252) -> OutpostSetup {
+        self.read_model(game_id)
+    }
+
+    /// Retrieves an event associated with a specific outpost
+    fn get_outpost_event(
+        self: @WorldStorage, outpost_id: felt252, event_id: felt252
+    ) -> OutpostEvent {
+        self.read_model((outpost_id, event_id))
+    }
+
+    /// Retrieves the active outposts counter for a game
+    fn get_outposts_active(self: @WorldStorage, game_id: felt252) -> OutpostsActive {
+        self.read_model(game_id)
+    }
+
+    /// Gets the initial HP value for outposts in a game
+    fn get_starting_hp(self: @WorldStorage, game_id: felt252) -> u64 {
+        self.read_member(Model::<OutpostSetup>::ptr_from_keys(game_id), selector!("hp"))
+    }
+
+    /// Gets the count of active outposts in a game
+    fn get_active_outposts(self: @WorldStorage, game_id: felt252) -> u32 {
+        self.read_member(Model::<OutpostsActive>::ptr_from_keys(game_id), selector!("active"))
+    }
+
     /// Creates a new outpost in the game world
     /// # Arguments
     /// * `game_id` - The ID of the game
@@ -87,7 +106,7 @@ impl OutpostImpl of OutpostTrait {
         let outpost = Outpost {
             id: hash_value(('outpost', game_id, outposts_active.active)),
             game_id,
-            position: self.get_empty_point(game_id, get_hash_state(seed)),
+            position: self.get_empty_point(game_id, make_hash_state(seed)),
             fortifications: Default::default(),
             hp: self.get_starting_hp(game_id),
         };
@@ -97,10 +116,21 @@ impl OutpostImpl of OutpostTrait {
         self.write_model(@outposts_active);
         outpost.id
     }
+    /// Verifies if an outpost is the winner of a game
+    /// # Panics
+    /// * If outpost is not in a game
+    /// * If game hasn't ended
+    /// * If outpost is not active
+    fn assert_is_winner(self: @WorldStorage, outpost: Outpost) {
+        assert(outpost.game_id.is_non_zero(), 'Outpost not in game');
+        assert(self.get_active_outposts(outpost.game_id) == 1, 'Game not ended');
+        assert(outpost.is_active(), 'Outpost not active');
+    }
+
     /// Applies damage to an outpost
     /// # Arguments
     /// * `event` - The damage calculation variables
-    fn apply_damage(ref self: Outpost, event: DamageVars) {
+    fn apply_damage(ref self: Outpost, event: @WorldEvent) {
         self.hp -= min(self.hp, event.get_damage(self.fortifications));
     }
     /// Applies destruction to outpost fortifications
@@ -115,15 +145,10 @@ impl OutpostImpl of OutpostTrait {
     /// * `event` - The world event to apply
     /// * `attributes` - Fortification attributes affecting the event
     /// * `hash_state` - Random state for calculations
-    fn apply_event(
-        ref self: Outpost,
-        event: WorldEvent,
-        attributes: FortificationAttributes,
-        hash_state: HashState
-    ) {
-        self.apply_damage(event.get_damage_vars(attributes.efficacy));
+    fn apply_event(ref self: Outpost, event: @WorldEvent, hash_state: HashState) {
+        self.apply_damage(event);
         if self.is_active() {
-            self.apply_destruction(attributes.mortalities, hash_state);
+            self.apply_destruction(*event.mortalities, hash_state);
         };
     }
     /// Checks if an outpost is still active (has HP)
@@ -131,91 +156,18 @@ impl OutpostImpl of OutpostTrait {
     fn is_active(self: @Outpost) -> bool {
         (*self.hp).is_non_zero()
     }
-    /// Verifies if an outpost is the winner of a game
-    /// # Panics
-    /// * If outpost is not in a game
-    /// * If game hasn't ended
-    /// * If outpost is not active
-    fn assert_is_winner(self: @WorldStorage, outpost: Outpost) {
-        assert(outpost.game_id.is_non_zero(), 'Outpost not in game');
-        assert(self.get_active_outposts(outpost.game_id) == 1, 'Game not ended');
-        assert(outpost.is_active(), 'Outpost not active');
-    }
 }
 
-#[generate_trait]
-impl OutpostFortificationsImpl of OutpostFortificationsTrait {
-    /// Applies destruction to fortifications based on mortality rates
-    /// # Arguments
-    /// * `mortalities` - The mortality rates for each fortification type
-    /// * `hash_state` - Random state for destruction calculations
-    fn apply_destruction(
-        ref self: Fortifications, mortalities: Fortifications, hash_state: HashState
-    ) {
-        self
-            .palisades -=
-                min(
-                    self.palisades,
-                    fortifications_destroyed(
-                        mortalities.palisades, hash_state, Fortification::Palisade
-                    )
-                );
-        self
-            .trenches -=
-                min(
-                    self.trenches,
-                    fortifications_destroyed(
-                        mortalities.trenches, hash_state, Fortification::Trench
-                    )
-                );
-        self
-            .walls -=
-                min(
-                    self.walls,
-                    fortifications_destroyed(mortalities.walls, hash_state, Fortification::Wall)
-                );
-        self
-            .basements -=
-                min(
-                    self.basements,
-                    fortifications_destroyed(
-                        mortalities.basements, hash_state, Fortification::Basement
-                    )
-                );
-    }
-}
 
 /// Calculates protection provided by fortifications
 /// # Arguments
 /// * `fortifications` - Current fortification levels
 /// * `efficacy` - Effectiveness of each fortification type
-/// * `decay` - Decay factor
+/// * `f_value` - Decay factor
 /// # Returns
 /// * Protection value as a u64
-fn get_protection(fortifications: Fortifications, efficacy: Fortifications, decay: u64) -> u64 {
+fn get_protection(fortifications: Fortifications, efficacy: Fortifications, f_value: u64) -> u64 {
     let total = (fortifications * efficacy).sum();
-    total / (total + decay)
+    total / (total + f_value)
 }
 
-/// Calculates how many fortifications are destroyed
-/// # Arguments
-/// * `probability` - Chance of destruction (0-100%)
-/// * `hash_state` - Random state for calculations
-/// * `fortification` - Type of fortification
-/// # Returns
-/// * Number of fortifications destroyed
-fn fortifications_destroyed(
-    probability: u64, hash_state: HashState, fortification: Fortification
-) -> u64 {
-    if probability == 0 {
-        return 0;
-    };
-    if probability == Bounded::MAX {
-        return Bounded::MAX;
-    };
-    let randomness = FixedTrait::new(
-        clipped_felt252::<u64>(hash_state.to_hash(fortification)).into() + 1, false
-    );
-    let probability = FixedTrait::new(probability.into(), false);
-    (randomness.ln() / probability.ln()).try_into().unwrap()
-}

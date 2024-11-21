@@ -51,10 +51,13 @@ trait ISettings<TContractState> {
         min_radius_sq: u32,
         max_radius_sq: u32,
         radius_sq_increase: u32,
-        min_interval: u64,
         power: u64,
         f_value: u64
     );
+
+    fn set_world_event_min_interval(ref self: TContractState, game_id: felt252, min_interval: u64);
+
+    fn set_outpost_setup(ref self: TContractState, game_id: felt252, price: u256, hp: u64,);
 }
 
 /// Interface for core game actions
@@ -95,10 +98,12 @@ mod game_actions {
     use rising_revenant::{
         addresses::{GetDispatcher}, Permissions, map::{Point, MapSize},
         game::{models::{GamePhases, GamePhase, Winner}, GamePhasesTrait, GameTrait,},
-        care_packages::models::{CarePackageMarket}, outposts::OutpostModels,
+        care_packages::models::{CarePackageMarket}, outposts::OutpostTrait,
         fortifications::models::{Fortifications, Fortification},
-        world_events::{models::{WorldEventSetup}, WorldEventType},
-        contribution::{ContributionValue, ContributionEvent}, utils::hash_value,
+        world_events::{
+            models::{WorldEventSetup, WorldEventEffect, WorldEventMinInterval}, WorldEventType
+        },
+        contribution::{ContributionValue, ContributionEvent}, hash::hash_value,
         world::{default_namespace, WorldTrait}
     };
 
@@ -171,6 +176,14 @@ mod game_actions {
                 );
         }
 
+        fn set_world_event_min_interval(
+            ref self: ContractState, game_id: felt252, min_interval: u64
+        ) {
+            let mut world = self.world(default_namespace());
+            world.assert_can_setup(game_id);
+            world.write_model(@WorldEventMinInterval { game_id, min_interval });
+        }
+
         fn set_world_event_setup(
             ref self: ContractState,
             game_id: felt252,
@@ -180,7 +193,6 @@ mod game_actions {
             min_radius_sq: u32,
             max_radius_sq: u32,
             radius_sq_increase: u32,
-            min_interval: u64,
             power: u64,
             f_value: u64
         ) {
@@ -189,18 +201,21 @@ mod game_actions {
             world
                 .write_model(
                     @WorldEventSetup {
-                        game_id,
-                        event_type,
-                        efficacy,
-                        mortalities,
-                        min_radius_sq,
-                        max_radius_sq,
-                        radius_sq_increase,
-                        min_interval,
-                        power,
-                        f_value,
+                        game_id, event_type, min_radius_sq, max_radius_sq, radius_sq_increase,
                     }
                 );
+            world
+                .write_model(
+                    @WorldEventEffect {
+                        game_id, event_type, efficacy, mortalities, power, f_value,
+                    }
+                );
+        }
+
+        fn set_outpost_setup(ref self: ContractState, game_id: felt252, hp: u64) {
+            let mut world = self.world(default_namespace());
+            world.assert_can_setup(game_id);
+            world.write_model(@OutpostSetup { game_id, hp });
         }
     }
 

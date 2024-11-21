@@ -1,6 +1,10 @@
-use core::num::traits::Bounded;
+use core::{cmp::min, poseidon::HashState, num::traits::Bounded};
 use dojo::{world::WorldStorage, model::ModelStorage};
-use rising_revenant::{addresses::{AddressSelectorTrait}, world_events::models::WorldEventType};
+use cubit::f128::{Fixed, FixedTrait};
+use rising_revenant::{
+    addresses::{AddressSelectorTrait}, world_events::models::WorldEventType, core::BoundedT,
+    hash::UpdateHashToU128
+};
 
 /// Represents different types of fortifications.
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
@@ -101,6 +105,45 @@ impl FortificationsImpl of FortificationsTrait {
             Fortification::Basement,
         ]
     }
+
+    /// Applies destruction to fortifications based on mortality rates
+    /// # Arguments
+    /// * `mortalities` - The mortality rates for each fortification type
+    /// * `hash_state` - Random state for destruction calculations
+    fn apply_destruction(
+        ref self: Fortifications, mortalities: Fortifications, hash_state: HashState
+    ) {
+        self
+            .palisades -=
+                min(
+                    self.palisades,
+                    fortifications_destroyed(
+                        mortalities.palisades, hash_state, Fortification::Palisade
+                    )
+                );
+        self
+            .trenches -=
+                min(
+                    self.trenches,
+                    fortifications_destroyed(
+                        mortalities.trenches, hash_state, Fortification::Trench
+                    )
+                );
+        self
+            .walls -=
+                min(
+                    self.walls,
+                    fortifications_destroyed(mortalities.walls, hash_state, Fortification::Wall)
+                );
+        self
+            .basements -=
+                min(
+                    self.basements,
+                    fortifications_destroyed(
+                        mortalities.basements, hash_state, Fortification::Basement
+                    )
+                );
+    }
 }
 
 impl FortificationAddressSelector of AddressSelectorTrait<Fortification> {
@@ -116,3 +159,26 @@ impl FortificationAddressSelector of AddressSelectorTrait<Fortification> {
     }
 }
 
+impl FortificationHashImpl = core::hash::into_felt252_based::HashImpl<Fortification, HashState>;
+/// Calculates how many fortifications are destroyed
+/// # Arguments
+/// * `probability` - Chance of destruction (0-100%)
+/// * `hash_state` - Random state for calculations
+/// * `fortification` - Type of fortification
+/// # Returns
+/// * Number of fortifications destroyed
+fn fortifications_destroyed(
+    probability: u64, hash_state: HashState, fortification: Fortification
+) -> u64 {
+    if probability == 0 {
+        return 0;
+    };
+    if probability == Bounded::MAX {
+        return Bounded::MAX;
+    };
+    let randomness = FixedTrait::new(
+        hash_state.update_to_u128(fortification) & BoundedT::<u64, u128>::max() + 1, false
+    );
+    let probability = FixedTrait::new(probability.into(), false);
+    (randomness.ln() / probability.ln()).try_into().unwrap()
+}

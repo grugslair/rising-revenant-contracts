@@ -21,6 +21,10 @@ impl BoundedTImpl<T, S, +Bounded<T>, +TryInto<T, S>> of BoundedT<T, S> {
     }
 }
 
+pub trait TruncatingInto<T, S> {
+    fn truncating_into(self: T) -> S;
+}
+
 pub trait SaturatingInto<T, S> {
     fn saturating_into(self: T) -> S;
 }
@@ -110,6 +114,17 @@ pub impl TSaturatingIntoS<
         }
     }
 }
+
+pub impl TTruncatingIntoS<
+    T, S, +Drop<T>, +TryInto<T, S>, +BoundedT<S, T>, +BitAnd<T>
+> of TruncatingInto<T, S> {
+    fn truncating_into(self: T) -> S {
+        let mask = BoundedT::<S, T>::max();
+        (self & mask).try_into().unwrap()
+    }
+}
+
+
 trait ToNonZero<T, S> {
     fn non_zero(self: T) -> NonZero<S>;
 }

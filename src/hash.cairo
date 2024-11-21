@@ -1,6 +1,9 @@
 use core::{
-    hash::{Hash, HashStateExTrait, HashStateTrait}, poseidon::HashState, poseidon::PoseidonTrait
+    hash::{Hash, HashStateExTrait, HashStateTrait}, poseidon::HashState, poseidon::PoseidonTrait,
+    num::traits::Bounded
 };
+
+use rising_revenant::utils::felt252_to_u128;
 
 trait HashUpdate<T> {
     fn update_hash_state(ref self: HashState, value: T);
@@ -66,6 +69,7 @@ impl ByteArrayHash<S, +hash::HashStateTrait<S>, +Drop<S>> of Hash<ByteArray, S> 
     }
 }
 
+
 fn hash_value<T, +Hash<T, HashState>, +Drop<T>>(value: T) -> felt252 {
     PoseidonTrait::new().update_with(value).finalize()
 }
@@ -81,10 +85,6 @@ fn make_hash_state<T, +Hash<T, HashState>, +Drop<T>>(value: T) -> HashState {
 
 trait ToHash<T> {
     fn update_to(self: @HashState, value: T) -> felt252;
-}
-
-fn felt252_to_u128(value: felt252) -> u128 {
-    Into::<felt252, u256>::into(value).low
 }
 
 impl TToHashImpl<T, +Hash<T, HashState>, +Drop<T>> of ToHash<T> {

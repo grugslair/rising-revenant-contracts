@@ -1,6 +1,9 @@
 use dojo::{world::WorldStorage, model::ModelStorage};
 use starknet::ContractAddress;
-use rising_revenant::{map::Point, fortifications::{Fortifications, FortificationsTrait}};
+use rising_revenant::{
+    map::{Point, Map, PointTrait}, fortifications::{Fortifications, FortificationsTrait},
+    core::in_range
+};
 
 /// Number of different world event types available in the game
 const NUM_WORLD_EVENTS: u8 = 3;
@@ -14,7 +17,9 @@ enum WorldEventType {
     EarthQuake, /// A natural disaster event
 }
 
-struct WorldEventFrequency {
+#[dojo::model]
+#[derive(Drop, Serde, Copy)]
+struct WorldEventMinInterval {
     #[key]
     game_id: felt252,
     min_interval: u64, /// Minimum time between events
@@ -46,6 +51,18 @@ struct WorldEventEffect {
     f_value: u64, /// 
 }
 
+#[dojo::event]
+#[derive(Copy, Drop, Serde, Default)]
+struct WorldEventEvent {
+    #[key]
+    event_id: felt252, /// Unique identifier for the event
+    game_id: felt252, /// Unique identifier for the game session
+    event_type: WorldEventType, /// Type of the current event
+    position: Point, /// Location where the event is centered
+    time_stamp: u64, /// When the event was created
+}
+
+
 /// Represents the currently active world event
 #[dojo::model]
 #[derive(Copy, Drop, Serde, Default)]
@@ -55,10 +72,20 @@ struct CurrentEvent {
     event_id: felt252, /// Unique identifier for the event
     event_type: WorldEventType, /// Type of the current event
     position: Point, /// Location where the event is centered
-    radius_sq: u32, /// Current squared radius of effect
-    time_stamp: u64, /// When the event was created
-    did_hit: bool, /// Whether the event has impacted any targets
+    timestamp: u64, /// When the event was created
 }
+
+#[dojo::model]
+#[derive(Copy, Drop, Serde, Default)]
+struct LastEventOfType {
+    #[key]
+    game_id: felt252,
+    #[key]
+    event_type: WorldEventType,
+    radius_sq: u32,
+    did_hit: bool,
+}
+
 
 /// Complete information about a world event
 #[derive(Copy, Drop, Serde, Default)]
@@ -71,6 +98,23 @@ struct WorldEvent {
     radius_sq: u32, /// Squared radius of effect
     power: u64, /// Current power/impact of the event
     f_value: u64, /// Rate at which the event's effect diminishes
+}
+
+#[generate_trait]
+impl WorldEventEffectImpl of WorldEventEffectTrait {
+    fn get_damage(self: @WorldEvent, fortifications: Fortifications) -> u64 {
+        let total: u128 = (fortifications * *self.efficacy).sum().into();
+        (total * (*self.power).into() / (total + (*self.f_value).into())).try_into().unwrap()
+    }
+
+    /// Checks if a given location is within the event's area of effect
+    /// # Arguments
+    /// * `location` - The point to check
+    /// # Returns
+    /// * `bool` - True if the location is within the event's radius, false otherwise
+    fn in_range(self: @WorldEvent, location: Point) -> bool {
+        self.position.in_range(location, *self.radius_sq)
+    }
 }
 
 /// Implements conversion from u8 to WorldEventType
@@ -86,26 +130,18 @@ impl U8IntoWorldEvent<T, +TryInto<T, u8>> of Into<T, WorldEventType> {
     }
 }
 
-/// Trait implementation for accessing current event data
 #[generate_trait]
-impl CurrentEventImpl of CurrentEventTrait {
-    /// Retrieves the current event for a given game
-    /// # Arguments
-    /// * `game_id` - The unique identifier of the game
-    fn get_current_event(self: @WorldStorage, game_id: felt252) -> CurrentEvent {
-        self.read_model(game_id)
+impl WorldEventSetupImpl of WorldEventSetupTrait {
+    fn get_radius_sq(self: @WorldEventSetupValue, last_event: LastEventOfTypeValue) -> u32 {
+        in_range(
+            *self.min_radius_sq,
+            *self.max_radius_sq,
+            if last_event.did_hit {
+                last_event.radius_sq + *self.radius_sq_increase
+            } else {
+                last_event.radius_sq
+            }
+        )
     }
 }
 
-/// Trait implementation for accessing world event setup data
-#[generate_trait]
-impl WorldEventSetupImpl of WorldEventSetupTrait {
-    /// Retrieves the world event setup configuration for a given game
-    /// # Arguments
-    /// * `game_id` - The unique identifier of the game
-    fn get_world_event_setup(
-        self: @WorldStorage, game_id: felt252, event_type: WorldEventType
-    ) -> WorldEventSetup {
-        self.read_model((game_id, event_type))
-    }
-}

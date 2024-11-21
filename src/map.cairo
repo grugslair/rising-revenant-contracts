@@ -1,5 +1,7 @@
 use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
-use rising_revenant::{utils::felt252_to_u128, core::{ToNonZero, BoundedT}};
+use rising_revenant::{
+    utils::{felt252_to_u128, SeedProbability}, core::{ToNonZero, BoundedT}, hash::UpdateHashToU128
+};
 use core::{
     num::traits::Bounded, integer::{u128_safe_divmod, u32_safe_divmod}, zeroable::NonZero,
     hash::HashStateTrait, poseidon::{HashState}
@@ -52,23 +54,14 @@ impl PointImpl of PointTrait {
     }
 }
 
-trait GeneratePointTrait<T> {
-    fn generate_point(self: @Point, seed: T) -> Point;
-}
-
-impl U128PointImpl of GeneratePointTrait<u128> {
+#[generate_trait]
+impl U128PointImpl of GeneratePointTrait {
     #[inline(always)]
-    fn generate_point(self: @Point, seed: u128) -> Point {
-        let (seed, x) = u128_safe_divmod(seed, (*self.x).non_zero());
-        let (_, y) = u128_safe_divmod(seed, (*self.y).non_zero());
-        Point { x: x.try_into().unwrap(), y: y.try_into().unwrap() }
-    }
-}
-
-impl Felt252PointImpl of GeneratePointTrait<felt252> {
-    #[inline(always)]
-    fn generate_point(self: @Point, seed: felt252) -> Point {
-        self.generate_point(felt252_to_u128(seed))
+    fn generate_point(ref self: u128, map_size: Point) -> Point {
+        Point {
+            x: self.get_value(map_size.x.non_zero()).try_into().unwrap(),
+            y: self.get_value(map_size.y.non_zero()).try_into().unwrap()
+        }
     }
 }
 
@@ -107,13 +100,18 @@ impl MapImpl of MapTrait {
     }
     fn get_empty_point(self: @WorldStorage, game_id: felt252, mut hash: HashState) -> Point {
         let map_size = self.get_map_size(game_id);
-
+        let mut seed = hash.to_u128();
+        let min_seed: u128 = (map_size.x * map_size.y).into();
         loop {
-            let point = map_size.generate_point(hash.finalize());
+            if seed < min_seed {
+                hash = hash.update('butter');
+                seed = hash.to_u128();
+            };
+
+            let point = seed.generate_point(map_size);
             if self.is_position_empty(game_id, point) {
                 break point;
             }
-            hash = hash.update('butter');
         }
     }
 }

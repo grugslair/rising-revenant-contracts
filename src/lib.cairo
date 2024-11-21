@@ -1,6 +1,7 @@
 mod world;
 mod core;
 mod utils;
+mod hash;
 
 mod finance;
 mod fixed;
@@ -8,7 +9,7 @@ mod vrgda;
 mod contribution;
 mod map;
 mod address_selectors;
-mod hash;
+
 // mod market;
 
 mod addresses {
@@ -45,14 +46,14 @@ mod game {
 mod fortifications {
     mod models;
 
-    use models::{Fortification, Fortifications, FortificationAttributes, FortificationsTrait};
+    use models::{Fortification, Fortifications, FortificationsTrait};
 }
 mod world_events {
     mod contract;
     mod models;
     mod systems;
 
-    use models::{WorldEventType};
+    use models::{WorldEventType, WorldEvent};
     use systems::{WorldEventTrait};
 }
 mod outposts {
@@ -61,7 +62,7 @@ mod outposts {
     mod token;
     mod contract;
 
-    use models::{Outpost, OutpostModels};
+    use models::{Outpost};
     use systems::{OutpostTrait};
     use token::{IOutpostTokenDispatcher, IOutpostTokenDispatcherTrait};
 }

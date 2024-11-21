@@ -28,7 +28,7 @@ mod care_package {
     use rising_revenant::{
         addresses::{AddressBook, GetDispatcher},
         fortifications::models::{Fortification, Fortifications}, finance::{Finance},
-        utils::{felt252_to_u128, hash_value}, game::GameTrait,
+        game::GameTrait,
         care_packages::{
             Rarity, N_RARITIES, systems::{get_fortifications, get_rarity, CarePackageMarketTrait},
             ICarePackageTokenDispatcher, ICarePackageTokenDispatcherTrait
@@ -112,7 +112,8 @@ mod care_package {
         ///
         /// # Parameters
         /// - `recipient`: The address of the recipient.
-        /// - `fortifications`: The fortifications to mint, including palisades, trenches, walls, and basements.
+        /// - `fortifications`: The fortifications to mint, including palisades, trenches, walls,
+        /// and basements.
         fn mint_fortifications(
             ref self: WorldStorage, recipient: ContractAddress, fortifications: Fortifications,
         ) {

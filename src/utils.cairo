@@ -1,16 +1,30 @@
 use core::{
     num::traits::Bounded, hash::{HashStateTrait, HashStateExTrait, Hash},
-    poseidon::{PoseidonTrait, HashState}
+    poseidon::{PoseidonTrait, HashState, poseidon_hash_span},
+    fmt::{Display, Formatter, Error, Debug}, integer::u128_safe_divmod
 };
-use rising_revenant::core::BoundedT;
+use starknet::{
+    ContractAddress, get_contract_address, get_caller_address, get_tx_info, get_block_timestamp,
+    StorageAddress, StorageBaseAddress, syscalls::{storage_read_syscall, storage_write_syscall},
+    storage_address_from_base
+};
+use rising_revenant::{core::{Felt252BitAnd, BoundedT}};
+
+fn storage_read(address: StorageAddress) -> felt252 {
+    storage_read_syscall(0, address).unwrap()
+}
+
+fn storage_write(address: StorageAddress, value: felt252) {
+    storage_write_syscall(0, address, value).unwrap()
+}
+
 fn felt252_to_u128(value: felt252) -> u128 {
     Into::<felt252, u256>::into(value).low
 }
 
-impl Felt252IntoU128 of Into<felt252, u128> {
-    #[inline(always)]
-    fn into(self: felt252) -> u128 {
-        felt252_to_u128(self)
+impl TDebugImpl<T, +Display<T>> of Debug<T> {
+    fn fmt(self: @T, ref f: Formatter) -> Result<(), Error> {
+        Display::fmt(self, ref f)
     }
 }
 
@@ -18,28 +32,24 @@ fn clipped_felt252<T, +Bounded<T>, +Into<T, u128>, +TryInto<u128, T>>(value: fel
     (BoundedT::<T, u128>::max() & felt252_to_u128(value)).try_into().unwrap()
 }
 
-fn hash_value<T, +Hash<T, HashState>, +Drop<T>>(value: T) -> felt252 {
-    PoseidonTrait::new().update_with(value).finalize()
+trait SeedProbability {
+    fn get_outcome<T, +Into<T, u128>>(ref self: u128, scale: NonZero<u128>, probability: T) -> bool;
+    fn get_value(ref self: u128, scale: NonZero<u128>) -> u128;
 }
 
-fn get_hash_state<T, +Hash<T, HashState>, +Drop<T>>(value: T) -> HashState {
-    PoseidonTrait::new().update_with(value)
-}
+impl SeedProbabilityImpl of SeedProbability {
+    fn get_outcome<T, +Into<T, u128>>(
+        ref self: u128, scale: NonZero<u128>, probability: T
+    ) -> bool {
+        let (seed, value) = u128_safe_divmod(self, scale);
+        self = seed;
+        value < probability.into()
+    }
 
-trait ToHash<T> {
-    fn to_hash(self: @HashState, value: T) -> felt252;
-}
-
-
-impl TToHashImpl<T, +Hash<T, HashState>, +Drop<T>> of ToHash<T> {
-    fn to_hash(self: @HashState, value: T) -> felt252 {
-        (*self).update_with(value).finalize()
+    fn get_value(ref self: u128, scale: NonZero<u128>) -> u128 {
+        let (seed, value) = u128_safe_divmod(self, scale);
+        self = seed;
+        value
     }
 }
 
-
-impl Felt252ToHashImpl<T, +Into<T, felt252>> of ToHash<T> {
-    fn to_hash(self: @HashState, value: T) -> felt252 {
-        (*self).update(value.into()).finalize()
-    }
-}

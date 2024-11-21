@@ -48,16 +48,12 @@ mod outpost_actions {
     use super::{IOutpost};
     use dojo::model::ModelStorage;
     use rising_revenant::{
-        utils::get_hash_state,
-        fortifications::models::{
-            Fortifications, Fortification, FortificationsTrait, FortificationAttributesTrait
-        },
-        outposts::{
-            Outpost, OutpostTrait, OutpostModels, systems::{OutpostsActiveTrait, OutpostEventTrait}
-        },
-        world_events::WorldEventTrait, map::{Point, PointTrait}, addresses::{AddressBook},
-        contribution::{ContributionTrait, ContributionEvent}, game::GameTrait, vrf::{VRF, Source},
-        world::default_namespace
+        hash::make_hash_state,
+        fortifications::models::{Fortifications, Fortification, FortificationsTrait},
+        outposts::{Outpost, OutpostTrait, systems::{OutpostsActiveTrait, OutpostEventTrait}},
+        world_events::{WorldEventTrait, models::WorldEventEffectTrait}, map::{Point, PointTrait},
+        addresses::{AddressBook}, contribution::{ContributionTrait, ContributionEvent},
+        game::GameTrait, vrf::{VRF, Source}, world::default_namespace
     };
     use openzeppelin_token::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
     use tokens::erc20::interfaces::{
@@ -88,12 +84,8 @@ mod outpost_actions {
             assert(event.in_range(outpost.position), 'Outpost not in radius');
 
             world.set_event_applied(outpost_id, event.event_id);
-            outpost
-                .apply_event(
-                    event,
-                    world.get_fortification_attributes(outpost.game_id, event.event_type),
-                    get_hash_state((event.event_id, outpost.id))
-                );
+            world.set_event_did_hit(outpost.game_id, event.event_type);
+            outpost.apply_event(@event, make_hash_state((event.event_id, outpost.id)));
             world.increase_caller_contribution(outpost.game_id, ContributionEvent::EventApplied);
             if !outpost.is_active() {
                 world
@@ -102,6 +94,8 @@ mod outpost_actions {
                     );
                 world.reduce_active_outposts(outpost.game_id);
             };
+
+            world.write_model(@outpost);
         }
 
         fn fortify(

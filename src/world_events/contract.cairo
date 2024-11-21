@@ -18,11 +18,10 @@ mod world_event_actions {
     use rising_revenant::{
         game::GameTrait, map::MapTrait,
         world_events::{
-            models::{CurrentEvent, WorldEventType, CurrentEventTrait, WorldEventSetupTrait},
-            systems::WorldEventTrait
+            models::{CurrentEvent, WorldEventType, WorldEventSetupTrait}, systems::WorldEventTrait
         },
         contribution::{ContributionTrait, ContributionEvent}, vrf::{VRF, Source},
-        world::default_namespace,
+        world::default_namespace, hash::hash_value
     };
     use super::{IWorldEventActions};
 
@@ -39,23 +38,19 @@ mod world_event_actions {
         fn new_event(ref self: ContractState, game_id: felt252) {
             let mut world = self.world(default_namespace());
             world.assert_playing(game_id);
+            let timestamp = get_block_timestamp();
+            let min_interval = world.get_min_interval(game_id);
+            let last_event = world.get_current_event(game_id);
+            assert(last_event.timestamp + min_interval >= timestamp, 'Event too soon');
+            let randomness = world
+                .randomness(Source::Salt(hash_value((game_id, last_event.event_id))));
+            let map_size = world.get_map_size(game_id);
+            let (event, event_of_type) = world
+                .generate_event(last_event, map_size, randomness, timestamp);
 
-            let current_event = world.get_current_event(game_id);
-            let randomness = world.randomness(Source::Salt(current_event.event_id));
-            let event_setup = world.get_world_event_setup(game_id);
-            let time_stamp = get_block_timestamp();
-            assert(
-                current_event.time_stamp + event_setup.min_interval >= time_stamp, 'Event too soon'
-            );
-
+            world.write_model(@event);
+            world.write_model(@event_of_type);
             world.increase_caller_contribution(game_id, ContributionEvent::EventCreated);
-            world
-                .write_model(
-                    @event_setup
-                        .generate_event(
-                            current_event, world.get_map_size(game_id), randomness, time_stamp
-                        )
-                );
         }
     }
 }
