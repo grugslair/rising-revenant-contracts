@@ -1,8 +1,9 @@
 use starknet::ContractAddress;
+
 use dojo::{world::WorldStorage, model::ModelStorage};
 use rising_revenant::{
-    addresses::GetDispatcher, game::{GamePhasesTrait, GamePhase, models::{WinnerTrait}},
-    outposts::token::{IOutpostTokenDispatcher, IOutpostTokenDispatcherTrait}
+    addresses::GetDispatcher, game::{GamePhasesTrait, GamePhase, WinnerTrait, GameStorage},
+    outposts::token::{IOutpostTokenDispatcher, IOutpostTokenDispatcherTrait},
 };
 
 /// Trait implementation for game-related functionality

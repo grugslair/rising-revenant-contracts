@@ -4,8 +4,9 @@ use core::{
     fmt::{Display, Formatter, Error, Debug}, integer::u128_safe_divmod
 };
 use starknet::{
-    ContractAddress, get_contract_address, get_caller_address, get_tx_info, get_block_timestamp,
-    StorageAddress, StorageBaseAddress, syscalls::{storage_read_syscall, storage_write_syscall},
+    ContractAddress, ClassHash, get_contract_address, get_caller_address, get_tx_info,
+    get_block_timestamp, StorageAddress, StorageBaseAddress, SyscallResultTrait,
+    syscalls::{storage_read_syscall, storage_write_syscall, deploy_syscall},
     storage_address_from_base
 };
 use rising_revenant::{core::{Felt252BitAnd, BoundedT}};
@@ -53,3 +54,13 @@ impl SeedProbabilityImpl of SeedProbability {
     }
 }
 
+fn get_transaction_hash() -> felt252 {
+    get_tx_info().unbox().transaction_hash
+}
+
+fn deploy_contract(
+    class_hash: ClassHash, calldata: Span<felt252>, salt: felt252
+) -> ContractAddress {
+    let (contract_address, _) = deploy_syscall(class_hash, salt, calldata, true).unwrap_syscall();
+    contract_address
+}

@@ -6,6 +6,7 @@ use rising_revenant::{jackpot::Claimant};
 /// Interface for managing jackpot claims and retrieving jackpot information
 #[starknet::interface]
 trait IJackpot<TContractState> {
+    fn increase_jackpot_amount(ref self: TContractState, amount: u256);
     /// Returns the total amount in the jackpot for a given game
     fn get_total_amount(self: @TContractState, game_id: felt252) -> u256;
     /// Returns the total amount that has been claimed from the jackpot
@@ -34,7 +35,9 @@ trait IJackpot<TContractState> {
     /// Returns the amount available to be claimed by the winner
     fn get_win_amount(self: @TContractState, game_id: felt252) -> u256;
     /// Returns the amount available to be claimed by a specific contributor
-    fn get_contribution_amount(self: @TContractState, game_id: felt252, user: ContractAddress) -> u256;
+    fn get_contribution_amount(
+        self: @TContractState, game_id: felt252, user: ContractAddress
+    ) -> u256;
     /// Returns the amount allocated for the dev team
     fn get_dev_amount(self: @TContractState, game_id: felt252) -> u256;
 }
@@ -44,14 +47,21 @@ mod jackpot_actions {
     use starknet::{ContractAddress, get_caller_address};
     use dojo::world::WorldStorage;
     use rising_revenant::{
-        game::GameTrait, jackpot::{JackpotTrait, Claimant}, finance::Finance,
-        contribution::ContributionTrait, addresses::GetDispatcher,
+        game::{GameTrait, GameStorage}, jackpot::{JackpotTrait, JackpotStorage, Claimant},
+        finance::Finance, contribution::ContributionTrait, addresses::GetDispatcher,
         outposts::{IOutpostTokenDispatcher, IOutpostTokenDispatcherTrait}, world::default_namespace,
     };
     use super::{IJackpot};
 
     #[abi(embed_v0)]
     impl IJackpotImpl of IJackpot<ContractState> {
+        fn increase_jackpot_amount(ref self: ContractState, amount: u256) {
+            let mut world = self.world(default_namespace());
+            let game_id = world.get_caller_game();
+            assert(game_id.is_non_zero(), 'Caller is not in a game');
+            world.increase_jackpot_total(game_id, amount);
+        }
+
         fn get_total_amount(self: @ContractState, game_id: felt252) -> u256 {
             let world = self.world(default_namespace());
             world.get_jackpot_total_amount(game_id)

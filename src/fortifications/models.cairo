@@ -1,4 +1,5 @@
 use core::{cmp::min, poseidon::HashState, num::traits::Bounded};
+use starknet::ContractAddress;
 use dojo::{world::WorldStorage, model::ModelStorage};
 use cubit::f128::{Fixed, FixedTrait};
 use rising_revenant::{
@@ -26,6 +27,24 @@ struct Fortifications {
     trenches: u64,
     walls: u64,
     basements: u64,
+}
+
+#[dojo::model]
+#[derive(Drop, Serde, Copy)]
+struct FortificationToken {
+    #[key]
+    game_id: felt252,
+    palisade: ContractAddress,
+    trench: ContractAddress,
+    wall: ContractAddress,
+    basement: ContractAddress,
+}
+
+impl FortificationTokenIntoArray of Into<FortificationTokenValue, Array<ContractAddress>> {
+    /// Converts a `FortificationToken` instance into an array of `ContractAddress`.
+    fn into(self: FortificationTokenValue) -> Array<ContractAddress> {
+        array![self.palisade, self.trench, self.wall, self.basement]
+    }
 }
 
 impl FortificationsIntoArray of Into<Fortifications, Array<u64>> {
@@ -76,6 +95,18 @@ impl U64IntoFortifications of Into<u64, Fortifications> {
     /// value.
     fn into(self: u64) -> Fortifications {
         Fortifications { palisades: self, trenches: self, walls: self, basements: self, }
+    }
+}
+
+#[generate_trait]
+impl FortificationImpl of FortificationTrait {
+    fn selector(self: @Fortification) -> felt252 {
+        match self {
+            Fortification::Palisade => selector!("palisade"),
+            Fortification::Trench => selector!("trench"),
+            Fortification::Wall => selector!("wall"),
+            Fortification::Basement => selector!("basement"),
+        }
     }
 }
 

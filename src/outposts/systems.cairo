@@ -70,6 +70,11 @@ impl OutpostImpl of OutpostTrait {
         self.read_model(game_id)
     }
 
+    fn set_outpost_setup(ref self: WorldStorage, game_id: felt252, price: u256, hp: u64) {
+        let model = OutpostSetup { game_id,  price, hp };
+        self.write_model(@model);
+    }
+
     /// Retrieves an event associated with a specific outpost
     fn get_outpost_event(
         self: @WorldStorage, outpost_id: felt252, event_id: felt252

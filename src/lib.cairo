@@ -32,21 +32,26 @@ mod care_packages {
     mod systems;
     mod models;
     mod contract;
-    use rr_tokens::care_packages::{Rarity, N_RARITIES};
-    use token::{ICarePackageTokenDispatcher, ICarePackageTokenDispatcherTrait};
+    use models::{Rarity, N_RARITIES, CarePackageStorage, CARE_PACKAGE_CLASS_HASH_SELECTOR};
+    use token::{ICarePackageDispatcher, ICarePackageDispatcherTrait};
+    use systems::{CarePackageTrait};
 }
 mod game {
     mod models;
     mod systems;
     mod contract;
-
-    use models::{GamePhase, GamePhases, GamePhasesTrait, WinnerTrait, Winner};
+    use models::{
+        GamePhase, GamePhases, GamePhasesTrait, WinnerTrait, Winner, GameName, GameStorage
+    };
     use systems::{GameTrait};
 }
 mod fortifications {
     mod models;
-
-    use models::{Fortification, Fortifications, FortificationsTrait};
+    mod storage;
+    mod systems;
+    use models::{Fortification, Fortifications, FortificationTrait, FortificationsTrait};
+    use storage::{FortificationStorageTrait};
+    use systems::FortificationMintTrait;
 }
 mod world_events {
     mod contract;
@@ -72,7 +77,8 @@ mod jackpot {
     mod contract;
 
     use systems::{JackpotTrait};
-    use models::{Claimant};
+    use models::{Claimant, JackpotStorage};
+    use contract::{IJackpot, IJackpotDispatcher, IJackpotDispatcherTrait};
 }
 mod debris {}
 

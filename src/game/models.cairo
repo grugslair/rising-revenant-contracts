@@ -1,8 +1,8 @@
 use dojo::{world::WorldStorage, model::{Model, ModelStorage}};
-use starknet::get_block_timestamp;
+use starknet::{get_block_timestamp, ClassHash, get_caller_address, ContractAddress};
 
 /// Represents the different phases a game can be in.
-/// 
+///
 /// * `NotCreated` - Game hasn't been created yet
 /// * `Created` - Game is created but preparation hasn't started
 /// * `Preparing` - Players can prepare their outposts
@@ -30,6 +30,14 @@ struct Winner {
     outpost_id: felt252,
 }
 
+#[dojo::model]
+#[derive(Drop, Serde, Copy)]
+struct GameClassHash {
+    #[key]
+    selector: felt252,
+    class_hash: ClassHash,
+}
+
 /// Stores the timing information for different phases of the game
 #[dojo::model]
 #[derive(Drop, Serde, Copy, Default)]
@@ -48,6 +56,15 @@ struct GamePhases {
     /// Timestamp when the game ended
     ended: u64,
 }
+
+#[dojo::model]
+#[derive(Drop, Serde)]
+struct GameName {
+    #[key]
+    id: felt252,
+    name: ByteArray,
+}
+
 
 /// Implementation of Winner-related functionality
 #[generate_trait]
@@ -70,18 +87,6 @@ impl WinnerImpl of WinnerTrait {
 /// Implementation of game phase related functionality
 #[generate_trait]
 impl GamePhasesImpl of GamePhasesTrait {
-    /// Retrieves the complete GamePhases struct for a specific game
-    /// * `game_id` - The ID of the game
-    fn get_game_phases(self: @WorldStorage, game_id: felt252) -> GamePhases {
-        self.read_model(game_id)
-    }
-
-    /// Gets the preparation start timestamp for a specific game
-    /// * `game_id` - The ID of the game
-    fn get_prep_start(self: @WorldStorage, game_id: felt252) -> u64 {
-        self.read_member(Model::<GamePhases>::ptr_from_keys(game_id), selector!("prep_start"))
-    }
-    
     /// Determines the current phase of the game based on timestamps
     /// Returns the current GamePhase enum value
     fn get_phase(self: @GamePhases) -> GamePhase {
@@ -157,3 +162,65 @@ impl GamePhasesImpl of GamePhasesTrait {
     }
 }
 
+#[generate_trait]
+impl GameStorageImpl of GameStorage {
+    fn get_game_name(self: @WorldStorage, game_id: felt252) -> ByteArray {
+        self.read_member(Model::<GameName>::ptr_from_keys(game_id), selector!("name"))
+    }
+    /// Retrieves the complete GamePhases struct for a specific game
+    /// * `game_id` - The ID of the game
+    fn get_game_phases(self: @WorldStorage, game_id: felt252) -> GamePhases {
+        self.read_model(game_id)
+    }
+
+    /// Gets the preparation start timestamp for a specific game
+    /// * `game_id` - The ID of the game
+    fn get_prep_start(self: @WorldStorage, game_id: felt252) -> u64 {
+        self.read_member(Model::<GamePhases>::ptr_from_keys(game_id), selector!("prep_start"))
+    }
+
+    fn set_game_name(ref self: WorldStorage, game_id: felt252, name: ByteArray) {
+        self.write_model(@GameName { id: game_id, name });
+    }
+
+    fn new_game_phases(
+        ref self: WorldStorage,
+        game_id: felt252,
+        prep_start: u64,
+        prep_stop: u64,
+        events_start: u64,
+        claim_period: u64,
+    ) {
+        self
+            .write_model(
+                @GamePhases {
+                    game_id, prep_start, prep_stop, events_start, claim_period, ended: 0,
+                }
+            );
+    }
+
+    fn set_class_hash(ref self: WorldStorage, selector: felt252, class_hash: ClassHash) {
+        self.write_model(@GameClassHash { selector, class_hash });
+    }
+
+    fn get_class_hash(self: @WorldStorage, selector: felt252) -> ClassHash {
+        self.read_member(Model::<GameClassHash>::ptr_from_keys(selector), selector!("class_hash"))
+    }
+
+
+    fn get_caller_game(self: @WorldStorage) -> felt252 {
+        self
+            .read_member(
+                Model::<TokenGame>::ptr_from_keys(get_caller_address()), selector!("game_id")
+            )
+    }
+
+    fn set_token_game(ref self: WorldStorage, contract_address: ContractAddress, game_id: felt252) {
+        self.write_model(@TokenGame { contract_address, game_id });
+    }
+}
+
+    fn set_token_game(ref self: WorldStorage, contract_address: ContractAddress, game_id: felt252) {
+        self.write_model(@TokenGame { contract_address, game_id });
+    }
+}

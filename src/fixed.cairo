@@ -11,12 +11,8 @@ impl FixedU128ToDecimalImpl of FixedToDecimal<Fixed> {
     fn to_decimal(self: @Fixed, mut places: u8) -> u256 {
         assert(!*self.sign, 'Negative value');
         let mut value: u256 = (*self.mag).into();
-        loop {
-            if places == 0 {
-                break;
-            }
+        for _ in 0..places {
             value *= 10;
-            places -= 1;
         };
         value / ONE.into()
     }
@@ -33,4 +29,15 @@ impl FixedU128ToDecimalImpl of FixedToDecimal<Fixed> {
         let value = *self * ONE.into() / pow.into();
         FixedTrait::new(value.try_into().unwrap(), false)
     }
+}
+
+#[cfg(test)]
+fn test_places() {
+    let fixed = FixedTrait::new(100, false);
+    let decimal = fixed.to_decimal(2);
+    assert(decimal == 10000.into(), "Decimal conversion failed");
+    let fixed = FixedTrait::new(100, false);
+    let decimal = fixed.to_decimal(3);
+    assert(decimal == 100000.into(), "Decimal conversion failed");
+    let decimal = 10000.into();
 }

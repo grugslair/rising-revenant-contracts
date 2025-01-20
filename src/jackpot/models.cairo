@@ -1,5 +1,5 @@
 use starknet::ContractAddress;
-use dojo::{world::WorldStorage, model::ModelStorage};
+use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
 
 /// Represents the total amount in a jackpot for a specific game
 /// @param game_id - Unique identifier for the game
@@ -61,3 +61,113 @@ struct JackpotSplit {
     contribution_permille: u16,
 }
 
+/// The JackpotTrait provides a comprehensive system for managing game jackpots.
+/// It handles:
+/// * Tracking total and claimed jackpot amounts
+/// * Managing distribution shares between developers, winners, and contributors
+/// * Processing claims and verifying claim eligibility
+/// * Calculating various jackpot fractions and amounts
+///
+/// The system uses permille (parts per thousand) for precise share calculations,
+/// allowing for flexible distribution ratios between different stakeholders.
+#[generate_trait]
+impl JackpotImpl of JackpotStorage {
+    /// Returns the total jackpot model for a specific game.
+    /// # Arguments
+    /// * `game_id` - The unique identifier of the game
+    /// # Returns
+    /// * `JackpotTotal` - The total jackpot model containing all jackpot information
+    fn get_jackpot_total_model(self: @WorldStorage, game_id: felt252) -> JackpotTotal {
+        self.read_model(game_id)
+    }
+
+    /// Returns the total amount in the jackpot for a specific game.
+    /// # Arguments
+    /// * `game_id` - The unique identifier of the game
+    /// # Returns
+    /// * `u256` - The total jackpot amount
+    fn get_jackpot_total_amount(self: @WorldStorage, game_id: felt252) -> u256 {
+        self.read_member(Model::<JackpotTotal>::ptr_from_keys(game_id), selector!("total"))
+    }
+
+    fn set_jackpot_total_amount(ref self: WorldStorage, game_id: felt252, amount: u256) {
+        self.write_model(@JackpotTotal { game_id, total: amount });
+    }
+
+    /// Returns the claimed jackpot model for a specific game.
+    /// # Arguments
+    /// * `game_id` - The unique identifier of the game
+    /// # Returns
+    /// * `JackpotClaimed` - The claimed jackpot model
+    fn get_jackpot_claimed(self: @WorldStorage, game_id: felt252) -> JackpotClaimed {
+        self.read_model(game_id)
+    }
+
+    fn set_jackpot_claimed(ref self: WorldStorage, claimed: JackpotClaimed) {
+        self.write_model(@claimed);
+    }
+
+    /// Calculates the remaining unclaimed amount in the jackpot.
+    /// # Arguments
+    /// * `game_id` - The unique identifier of the game
+    /// # Returns
+    /// * `u256` - The amount remaining to be claimed
+    fn get_jackpot_left(self: @WorldStorage, game_id: felt252) -> u256 {
+        self.get_jackpot_total_amount(game_id) - self.get_jackpot_claimed(game_id).amount
+    }
+
+    /// Returns the developer's share in permille (parts per thousand).
+    /// # Arguments
+    /// * `game_id` - The unique identifier of the game
+    /// # Returns
+    /// * `u16` - The developer's share in permille
+    fn get_dev_permille(self: @WorldStorage, game_id: felt252) -> u16 {
+        self.read_member(Model::<JackpotSplit>::ptr_from_keys(game_id), selector!("dev_permille"))
+    }
+
+    /// Returns the contribution share in permille.
+    /// # Arguments
+    /// * `game_id` - The unique identifier of the game
+    /// # Returns
+    /// * `u16` - The contribution share in permille
+    fn get_contribution_permille(self: @WorldStorage, game_id: felt252) -> u16 {
+        self
+            .read_member(
+                Model::<JackpotSplit>::ptr_from_keys(game_id), selector!("contribution_permille")
+            )
+    }
+
+    /// Calculates the winner's share in permille (1000 - dev - contribution).
+    /// # Arguments
+    /// * `game_id` - The unique identifier of the game
+    /// # Returns
+    /// * `u16` - The winner's share in permille
+    fn get_win_permille(self: @WorldStorage, game_id: felt252) -> u16 {
+        1000 - self.get_dev_permille(game_id) - self.get_contribution_permille(game_id)
+    }
+
+
+    /// Returns the claim status for a specific claimant.
+    /// # Arguments
+    /// * `game_id` - The unique identifier of the game
+    /// * `claimant` - The type of claimant (Dev, Winner, or Contributor)
+    /// # Returns
+    /// * `Claimed` - The claim status model
+    fn get_claimant(self: @WorldStorage, game_id: felt252, claimant: Claimant) -> Claimed {
+        self.read_model((game_id, claimant))
+    }
+
+    fn set_claimant(ref self: WorldStorage, claimant: Claimed) {
+        self.write_model(@claimant);
+    }
+
+    /// Checks if a specific claimant has already claimed their share.
+    /// # Arguments
+    /// * `game_id` - The unique identifier of the game
+    /// * `claimant` - The type of claimant (Dev, Winner, or Contributor)
+    /// # Returns
+    /// * `bool` - True if already claimed, false otherwise
+    fn get_claimed(self: @WorldStorage, game_id: felt252, claimant: Claimant) -> bool {
+        self.read_member(Model::<Claimed>::ptr_from_keys((game_id, claimant)), selector!("claimed"))
+    }
+}

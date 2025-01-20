@@ -1,9 +1,5 @@
-mod care_packages {
-    mod interface;
-    mod models;
-    use super::care_packages::{
-        interface::{ICarePackageDispatcher, ICarePackageDispatcherTrait},
-        models::{Rarity, N_RARITIES}
-    };
+mod care_packages;
+pub mod vrgda {
+    mod vrgda;
+    pub use vrgda::{LinearVRGDA, LogisticVRGDA, VRGDATrait};
 }
-

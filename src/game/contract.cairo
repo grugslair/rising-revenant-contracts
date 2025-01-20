@@ -97,8 +97,8 @@ mod game_actions {
     use super::{ISettings, IGameActions};
     use rising_revenant::{
         addresses::{GetDispatcher}, Permissions, map::{Point, MapSize},
-        game::{models::{GamePhases, GamePhase, Winner}, GamePhasesTrait, GameTrait,},
-        care_packages::models::{CarePackageMarket}, outposts::OutpostTrait,
+        game::{GamePhases, GamePhase, Winner, GameStorage, GamePhasesTrait, GameTrait,},
+        care_packages::models::{CarePackageMarket}, outposts::{OutpostTrait},
         fortifications::models::{Fortifications, Fortification},
         world_events::{
             models::{WorldEventSetup, WorldEventEffect, WorldEventMinInterval}, WorldEventType
@@ -118,6 +118,8 @@ mod game_actions {
         ) -> felt252 {
             let mut world = self.world(default_namespace());
             let game_id = hash_value(('game', world.uuid()));
+            // TODO: Create tokens
+
             world
                 .write_model(
                     @GamePhases {
@@ -160,20 +162,7 @@ mod game_actions {
             time_scale_mag: u128,
         ) {
             let mut world = self.world(default_namespace());
-            world.assert_can_setup(game_id);
-            let start_time = world.get_prep_start(game_id);
-            world
-                .write_model(
-                    @CarePackageMarket {
-                        game_id,
-                        target_price,
-                        decay_constant_mag,
-                        max_sellable_mag,
-                        time_scale_mag,
-                        start_time,
-                        sold: 0,
-                    }
-                );
+            world.assert_admin();
         }
 
         fn set_world_event_min_interval(
@@ -212,10 +201,10 @@ mod game_actions {
                 );
         }
 
-        fn set_outpost_setup(ref self: ContractState, game_id: felt252, hp: u64) {
+        fn set_outpost_setup(ref self: ContractState, game_id: felt252, price: u256, hp: u64) {
             let mut world = self.world(default_namespace());
             world.assert_can_setup(game_id);
-            world.write_model(@OutpostSetup { game_id, hp });
+            world.set_outpost_setup(game_id, price, hp);
         }
     }
 
