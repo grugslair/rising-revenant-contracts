@@ -1,7 +1,7 @@
 use starknet::{get_caller_address, ContractAddress, storage_read_syscall};
 use dojo::{
-    world::{WorldStorage, IWorldDispatcher, IWorldDispatcherTrait}, model::ModelStorage,
-    contract::{IContractDispatcherTrait, IContractDispatcher}
+    world::{WorldStorage, IWorldDispatcher, IWorldDispatcherTrait, WorldStorageTrait},
+    model::ModelStorage, contract::{IContractDispatcherTrait, IContractDispatcher}
 };
 use rising_revenant::hash::hash_value;
 
@@ -24,11 +24,22 @@ impl WorldImpl of WorldTrait {
         assert((*self.dispatcher).is_owner(selector_hash, caller), 'Not Admin');
         caller
     }
+    fn assert_caller_is_writer(self: @WorldStorage, selector_hash: felt252) -> ContractAddress {
+        let caller = get_caller_address();
+        assert((*self.dispatcher).is_writer(selector_hash, caller), 'Not Writer');
+        caller
+    }
     fn uuid(ref self: WorldStorage) -> felt252 {
         let mut value: UUID = self.read_model(0);
         value.value += 1;
         self.write_model(@value);
-        hash_value(('uuid', value.value))
+        hash_value(@('uuid', value.value))
+    }
+    fn get_contract_address(self: @WorldStorage, contract_name: ByteArray) -> ContractAddress {
+        match self.dns(@contract_name) {
+            Option::Some((address, _)) => address,
+            Option::None => panic!("Jackpot contract not deployed"),
+        }
     }
 }
 

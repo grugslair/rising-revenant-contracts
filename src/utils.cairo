@@ -7,7 +7,7 @@ use starknet::{
     ContractAddress, ClassHash, get_contract_address, get_caller_address, get_tx_info,
     get_block_timestamp, StorageAddress, StorageBaseAddress, SyscallResultTrait,
     syscalls::{storage_read_syscall, storage_write_syscall, deploy_syscall},
-    storage_address_from_base
+    storage_address_from_base, storage_base_address_const
 };
 use rising_revenant::{core::{Felt252BitAnd, BoundedT}};
 
@@ -63,4 +63,11 @@ fn deploy_contract(
 ) -> ContractAddress {
     let (contract_address, _) = deploy_syscall(class_hash, salt, calldata, true).unwrap_syscall();
     contract_address
+}
+
+fn uuid() -> felt252 {
+    let storage_address = storage_address_from_base(storage_base_address_const::<'UUID'>());
+    let value = storage_read(storage_address) + 1;
+    storage_write(storage_address, value);
+    poseidon_hash_span([get_contract_address().into(), value].span())
 }

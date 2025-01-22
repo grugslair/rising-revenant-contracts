@@ -3,8 +3,8 @@ use dojo::{world::WorldStorage, model::ModelStorage};
 use super::{Permissions, models::WritePermissions};
 
 /// Permission selector constants for different access levels
-const DEV_PERMISSIONS_SELECTOR: felt252 = 'devs';
-const ADMIN_PERMISSIONS_SELECTOR: felt252 = 'admins';
+const DEV_PERMISSIONS_SELECTOR: felt252 = 'dev';
+const ADMIN_PERMISSIONS_SELECTOR: felt252 = 'admin';
 const SETUP_PERMISSIONS_SELECTOR: felt252 = 'setup';
 
 /// Trait implementation for checking various permission levels

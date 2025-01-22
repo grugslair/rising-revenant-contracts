@@ -18,7 +18,8 @@ mod world_event_actions {
     use rising_revenant::{
         game::GameTrait, map::MapTrait,
         world_events::{
-            models::{CurrentEvent, WorldEventType, WorldEventSetupTrait}, systems::WorldEventTrait
+            models::{CurrentEvent, WorldEventType, WorldEventSetupTrait, WorldEventStorage},
+            systems::WorldEventTrait
         },
         contribution::{ContributionTrait, ContributionEvent}, vrf::{VRF, Source},
         world::default_namespace, hash::hash_value
@@ -39,17 +40,13 @@ mod world_event_actions {
             let mut world = self.world(default_namespace());
             world.assert_playing(game_id);
             let timestamp = get_block_timestamp();
-            let min_interval = world.get_min_interval(game_id);
+            let min_interval = world.get_event_min_interval(game_id);
             let last_event = world.get_current_event(game_id);
             assert(last_event.timestamp + min_interval >= timestamp, 'Event too soon');
             let randomness = world
-                .randomness(Source::Salt(hash_value((game_id, last_event.event_id))));
+                .randomness(Source::Salt(hash_value(@(game_id, last_event.event_id))));
             let map_size = world.get_map_size(game_id);
-            let (event, event_of_type) = world
-                .generate_event(last_event, map_size, randomness, timestamp);
-
-            world.write_model(@event);
-            world.write_model(@event_of_type);
+            world.generate_event(last_event, map_size, randomness, timestamp);
             world.increase_caller_contribution(game_id, ContributionEvent::EventCreated);
         }
     }

@@ -1,6 +1,6 @@
 use core::{
-    hash::{Hash, HashStateExTrait, HashStateTrait}, poseidon::HashState, poseidon::PoseidonTrait,
-    num::traits::Bounded
+    hash::{Hash, HashStateExTrait, HashStateTrait},
+    poseidon::{HashState, PoseidonTrait, poseidon_hash_span}, num::traits::Bounded
 };
 
 use rising_revenant::utils::felt252_to_u128;
@@ -70,8 +70,10 @@ impl ByteArrayHash<S, +hash::HashStateTrait<S>, +Drop<S>> of Hash<ByteArray, S> 
 }
 
 
-fn hash_value<T, +Hash<T, HashState>, +Drop<T>>(value: T) -> felt252 {
-    PoseidonTrait::new().update_with(value).finalize()
+fn hash_value<T, +Serde<T>>(value: @T) -> felt252 {
+    let mut output = array![];
+    Serde::serialize(value, ref output);
+    poseidon_hash_span(output.span())
 }
 
 

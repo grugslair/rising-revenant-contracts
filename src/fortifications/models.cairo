@@ -1,11 +1,13 @@
 use core::{cmp::min, poseidon::HashState, num::traits::Bounded};
 use starknet::ContractAddress;
-use dojo::{world::WorldStorage, model::ModelStorage};
+use dojo::{world::WorldStorage, model::{ModelStorage, ModelValueStorage, Model}};
 use cubit::f128::{Fixed, FixedTrait};
 use rising_revenant::{
     addresses::{AddressSelectorTrait}, world_events::models::WorldEventType, core::BoundedT,
     hash::UpdateHashToU128
 };
+
+const FORTIFICATION_CLASS_HASH_SELECTOR: felt252 = 'fortification';
 
 /// Represents different types of fortifications.
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
@@ -31,7 +33,7 @@ struct Fortifications {
 
 #[dojo::model]
 #[derive(Drop, Serde, Copy)]
-struct FortificationToken {
+struct FortificationTokens {
     #[key]
     game_id: felt252,
     palisade: ContractAddress,
@@ -40,9 +42,10 @@ struct FortificationToken {
     basement: ContractAddress,
 }
 
-impl FortificationTokenIntoArray of Into<FortificationTokenValue, Array<ContractAddress>> {
+
+impl FortificationTokensIntoArray of Into<FortificationTokensValue, Array<ContractAddress>> {
     /// Converts a `FortificationToken` instance into an array of `ContractAddress`.
-    fn into(self: FortificationTokenValue) -> Array<ContractAddress> {
+    fn into(self: FortificationTokensValue) -> Array<ContractAddress> {
         array![self.palisade, self.trench, self.wall, self.basement]
     }
 }
@@ -107,6 +110,22 @@ impl FortificationImpl of FortificationTrait {
             Fortification::Wall => selector!("wall"),
             Fortification::Basement => selector!("basement"),
         }
+    }
+    fn symbol(self: @Fortification) -> ByteArray {
+        match self {
+            Fortification::Palisade => "RRFP",
+            Fortification::Trench => "RRFT",
+            Fortification::Wall => "RRFW",
+            Fortification::Basement => "RRFB",
+        }
+    }
+    fn iterate() -> Array<Fortification> {
+        array![
+            Fortification::Palisade,
+            Fortification::Trench,
+            Fortification::Wall,
+            Fortification::Basement
+        ]
     }
 }
 
@@ -177,19 +196,6 @@ impl FortificationsImpl of FortificationsTrait {
     }
 }
 
-impl FortificationAddressSelector of AddressSelectorTrait<Fortification> {
-    /// Converts the fortification enum to the address selector to get the contract address of the
-    /// ERC.
-    fn get_address_selector(self: @Fortification) -> felt252 {
-        match *self {
-            Fortification::Palisade => 'erc20-palisade',
-            Fortification::Trench => 'erc20-trench',
-            Fortification::Wall => 'erc20-wall',
-            Fortification::Basement => 'erc20-basement',
-        }
-    }
-}
-
 impl FortificationHashImpl = core::hash::into_felt252_based::HashImpl<Fortification, HashState>;
 /// Calculates how many fortifications are destroyed
 /// # Arguments
@@ -212,4 +218,32 @@ fn fortifications_destroyed(
     );
     let probability = FixedTrait::new(probability.into(), false);
     (randomness.ln() / probability.ln()).try_into().unwrap()
+}
+
+#[generate_trait]
+impl FortificationStorageImpl of FortificationStorage {
+    fn get_fortification_contract_addresses(
+        self: @WorldStorage, game_id: felt252,
+    ) -> Array<ContractAddress> {
+        let value: FortificationTokensValue = self.read_value(game_id);
+        value.into()
+    }
+    fn get_fortification_contract_address(
+        self: @WorldStorage, game_id: felt252, fortification: Fortification
+    ) -> ContractAddress {
+        self
+            .read_member(
+                Model::<FortificationTokens>::ptr_from_keys(game_id), fortification.selector()
+            )
+    }
+    fn set_fortifications_contract_address(
+        ref self: WorldStorage,
+        game_id: felt252,
+        palisade: ContractAddress,
+        trench: ContractAddress,
+        wall: ContractAddress,
+        basement: ContractAddress
+    ) {
+        self.write_model(@FortificationTokens { game_id, palisade, trench, wall, basement });
+    }
 }

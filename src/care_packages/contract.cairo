@@ -11,31 +11,27 @@ use rising_revenant::care_packages::Rarity;
 /// - `open`: Opens a purchased care package using its token ID.
 #[starknet::interface]
 pub trait ICarePackage<TContractState> {
-    fn reveal_rarity(ref self: TContractState, game_id: felt252, token_id: felt252);
-    fn open(ref self: TContractState, game_id: felt252, token_id: felt252);
-    fn get_rarity(self: @TContractState, game_id: felt252, token_id: felt252) -> Rarity;
-    fn is_opened(self: @TContractState, game_id: felt252, token_id: felt252) -> bool;
-    fn get_owner(self: @TContractState, game_id: felt252, token_id: felt252) -> ContractAddress
+    fn purchase(ref self: TContractState, game_id: felt252) -> felt252;
+    fn open(ref self: TContractState, token_id: felt252);
+    fn get_rarity(self: @TContractState, token_id: felt252) -> Rarity;
+    fn is_opened(self: @TContractState, token_id: felt252) -> bool;
+    fn get_owner(self: @TContractState, token_id: felt252) -> ContractAddress;
+    fn get_game_id(self: @TContractState, token_id: felt252) -> felt252;
 }
 
 
 #[dojo::contract]
 mod care_package {
     use core::poseidon::poseidon_hash_span;
-    use starknet::{get_caller_address, ContractAddress, get_block_timestamp};
-    use dojo::model::ModelStorage;
+    use starknet::{get_caller_address, ContractAddress, get_contract_address, get_block_timestamp};
     use dojo::world::WorldStorage;
-    use openzeppelin_token::erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
-    use tokens::erc20::interfaces::{IERC20Dispatcher, IERC20DispatcherTrait};
     use rising_revenant::{
-        addresses::{AddressBook, GetDispatcher},
-        fortifications::{Fortification, Fortifications, systems::FortificationMintTrait},
-        finance::{Finance}, game::GameTrait,
+        fortifications::FortificationTokenTrait, game::{GameTrait, GameStorage, GamePhasesTrait},
         care_packages::{
-            Rarity, N_RARITIES, systems::{get_fortifications, get_rarity}, CarePackageTrait,
-            CarePackageStorage
+            Rarity, CarePackageTrait, CarePackageStorage, get_rarity, CarePackageMarketTrait
         },
-        world::default_namespace, vrf::{VRF, Source},
+        tokens::{erc721_mint, erc721_owner_of}, world::default_namespace, vrf::{VRF, Source},
+        jackpot::JackpotTrait
     };
 
     use rising_revenant::vrgda::{LogisticVRGDA, VRGDATrait};
@@ -44,32 +40,47 @@ mod care_package {
 
     #[abi(embed_v0)]
     impl CarePackagesImpl of ICarePackage<ContractState> {
-        fn reveal_rarity(ref self: ContractState, game_id: felt252, token_id: felt252) {
+        fn purchase(ref self: ContractState, game_id: felt252) -> felt252 {
             let mut world = self.world(default_namespace());
-            let caller = get_caller_address();
 
-            let rarity = get_rarity(world
-                .randomness(Source::Salt(poseidon_hash_span([game_id, token_id, 'rarity'].span()))));
+            let timestamp = get_block_timestamp();
+            let phases = world.get_game_phases(game_id);
+
+            phases.assert_time_in_prep(timestamp);
+
+            let mut market = world.get_care_package_market(game_id);
+            let price = market.purchase_care_package(phases.prep_start, timestamp);
+            let id = poseidon_hash_span([get_contract_address().into(), market.sold.into()].span());
+
+            let caller = get_caller_address();
+            world.pay_into_jackpot(game_id, caller, price);
+            erc721_mint(market.token_address, caller, id.into());
+            let randomness = world.randomness(Source::Nonce(caller));
+            world.set_care_package_rarity(game_id, id, get_rarity(randomness));
+            id
         }
 
-        fn open(ref self: ContractState, game_id: felt252, token_id: felt252) {
+        fn open(ref self: ContractState, token_id: felt252) {
             let mut world = self.world(default_namespace());
-            let caller = get_caller_address();
-            assert(caller == world.get_care_package_owner(game_id, token_id), 'Not Owner');
-            let randomness = world.randomness(Source::Salt(poseidon_hash_span([game_id, token_id, 'rarity'].span())));
-            world.open_care_package(game_id, token_id, caller, randomness);
+            let randomness = world.randomness(Source::Salt(token_id));
+
+            world.open_care_package(token_id, randomness);
         }
-        fn get_rarity(self: @ContractState, game_id: felt252, token_id: felt252) -> Rarity {
+        fn get_rarity(self: @ContractState, token_id: felt252) -> Rarity {
             let world = self.world(default_namespace());
-            world.get_care_package_rarity(game_id, token_id)
+            world.get_care_package_rarity(token_id)
         }
-        fn is_opened(self: @ContractState, game_id: felt252, token_id: felt252) -> bool {
+        fn is_opened(self: @ContractState, token_id: felt252) -> bool {
             let world = self.world(default_namespace());
-            world.get_care_package_opened(game_id, token_id)
+            world.get_care_package_opened(token_id)
         }
-        fn get_owner(self: @ContractState, game_id: felt252, token_id: felt252) -> ContractAddress {
+        fn get_owner(self: @ContractState, token_id: felt252) -> ContractAddress {
             let world = self.world(default_namespace());
-            world.get_care_package_owner(game_id, token_id)
+            world.get_care_package_owner_from_id(token_id)
+        }
+        fn get_game_id(self: @ContractState, token_id: felt252) -> felt252 {
+            let world = self.world(default_namespace());
+            world.get_care_package_game_id(token_id)
         }
     }
 }

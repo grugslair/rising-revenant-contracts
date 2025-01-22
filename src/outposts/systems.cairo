@@ -1,12 +1,17 @@
-use core::{cmp::min, poseidon::HashState, num::traits::Bounded};
+use core::{cmp::min, poseidon::HashState, num::traits::Bounded, poseidon::poseidon_hash_span};
 use starknet::ContractAddress;
 use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
 use cubit::f128::{Fixed, FixedTrait};
 use rising_revenant::{
-    world_events::{WorldEvent, models::WorldEventEffectTrait},
+    world_events::{WorldEvent, WorldEventStorage, models::WorldEventEffectTrait},
     fortifications::{Fortifications, Fortification, FortificationsTrait},
-    outposts::{Outpost, models::{OutpostsActive, OutpostSetup, OutpostEvent}},
-    hash::{hash_value, make_hash_state}, map::MapTrait, core::BoundedT,
+    outposts::{Outpost, OutpostStorage}, game::GameStorage,
+    tokens::{
+        IERC721MintableDispatcher, IERC721MintableDispatcherTrait, deploy_erc721_mintable,
+        erc721_owner_of
+    },
+    hash::{hash_value, make_hash_state}, map::{MapTrait, PointTrait}, core::BoundedT,
+    world::WorldTrait
 };
 
 //! Outpost system implementations for managing outposts and their interactions in the game.
@@ -32,11 +37,10 @@ impl OutpostsActiveImpl of OutpostsActiveTrait {
     /// # Panics
     /// * If there are no active outposts to reduce
     fn reduce_active_outposts(ref self: WorldStorage, game_id: felt252) -> u32 {
-        let mut model = self.get_outposts_active(game_id);
-        assert(model.active > 1, 'No active outposts');
-        model.active -= 1;
-        self.write_model(@model);
-        model.active
+        let active = self.get_active_outposts(game_id) - 1;
+        assert(active > 0, 'No active outposts');
+        self.set_outposts_active(game_id, active);
+        active
     }
 }
 
@@ -50,53 +54,13 @@ impl OutpostEventImpl of OutpostEventTrait {
     /// # Panics
     /// * If the event was already applied
     fn set_event_applied(ref self: WorldStorage, outpost_id: felt252, event_id: felt252) {
-        let mut model = self.get_outpost_event(outpost_id, event_id);
-        assert(!model.applied, 'Event already applied');
-        model.applied = true;
-        self.write_model(@model);
+        assert(!self.get_outpost_event_applied(outpost_id, event_id), 'Event already applied');
+        self.set_outpost_event_applied(outpost_id, event_id);
     }
 }
 
-
 #[generate_trait]
 impl OutpostImpl of OutpostTrait {
-    #[inline(always)]
-    fn get_outpost(self: @WorldStorage, id: felt252) -> Outpost {
-        self.read_model(id)
-    }
-
-    /// Retrieves outpost setup configuration for a game
-    fn get_outpost_setup(self: @WorldStorage, game_id: felt252) -> OutpostSetup {
-        self.read_model(game_id)
-    }
-
-    fn set_outpost_setup(ref self: WorldStorage, game_id: felt252, price: u256, hp: u64) {
-        let model = OutpostSetup { game_id,  price, hp };
-        self.write_model(@model);
-    }
-
-    /// Retrieves an event associated with a specific outpost
-    fn get_outpost_event(
-        self: @WorldStorage, outpost_id: felt252, event_id: felt252
-    ) -> OutpostEvent {
-        self.read_model((outpost_id, event_id))
-    }
-
-    /// Retrieves the active outposts counter for a game
-    fn get_outposts_active(self: @WorldStorage, game_id: felt252) -> OutpostsActive {
-        self.read_model(game_id)
-    }
-
-    /// Gets the initial HP value for outposts in a game
-    fn get_starting_hp(self: @WorldStorage, game_id: felt252) -> u64 {
-        self.read_member(Model::<OutpostSetup>::ptr_from_keys(game_id), selector!("hp"))
-    }
-
-    /// Gets the count of active outposts in a game
-    fn get_active_outposts(self: @WorldStorage, game_id: felt252) -> u32 {
-        self.read_member(Model::<OutpostsActive>::ptr_from_keys(game_id), selector!("active"))
-    }
-
     /// Creates a new outpost in the game world
     /// # Arguments
     /// * `game_id` - The ID of the game
@@ -105,21 +69,16 @@ impl OutpostImpl of OutpostTrait {
     /// # Returns
     /// * The ID of the newly created outpost
     fn make_outpost(
-        ref self: WorldStorage, game_id: felt252, owner: ContractAddress, seed: felt252
+        ref self: WorldStorage, game_id: felt252, owner: ContractAddress, hp: u64, seed: felt252
     ) -> felt252 {
-        let mut outposts_active = self.get_outposts_active(game_id);
-        let outpost = Outpost {
-            id: hash_value(('outpost', game_id, outposts_active.active)),
-            game_id,
-            position: self.get_empty_point(game_id, make_hash_state(seed)),
-            fortifications: Default::default(),
-            hp: self.get_starting_hp(game_id),
-        };
-        self.write_model(@outpost);
+        let outposts_active = self.get_active_outposts(game_id) + 1;
+        let id = poseidon_hash_span(['outpost', game_id, outposts_active.into()].span());
+        let position = self.get_empty_point(game_id, make_hash_state(seed));
 
-        outposts_active.active += 1;
-        self.write_model(@outposts_active);
-        outpost.id
+        self.new_outpost(id, game_id, position, hp);
+        self.set_outpost_at_position(game_id, position, id);
+        self.set_outposts_active(game_id, outposts_active);
+        id
     }
     /// Verifies if an outpost is the winner of a game
     /// # Panics
@@ -160,6 +119,63 @@ impl OutpostImpl of OutpostTrait {
     #[inline(always)]
     fn is_active(self: @Outpost) -> bool {
         (*self.hp).is_non_zero()
+    }
+
+    fn event_effecting_outpost(self: @WorldStorage, outpost: @Outpost) -> bool {
+        let event = self.get_current_event(*outpost.game_id);
+        let radius_sq = self.get_last_event_radius_sq(*outpost.game_id, event.event_type);
+        outpost.position.in_range(event.position, radius_sq)
+            && !self.get_outpost_event_applied(*outpost.id, event.event_id)
+    }
+
+    fn increase_outpost_fortification(
+        ref self: WorldStorage, outpost_id: felt252, fortification: Fortification, amount: u64
+    ) {
+        self
+            .set_outpost_fortification(
+                outpost_id,
+                fortification,
+                self.get_outpost_fortification(outpost_id, fortification) + amount
+            );
+    }
+
+    fn get_outpost_owner(
+        self: @WorldStorage, game_id: felt252, outpost_id: felt252
+    ) -> ContractAddress {
+        erc721_owner_of(self.get_outpost_token_address(game_id), outpost_id.into())
+    }
+
+    fn deploy_outpost_token(
+        ref self: WorldStorage,
+        game_id: felt252,
+        game_name: @ByteArray,
+        base_uri: ByteArray,
+        admin: ContractAddress,
+    ) -> ContractAddress {
+        deploy_erc721_mintable(
+            self.get_class_hash('erc721_mintable'),
+            game_id,
+            format!("RR Outpost {}", game_name),
+            "RROP",
+            base_uri,
+            admin,
+            self.get_contract_address("outpost_actions")
+        )
+    }
+
+    fn setup_outpost_market(
+        ref self: WorldStorage,
+        game_id: felt252,
+        game_name: @ByteArray,
+        base_uri: ByteArray,
+        admin: ContractAddress,
+        price: u256,
+        hp: u64
+    ) {
+        self
+            .set_outpost_setup(
+                game_id, self.deploy_outpost_token(game_id, game_name, base_uri, admin), price, hp
+            );
     }
 }
 

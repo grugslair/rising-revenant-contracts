@@ -80,7 +80,7 @@ impl LinearVRGDATargetTimeImpl of VRGDATargetTimeTrait<LinearVRGDA> {
 
 pub impl LinearVRGDAImpl = TVRGDATrait<LinearVRGDA>;
 
-#[derive(Copy, Drop, Serde, starknet::Store)]
+#[derive(Copy, Drop, Serde,)]
 pub struct LogisticVRGDA {
     pub target_price: Fixed,
     pub decay_constant: Fixed,

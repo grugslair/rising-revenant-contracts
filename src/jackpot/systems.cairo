@@ -1,7 +1,8 @@
 use starknet::{ContractAddress, get_caller_address};
-use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
+use openzeppelin_token::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
+use dojo::{world::{WorldStorage, WorldStorageTrait}, model::{ModelStorage, Model}};
 use super::models::{JackpotTotal, JackpotClaimed, JackpotSplit, Claimant, Claimed, JackpotStorage};
-use rising_revenant::contribution::ContributionTrait;
+use rising_revenant::{contribution::ContributionTrait, game::GameStorage};
 
 /// The JackpotTrait provides a comprehensive system for managing game jackpots.
 /// It handles:
@@ -14,6 +15,18 @@ use rising_revenant::contribution::ContributionTrait;
 /// allowing for flexible distribution ratios between different stakeholders.
 #[generate_trait]
 impl JackpotImpl of JackpotTrait {
+    fn pay_into_jackpot(
+        ref self: WorldStorage, game_id: felt252, from: ContractAddress, amount: u256
+    ) {
+        let jackpot_address = match self.dns(@"jackpot_actions") {
+            Option::Some((address, _)) => address,
+            Option::None => panic!("Jackpot contract not deployed"),
+        };
+        let contract_address = self.get_game_erc20_token(game_id);
+        ERC20ABIDispatcher { contract_address }.transfer_from(from, jackpot_address, amount);
+        self.increase_jackpot_total(game_id, amount);
+    }
+
     /// Increases the total jackpot amount by a specified value.
     /// # Arguments
     /// * `game_id` - The unique identifier of the game

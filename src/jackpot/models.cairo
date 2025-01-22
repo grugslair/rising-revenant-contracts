@@ -1,5 +1,17 @@
-use starknet::ContractAddress;
+use starknet::{
+    ContractAddress,
+    storage::{StoragePointerReadAccess, StoragePointerWriteAccess, StoragePathEntry, Map,}
+};
 use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
+
+#[starknet::storage_node]
+struct JackpotStore {
+    total_amount: u256,
+    claimed_amount: u256,
+    claimed: Map<Claimant, bool>,
+    dev_permille: u16,
+    contribution_permille: u16,
+}
 
 /// Represents the total amount in a jackpot for a specific game
 /// @param game_id - Unique identifier for the game
@@ -27,7 +39,7 @@ struct JackpotClaimed {
 /// Dev: Game developers
 /// Winner: Game winner
 /// Contributor: Address of someone who contributed to the jackpot
-#[derive(Drop, Serde, Copy, PartialEq, Introspect)]
+#[derive(Drop, Serde, Copy, PartialEq, Introspect, starknet::Store)]
 enum Claimant {
     Dev,
     Winner,

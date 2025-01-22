@@ -3,9 +3,10 @@ use starknet::{ContractAddress, get_block_timestamp, get_caller_address};
 use dojo::{world::WorldStorage, model::ModelStorage};
 use openzeppelin_token::erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
 use rising_revenant::{
-    game::{GamePhasesTrait, GameStorage}, fortifications::{Fortifications, FortificationMintTrait},
+    game::{GamePhasesTrait, GameStorage}, fortifications::{Fortifications, FortificationTokenTrait},
     core::ToNonZero, utils::{felt252_to_u128, deploy_contract},
-    care_packages::{Rarity, CarePackageStorage, CARE_PACKAGE_CLASS_HASH_SELECTOR},
+    care_packages::{Rarity, CarePackageStorage, CarePackage},
+    tokens::{deploy_erc721_mintable, erc721_owner_of}, world::WorldTrait
 };
 use core::integer::u128_safe_divmod;
 // use origami_defi::auction::vrgda::{LogisticVRGDA, VRGDATrait};
@@ -93,74 +94,76 @@ fn get_rarity(randomness: felt252) -> Rarity {
 
 #[generate_trait]
 impl CarePackageImpl of CarePackageTrait {
-    fn create_care_package(
+    fn setup_care_package_market(
         ref self: WorldStorage,
         game_id: felt252,
-        target_price: u256,
+        game_name: @ByteArray,
+        base_uri: ByteArray,
+        admin: ContractAddress,
+        target_price_mag: u128,
         decay_constant_mag: u128,
-        max_sellable_mag: u128,
+        max_sellable: u64,
         time_scale_mag: u128,
     ) {
-        let start_time = self.get_prep_start(game_id);
-        assert(get_block_timestamp() < start_time, 'Game not in creation phase');
-
-        let contract_address = self
-            .deploy_care_package_token_contract(
-                game_id, target_price, decay_constant_mag, max_sellable_mag, time_scale_mag,
+        self
+            .set_care_package_market(
+                game_id,
+                self.deploy_care_package_token(game_id, game_name, base_uri, admin),
+                target_price_mag,
+                decay_constant_mag,
+                max_sellable,
+                time_scale_mag,
             );
-        self.set_care_package_token_address(game_id, contract_address);
-        self.set_token_game(contract_address, game_id);
     }
 
-    fn deploy_care_package_token_contract(
+    fn deploy_care_package_token(
         ref self: WorldStorage,
         game_id: felt252,
-        target_price: u256,
-        decay_constant_mag: u128,
-        max_sellable_mag: u128,
-        time_scale_mag: u128,
+        game_name: @ByteArray,
+        base_uri: ByteArray,
+        admin: ContractAddress,
     ) -> ContractAddress {
-        let salt = poseidon_hash_span([game_id, CARE_PACKAGE_CLASS_HASH_SELECTOR].span());
-        let mut calldata = ArrayTrait::<felt252>::new();
-        Serde::serialize(@format!("RR Care Package {}", game_id), ref calldata);
-        Serde::<ByteArray>::serialize(@"RRCP", ref calldata);
-        Serde::<ByteArray>::serialize(@"", ref calldata);
-
-        deploy_contract(
-            self.get_class_hash(CARE_PACKAGE_CLASS_HASH_SELECTOR), calldata.span(), salt
+        deploy_erc721_mintable(
+            self.get_class_hash('erc721_mintable'),
+            game_id,
+            format!("RR Care Package {}", game_name),
+            "RRCP-{}",
+            base_uri,
+            admin,
+            self.get_contract_address("care_package_actions")
         )
     }
 
-    fn open_care_package(
-        ref self: WorldStorage,
-        game_id: felt252,
-        token_id: felt252,
-        player: ContractAddress,
-        randomness: felt252
-    ) {
-        let care_package = self.get_care_package(game_id, token_id);
+    fn open_care_package(ref self: WorldStorage, token_id: felt252, randomness: felt252) {
+        let caller = get_caller_address();
+        let care_package = self.get_care_package(token_id);
+        assert(caller == self.get_care_package_owner(@care_package), 'Not Owner');
         assert(!care_package.opened, 'Already opened');
-        self.set_care_package_opened(game_id, token_id);
+        self.set_care_package_opened(token_id);
         let fortifications = get_fortifications(care_package.rarity, randomness);
-        self.mint_fortifications(game_id, player, fortifications);
+        self.mint_fortifications(care_package.game_id, caller, fortifications);
+        self.emit_care_package_contents(care_package.game_id, token_id, caller, fortifications);
     }
 
-    fn reveal_care_package_rarity(
-        ref self: WorldStorage,
-        game_id: felt252,
-        token_id: felt252,
-        caller: ContractAddress,
-        randomness: felt252
-    ) {
-        assert(caller == self.get_care_package_owner(game_id, token_id), 'Not Owner');
-        assert(self.get_care_package_rarity(game_id, token_id) == Rarity::None, 'Already revealed');
-        self.set_care_package_rarity(game_id, token_id, get_rarity(randomness));
-    }
+    // fn reveal_care_package_rarity(
+    //     ref self: WorldStorage,
+    //     game_id: felt252,
+    //     token_id: felt252,
+    //     caller: ContractAddress,
+    //     randomness: felt252
+    // ) {
+    //     assert(caller == self.get_care_package_owner( token_id), 'Not Owner');
+    //     assert(self.get_care_package_rarity(token_id) == Rarity::None, 'Already revealed');
+    //     self.set_care_package_rarity(game_id, token_id, get_rarity(randomness));
+    // }
 
-    fn get_care_package_owner(
-        self: @WorldStorage, game_id: felt252, token_id: felt252
-    ) -> ContractAddress {
-        ERC721ABIDispatcher { contract_address: self.get_care_package_token_address(game_id) }
-            .owner_of(token_id.into())
+    fn get_care_package_owner(self: @WorldStorage, care_package: @CarePackage) -> ContractAddress {
+        erc721_owner_of(
+            self.get_care_package_token_address(*care_package.game_id),
+            (*care_package.token_id).into()
+        )
+    }
+    fn get_care_package_owner_from_id(self: @WorldStorage, token_id: felt252) -> ContractAddress {
+        self.get_care_package_owner(@self.get_care_package(token_id))
     }
 }

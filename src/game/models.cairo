@@ -1,4 +1,4 @@
-use dojo::{world::WorldStorage, model::{Model, ModelStorage}};
+use dojo::{world::WorldStorage, model::{Model, ModelStorage}, event::EventStorage};
 use starknet::{get_block_timestamp, ClassHash, get_caller_address, ContractAddress};
 
 /// Represents the different phases a game can be in.
@@ -57,14 +57,29 @@ struct GamePhases {
     ended: u64,
 }
 
-#[dojo::model]
+#[dojo::event]
 #[derive(Drop, Serde)]
 struct GameName {
     #[key]
-    id: felt252,
+    game_id: felt252,
     name: ByteArray,
 }
 
+#[dojo::model]
+#[derive(Drop, Serde)]
+struct GameERC20Token {
+    #[key]
+    game_id: felt252,
+    contract_address: ContractAddress,
+}
+
+#[dojo::model]
+#[derive(Drop, Serde, Copy)]
+struct TokenGame {
+    #[key]
+    contract_address: ContractAddress,
+    game_id: felt252,
+}
 
 /// Implementation of Winner-related functionality
 #[generate_trait]
@@ -111,6 +126,7 @@ impl GamePhasesImpl of GamePhasesTrait {
             GamePhase::NotCreated
         }
     }
+
     // Get when the claim period ends
     fn get_claim_end(self: @GamePhases) -> u64 {
         *self.ended + *self.claim_period
@@ -160,13 +176,17 @@ impl GamePhasesImpl of GamePhasesTrait {
     fn assert_ended(self: @GamePhases) {
         assert(*self.ended > 0 && get_block_timestamp() > self.get_claim_end(), 'Game not ended');
     }
+
+    fn assert_time_in_prep(self: @GamePhases, timestamp: u64) {
+        assert(
+            *self.prep_start <= timestamp && timestamp <= *self.prep_stop,
+            'Not in preparation phase'
+        );
+    }
 }
 
 #[generate_trait]
 impl GameStorageImpl of GameStorage {
-    fn get_game_name(self: @WorldStorage, game_id: felt252) -> ByteArray {
-        self.read_member(Model::<GameName>::ptr_from_keys(game_id), selector!("name"))
-    }
     /// Retrieves the complete GamePhases struct for a specific game
     /// * `game_id` - The ID of the game
     fn get_game_phases(self: @WorldStorage, game_id: felt252) -> GamePhases {
@@ -180,7 +200,7 @@ impl GameStorageImpl of GameStorage {
     }
 
     fn set_game_name(ref self: WorldStorage, game_id: felt252, name: ByteArray) {
-        self.write_model(@GameName { id: game_id, name });
+        self.emit_event(@GameName { game_id, name });
     }
 
     fn new_game_phases(
@@ -218,9 +238,17 @@ impl GameStorageImpl of GameStorage {
     fn set_token_game(ref self: WorldStorage, contract_address: ContractAddress, game_id: felt252) {
         self.write_model(@TokenGame { contract_address, game_id });
     }
-}
 
-    fn set_token_game(ref self: WorldStorage, contract_address: ContractAddress, game_id: felt252) {
-        self.write_model(@TokenGame { contract_address, game_id });
+    fn get_game_erc20_token(self: @WorldStorage, game_id: felt252) -> ContractAddress {
+        self
+            .read_member(
+                Model::<GameERC20Token>::ptr_from_keys(game_id), selector!("contract_address")
+            )
+    }
+
+    fn set_game_erc20_token(
+        ref self: WorldStorage, game_id: felt252, contract_address: ContractAddress
+    ) {
+        self.write_model(@GameERC20Token { game_id, contract_address });
     }
 }

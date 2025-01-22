@@ -1,64 +1,5 @@
 use starknet::ContractAddress;
-use rising_revenant::{
-    fortifications::Fortifications, contribution::ContributionEvent, world_events::WorldEventType
-};
-
-/// Interface for managing game settings and configuration
-///
-/// This interface provides functions to configure various aspects of the game,
-/// including map size, care package market parameters, fortification attributes,
-/// and world event settings.
-#[starknet::interface]
-trait ISettings<TContractState> {
-    /// Sets the map dimensions for a specific game
-    /// * `game_id` - Unique identifier for the game
-    /// * `x` - Width of the map
-    /// * `y` - Height of the map
-    fn set_map_size(ref self: TContractState, game_id: felt252, x: u16, y: u16);
-
-    /// Configures the care package market parameters
-    /// * `game_id` - Unique identifier for the game
-    /// * `target_price` - Base price for care packages
-    /// * `decay_constant_mag` - Rate at which price decays
-    /// * `max_sellable_mag` - Maximum number of care packages that can be sold
-    /// * `time_scale_mag` - Time scaling factor for price calculations
-    fn set_care_package_market(
-        ref self: TContractState,
-        game_id: felt252,
-        target_price: u256,
-        decay_constant_mag: u128,
-        max_sellable_mag: u128,
-        time_scale_mag: u128,
-    );
-
-    /// Sets the effectiveness and mortality rates for different fortification types
-    /// * `game_id` - Unique identifier for the game
-    /// * `event_type` - Type of world event
-    /// * `efficacy` - Effectiveness values for each fortification type
-    /// * `mortalities` - Mortality rates for each fortification type
-    /// * `min_radius_sq` - Minimum squared radius for events
-    /// * `max_radius_sq` - Maximum squared radius for events
-    /// * `radius_sq_increase` - Rate of radius increase
-    /// * `min_interval` - Minimum time between events
-    /// * `power` - Event power level
-    /// * `f_value` - Event f_value
-    fn set_world_event_setup(
-        ref self: TContractState,
-        game_id: felt252,
-        event_type: WorldEventType,
-        efficacy: Fortifications,
-        mortalities: Fortifications,
-        min_radius_sq: u32,
-        max_radius_sq: u32,
-        radius_sq_increase: u32,
-        power: u64,
-        f_value: u64
-    );
-
-    fn set_world_event_min_interval(ref self: TContractState, game_id: felt252, min_interval: u64);
-
-    fn set_outpost_setup(ref self: TContractState, game_id: felt252, price: u256, hp: u64,);
-}
+use rising_revenant::world_events::WorldEventVars;
 
 /// Interface for core game actions
 ///
@@ -74,10 +15,25 @@ trait IGameActions<TContractState> {
     /// Returns: game_id - Unique identifier for the created game
     fn create_game(
         ref self: TContractState,
+        name: ByteArray,
         prep_start: u64,
         prep_stop: u64,
         events_start: u64,
         claim_period: u64,
+        map_size_x: u16,
+        map_size_y: u16,
+        outpost_price: u256,
+        outpost_hp: u64,
+        outpost_uri: ByteArray,
+        care_package_target_price_mag: u128, // value / 10^18 * 2^64
+        care_package_decay_constant_mag: u128,
+        care_package_max_sellable: u64,
+        care_package_time_scale_mag: u128,
+        care_package_uri: ByteArray,
+        event_min_interval: u64,
+        dragon_vars: WorldEventVars,
+        goblin_vars: WorldEventVars,
+        earthquake_vars: WorldEventVars,
     ) -> felt252;
 
     /// Ends a game instance
@@ -94,41 +50,71 @@ trait IGameActions<TContractState> {
 mod game_actions {
     use starknet::{get_block_timestamp, ContractAddress, get_caller_address};
     use dojo::{model::{ModelStorage}, world::WorldStorage};
-    use super::{ISettings, IGameActions};
+    use super::IGameActions;
     use rising_revenant::{
-        addresses::{GetDispatcher}, Permissions, map::{Point, MapSize},
-        game::{GamePhases, GamePhase, Winner, GameStorage, GamePhasesTrait, GameTrait,},
-        care_packages::models::{CarePackageMarket}, outposts::{OutpostTrait},
-        fortifications::models::{Fortifications, Fortification},
-        world_events::{
-            models::{WorldEventSetup, WorldEventEffect, WorldEventMinInterval}, WorldEventType
-        },
-        contribution::{ContributionValue, ContributionEvent}, hash::hash_value,
-        world::{default_namespace, WorldTrait}
+        map::MapTrait, Permissions,
+        game::{GamePhases, GamePhase, Winner, GameStorage, GamePhasesTrait, GameTrait},
+        outposts::{OutpostTrait, OutpostStorage}, care_packages::CarePackageTrait,
+        world_events::{WorldEventVars, WorldEventStorage, WorldEventType}, world::default_namespace,
+        utils::uuid,
     };
 
     #[abi(embed_v0)]
     impl GameActionsImp of IGameActions<ContractState> {
         fn create_game(
             ref self: ContractState,
+            name: ByteArray,
             prep_start: u64,
             prep_stop: u64,
             events_start: u64,
             claim_period: u64,
+            map_size_x: u16,
+            map_size_y: u16,
+            outpost_price: u256,
+            outpost_hp: u64,
+            outpost_uri: ByteArray,
+            care_package_target_price_mag: u128,
+            care_package_decay_constant_mag: u128,
+            care_package_max_sellable: u64,
+            care_package_time_scale_mag: u128,
+            care_package_uri: ByteArray,
+            event_min_interval: u64,
+            dragon_vars: WorldEventVars,
+            goblin_vars: WorldEventVars,
+            earthquake_vars: WorldEventVars,
         ) -> felt252 {
+            let caller = get_caller_address();
             let mut world = self.world(default_namespace());
-            let game_id = hash_value(('game', world.uuid()));
-            // TODO: Create tokens
+            let game_id = uuid();
 
+            world.new_game_phases(game_id, prep_start, prep_stop, events_start, claim_period);
+            world.set_map_size(game_id, map_size_x, map_size_y);
+
+            world.set_event_min_interval(game_id, event_min_interval);
+            world.set_event_vars(game_id, WorldEventType::Dragon, dragon_vars);
+            world.set_event_vars(game_id, WorldEventType::Goblins, goblin_vars);
+            world.set_event_vars(game_id, WorldEventType::Earthquake, earthquake_vars);
+            // TODO: Create tokens
             world
-                .write_model(
-                    @GamePhases {
-                        game_id, prep_start, prep_stop, events_start, claim_period, ended: 0,
-                    }
+                .setup_outpost_market(
+                    game_id, @name, outpost_uri, caller, outpost_price, outpost_hp
                 );
+            world
+                .setup_care_package_market(
+                    game_id,
+                    @name,
+                    care_package_uri,
+                    caller,
+                    care_package_target_price_mag,
+                    care_package_decay_constant_mag,
+                    care_package_max_sellable,
+                    care_package_time_scale_mag,
+                );
+            world.set_game_name(game_id, name);
 
             game_id
         }
+
         fn end_game(ref self: ContractState, outpost_id: felt252) {
             let mut world = self.world(default_namespace());
             let outpost = world.get_outpost(outpost_id);
@@ -142,69 +128,6 @@ mod game_actions {
         fn get_winner(self: @ContractState, game_id: felt252) -> ContractAddress {
             let world = self.world(default_namespace());
             world.get_winner(game_id)
-        }
-    }
-
-    #[abi(embed_v0)]
-    impl SettingsImpl of ISettings<ContractState> {
-        fn set_map_size(ref self: ContractState, game_id: felt252, x: u16, y: u16) {
-            let mut world = self.world(default_namespace());
-            world.assert_can_setup(game_id);
-            world.write_model(@MapSize { game_id, size: Point { x, y } });
-        }
-
-        fn set_care_package_market(
-            ref self: ContractState,
-            game_id: felt252,
-            target_price: u256,
-            decay_constant_mag: u128,
-            max_sellable_mag: u128,
-            time_scale_mag: u128,
-        ) {
-            let mut world = self.world(default_namespace());
-            world.assert_admin();
-        }
-
-        fn set_world_event_min_interval(
-            ref self: ContractState, game_id: felt252, min_interval: u64
-        ) {
-            let mut world = self.world(default_namespace());
-            world.assert_can_setup(game_id);
-            world.write_model(@WorldEventMinInterval { game_id, min_interval });
-        }
-
-        fn set_world_event_setup(
-            ref self: ContractState,
-            game_id: felt252,
-            event_type: WorldEventType,
-            efficacy: Fortifications,
-            mortalities: Fortifications,
-            min_radius_sq: u32,
-            max_radius_sq: u32,
-            radius_sq_increase: u32,
-            power: u64,
-            f_value: u64
-        ) {
-            let mut world = self.world(default_namespace());
-            world.assert_can_setup(game_id);
-            world
-                .write_model(
-                    @WorldEventSetup {
-                        game_id, event_type, min_radius_sq, max_radius_sq, radius_sq_increase,
-                    }
-                );
-            world
-                .write_model(
-                    @WorldEventEffect {
-                        game_id, event_type, efficacy, mortalities, power, f_value,
-                    }
-                );
-        }
-
-        fn set_outpost_setup(ref self: ContractState, game_id: felt252, price: u256, hp: u64) {
-            let mut world = self.world(default_namespace());
-            world.assert_can_setup(game_id);
-            world.set_outpost_setup(game_id, price, hp);
         }
     }
 

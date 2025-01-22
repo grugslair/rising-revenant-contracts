@@ -28,13 +28,16 @@ mod permissions {
 }
 
 mod care_packages {
-    mod token;
+    // mod token;
     mod systems;
     mod models;
     mod contract;
-    use models::{Rarity, N_RARITIES, CarePackageStorage, CARE_PACKAGE_CLASS_HASH_SELECTOR};
-    use token::{ICarePackageDispatcher, ICarePackageDispatcherTrait};
-    use systems::{CarePackageTrait};
+    use models::{
+        CarePackage, Rarity, N_RARITIES, CarePackageStorage, CARE_PACKAGE_CLASS_HASH_SELECTOR,
+        CarePackageMarketTrait
+    };
+    // use token::{ICarePackageDispatcher, ICarePackageDispatcherTrait};
+    use systems::{CarePackageTrait, get_rarity};
 }
 mod game {
     mod models;
@@ -47,29 +50,31 @@ mod game {
 }
 mod fortifications {
     mod models;
-    mod storage;
     mod systems;
-    use models::{Fortification, Fortifications, FortificationTrait, FortificationsTrait};
-    use storage::{FortificationStorageTrait};
-    use systems::FortificationMintTrait;
+    use models::{
+        Fortification, Fortifications, FortificationTrait, FortificationsTrait, FortificationTokens,
+        FORTIFICATION_CLASS_HASH_SELECTOR, FortificationStorage
+    };
+    use systems::FortificationTokenTrait;
 }
 mod world_events {
     mod contract;
     mod models;
     mod systems;
 
-    use models::{WorldEventType, WorldEvent};
+    use models::{
+        CurrentEvent, WorldEventType, WorldEvent, WorldEventVars, WorldEventStorage,
+        NUM_WORLD_EVENTS, LastEventOfType, WorldEventSetupTrait, WorldEventEffectTrait
+    };
     use systems::{WorldEventTrait};
 }
 mod outposts {
     mod models;
     mod systems;
-    mod token;
     mod contract;
 
-    use models::{Outpost};
+    use models::{Outpost, OutpostStorage};
     use systems::{OutpostTrait};
-    use token::{IOutpostTokenDispatcher, IOutpostTokenDispatcherTrait};
 }
 mod jackpot {
     mod models;
@@ -82,8 +87,23 @@ mod jackpot {
 }
 mod debris {}
 
-mod vrf;
+mod tokens {
+    use super::erc20_mintable_burnable::{
+        IERC20MintableBurnableDispatcher, IERC20MintableBurnableDispatcherTrait,
+        deploy_erc20_mintable_burnable
+    };
+    use super::erc721_mintable::{
+        IERC721MintableDispatcher, IERC721MintableDispatcherTrait, deploy_erc721_mintable,
+        erc721_mint, erc721_owner_of
+    };
 
+    use openzeppelin_token::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
+    use openzeppelin_token::erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
+}
+
+mod vrf;
+mod erc20_mintable_burnable;
+mod erc721_mintable;
 use permissions::Permissions;
 use addresses::AddressBook;
 

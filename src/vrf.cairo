@@ -3,7 +3,8 @@ use dojo::{world::WorldStorage, model::ModelStorage};
 
 // use cartridge_vrf::{IVrfProviderDispatcher, IVrfProviderDispatcherTrait, Source};
 use rising_revenant::{
-    addresses::{AddressBook,}, address_selectors::VRF_ADDRESS_SELECTOR, utils::felt252_to_u128
+    addresses::{AddressBook,}, address_selectors::VRF_ADDRESS_SELECTOR, utils::felt252_to_u128,
+    hash::hash_value
 };
 
 #[derive(Drop, Copy, Clone, Serde)]
@@ -61,7 +62,9 @@ trait VRF {
 
 impl VrfImpl of VRF {
     fn randomness(ref self: WorldStorage, key: Source) -> felt252 {
-        VrfProviderImpl::get_dispatcher(@self).consume_random(key)
+        hash_value(@key)
+        // VrfProviderImpl::get_dispatcher(@self).consume_random(key)
+
     }
     fn random_u128(ref self: WorldStorage, key: Source) -> u128 {
         felt252_to_u128(self.randomness(key))

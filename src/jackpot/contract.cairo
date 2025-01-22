@@ -49,9 +49,33 @@ mod jackpot_actions {
     use rising_revenant::{
         game::{GameTrait, GameStorage}, jackpot::{JackpotTrait, JackpotStorage, Claimant},
         finance::Finance, contribution::ContributionTrait, addresses::GetDispatcher,
-        outposts::{IOutpostTokenDispatcher, IOutpostTokenDispatcherTrait}, world::default_namespace,
+        world::default_namespace,
     };
     use super::{IJackpot};
+
+    // #[storage]
+    // struct Storage {
+    //     world_dispatcher: dojo::world::IWorldDispatcher,
+    //     claim_end: u64,
+    //     token_address: ContractAddress,
+    //     owner: ContractAddress,
+    // }
+
+    // #[constructor]
+    // fn constructor(ref self: ContractState, world_address: ContractAddress,) {
+    //     self
+    //         .world_dispatcher
+    //         .write(dojo::world::IWorldDispatcher { contract_address: world_address });
+    // }
+
+    // #[generate_trait]
+    // impl IWorldDispatcherInternalImpl of IWorldDispatcherInternalTrait {
+    //     fn world(
+    //         self: @ContractState, namespace: @ByteArray
+    //     ) -> dojo::world::storage::WorldStorage {
+    //         dojo::world::WorldStorageTrait::new(self.world_dispatcher.read(), namespace)
+    //     }
+    // }
 
     #[abi(embed_v0)]
     impl IJackpotImpl of IJackpot<ContractState> {

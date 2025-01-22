@@ -87,6 +87,10 @@ struct Map {
 
 #[generate_trait]
 impl MapImpl of MapTrait {
+    fn set_map_size(ref self: WorldStorage, game_id: felt252, x: u16, y: u16) {
+        self.write_model(@MapSize { game_id, size: Point { x, y } });
+    }
+
     fn get_map_size(self: @WorldStorage, game_id: felt252) -> Point {
         self.read_member(Model::<MapSize>::ptr_from_keys(game_id), selector!("size"))
     }
@@ -97,6 +101,11 @@ impl MapImpl of MapTrait {
                 felt252
             >(Model::<Map>::ptr_from_keys((game_id, position)), selector!("outpost"))
             .is_zero()
+    }
+    fn set_outpost_at_position(
+        ref self: WorldStorage, game_id: felt252, position: Point, outpost_id: felt252
+    ) {
+        self.write_model(@Map { game_id, position, outpost: outpost_id });
     }
     fn get_empty_point(self: @WorldStorage, game_id: felt252, mut hash: HashState) -> Point {
         let map_size = self.get_map_size(game_id);

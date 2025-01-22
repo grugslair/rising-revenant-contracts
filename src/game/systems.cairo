@@ -1,9 +1,9 @@
 use starknet::ContractAddress;
-
 use dojo::{world::WorldStorage, model::ModelStorage};
+use openzeppelin_token::erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
 use rising_revenant::{
     addresses::GetDispatcher, game::{GamePhasesTrait, GamePhase, WinnerTrait, GameStorage},
-    outposts::token::{IOutpostTokenDispatcher, IOutpostTokenDispatcherTrait},
+    outposts::OutpostStorage,
 };
 
 /// Trait implementation for game-related functionality
@@ -58,7 +58,7 @@ impl GameImpl of GameTrait {
     /// # Returns
     /// The contract address of the player who owns the winning outpost
     fn get_winner(self: @WorldStorage, game_id: felt252) -> ContractAddress {
-        let dispatcher: IOutpostTokenDispatcher = self.get_dispatcher();
-        dispatcher.owner_of(self.get_winning_outpost(game_id).into())
+        ERC721ABIDispatcher { contract_address: self.get_outpost_token_address(game_id) }
+            .owner_of(self.get_winning_outpost(game_id).into())
     }
 }
