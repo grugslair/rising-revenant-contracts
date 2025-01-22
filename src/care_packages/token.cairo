@@ -6,15 +6,6 @@ use rising_revenant::{
 };
 
 
-// // gets the dispatcher for the care package token
-// impl CarePackageTokenImpl of GetDispatcher<ICarePackageTokenDispatcher> {
-//     fn get_dispatcher(self: @WorldStorage) -> ICarePackageTokenDispatcher {
-//         ICarePackageTokenDispatcher {
-//             contract_address: self.get_address(CARE_PACKAGE_TOKEN_SELECTOR)
-//         }
-//     }
-// }
-
 #[starknet::interface]
 pub trait ICarePackage<TContractState> {
     fn get_price(self: @TContractState) -> u256;
@@ -28,9 +19,9 @@ mod care_package {
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use openzeppelin_token::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
-    use starknet::{ContractAddress, get_caller_address, get_block_timestamp,};
+    use starknet::{ContractAddress, get_caller_address, get_block_timestamp, get_contract_address};
     use rising_revenant::{
-        vrgda::{LogisticVRGDA, VRGDATrait}, fixed::FixedToDecimal,
+        vrgda::{LogisticVRGDA, LogisticVRGDAStore, VRGDATrait}, fixed::FixedToDecimal,
         jackpot::{IJackpotDispatcher, IJackpotDispatcherTrait}
     };
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
@@ -53,7 +44,7 @@ mod care_package {
         jackpot_address: ContractAddress,
         mint_start: u64,
         mint_end: u64,
-        market: LogisticVRGDA,
+        market: LogisticVRGDAStore,
     }
 
     #[event]
@@ -76,10 +67,15 @@ mod care_package {
         jackpot_address: ContractAddress,
         mint_start: u64,
         mint_end: u64,
-        target_price: u256,
-        decay_constant_mag: u128,
+        market: LogisticVRGDAStore,
     ) {
         self.erc721.initializer(name, symbol, base_uri);
+        self.jackpot_address.write(jackpot_address);
+        self.erc20_token_address.write(erc20_token_address);
+        self.erc20_decimals.write(erc20_decimals);
+        self.mint_start.write(mint_start);
+        self.mint_end.write(mint_end);
+        self.market.write(market);
     }
 
     #[abi(embed_v0)]
@@ -98,7 +94,10 @@ mod care_package {
             IJackpotDispatcher { contract_address: jackpot_address }.increase_jackpot_amount(price);
             let total_minted = total_minted + 1;
             self.total_minted.write(total_minted);
-            let token_id = poseidon_hash_span([get_contract_address(), total_minted].span()).into();
+            let token_id = poseidon_hash_span(
+                [get_contract_address().into(), total_minted.into()].span()
+            )
+                .into();
             self.erc721.mint(caller, token_id);
             token_id
         }
@@ -113,7 +112,7 @@ mod care_package {
                 start_time <= timestamp && timestamp <= self.mint_end.read(),
                 'Not in minting period'
             );
-            let market = self.market.read();
+            let market: LogisticVRGDA = self.market.read().into();
             market
                 .get_vrgda_price((timestamp - start_time).into(), sold.into())
                 .to_decimal(self.erc20_decimals.read())
