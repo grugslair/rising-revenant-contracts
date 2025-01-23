@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "jq": "^1.7.2",
+    "requirejs": "^2.3.7",
+    "starknet": "6.11",
+    "toml": "^3.0.0"
+  },
+  "type": "module"
+}
