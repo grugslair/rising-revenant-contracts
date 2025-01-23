@@ -1,8 +1,0 @@
-tag = "rising_revenant-outpost_actions"
-writes = [
-    "CurrentEvent",
-    "Outpost",
-    "OutpostEvent",
-    "OutpostsActive",
-    "Contribution",
-]
