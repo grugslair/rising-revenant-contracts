@@ -65,19 +65,4 @@ dependencies = [
  "cubit",
  "dojo",
  "openzeppelin_token",
- "rr_tokens",
- "tokens",
 ]
-
-[[package]]
-name = "rr_tokens"
-version = "0.1.0"
-dependencies = [
- "openzeppelin_introspection",
- "openzeppelin_token",
-]
-
-[[package]]
-name = "tokens"
-version = "2.8.4"
-source = "git+https://github.com/bengineer42/cairo-tokens?tag=cairo-2.8.4#fdd75dae0516ff7c53936038be0440e01d7dd70a"

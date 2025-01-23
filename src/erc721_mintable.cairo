@@ -41,7 +41,7 @@ fn erc721_owner_of(contract_address: ContractAddress, token_id: u256) -> Contrac
 }
 
 #[starknet::contract]
-mod mintable_erc721 {
+mod erc721_mintable {
     use core::{poseidon::poseidon_hash_span};
     use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
     use openzeppelin_introspection::src5::SRC5Component;

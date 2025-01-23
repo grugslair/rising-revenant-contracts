@@ -3,6 +3,7 @@ cairo-version = "=2.8.4"
 name = "rising_revenant"
 version = "0.4.0"
 
+
 [cairo]
 sierra-replace-ids = true
 
@@ -13,14 +14,13 @@ sort-module-level-items = true
 starknet = "2.8.4"
 dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.12" }
 openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v0.19.0" }
-rr_tokens = { path = "./tokens" }
-tokens = { git = "https://github.com/bengineer42/cairo-tokens", tag = "cairo-2.8.4" }
 cubit = { git = "https://github.com/bengineer42/cubit", tag = "cairo--2.8.0" }
 # cartridge_vrf = { git = "https://github.com/cartridge-gg/vrf-server" }
 
 
 [[target.starknet-contract]]
 sierra = true
+casm = true
 build-external-contracts = ["dojo::world::world_contract::world"]
 
 

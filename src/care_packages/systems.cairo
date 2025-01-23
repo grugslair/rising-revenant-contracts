@@ -3,8 +3,9 @@ use starknet::{ContractAddress, get_block_timestamp, get_caller_address};
 use dojo::{world::WorldStorage, model::ModelStorage};
 use openzeppelin_token::erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
 use rising_revenant::{
-    game::{GamePhasesTrait, GameStorage}, fortifications::{Fortifications, FortificationTokenTrait},
-    core::ToNonZero, utils::{felt252_to_u128, deploy_contract},
+    game::{GamePhasesTrait, GameStorage, ClassHashVariant},
+    fortifications::{Fortifications, FortificationTokenTrait}, core::ToNonZero,
+    utils::{felt252_to_u128, deploy_contract},
     care_packages::{Rarity, CarePackageStorage, CarePackage},
     tokens::{deploy_erc721_mintable, erc721_owner_of}, world::WorldTrait
 };
@@ -124,7 +125,7 @@ impl CarePackageImpl of CarePackageTrait {
         admin: ContractAddress,
     ) -> ContractAddress {
         deploy_erc721_mintable(
-            self.get_class_hash('erc721_mintable'),
+            self.get_class_hash(ClassHashVariant::ERC721Mintable),
             game_id,
             format!("RR Care Package {}", game_name),
             "RRCP-{}",

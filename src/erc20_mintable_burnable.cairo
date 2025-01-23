@@ -7,6 +7,14 @@ pub trait IERC20MintableBurnable<TContractState> {
     fn burn_from(ref self: TContractState, account: ContractAddress, amount: u256);
 }
 
+fn erc20_mint(contract_address: ContractAddress, recipient: ContractAddress, amount: u256) {
+    IERC20MintableBurnableDispatcher { contract_address }.mint(recipient, amount);
+}
+
+fn erc20_burn_from(contract_address: ContractAddress, account: ContractAddress, amount: u256) {
+    IERC20MintableBurnableDispatcher { contract_address }.burn_from(account, amount);
+}
+
 fn deploy_erc20_mintable_burnable(
     class_hash: ClassHash,
     salt: felt252,

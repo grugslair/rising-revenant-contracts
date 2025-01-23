@@ -21,10 +21,9 @@ mod addresses {
 
 mod permissions {
     mod models;
-    mod contract;
     mod systems;
     use models::{Permissions};
-    use systems::{HasPermissions, AssertPermissions};
+    use systems::{GamePermissions};
 }
 
 mod care_packages {
@@ -44,7 +43,8 @@ mod game {
     mod systems;
     mod contract;
     use models::{
-        GamePhase, GamePhases, GamePhasesTrait, WinnerTrait, Winner, GameName, GameStorage
+        GamePhase, GamePhases, GamePhasesTrait, WinnerTrait, Winner, GameName, GameStorage,
+        ClassHashVariant
     };
     use systems::{GameTrait};
 }
@@ -90,7 +90,7 @@ mod debris {}
 mod tokens {
     use super::erc20_mintable_burnable::{
         IERC20MintableBurnableDispatcher, IERC20MintableBurnableDispatcherTrait,
-        deploy_erc20_mintable_burnable
+        deploy_erc20_mintable_burnable, erc20_mint, erc20_burn_from
     };
     use super::erc721_mintable::{
         IERC721MintableDispatcher, IERC721MintableDispatcherTrait, deploy_erc721_mintable,

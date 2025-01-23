@@ -10,7 +10,7 @@ trait IPemissions<TContractState> {
     /// * `requester` - The address of the entity requesting permissions
     /// # Returns
     /// * `felt252` - The permission level
-    fn get_permissions(
+    fn get_permission(
         self: @TContractState, resource: felt252, requester: ContractAddress
     ) -> felt252;
 
@@ -19,7 +19,7 @@ trait IPemissions<TContractState> {
     /// * `resource` - The resource identifier
     /// * `requester` - The address of the entity to set permissions for
     /// * `permissions` - The permission level to set
-    fn set_permissions(
+    fn set_permission(
         ref self: TContractState,
         resource: felt252,
         requester: ContractAddress,
@@ -30,12 +30,20 @@ trait IPemissions<TContractState> {
 
 #[dojo::contract]
 mod permissions_core {
-    use starknet::{ContractAddress, get_caller_address};
+    use starknet::{ContractAddress, get_caller_address, get_tx_info};
     use rising_revenant::{
-        Permissions, permissions::{AssertPermissions, models::WritePermissions},
+        Permissions,
+        permissions::{AssertPermissions, models::WritePermissions, ADMIN_PERMISSIONS_SELECTOR},
         world::{WorldTrait, default_namespace}
     };
     use super::{IPemissions};
+
+    fn dojo_init(ref self: ContractState) {
+        let world = self.world(default_namespace());
+
+        let admin = get_tx_info().unbox().account_contract_address;
+        world.set_permission(ADMIN_PERMISSIONS_SELECTOR, admin, true);
+    }
 
     /// Implementation of the IPemissions interface
     #[abi(embed_v0)]
@@ -46,11 +54,11 @@ mod permissions_core {
         /// * `requester` - The address of the entity requesting permissions
         /// # Returns
         /// * `felt252` - The current permission level
-        fn get_permissions(
+        fn get_permission(
             self: @ContractState, resource: felt252, requester: ContractAddress
         ) -> felt252 {
             let world = self.world(default_namespace());
-            world.get_permissions(resource, requester)
+            world.get_permission(resource, requester)
         }
 
         /// Sets new permissions for a resource and requester
@@ -59,15 +67,15 @@ mod permissions_core {
         /// * `resource` - The resource identifier
         /// * `requester` - The address of the entity to set permissions for
         /// * `permissions` - The new permission level to set
-        fn set_permissions(
+        fn set_permission(
             ref self: ContractState,
             resource: felt252,
             requester: ContractAddress,
             permissions: felt252
         ) {
             let mut world = self.world(default_namespace());
-            world.assert_admin_permissions(get_caller_address());
-            world.set_permissions(resource, requester, permissions);
+            world.assert_admin_permission(get_caller_address());
+            world.set_permission(resource, requester, permissions);
         }
     }
 }

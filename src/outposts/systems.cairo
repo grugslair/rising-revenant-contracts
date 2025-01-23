@@ -5,7 +5,7 @@ use cubit::f128::{Fixed, FixedTrait};
 use rising_revenant::{
     world_events::{WorldEvent, WorldEventStorage, models::WorldEventEffectTrait},
     fortifications::{Fortifications, Fortification, FortificationsTrait},
-    outposts::{Outpost, OutpostStorage}, game::GameStorage,
+    outposts::{Outpost, OutpostStorage}, game::{GameStorage, ClassHashVariant},
     tokens::{
         IERC721MintableDispatcher, IERC721MintableDispatcherTrait, deploy_erc721_mintable,
         erc721_owner_of
@@ -153,7 +153,7 @@ impl OutpostImpl of OutpostTrait {
         admin: ContractAddress,
     ) -> ContractAddress {
         deploy_erc721_mintable(
-            self.get_class_hash('erc721_mintable'),
+            self.get_class_hash(ClassHashVariant::ERC721Mintable),
             game_id,
             format!("RR Outpost {}", game_name),
             "RROP",

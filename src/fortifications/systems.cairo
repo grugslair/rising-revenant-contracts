@@ -1,15 +1,17 @@
 use core::poseidon::poseidon_hash_span;
-use starknet::ContractAddress;
+use starknet::{ContractAddress, ClassHash};
 use dojo::{world::WorldStorage, model::{ModelStorage, ModelValueStorage}};
 use rising_revenant::{
     fortifications::{
         Fortification, Fortifications, FortificationTrait, FortificationStorage,
         FortificationTokens, FORTIFICATION_CLASS_HASH_SELECTOR,
     },
-    game::GameStorage, utils::deploy_contract,
-    erc20_mintable_burnable::{
-        IERC20MintableBurnableDispatcher, IERC20MintableBurnableDispatcherTrait
+    game::{GameStorage, ClassHashVariant}, utils::deploy_contract,
+    tokens::{
+        deploy_erc20_mintable_burnable, IERC20MintableBurnableDispatcher,
+        IERC20MintableBurnableDispatcherTrait, erc20_mint
     },
+    world::WorldTrait
 };
 
 
@@ -24,59 +26,55 @@ impl FortificationTokenImpl of FortificationTokenTrait {
         let addresses = self.get_fortification_contract_addresses(game_id);
         let amounts: Array<u64> = fortifications.into();
 
-        for i in 0_usize
-            ..4 {
-                IERC20MintableBurnableDispatcher { contract_address: *addresses.at(i) }
-                    .mint(recipient, (*amounts.at(i)).into());
-            };
+        for i in 0_usize..4 {
+            erc20_mint(*addresses.at(i), recipient, (*amounts.at(i)).into());
+        };
     }
 
     fn deploy_fortification_token(
         ref self: WorldStorage,
+        class_hash: ClassHash,
         game_id: felt252,
         game_name: @ByteArray,
         admin: ContractAddress,
         minter: ContractAddress,
         fortification: Fortification
     ) -> ContractAddress {
-        let mut calldata = array![];
-
         let fortification_felt: felt252 = fortification.into();
-        let salt = poseidon_hash_span([game_id, fortification_felt].span());
-        Serde::serialize(@format!("RR {} {}", fortification_felt, game_name), ref calldata);
-        Serde::serialize(@fortification.symbol(), ref calldata);
-        calldata.append_span([0, admin.into(), minter.into()].span());
-
-        deploy_contract(
-            self.get_class_hash(FORTIFICATION_CLASS_HASH_SELECTOR), calldata.span(), salt
+        deploy_erc20_mintable_burnable(
+            class_hash,
+            poseidon_hash_span([game_id, fortification_felt].span()),
+            format!("RR {} {}", fortification_felt, game_name),
+            fortification.symbol(),
+            0,
+            admin,
+            minter,
         )
     }
 
     fn deploy_fortification_tokens(
-        ref self: WorldStorage,
-        game_id: felt252,
-        game_name: @ByteArray,
-        admin: ContractAddress,
-        minter: ContractAddress
+        ref self: WorldStorage, game_id: felt252, game_name: @ByteArray, admin: ContractAddress,
     ) {
+        let minter = self.get_contract_address("care_package_actions");
+        let class_hash = self.get_class_hash(ClassHashVariant::ERC20MintableBurnable);
         self
             .set_fortifications_contract_address(
                 game_id,
                 self
                     .deploy_fortification_token(
-                        game_id, game_name, admin, minter, Fortification::Palisade
+                        class_hash, game_id, game_name, admin, minter, Fortification::Palisade
                     ),
                 self
                     .deploy_fortification_token(
-                        game_id, game_name, admin, minter, Fortification::Trench
+                        class_hash, game_id, game_name, admin, minter, Fortification::Trench
                     ),
                 self
                     .deploy_fortification_token(
-                        game_id, game_name, admin, minter, Fortification::Wall
+                        class_hash, game_id, game_name, admin, minter, Fortification::Wall
                     ),
                 self
                     .deploy_fortification_token(
-                        game_id, game_name, admin, minter, Fortification::Basement
+                        class_hash, game_id, game_name, admin, minter, Fortification::Basement
                     ),
             );
     }

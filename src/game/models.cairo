@@ -23,18 +23,24 @@ enum GamePhase {
 
 /// Stores the winning outpost information for a completed game
 #[dojo::model]
-#[derive(Drop, Serde, Copy)]
+#[derive(Drop, Serde)]
 struct Winner {
     #[key]
     game_id: felt252,
     outpost_id: felt252,
 }
 
+#[derive(Drop, Serde, Copy, PartialEq, Introspect)]
+enum ClassHashVariant {
+    ERC20MintableBurnable,
+    ERC721Mintable,
+}
+
 #[dojo::model]
-#[derive(Drop, Serde, Copy)]
+#[derive(Drop, Serde)]
 struct GameClassHash {
     #[key]
-    selector: felt252,
+    variant: ClassHashVariant,
     class_hash: ClassHash,
 }
 
@@ -142,6 +148,7 @@ impl GamePhasesImpl of GamePhasesTrait {
     ///
     /// * `bool` - `true` if the current phase matches the specified phase, `false` otherwise.
     fn is_phase(self: @GamePhases, phase: GamePhase) -> bool {
+        let var: (@u8, @u8) = (@12_u8, @12_u8).into();
         self.get_phase() == phase
     }
     /// Asserts that the current game phase is 'Preparing'.
@@ -219,12 +226,12 @@ impl GameStorageImpl of GameStorage {
             );
     }
 
-    fn set_class_hash(ref self: WorldStorage, selector: felt252, class_hash: ClassHash) {
-        self.write_model(@GameClassHash { selector, class_hash });
+    fn set_class_hash(ref self: WorldStorage, variant: ClassHashVariant, class_hash: ClassHash) {
+        self.write_model(@GameClassHash { variant, class_hash });
     }
 
-    fn get_class_hash(self: @WorldStorage, selector: felt252) -> ClassHash {
-        self.read_member(Model::<GameClassHash>::ptr_from_keys(selector), selector!("class_hash"))
+    fn get_class_hash(self: @WorldStorage, variant: ClassHashVariant) -> ClassHash {
+        self.read_member(Model::<GameClassHash>::ptr_from_keys(variant), selector!("class_hash"))
     }
 
 

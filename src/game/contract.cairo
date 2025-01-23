@@ -1,5 +1,5 @@
-use starknet::ContractAddress;
-use rising_revenant::world_events::WorldEventVars;
+use starknet::{ContractAddress, ClassHash};
+use rising_revenant::{world_events::WorldEventVars, game::ClassHashVariant};
 
 /// Interface for core game actions
 ///
@@ -46,14 +46,30 @@ trait IGameActions<TContractState> {
     fn get_winner(self: @TContractState, game_id: felt252) -> ContractAddress;
 }
 
+#[starknet::interface]
+trait IGameAdmin<TContractState> {
+    fn set_is_admin(ref self: TContractState, user: ContractAddress, has: bool);
+    fn set_is_creator(ref self: TContractState, user: ContractAddress, has: bool);
+    fn set_is_dev(ref self: TContractState, user: ContractAddress, has: bool);
+
+    fn get_is_admin(self: @TContractState, user: ContractAddress) -> bool;
+    fn get_is_dev(self: @TContractState, user: ContractAddress) -> bool;
+    fn get_is_creator(self: @TContractState, user: ContractAddress) -> bool;
+
+    fn set_class_hash(ref self: TContractState, variant: ClassHashVariant, class_hash: ClassHash);
+    fn get_class_hash(self: @TContractState, variant: ClassHashVariant) -> ClassHash;
+}
+
 #[dojo::contract]
 mod game_actions {
-    use starknet::{get_block_timestamp, ContractAddress, get_caller_address};
+    use starknet::{get_block_timestamp, ContractAddress, get_caller_address, ClassHash};
     use dojo::{model::{ModelStorage}, world::WorldStorage};
-    use super::IGameActions;
+    use super::{IGameActions, IGameAdmin};
     use rising_revenant::{
-        map::MapTrait, Permissions,
-        game::{GamePhases, GamePhase, Winner, GameStorage, GamePhasesTrait, GameTrait},
+        map::MapTrait, permissions::GamePermissions, fortifications::FortificationTokenTrait,
+        game::{
+            GamePhases, GamePhase, Winner, GameStorage, GamePhasesTrait, GameTrait, ClassHashVariant
+        },
         outposts::{OutpostTrait, OutpostStorage}, care_packages::CarePackageTrait,
         world_events::{WorldEventVars, WorldEventStorage, WorldEventType}, world::default_namespace,
         utils::uuid,
@@ -83,8 +99,9 @@ mod game_actions {
             goblin_vars: WorldEventVars,
             earthquake_vars: WorldEventVars,
         ) -> felt252 {
-            let caller = get_caller_address();
             let mut world = self.world(default_namespace());
+            let caller = get_caller_address();
+            world.assert_creator_permission(caller);
             let game_id = uuid();
 
             world.new_game_phases(game_id, prep_start, prep_stop, events_start, claim_period);
@@ -110,6 +127,7 @@ mod game_actions {
                     care_package_max_sellable,
                     care_package_time_scale_mag,
                 );
+            world.deploy_fortification_tokens(game_id, @name, caller);
             world.set_game_name(game_id, name);
 
             game_id
@@ -127,40 +145,55 @@ mod game_actions {
 
         fn get_winner(self: @ContractState, game_id: felt252) -> ContractAddress {
             let world = self.world(default_namespace());
+
             world.get_winner(game_id)
         }
     }
 
-    /// Private implementation trait containing helper functions for game management
-    ///
-    /// Provides utility functions for access control and game state validation
-    #[generate_trait]
-    impl PrivateImpl of PrivateTrait {
-        /// Verifies that the caller has permission to setup game parameters
-        /// * `game_id` - Unique identifier for the game
-        /// # Panics
-        /// * If caller is not an admin
-        /// * If game is not in creation phase
-        fn assert_can_setup(self: @WorldStorage, game_id: felt252) {
-            self.assert_admin();
-            self.assert_game_created(game_id);
+    #[abi(embed_v0)]
+    impl IGameAdminImpl of IGameAdmin<ContractState> {
+        fn set_class_hash(
+            ref self: ContractState, variant: ClassHashVariant, class_hash: ClassHash
+        ) {
+            let mut world = self.world(default_namespace());
+            world.assert_admin_permission(get_caller_address());
+            world.set_class_hash(variant, class_hash);
         }
 
-        /// Verifies that the caller has admin privileges
-        /// # Panics
-        /// * If caller does not have admin permissions
-        fn assert_admin(self: @WorldStorage) {
-            assert(self.get_permissions('admin', get_caller_address()), 'Not an admin');
+        fn get_class_hash(self: @ContractState, variant: ClassHashVariant) -> ClassHash {
+            let world = self.world(default_namespace());
+            world.get_class_hash(variant)
         }
 
-        /// Verifies that a game exists and is in the creation phase
-        /// * `game_id` - Unique identifier for the game
-        /// # Panics
-        /// * If game has progressed beyond creation phase
-        fn assert_game_created(self: @WorldStorage, game_id: felt252) {
-            assert(
-                get_block_timestamp() < self.get_prep_start(game_id), 'Game not in creation phase'
-            );
+        fn set_is_admin(ref self: ContractState, user: ContractAddress, has: bool) {
+            let mut world = self.world(default_namespace());
+            world.assert_admin_permission(get_caller_address());
+            world.set_admin_permission(user, has);
+        }
+        fn set_is_dev(ref self: ContractState, user: ContractAddress, has: bool) {
+            let mut world = self.world(default_namespace());
+            world.assert_admin_permission(get_caller_address());
+            world.set_dev_permission(user, has);
+        }
+        fn set_is_creator(ref self: ContractState, user: ContractAddress, has: bool) {
+            let mut world = self.world(default_namespace());
+            world.assert_admin_permission(get_caller_address());
+            world.set_creator_permission(user, has);
+        }
+
+        fn get_is_admin(self: @ContractState, user: ContractAddress) -> bool {
+            let world = self.world(default_namespace());
+            world.has_admin_permission(user)
+        }
+
+        fn get_is_dev(self: @ContractState, user: ContractAddress) -> bool {
+            let world = self.world(default_namespace());
+            world.has_dev_permission(user)
+        }
+
+        fn get_is_creator(self: @ContractState, user: ContractAddress) -> bool {
+            let world = self.world(default_namespace());
+            world.has_creator_permission(user)
         }
     }
 }

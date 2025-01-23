@@ -1,11 +1,11 @@
 use starknet::ContractAddress;
 use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
-use rising_revenant::core::{BoolIntoFelt252Impl, Felt252TryIntoBoolImpl};
+use rising_revenant::core::{Felt252TryIntoBoolImpl};
 
 mod models {
     use starknet::ContractAddress;
     /// Represents permission settings for a resource and requester
-    /// 
+    ///
     /// # Arguments
     /// * `resource` - The identifier of the resource being accessed
     /// * `requester` - The address of the entity requesting access
@@ -23,40 +23,40 @@ mod models {
 use models::Permissions as PermissionsModel;
 
 /// Trait for reading permissions from storage
-/// 
+///
 /// Generic parameter P represents the permission type that will be returned
 trait Permissions<P> {
     /// Retrieves permissions for a given resource and requester
-    /// 
+    ///
     /// # Arguments
     /// * `resource` - The identifier of the resource
     /// * `requester` - The address requesting access
-    /// 
+    ///
     /// # Returns
     /// * The permissions of type P for the given resource and requester
-    fn get_permissions(self: @WorldStorage, resource: felt252, requester: ContractAddress) -> P;
+    fn get_permission(self: @WorldStorage, resource: felt252, requester: ContractAddress) -> P;
 }
 
 /// Trait for writing permissions to storage
-/// 
+///
 /// Generic parameter P represents the permission type that will be stored
 trait WritePermissions<P> {
     /// Sets permissions for a given resource and requester
-    /// 
+    ///
     /// # Arguments
     /// * `resource` - The identifier of the resource
     /// * `requester` - The address requesting access
     /// * `permissions` - The permissions to set
-    fn set_permissions(
+    fn set_permission(
         ref self: WorldStorage, resource: felt252, requester: ContractAddress, permissions: P
     );
 }
 
 /// Implementation of the Permissions trait
-/// 
+///
 /// Requires that P can be converted from felt252
 impl PermissionsImpl<P, +TryInto<felt252, P>> of Permissions<P> {
-    fn get_permissions(self: @WorldStorage, resource: felt252, requester: ContractAddress) -> P {
+    fn get_permission(self: @WorldStorage, resource: felt252, requester: ContractAddress) -> P {
         self
             .read_member::<
                 felt252
@@ -70,10 +70,10 @@ impl PermissionsImpl<P, +TryInto<felt252, P>> of Permissions<P> {
 }
 
 /// Implementation of the WritePermissions trait
-/// 
+///
 /// Requires that P can be converted to felt252 and implements Drop
 impl WritePermissionsImpl<P, +Into<P, felt252>, +Drop<P>> of WritePermissions<P> {
-    fn set_permissions(
+    fn set_permission(
         ref self: WorldStorage, resource: felt252, requester: ContractAddress, permissions: P
     ) {
         self
