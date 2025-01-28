@@ -2,7 +2,10 @@ use starknet::{ContractAddress, get_caller_address};
 use openzeppelin_token::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
 use dojo::{world::{WorldStorage, WorldStorageTrait}, model::{ModelStorage, Model}};
 use super::models::{JackpotTotal, JackpotClaimed, JackpotSplit, Claimant, Claimed, JackpotStorage};
-use rising_revenant::{contribution::ContributionTrait, game::GameStorage};
+use rising_revenant::{
+    contribution::Contribution, game::GameStorage,
+    tokens::{erc20_transfer, erc20_transfer_from, erc20_balance_of}
+};
 
 /// The JackpotTrait provides a comprehensive system for managing game jackpots.
 /// It handles:
@@ -15,6 +18,9 @@ use rising_revenant::{contribution::ContributionTrait, game::GameStorage};
 /// allowing for flexible distribution ratios between different stakeholders.
 #[generate_trait]
 impl JackpotImpl of JackpotTrait {
+    fn payout(ref self: WorldStorage, game_id: felt252, recipient: ContractAddress, amount: u256) {
+        erc20_transfer(self.get_game_erc20_token(game_id), recipient, amount);
+    }
     fn pay_into_jackpot(
         ref self: WorldStorage, game_id: felt252, from: ContractAddress, amount: u256
     ) {
@@ -64,8 +70,8 @@ impl JackpotImpl of JackpotTrait {
         self: @WorldStorage, game_id: felt252, user: ContractAddress
     ) -> u256 {
         self.get_jackpot_fraction(game_id, self.get_contribution_permille(game_id))
-            * self.get_contribution_score(game_id, user).into()
-            / self.get_total_contribution_score(game_id).into()
+            * self.get_contribution_amount(game_id, user).into()
+            / self.get_total_contribution_amount(game_id).into()
     }
 
     /// Calculates the winner's share amount.

@@ -4,15 +4,6 @@ use starknet::{
 };
 use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
 
-#[starknet::storage_node]
-struct JackpotStore {
-    total_amount: u256,
-    claimed_amount: u256,
-    claimed: Map<Claimant, bool>,
-    dev_permille: u16,
-    contribution_permille: u16,
-}
-
 /// Represents the total amount in a jackpot for a specific game
 /// @param game_id - Unique identifier for the game
 /// @param total - Total amount in the jackpot in wei
@@ -39,7 +30,7 @@ struct JackpotClaimed {
 /// Dev: Game developers
 /// Winner: Game winner
 /// Contributor: Address of someone who contributed to the jackpot
-#[derive(Drop, Serde, Copy, PartialEq, Introspect, starknet::Store)]
+#[derive(Drop, Serde, Copy, PartialEq, Introspect)]
 enum Claimant {
     Dev,
     Winner,
@@ -111,12 +102,12 @@ impl JackpotImpl of JackpotStorage {
     /// * `game_id` - The unique identifier of the game
     /// # Returns
     /// * `JackpotClaimed` - The claimed jackpot model
-    fn get_jackpot_claimed(self: @WorldStorage, game_id: felt252) -> JackpotClaimed {
-        self.read_model(game_id)
+    fn get_jackpot_claimed(self: @WorldStorage, game_id: felt252) -> u256 {
+        self.read_member(Model::<JackpotClaimed>::ptr_from_keys(game_id), selector!("amount"))
     }
 
-    fn set_jackpot_claimed(ref self: WorldStorage, claimed: JackpotClaimed) {
-        self.write_model(@claimed);
+    fn set_jackpot_claimed(ref self: WorldStorage, game_id: felt252, amount: u256) {
+        self.write_model(@JackpotClaimed { game_id, amount });
     }
 
     /// Calculates the remaining unclaimed amount in the jackpot.
@@ -125,7 +116,7 @@ impl JackpotImpl of JackpotStorage {
     /// # Returns
     /// * `u256` - The amount remaining to be claimed
     fn get_jackpot_left(self: @WorldStorage, game_id: felt252) -> u256 {
-        self.get_jackpot_total_amount(game_id) - self.get_jackpot_claimed(game_id).amount
+        self.get_jackpot_total_amount(game_id) - self.get_jackpot_claimed(game_id)
     }
 
     /// Returns the developer's share in permille (parts per thousand).
@@ -158,19 +149,8 @@ impl JackpotImpl of JackpotStorage {
         1000 - self.get_dev_permille(game_id) - self.get_contribution_permille(game_id)
     }
 
-
-    /// Returns the claim status for a specific claimant.
-    /// # Arguments
-    /// * `game_id` - The unique identifier of the game
-    /// * `claimant` - The type of claimant (Dev, Winner, or Contributor)
-    /// # Returns
-    /// * `Claimed` - The claim status model
-    fn get_claimant(self: @WorldStorage, game_id: felt252, claimant: Claimant) -> Claimed {
-        self.read_model((game_id, claimant))
-    }
-
-    fn set_claimant(ref self: WorldStorage, claimant: Claimed) {
-        self.write_model(@claimant);
+    fn set_claimant(ref self: WorldStorage, game_id: felt252, claimant: Claimant) {
+        self.write_model(@Claimed { game_id, claimant, claimed: true });
     }
 
     /// Checks if a specific claimant has already claimed their share.
