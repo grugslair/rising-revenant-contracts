@@ -101,6 +101,12 @@ const erc20ClassHash = await declareContract(
   profile,
   erc20ContractName
 );
+const gamePotClassHash = await declareContract(
+  provider,
+  account,
+  profile,
+  gamePotContractName
+);
 
 const makeSetClassHashCall = (variant, classHash) => {
   gameContract.populate(setClassHashEntryPoint, {
@@ -112,7 +118,7 @@ const makeSetClassHashCall = (variant, classHash) => {
 const calls = [
   makeSetClassHashCall(erc721MintableCairoEnum, erc721ClassHash),
   makeSetClassHashCall(erc20MintableBurnableCairoEnum, erc20ClassHash),
-  makeSetClassHashCall(gamePotCairoEnum, erc20ClassHash),
+  makeSetClassHashCall(gamePotCairoEnum, gamePotClassHash),
 ];
 
 const transaction = await account.execute(calls);
