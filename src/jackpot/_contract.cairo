@@ -48,7 +48,7 @@ mod jackpot_actions {
     use dojo::world::WorldStorage;
     use rising_revenant::{
         game::{GameTrait, GameStorage}, jackpot::{JackpotTrait, JackpotStorage, Claimant},
-        finance::Finance, contribution::ContributionTrait, addresses::GetDispatcher,
+        finance::Finance, contribution::Contribution, addresses::GetDispatcher,
         world::default_namespace,
     };
     use super::{IJackpot};

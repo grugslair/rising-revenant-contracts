@@ -1,8 +1,10 @@
 use starknet::{ContractAddress, get_caller_address};
 use openzeppelin_token::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
 use dojo::{world::{WorldStorage, WorldStorageTrait}, model::{ModelStorage, Model}};
-use super::models::{JackpotTotal, JackpotClaimed, JackpotSplit, Claimant, Claimed, JackpotStorage};
-use rising_revenant::{contribution::ContributionTrait, game::GameStorage};
+use rising_revenant::{
+    jackpot::JackpotStorage, contribution::Contribution, game::{GameStorage, GameTrait, GameWallet},
+    tokens::{erc20_transfer, erc20_transfer_from, erc20_balance_of}
+};
 
 /// The JackpotTrait provides a comprehensive system for managing game jackpots.
 /// It handles:
@@ -15,24 +17,15 @@ use rising_revenant::{contribution::ContributionTrait, game::GameStorage};
 /// allowing for flexible distribution ratios between different stakeholders.
 #[generate_trait]
 impl JackpotImpl of JackpotTrait {
+    fn payout(ref self: WorldStorage, game_id: felt252, recipient: ContractAddress, amount: u256) {
+        erc20_transfer(self.get_game_erc20_token(game_id), recipient, amount);
+    }
+
     fn pay_into_jackpot(
         ref self: WorldStorage, game_id: felt252, from: ContractAddress, amount: u256
     ) {
-        let jackpot_address = match self.dns(@"jackpot_actions") {
-            Option::Some((address, _)) => address,
-            Option::None => panic!("Jackpot contract not deployed"),
-        };
-        let contract_address = self.get_game_erc20_token(game_id);
-        ERC20ABIDispatcher { contract_address }.transfer_from(from, jackpot_address, amount);
-        self.increase_jackpot_total(game_id, amount);
-    }
-
-    /// Increases the total jackpot amount by a specified value.
-    /// # Arguments
-    /// * `game_id` - The unique identifier of the game
-    /// * `value` - The amount to add to the jackpot
-    fn increase_jackpot_total(ref self: WorldStorage, game_id: felt252, value: u256) {
-        self.set_jackpot_total_amount(game_id, self.get_jackpot_total_amount(game_id) + value);
+        let GameWallet { erc20_address, wallet_address } = self.get_game_wallet(game_id);
+        erc20_transfer_from(erc20_address, from, wallet_address, amount);
     }
 
     /// Calculates a fraction of the jackpot based on permille value.
@@ -42,16 +35,11 @@ impl JackpotImpl of JackpotTrait {
     /// # Returns
     /// * `u256` - The calculated fraction of the jackpot
     fn get_jackpot_fraction(self: @WorldStorage, game_id: felt252, permille: u16) -> u256 {
-        self.get_jackpot_total_amount(game_id).into() * 1000 / permille.into()
+        self.get_jackpot_total(game_id) * 1000 / permille.into()
     }
 
-    /// Calculates the developer's share amount.
-    /// # Arguments
-    /// * `game_id` - The unique identifier of the game
-    /// # Returns
-    /// * `u256` - The amount allocated to developers
-    fn get_dev_amount(self: @WorldStorage, game_id: felt252) -> u256 {
-        self.get_jackpot_fraction(game_id, self.get_dev_permille(game_id))
+    fn get_contribution_jackpot_fraction(self: @WorldStorage, game_id: felt252) -> u256 {
+        self.get_jackpot_fraction(game_id, self.get_contribution_permille(game_id))
     }
 
     /// Calculates a specific user's contribution share amount.
@@ -60,12 +48,12 @@ impl JackpotImpl of JackpotTrait {
     /// * `user` - The address of the contributor
     /// # Returns
     /// * `u256` - The amount allocated to the contributor
-    fn get_contribution_amount(
+    fn get_contributor_payout(
         self: @WorldStorage, game_id: felt252, user: ContractAddress
     ) -> u256 {
-        self.get_jackpot_fraction(game_id, self.get_contribution_permille(game_id))
-            * self.get_contribution_score(game_id, user).into()
-            / self.get_total_contribution_score(game_id).into()
+        self.get_contribution_jackpot_fraction(game_id)
+            * self.get_contribution_amount(game_id, user).into()
+            / self.get_total_contribution_amount(game_id).into()
     }
 
     /// Calculates the winner's share amount.
@@ -73,80 +61,36 @@ impl JackpotImpl of JackpotTrait {
     /// * `game_id` - The unique identifier of the game
     /// # Returns
     /// * `u256` - The amount allocated to the winner
-    fn get_win_amount(self: @WorldStorage, game_id: felt252) -> u256 {
-        self.get_jackpot_fraction(game_id, self.get_win_permille(game_id))
+    fn get_winner_payout(self: @WorldStorage, game_id: felt252) -> u256 {
+        self.get_jackpot_fraction(game_id, self.get_winner_permille(game_id))
     }
 
-    /// Marks a claim as processed for a specific claimant.
-    /// # Arguments
-    /// * `game_id` - The unique identifier of the game
-    /// * `claimant` - The type of claimant (Dev, Winner, or Contributor)
-    /// # Panics
-    /// * If the claim was already made
-    fn make_claim(ref self: WorldStorage, game_id: felt252, claimant: Claimant) {
-        let mut claimed = self.get_claimant(game_id, claimant);
-        assert(!claimed.claimed, 'Already claimed');
-        claimed.claimed = true;
-        self.set_claimant(claimed);
+    fn claim_winning_payout(ref self: WorldStorage, game_id: felt252) {
+        self.assert_game_claiming(game_id);
+        let winner = self.get_owner_of_winning_outpost(game_id);
+        assert(winner == get_caller_address(), 'Not owner of winning outpost');
+        let amount = self.get_winner_payout(game_id);
+        self.payout(game_id, winner, amount);
+        self.set_jackpot_winner_claimed(game_id);
     }
 
-    /// Updates the total claimed amount for a game.
-    /// # Arguments
-    /// * `game_id` - The unique identifier of the game
-    /// * `amount` - The amount being claimed
-    /// # Panics
-    /// * If there are insufficient funds available
-    fn set_amount_claimed(ref self: WorldStorage, game_id: felt252, amount: u256) {
-        let total = self.get_jackpot_total_amount(game_id);
-        let mut claimed = self.get_jackpot_claimed(game_id);
-        assert(claimed.amount + amount <= total, 'Insufficient funds');
-        claimed.amount += amount;
-        self.set_jackpot_claimed(claimed);
+    fn claim_contributor_payout(ref self: WorldStorage, game_id: felt252, user: ContractAddress) {
+        self.assert_game_claiming(game_id);
+        let amount = self.get_contributor_payout(game_id, user);
+        self.payout(game_id, user, amount);
+        self.set_jackpot_contributor_claimed(game_id, user);
     }
 
-    /// Calculates the claimable amount for a specific claimant type.
-    /// # Arguments
-    /// * `game_id` - The unique identifier of the game
-    /// * `claimant` - The type of claimant (Dev, Winner, or Contributor)
-    /// # Returns
-    /// * `u256` - The amount that can be claimed
-    fn get_claim_amount(self: @WorldStorage, game_id: felt252, claimant: Claimant) -> u256 {
-        match claimant {
-            Claimant::Dev => self.get_dev_amount(game_id),
-            Claimant::Winner => self.get_win_amount(game_id),
-            Claimant::Contributor(user) => self.get_contribution_amount(game_id, user),
-        }
+    fn get_jackpot_current_amount(self: @WorldStorage, game_id: felt252) -> u256 {
+        let GameWallet { erc20_address, wallet_address } = self.get_game_wallet(game_id);
+        erc20_balance_of(erc20_address, wallet_address)
     }
 
-    /// Processes a claim and returns the claimed amount.
-    /// # Arguments
-    /// * `game_id` - The unique identifier of the game
-    /// * `claimant` - The type of claimant (Dev, Winner, or Contributor)
-    /// # Returns
-    /// * `u256` - The amount claimed
-    /// # Panics
-    /// * If there is no amount to claim
-    fn claim_amount(ref self: WorldStorage, game_id: felt252, claimant: Claimant) -> u256 {
-        let amount = self.get_claim_amount(game_id, claimant);
-        assert(amount > 0, 'No amount to claim');
-        self.make_claim(game_id, claimant);
-        self.set_amount_claimed(game_id, amount);
-        amount
+    fn get_self_current_amount(self: @WorldStorage, game_id: felt252) -> u256 {
+        erc20_balance_of(self.get_game_erc20_token(game_id), get_caller_address())
     }
 
-    /// Claims any remaining unclaimed amount in the jackpot.
-    /// This function can be used to collect any dust or remaining amounts
-    /// after all primary claims have been processed.
-    /// # Arguments
-    /// * `game_id` - The unique identifier of the game
-    /// # Returns
-    /// * `u256` - The amount claimed from the remainder
-    fn claim_remainder(ref self: WorldStorage, game_id: felt252) -> u256 {
-        let total = self.get_jackpot_total_amount(game_id);
-        let mut claimed = self.get_jackpot_claimed(game_id);
-        let remainder = total - claimed.amount;
-        claimed.amount = total;
-        self.set_jackpot_claimed(claimed);
-        remainder
+    fn finalise_jackpot_total(ref self: WorldStorage, game_id: felt252) {
+        self.set_jackpot_total(game_id, self.get_jackpot_current_amount(game_id));
     }
 }
