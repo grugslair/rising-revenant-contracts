@@ -1,17 +1,15 @@
-
 ![cover RR](https://github.com/GrugLikesRocks/Rising-Revenant/assets/92889945/9721cd3f-e655-4c5c-b7a4-60631e5b8a5c)
 
-***An Introduction to Rising Revenant - The Ultimate Defense Game*** 
-
+**_An Introduction to Rising Revenant - The Ultimate Defense Game_**
 
 Embark on a journey into a new world, where revenants establish outposts amidst the untamed wilds, each bracing for a series of cataclysmic events. Rising Revenant isn't just a game; it's a test of your strategy, resilience, and foresight.
 
 **On-Chain Events**
 
-
 The precise location of each outpost is stored securely on-chain. Every X (TBC) amount of blocks, a random event strikes, determined transparently via an immutable on-chain method. This is visually represented on the game's tactical map.
 
 **Game Flow**
+
 ```mermaid
 graph TB
     IG[Init game] --> PP
@@ -20,9 +18,9 @@ graph TB
         B[Players buy outposts\nand reinforcements]
         B --> R1[Reinforce]
     end
-    
+
     PP --> GP
-    
+
     subgraph GP [Game Phase]
         direction TB
         subgraph PE [Pre event]
@@ -51,10 +49,10 @@ graph TB
             Rp1--> Rmyl(Loose)-->LL
             Rp2--> Rmyw
             Rp2--> Rmyl
-            
+
             Rm-->Rmn(no)
             Rmn-->LL[Looses life\nand any specialised defense]
-            
+
             LL --> LC[Outpost has lives remaining]
             LC --> LCy((yes))
             LC --> LCn((no))
@@ -70,7 +68,7 @@ graph TB
         Oey --> VO
         Oen --> PE
         ORn --> PE
-        
+
 
     end
 
@@ -84,7 +82,6 @@ graph TB
 
 
 ```
-
 
 **The Map**
 
@@ -131,15 +128,15 @@ Each outpost and reinforcement in Rising Revenant adheres to the ERC721 NFT stan
 Rising Revenant offers an exhilarating mix of strategy, chance, and foresight, making it a captivating endeavor for gamers and crypto enthusiasts. Will you rise to the challenge and etch your name in the annals of this adventure?
 ![Cover_WinnerRevenant](https://github.com/GrugLikesRocks/Rising-Revenant/assets/92889945/0777ee0d-9f8f-4209-b9b5-5f0fbd12e413)
 
-***Rising Revenant Game Rules***
+**_Rising Revenant Game Rules_**
 
 **Initial Phase: "The Dawn of Revenants"**
 
-*Summoning the Revenants:* Players begin by invoking Revenants, powerful entities, through a mystical expenditure of $LORDS. Each successful summoning not only brings forth a Revenant but also establishes an Outpost around the game map.
+_Summoning the Revenants:_ Players begin by invoking Revenants, powerful entities, through a mystical expenditure of $LORDS. Each successful summoning not only brings forth a Revenant but also establishes an Outpost around the game map.
 
-*Building Outposts:* These bastions of power will initially have 1 health. Following a Revenant's summoning, players may fortify these Outposts in the following phase.
+_Building Outposts:_ These bastions of power will initially have 1 health. Following a Revenant's summoning, players may fortify these Outposts in the following phase.
 
-*Fortifying Outposts:* Outposts, symbols of your burgeoning empire, can be bolstered up to 20 times in their lifetime. The extent of reinforcements directly influences the Outpost’s defense, manifested in the number of shields it wields:
+_Fortifying Outposts:_ Outposts, symbols of your burgeoning empire, can be bolstered up to 20 times in their lifetime. The extent of reinforcements directly influences the Outpost’s defense, manifested in the number of shields it wields:
 1-2 reinforcements: Unshielded
 3-5 reinforcements: 1 Shield
 6-9 reinforcements: 2 Shields
@@ -147,69 +144,67 @@ Rising Revenant offers an exhilarating mix of strategy, chance, and foresight, m
 14-19 reinforcements: 4 Shields
 20 reinforcements: 5 Shields
 
-*The Anticipation Screen:* Post-preparation, players enter a phase of strategic anticipation. Here, the summoning of new Revenants and bolstering of Outposts continues, setting the stage for the impending Main Phase.
+_The Anticipation Screen:_ Post-preparation, players enter a phase of strategic anticipation. Here, the summoning of new Revenants and bolstering of Outposts continues, setting the stage for the impending Main Phase.
 
 **Gameplay Phase: "The Epoch of Confrontation"**
 
-*Commencing the Main Phase:* Following the initial phase, the game escalates into a whirlwind of action, marked by attacks and disorder.
+_Commencing the Main Phase:_ Following the initial phase, the game escalates into a whirlwind of action, marked by attacks and disorder.
 
-*Diverse Attacks:* Players must confront challenges ranging from cataclysmic natural disasters to the fiery wrath of dragons and the cunning onslaught of goblins.
+_Diverse Attacks:_ Players must confront challenges ranging from cataclysmic natural disasters to the fiery wrath of dragons and the cunning onslaught of goblins.
 
-*Main Phase Limitations:* In this critical phase, the focus shifts from expansion to survival. The creation of new Outposts and reinforcements ceases, though strategic trade with other players will represent the only way to achieve success.
+_Main Phase Limitations:_ In this critical phase, the focus shifts from expansion to survival. The creation of new Outposts and reinforcements ceases, though strategic trade with other players will represent the only way to achieve success.
 
-*Endurance of Outposts:* The resilience of an Outpost is key, with its survival odds escalating with every reinforcement. The ultimate ambition? To stand as the last "Rising Revenant."
+_Endurance of Outposts:_ The resilience of an Outpost is key, with its survival odds escalating with every reinforcement. The ultimate ambition? To stand as the last "Rising Revenant."
 
 **Final Rewards**
 
-*The Ultimate Prize:* The game’s transactions feed into a colossal final jackpot, destined for the sole Revenant who outlasts all others.
+_The Ultimate Prize:_ The game’s transactions feed into a colossal final game_pot, destined for the sole Revenant who outlasts all others.
 
-*Economic Dynamics of "Rising Revenant"*
+_Economic Dynamics of "Rising Revenant"_
 
 Preparation Phase:
-75% of $LORDS channeled into the final jackpot
+75% of $LORDS channeled into the final game_pot
 10% allocated to transaction confirmation
 15% as a creator tribute
 
 Main Phase:
 90% of $LORDS flows to the trader
-5% augments the final jackpot
+5% augments the final game_pot
 5% reserved as a lasting reward for the enduring players
 
-These rules are your compass in the world of "Rising Revenant," guiding you through a labyrinth of summoning, defense, and cunning trade to claim the crown of the ultimate survivor.
---------------------------------------------
+## These rules are your compass in the world of "Rising Revenant," guiding you through a labyrinth of summoning, defense, and cunning trade to claim the crown of the ultimate survivor.
 
-***How to launch the game***
+**_How to launch the game_**
 
 After cloning the project:
 
 1. **Terminal 1 - Katana:**
 
-``` cd contracts && katana --disable-fee --block-time 1000 ```
+`cd contracts && katana --disable-fee --block-time 1000`
 or to have control of the block time
-``` cd contracts && katana --disable-fee ```
+`cd contracts && katana --disable-fee`
 
 2. **Terminal 2 - Contract build:**
 
-``` cd contracts && sozo build && sozo migrate && torii --world 0x203899821810220c68f542e1bcd6e5c8db44ab378556bab4460a9b2694919ca ```
+`cd contracts && sozo build && sozo migrate && torii --world 0x203899821810220c68f542e1bcd6e5c8db44ab378556bab4460a9b2694919ca`
 
 3. **Terminal 3 - Burner accounts:**
 
-``` bash ./contracts/scripts/default_auth.sh ```
+`bash ./contracts/scripts/default_auth.sh`
 or (depends on OS)
-``` sh ./contracts/scripts/default_auth.sh ```
+`sh ./contracts/scripts/default_auth.sh`
 
 if on WSL you get an issue about a pipeline look into this thread
 https://askubuntu.com/questions/1497926/set-pipefail-failing-on-wsl-windows-11-ubuntu-22-04-3
 
 4. **Terminal 4 - Client Front end:**
 
-``` cd client && yarn && yarn dev ```
+`cd client && yarn && yarn dev`
 
 Upon completion, launch your browser and navigate to http://localhost:5147/
 
-
-***How to deploy katana, torii & test erc20 contract at once***
+**_How to deploy katana, torii & test erc20 contract at once_**
 
 Come to the root directory of the project
 
-```sh run_local.sh```
+`sh run_local.sh`

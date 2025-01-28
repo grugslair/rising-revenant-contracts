@@ -1,26 +1,26 @@
 use starknet::ContractAddress;
 use dojo::{world::WorldStorage, model::ModelStorage};
-use rising_revenant::{jackpot::Claimant};
+use rising_revenant::{game_pot::Claimant};
 
 
-/// Interface for managing jackpot claims and retrieving jackpot information
+/// Interface for managing game_pot claims and retrieving game_pot information
 #[starknet::interface]
-trait IJackpot<TContractState> {
-    fn increase_jackpot_amount(ref self: TContractState, amount: u256);
-    /// Returns the total amount in the jackpot for a given game
+trait IGamePot<TContractState> {
+    fn increase_game_pot_amount(ref self: TContractState, amount: u256);
+    /// Returns the total amount in the game_pot for a given game
     fn get_total_amount(self: @TContractState, game_id: felt252) -> u256;
-    /// Returns the total amount that has been claimed from the jackpot
+    /// Returns the total amount that has been claimed from the game_pot
     fn get_claimed_amount(self: @TContractState, game_id: felt252) -> u256;
-    /// Returns the remaining unclaimed amount in the jackpot
+    /// Returns the remaining unclaimed amount in the game_pot
     fn get_unclaimed_amount(self: @TContractState, game_id: felt252) -> u256;
 
-    /// Allows the winner to claim their winnings from the jackpot
+    /// Allows the winner to claim their winnings from the game_pot
     fn claim_win(ref self: TContractState, game_id: felt252);
     /// Allows contributors to claim their contribution rewards
     fn claim_contribution(ref self: TContractState, game_id: felt252);
     /// Allows dev team to claim their allocated portion
     fn claim_dev(ref self: TContractState, game_id: felt252, receiver: ContractAddress);
-    /// Claims any remaining funds in the jackpot after all other claims
+    /// Claims any remaining funds in the game_pot after all other claims
     fn claim_remainder(ref self: TContractState, game_id: felt252);
 
     /// Checks if the winner has claimed their prize
@@ -36,22 +36,22 @@ trait IJackpot<TContractState> {
     fn get_win_amount(self: @TContractState, game_id: felt252) -> u256;
     /// Returns the amount available to be claimed by a specific contributor
     fn get_contribution_amount(
-        self: @TContractState, game_id: felt252, user: ContractAddress
+        self: @TContractState, game_id: felt252, user: ContractAddress,
     ) -> u256;
     /// Returns the amount allocated for the dev team
     fn get_dev_amount(self: @TContractState, game_id: felt252) -> u256;
 }
 
 #[dojo::contract]
-mod jackpot_actions {
+mod game_pot_actions {
     use starknet::{ContractAddress, get_caller_address};
     use dojo::world::WorldStorage;
     use rising_revenant::{
-        game::{GameTrait, GameStorage}, jackpot::{JackpotTrait, JackpotStorage, Claimant},
+        game::{GameTrait, GameStorage}, game_pot::{GamePotTrait, GamePotStorage, Claimant},
         finance::Finance, contribution::Contribution, addresses::GetDispatcher,
         world::default_namespace,
     };
-    use super::{IJackpot};
+    use super::{IGamePot};
 
     // #[storage]
     // struct Storage {
@@ -78,25 +78,25 @@ mod jackpot_actions {
     // }
 
     #[abi(embed_v0)]
-    impl IJackpotImpl of IJackpot<ContractState> {
-        fn increase_jackpot_amount(ref self: ContractState, amount: u256) {
+    impl IGamePotImpl of IGamePot<ContractState> {
+        fn increase_game_pot_amount(ref self: ContractState, amount: u256) {
             let mut world = self.world(default_namespace());
             let game_id = world.get_caller_game();
             assert(game_id.is_non_zero(), 'Caller is not in a game');
-            world.increase_jackpot_total(game_id, amount);
+            world.increase_game_pot_total(game_id, amount);
         }
 
         fn get_total_amount(self: @ContractState, game_id: felt252) -> u256 {
             let world = self.world(default_namespace());
-            world.get_jackpot_total_amount(game_id)
+            world.get_game_pot_total_amount(game_id)
         }
         fn get_claimed_amount(self: @ContractState, game_id: felt252) -> u256 {
             let world = self.world(default_namespace());
-            world.get_jackpot_claimed(game_id).amount
+            world.get_game_pot_claimed(game_id).amount
         }
         fn get_unclaimed_amount(self: @ContractState, game_id: felt252) -> u256 {
             let world = self.world(default_namespace());
-            world.get_jackpot_left(game_id)
+            world.get_game_pot_left(game_id)
         }
         fn claim_win(ref self: ContractState, game_id: felt252) {
             let mut world = self.world(default_namespace());
@@ -139,7 +139,7 @@ mod jackpot_actions {
         }
 
         fn contribution_claimed(
-            self: @ContractState, game_id: felt252, user: ContractAddress
+            self: @ContractState, game_id: felt252, user: ContractAddress,
         ) -> bool {
             let world = self.world(default_namespace());
             world.get_claimed(game_id, Claimant::Contributor(user))
@@ -152,7 +152,7 @@ mod jackpot_actions {
 
         fn remainder_claimed(self: @ContractState, game_id: felt252, claimant: Claimant) -> bool {
             let world = self.world(default_namespace());
-            world.get_jackpot_left(game_id) == 0
+            world.get_game_pot_left(game_id) == 0
         }
 
         fn get_win_amount(self: @ContractState, game_id: felt252) -> u256 {
@@ -161,7 +161,7 @@ mod jackpot_actions {
         }
 
         fn get_contribution_amount(
-            self: @ContractState, game_id: felt252, user: ContractAddress
+            self: @ContractState, game_id: felt252, user: ContractAddress,
         ) -> u256 {
             let world = self.world(default_namespace());
             world.get_contribution_amount(game_id, user)
@@ -173,7 +173,7 @@ mod jackpot_actions {
         }
     }
 
-    /// Private implementation for handling jackpot payments and claims
+    /// Private implementation for handling game_pot payments and claims
     #[generate_trait]
     impl PrivateImpl of PrivateTrait {
         /// Sends the specified amount to a receiver address using the finance account
@@ -191,7 +191,7 @@ mod jackpot_actions {
         /// * `claimant` - The type of claimant (Winner, Contributor, or Dev)
         /// * `receiver` - The address that will receive the claimed amount
         fn claim(
-            ref self: WorldStorage, game_id: felt252, claimant: Claimant, receiver: ContractAddress
+            ref self: WorldStorage, game_id: felt252, claimant: Claimant, receiver: ContractAddress,
         ) {
             self.send_amount(receiver, self.claim_amount(game_id, claimant))
         }

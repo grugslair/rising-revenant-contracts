@@ -3,7 +3,7 @@ use dojo::{world::WorldStorage, model::ModelStorage};
 use openzeppelin_token::erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
 use rising_revenant::{
     addresses::GetDispatcher, game::{GamePhasesTrait, GamePhase, GameStorage},
-    outposts::OutpostStorage, tokens::erc721_owner_of
+    outposts::OutpostStorage, tokens::erc721_owner_of,
 };
 
 /// Trait implementation for game-related functionality
@@ -32,7 +32,7 @@ impl GameImpl of GameTrait {
         assert(ended.is_non_zero(), 'Game has not ended');
         assert(
             get_block_timestamp() <= ended + self.get_game_claim_period(game_id),
-            'Claim period has ended'
+            'Claim period has ended',
         );
     }
 
@@ -41,7 +41,7 @@ impl GameImpl of GameTrait {
         assert(ended.is_non_zero(), 'Game has not ended');
         assert(
             get_block_timestamp() > ended + self.get_game_claim_period(game_id),
-            'Claim period has ended'
+            'Claim period has ended',
         );
     }
 
@@ -73,7 +73,7 @@ impl GameImpl of GameTrait {
     /// The contract address of the player who owns the winning outpost
     fn get_owner_of_winning_outpost(self: @WorldStorage, game_id: felt252) -> ContractAddress {
         erc721_owner_of(
-            self.get_outpost_token_address(game_id), self.get_winning_outpost(game_id).into()
+            self.get_outpost_token_address(game_id), self.get_winning_outpost(game_id).into(),
         )
     }
 }

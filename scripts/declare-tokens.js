@@ -20,6 +20,7 @@ const profile = process.argv[2];
 
 const erc20ContractName = "erc20_mintable_burnable";
 const erc721ContractName = "erc721_mintable";
+const gamePotContractName = "game_pot";
 
 const gameActionsTag = "rising_revenant-game_actions";
 const setClassHashEntryPoint = "set_class_hash";
@@ -57,6 +58,7 @@ const erc20MintableBurnableCairoEnum = new CairoCustomEnum({
   ERC20MintableBurnable: {},
 });
 const erc721MintableCairoEnum = new CairoCustomEnum({ ERC721Mintable: {} });
+const gamePotCairoEnum = new CairoCustomEnum({ GamePot: {} });
 
 let gameContract = await getContract(
   provider,
@@ -110,6 +112,7 @@ const makeSetClassHashCall = (variant, classHash) => {
 const calls = [
   makeSetClassHashCall(erc721MintableCairoEnum, erc721ClassHash),
   makeSetClassHashCall(erc20MintableBurnableCairoEnum, erc20ClassHash),
+  makeSetClassHashCall(gamePotCairoEnum, erc20ClassHash),
 ];
 
 const transaction = await account.execute(calls);

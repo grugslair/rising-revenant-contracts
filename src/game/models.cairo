@@ -33,6 +33,7 @@ struct Winner {
 enum ClassHashVariant {
     ERC20MintableBurnable,
     ERC721Mintable,
+    GamePot,
 }
 
 #[dojo::model]

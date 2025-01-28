@@ -20,12 +20,14 @@ trait IGameActions<TContractState> {
         prep_stop: u64,
         events_start: u64,
         claim_period: u64,
+        game_erc20_token: ContractAddress,
+        game_beneficiary: ContractAddress,
         map_size_x: u16,
         map_size_y: u16,
         outpost_price: u256,
         outpost_hp: u64,
         outpost_uri: ByteArray,
-        care_package_target_price_mag: u128, // value / 10^18 * 2^64
+        care_package_target_price_mag: u128,
         care_package_decay_constant_mag: u128,
         care_package_max_sellable: u64,
         care_package_time_scale_mag: u128,
@@ -34,6 +36,8 @@ trait IGameActions<TContractState> {
         dragon_vars: WorldEventSetup,
         goblin_vars: WorldEventSetup,
         earthquake_vars: WorldEventSetup,
+        winner_purchase_permille: u16,
+        contribution_purchase_permille: u16,
     ) -> felt252;
 
     /// Ends a game instance
@@ -79,7 +83,7 @@ mod game_actions {
             ClassHashVariant,
         },
         contribution::Contribution, outposts::{OutpostTrait, OutpostStorage},
-        care_packages::CarePackageTrait,
+        care_packages::CarePackageTrait, game_pot::GamePotTrait,
         world_events::{WorldEventSetup, WorldEventStorage, WorldEventType},
         world::default_namespace, utils::uuid,
     };
@@ -93,6 +97,8 @@ mod game_actions {
             prep_stop: u64,
             events_start: u64,
             claim_period: u64,
+            game_erc20_token: ContractAddress,
+            game_beneficiary: ContractAddress,
             map_size_x: u16,
             map_size_y: u16,
             outpost_price: u256,
@@ -107,6 +113,8 @@ mod game_actions {
             dragon_vars: WorldEventSetup,
             goblin_vars: WorldEventSetup,
             earthquake_vars: WorldEventSetup,
+            winner_purchase_permille: u16,
+            contribution_purchase_permille: u16,
         ) -> felt252 {
             let mut world = self.world(default_namespace());
             let caller = get_caller_address();
@@ -137,6 +145,14 @@ mod game_actions {
                     care_package_time_scale_mag,
                 );
             world.deploy_fortification_tokens(game_id, @name, caller);
+            world
+                .setup_game_pot(
+                    game_id,
+                    game_beneficiary,
+                    winner_purchase_permille,
+                    contribution_purchase_permille,
+                    game_erc20_token,
+                );
             world.set_game_name(game_id, name);
 
             game_id

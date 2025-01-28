@@ -46,21 +46,21 @@ struct ContributionWeight {
 impl ContributionImpl of Contribution {
     /// Gets the weight value for a specific contribution event type
     fn get_contribution_value(
-        self: @WorldStorage, game_id: felt252, event: ContributionEvent
+        self: @WorldStorage, game_id: felt252, event: ContributionEvent,
     ) -> u128 {
         self
             .read_member(
-                Model::<ContributionWeight>::ptr_from_keys((game_id, event)), selector!("value")
+                Model::<ContributionWeight>::ptr_from_keys((game_id, event)), selector!("value"),
             )
     }
 
     /// Retrieves the contribution score for a specific user in a game
     fn get_contribution_amount(
-        self: @WorldStorage, game_id: felt252, user: ContractAddress
+        self: @WorldStorage, game_id: felt252, user: ContractAddress,
     ) -> u128 {
         self
             .read_member(
-                Model::<UserContribution>::ptr_from_keys((game_id, user)), selector!("amount")
+                Model::<UserContribution>::ptr_from_keys((game_id, user)), selector!("amount"),
             )
     }
 
@@ -71,29 +71,38 @@ impl ContributionImpl of Contribution {
 
     /// Increases the contribution score for a specific user and updates the total
     fn increase_contribution(
-        ref self: WorldStorage, game_id: felt252, user: ContractAddress, event: ContributionEvent
+        ref self: WorldStorage, game_id: felt252, user: ContractAddress, event: ContributionEvent,
     ) {
         let value = self.get_contribution_value(game_id, event);
         self
             .write_models(
                 [
                     @UserContribution {
-                        game_id, user, amount: self.get_contribution_amount(game_id, user) + value
+                        game_id, user, amount: self.get_contribution_amount(game_id, user) + value,
                     },
                     @UserContribution {
                         game_id,
                         user: Zero::zero(),
-                        amount: self.get_contribution_amount(game_id, Zero::zero()) + value
+                        amount: self.get_contribution_amount(game_id, Zero::zero()) + value,
                     },
-                ].span()
+                ]
+                    .span(),
             );
     }
 
     /// Increases the contribution score for the calling user
     fn increase_caller_contribution(
-        ref self: WorldStorage, game_id: felt252, event: ContributionEvent
+        ref self: WorldStorage, game_id: felt252, event: ContributionEvent,
     ) {
         self.increase_contribution(game_id, get_caller_address(), event);
+    }
+
+    fn get_contribution_portion(
+        self: @WorldStorage, game_id: felt252, user: ContractAddress, total: u256,
+    ) -> u256 {
+        self.get_contribution_amount(game_id, user).into()
+            * total
+            / self.get_total_contribution_amount(game_id).into()
     }
 }
 

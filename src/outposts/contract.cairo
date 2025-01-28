@@ -38,7 +38,7 @@ trait IOutpost<TContractState> {
         ref self: TContractState,
         outpost_id: felt252,
         fortification_type: Fortification,
-        amount: u256
+        amount: u256,
     );
 }
 
@@ -50,14 +50,15 @@ mod outpost_actions {
     use rising_revenant::{
         hash::make_hash_state,
         fortifications::{
-            Fortifications, Fortification, FortificationsTrait, FortificationTokenTrait
+            Fortifications, Fortification, FortificationsTrait, FortificationTokenTrait,
         },
         outposts::{
-            Outpost, OutpostTrait, OutpostStorage, systems::{OutpostsActiveTrait, OutpostEventTrait}
+            Outpost, OutpostTrait, OutpostStorage,
+            systems::{OutpostsActiveTrait, OutpostEventTrait},
         },
         world_events::{WorldEventStorage, WorldEventEffectTrait, WorldEventTrait}, map::PointTrait,
         contribution::{Contribution, ContributionEvent}, game::GameTrait, vrf::{VRF, Source},
-        world::default_namespace, jackpot::JackpotTrait, tokens::erc721_mint
+        world::default_namespace, game_pot::GamePotTrait, tokens::erc721_mint,
     };
 
     #[abi(embed_v0)]
@@ -70,7 +71,7 @@ mod outpost_actions {
             let setup = world.get_outpost_setup(game_id);
 
             let id = world.make_outpost(game_id, caller, setup.hp, randomness);
-            world.pay_into_jackpot(game_id, caller, setup.price);
+            world.pay_into_purchases_pot(game_id, caller, setup.price);
             erc721_mint(setup.token_address, caller, id.into());
             id
         }
@@ -105,7 +106,7 @@ mod outpost_actions {
             ref self: ContractState,
             outpost_id: felt252,
             fortification_type: Fortification,
-            amount: u256
+            amount: u256,
         ) {
             let mut world = self.world(default_namespace());
             let caller = get_caller_address();
@@ -115,7 +116,7 @@ mod outpost_actions {
             world.burn_fortification(outpost.game_id, fortification_type, caller, amount);
             world
                 .increase_outpost_fortification(
-                    outpost_id, fortification_type, amount.try_into().unwrap()
+                    outpost_id, fortification_type, amount.try_into().unwrap(),
                 );
         }
     }

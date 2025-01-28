@@ -19,7 +19,7 @@ mod care_package {
     use starknet::{ContractAddress, get_caller_address, get_block_timestamp, get_contract_address};
     use rising_revenant::{
         vrgda::{LogisticVRGDA, LogisticVRGDAStore, VRGDATrait}, fixed::FixedToDecimal,
-        jackpot::{IJackpotDispatcher, IJackpotDispatcherTrait}
+        game_pot::{IGamePotDispatcher, IGamePotDispatcherTrait},
     };
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -38,7 +38,7 @@ mod care_package {
         total_minted: u128,
         erc20_token_address: ContractAddress,
         erc20_decimals: u8,
-        jackpot_address: ContractAddress,
+        game_pot_address: ContractAddress,
         mint_start: u64,
         mint_end: u64,
         market: LogisticVRGDAStore,
@@ -50,7 +50,7 @@ mod care_package {
         #[flat]
         ERC721Event: ERC721Component::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]
@@ -61,13 +61,13 @@ mod care_package {
         base_uri: ByteArray,
         erc20_token_address: ContractAddress,
         erc20_decimals: u8,
-        jackpot_address: ContractAddress,
+        game_pot_address: ContractAddress,
         mint_start: u64,
         mint_end: u64,
         market: LogisticVRGDAStore,
     ) {
         self.erc721.initializer(name, symbol, base_uri);
-        self.jackpot_address.write(jackpot_address);
+        self.game_pot_address.write(game_pot_address);
         self.erc20_token_address.write(erc20_token_address);
         self.erc20_decimals.write(erc20_decimals);
         self.mint_start.write(mint_start);
@@ -84,15 +84,16 @@ mod care_package {
         fn purchase(ref self: ContractState) -> u256 {
             let total_minted = self.total_minted.read();
             let caller = get_caller_address();
-            let jackpot_address = self.jackpot_address.read();
+            let game_pot_address = self.game_pot_address.read();
             let price = self._get_price(total_minted);
             ERC20ABIDispatcher { contract_address: self.erc20_token_address.read() }
-                .transfer_from(caller, jackpot_address, price);
-            IJackpotDispatcher { contract_address: jackpot_address }.increase_jackpot_amount(price);
+                .transfer_from(caller, game_pot_address, price);
+            IGamePotDispatcher { contract_address: game_pot_address }
+                .increase_game_pot_amount(price);
             let total_minted = total_minted + 1;
             self.total_minted.write(total_minted);
             let token_id = poseidon_hash_span(
-                [get_contract_address().into(), total_minted.into()].span()
+                [get_contract_address().into(), total_minted.into()].span(),
             )
                 .into();
             self.erc721.mint(caller, token_id);
@@ -107,7 +108,7 @@ mod care_package {
             let start_time = self.mint_start.read();
             assert(
                 start_time <= timestamp && timestamp <= self.mint_end.read(),
-                'Not in minting period'
+                'Not in minting period',
             );
             let market: LogisticVRGDA = self.market.read().into();
             market

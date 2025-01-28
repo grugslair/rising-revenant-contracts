@@ -40,7 +40,7 @@ impl WorldImpl of WorldTrait {
     fn get_contract_address(self: @WorldStorage, contract_name: ByteArray) -> ContractAddress {
         match self.dns(@contract_name) {
             Option::Some((address, _)) => address,
-            Option::None => panic!("Jackpot contract not deployed"),
+            Option::None => panic!("GamePot contract not deployed"),
         }
     }
 }

@@ -28,10 +28,10 @@ mod care_package {
     use rising_revenant::{
         fortifications::FortificationTokenTrait, game::{GameTrait, GameStorage, GamePhasesTrait},
         care_packages::{
-            Rarity, CarePackageTrait, CarePackageStorage, get_rarity, CarePackageMarketTrait
+            Rarity, CarePackageTrait, CarePackageStorage, get_rarity, CarePackageMarketTrait,
         },
         tokens::{erc721_mint, erc721_owner_of}, world::default_namespace, vrf::{VRF, Source},
-        jackpot::JackpotTrait
+        game_pot::GamePotTrait,
     };
 
     use rising_revenant::vrgda::{LogisticVRGDA, VRGDATrait};
@@ -53,7 +53,7 @@ mod care_package {
             let id = poseidon_hash_span([get_contract_address().into(), market.sold.into()].span());
 
             let caller = get_caller_address();
-            world.pay_into_jackpot(game_id, caller, price);
+            world.pay_into_purchases_pot(game_id, caller, price);
             erc721_mint(market.token_address, caller, id.into());
             let randomness = world.randomness(Source::Nonce(caller));
             world.set_care_package_rarity(game_id, id, get_rarity(randomness));

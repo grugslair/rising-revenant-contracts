@@ -3,7 +3,7 @@ mod core;
 mod utils;
 mod hash;
 
-mod finance;
+// mod finance;
 mod fixed;
 mod vrgda;
 mod contribution;
@@ -27,7 +27,6 @@ mod permissions {
 }
 
 mod care_packages {
-    // mod token;
     mod systems;
     mod models;
     mod contract;
@@ -35,7 +34,6 @@ mod care_packages {
         CarePackage, Rarity, N_RARITIES, CarePackageStorage, CARE_PACKAGE_CLASS_HASH_SELECTOR,
         CarePackageMarketTrait,
     };
-    // use token::{ICarePackageDispatcher, ICarePackageDispatcherTrait};
     use systems::{CarePackageTrait, get_rarity};
 }
 mod game {
@@ -76,14 +74,14 @@ mod outposts {
     use models::{Outpost, OutpostStorage};
     use systems::{OutpostTrait};
 }
-mod jackpot {
+mod game_pot {
     mod models;
     mod systems;
-    // mod contract;
+    mod contract;
 
-    use systems::{JackpotTrait};
-    use models::{JackpotStorage};
-    // use contract::{IJackpot, IJackpotDispatcher, IJackpotDispatcherTrait};
+    use systems::{GamePotTrait};
+    use models::{GamePotStorage};
+    // use contract::{IGamePot, IGamePotDispatcher, IGamePotDispatcherTrait};
 }
 mod debris {}
 
@@ -105,7 +103,6 @@ mod tokens {
 mod vrf;
 mod erc20_mintable_burnable;
 mod erc721_mintable;
-mod game_pot;
 
 #[cfg(test)]
 mod tests;
