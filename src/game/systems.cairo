@@ -1,9 +1,9 @@
-use starknet::ContractAddress;
+use starknet::{ContractAddress, get_block_timestamp};
 use dojo::{world::WorldStorage, model::ModelStorage};
 use openzeppelin_token::erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
 use rising_revenant::{
-    addresses::GetDispatcher, game::{GamePhasesTrait, GamePhase, WinnerTrait, GameStorage},
-    outposts::OutpostStorage,
+    addresses::GetDispatcher, game::{GamePhasesTrait, GamePhase, GameStorage},
+    outposts::OutpostStorage, tokens::erc721_owner_of
 };
 
 /// Trait implementation for game-related functionality
@@ -27,14 +27,28 @@ impl GameImpl of GameTrait {
     /// Asserts that the game is in the claiming phase
     /// # Arguments
     /// * `game_id` - The unique identifier of the game
-    fn assert_claiming(self: @WorldStorage, game_id: felt252) {
-        self.get_game_phases(game_id).assert_claiming()
+    fn assert_game_claiming(self: @WorldStorage, game_id: felt252) {
+        let ended = self.get_game_ended(game_id);
+        assert(ended.is_non_zero(), 'Game has not ended');
+        assert(
+            get_block_timestamp() <= ended + self.get_game_claim_period(game_id),
+            'Claim period has ended'
+        );
+    }
+
+    fn assert_game_claim_ended(self: @WorldStorage, game_id: felt252) {
+        let ended = self.get_game_ended(game_id);
+        assert(ended.is_non_zero(), 'Game has not ended');
+        assert(
+            get_block_timestamp() > ended + self.get_game_claim_period(game_id),
+            'Claim period has ended'
+        );
     }
 
     /// Asserts that the game is in the playing phase
     /// # Arguments
     /// * `game_id` - The unique identifier of the game
-    fn assert_playing(self: @WorldStorage, game_id: felt252) {
+    fn assert_game_playing(self: @WorldStorage, game_id: felt252) {
         self.get_game_phases(game_id).assert_playing()
     }
 
@@ -57,8 +71,9 @@ impl GameImpl of GameTrait {
     /// * `game_id` - The unique identifier of the game
     /// # Returns
     /// The contract address of the player who owns the winning outpost
-    fn get_winner(self: @WorldStorage, game_id: felt252) -> ContractAddress {
-        ERC721ABIDispatcher { contract_address: self.get_outpost_token_address(game_id) }
-            .owner_of(self.get_winning_outpost(game_id).into())
+    fn get_owner_of_winning_outpost(self: @WorldStorage, game_id: felt252) -> ContractAddress {
+        erc721_owner_of(
+            self.get_outpost_token_address(game_id), self.get_winning_outpost(game_id).into()
+        )
     }
 }

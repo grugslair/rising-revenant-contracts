@@ -1,5 +1,5 @@
 use starknet::{ContractAddress, ClassHash};
-use rising_revenant::{world_events::WorldEventVars, game::ClassHashVariant};
+use rising_revenant::{world_events::WorldEventSetup, game::ClassHashVariant};
 
 /// Interface for core game actions
 ///
@@ -31,9 +31,9 @@ trait IGameActions<TContractState> {
         care_package_time_scale_mag: u128,
         care_package_uri: ByteArray,
         event_min_interval: u64,
-        dragon_vars: WorldEventVars,
-        goblin_vars: WorldEventVars,
-        earthquake_vars: WorldEventVars,
+        dragon_vars: WorldEventSetup,
+        goblin_vars: WorldEventSetup,
+        earthquake_vars: WorldEventSetup,
     ) -> felt252;
 
     /// Ends a game instance
@@ -43,7 +43,13 @@ trait IGameActions<TContractState> {
     /// Retrieves the winner's address for a completed game
     /// * `game_id` - Unique identifier for the game
     /// Returns: ContractAddress of the winner
-    fn get_winner(self: @TContractState, game_id: felt252) -> ContractAddress;
+    fn get_winning_outpost(self: @TContractState, game_id: felt252) -> felt252;
+
+    fn get_user_contribution(
+        self: @TContractState, game_id: felt252, user: ContractAddress,
+    ) -> u128;
+
+    fn get_total_contribution(self: @TContractState, game_id: felt252) -> u128;
 }
 
 #[starknet::interface]
@@ -62,17 +68,20 @@ trait IGameAdmin<TContractState> {
 
 #[dojo::contract]
 mod game_actions {
+    use core::num::traits::Zero;
     use starknet::{get_block_timestamp, ContractAddress, get_caller_address, ClassHash};
     use dojo::{model::{ModelStorage}, world::WorldStorage};
     use super::{IGameActions, IGameAdmin};
     use rising_revenant::{
         map::MapTrait, permissions::GamePermissions, fortifications::FortificationTokenTrait,
         game::{
-            GamePhases, GamePhase, Winner, GameStorage, GamePhasesTrait, GameTrait, ClassHashVariant
+            GamePhases, GamePhase, Winner, GameStorage, GamePhasesTrait, GameTrait,
+            ClassHashVariant,
         },
-        outposts::{OutpostTrait, OutpostStorage}, care_packages::CarePackageTrait,
-        world_events::{WorldEventVars, WorldEventStorage, WorldEventType}, world::default_namespace,
-        utils::uuid,
+        contribution::Contribution, outposts::{OutpostTrait, OutpostStorage},
+        care_packages::CarePackageTrait,
+        world_events::{WorldEventSetup, WorldEventStorage, WorldEventType},
+        world::default_namespace, utils::uuid,
     };
 
     #[abi(embed_v0)]
@@ -95,9 +104,9 @@ mod game_actions {
             care_package_time_scale_mag: u128,
             care_package_uri: ByteArray,
             event_min_interval: u64,
-            dragon_vars: WorldEventVars,
-            goblin_vars: WorldEventVars,
-            earthquake_vars: WorldEventVars,
+            dragon_vars: WorldEventSetup,
+            goblin_vars: WorldEventSetup,
+            earthquake_vars: WorldEventSetup,
         ) -> felt252 {
             let mut world = self.world(default_namespace());
             let caller = get_caller_address();
@@ -114,7 +123,7 @@ mod game_actions {
             // TODO: Create tokens
             world
                 .setup_outpost_market(
-                    game_id, @name, outpost_uri, caller, outpost_price, outpost_hp
+                    game_id, @name, outpost_uri, caller, outpost_price, outpost_hp,
                 );
             world
                 .setup_care_package_market(
@@ -136,24 +145,32 @@ mod game_actions {
         fn end_game(ref self: ContractState, outpost_id: felt252) {
             let mut world = self.world(default_namespace());
             let outpost = world.get_outpost(outpost_id);
-            let mut game_phases = world.get_game_phases(outpost.game_id);
-            game_phases.assert_playing();
-            game_phases.ended = get_block_timestamp();
-            world.write_model(@game_phases);
-            world.write_model(@Winner { game_id: outpost.game_id, outpost_id: outpost.id, });
+            let game_id = outpost.game_id;
+
+            world.assert_is_winner(outpost);
+            world.assert_game_playing(game_id);
+            world.set_game_ended(game_id, outpost_id);
         }
 
-        fn get_winner(self: @ContractState, game_id: felt252) -> ContractAddress {
-            let world = self.world(default_namespace());
+        fn get_winning_outpost(self: @ContractState, game_id: felt252) -> felt252 {
+            self.world(default_namespace()).get_winning_outpost(game_id)
+        }
 
-            world.get_winner(game_id)
+        fn get_user_contribution(
+            self: @ContractState, game_id: felt252, user: ContractAddress,
+        ) -> u128 {
+            self.world(default_namespace()).get_contribution_amount(game_id, user)
+        }
+
+        fn get_total_contribution(self: @ContractState, game_id: felt252) -> u128 {
+            self.world(default_namespace()).get_contribution_amount(game_id, Zero::zero())
         }
     }
 
     #[abi(embed_v0)]
     impl IGameAdminImpl of IGameAdmin<ContractState> {
         fn set_class_hash(
-            ref self: ContractState, variant: ClassHashVariant, class_hash: ClassHash
+            ref self: ContractState, variant: ClassHashVariant, class_hash: ClassHash,
         ) {
             let mut world = self.world(default_namespace());
             world.assert_admin_permission(get_caller_address());

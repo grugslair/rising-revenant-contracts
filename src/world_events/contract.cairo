@@ -21,7 +21,7 @@ mod world_event_actions {
             models::{CurrentEvent, WorldEventType, WorldEventSetupTrait, WorldEventStorage},
             systems::WorldEventTrait
         },
-        contribution::{ContributionTrait, ContributionEvent}, vrf::{VRF, Source},
+        contribution::{Contribution, ContributionEvent}, vrf::{VRF, Source},
         world::default_namespace, hash::hash_value
     };
     use super::{IWorldEventActions};
@@ -38,7 +38,7 @@ mod world_event_actions {
         /// * If attempting to create an event too soon after the previous one
         fn new_event(ref self: ContractState, game_id: felt252) {
             let mut world = self.world(default_namespace());
-            world.assert_playing(game_id);
+            world.assert_game_playing(game_id);
             let timestamp = get_block_timestamp();
             let min_interval = world.get_event_min_interval(game_id);
             let last_event = world.get_current_event(game_id);

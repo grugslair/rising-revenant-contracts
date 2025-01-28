@@ -1,6 +1,6 @@
 use starknet::ContractAddress;
 use dojo::{world::WorldStorage, model::ModelStorage};
-use super::{Permissions, models::WritePermissions};
+use super::{PermissionStorage, Permission};
 
 /// Permission selector constants for different access levels
 const DEV_PERMISSION_SELECTOR: felt252 = 'dev';
@@ -71,26 +71,38 @@ impl GamePermissionsImpl of GamePermissions {
     }
 
     fn set_admin_permission(ref self: WorldStorage, user: ContractAddress, has: bool) {
-        self.set_permission(ADMIN_PERMISSION_SELECTOR, user, has)
+        self.set_permission(ADMIN_PERMISSION_SELECTOR, user, has);
     }
 
     fn set_dev_permission(ref self: WorldStorage, user: ContractAddress, has: bool) {
-        self.set_permission(DEV_PERMISSION_SELECTOR, user, has)
+        self.set_permission(DEV_PERMISSION_SELECTOR, user, has);
     }
 
     fn set_creator_permission(ref self: WorldStorage, user: ContractAddress, has: bool) {
-        self.set_permission(SETUP_PERMISSION_SELECTOR, user, has)
+        self.set_permission(SETUP_PERMISSION_SELECTOR, user, has);
     }
 
     fn set_admins_permission(ref self: WorldStorage, users: Array<ContractAddress>, has: bool) {
-        self.set_permission(ADMIN_PERMISSION_SELECTOR, user, has)
+        let mut permissions = ArrayTrait::<Permission<bool>>::new();
+        for user in users{
+            permissions.append(Permission { resource: SETUP_PERMISSION_SELECTOR, requester: user, permission: has });
+        };
+        self.set_permissions(permissions);
     }
 
     fn set_devs_permission(ref self: WorldStorage, users: Array<ContractAddress>, has: bool) {
-        self.set_permission(DEV_PERMISSION_SELECTOR, user, has)
+        let mut permissions = ArrayTrait::<Permission<bool>>::new();
+        for user in users{
+            permissions.append(Permission { resource: SETUP_PERMISSION_SELECTOR, requester: user, permission: has });
+        };
+        self.set_permissions(permissions);
     }
 
     fn set_creators_permission(ref self: WorldStorage, users: Array<ContractAddress>, has: bool) {
-        self.set_permission(SETUP_PERMISSION_SELECTOR, user, has)
+        let mut permissions = ArrayTrait::<Permission<bool>>::new();
+        for user in users{
+            permissions.append(Permission { resource: SETUP_PERMISSION_SELECTOR, requester: user, permission: has });
+        };
+        self.set_permissions(permissions);
     }
 }

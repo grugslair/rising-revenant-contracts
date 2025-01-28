@@ -1,5 +1,5 @@
 use starknet::{ContractAddress, ClassHash, SyscallResultTrait, syscalls::deploy_syscall};
-
+use openzeppelin_token::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
 #[starknet::interface]
 pub trait IERC20MintableBurnable<TContractState> {
     fn mint(ref self: TContractState, recipient: ContractAddress, amount: u256);
@@ -13,6 +13,23 @@ fn erc20_mint(contract_address: ContractAddress, recipient: ContractAddress, amo
 
 fn erc20_burn_from(contract_address: ContractAddress, account: ContractAddress, amount: u256) {
     IERC20MintableBurnableDispatcher { contract_address }.burn_from(account, amount);
+}
+
+fn erc20_transfer(contract_address: ContractAddress, recipient: ContractAddress, amount: u256) {
+    ERC20ABIDispatcher { contract_address }.transfer(recipient, amount);
+}
+
+fn erc20_transfer_from(
+    contract_address: ContractAddress,
+    sender: ContractAddress,
+    recipient: ContractAddress,
+    amount: u256,
+) {
+    ERC20ABIDispatcher { contract_address }.transfer_from(sender, recipient, amount);
+}
+
+fn erc20_balance_of(contract_address: ContractAddress, account: ContractAddress) -> u256 {
+    ERC20ABIDispatcher { contract_address }.balance_of(account)
 }
 
 fn deploy_erc20_mintable_burnable(
@@ -39,7 +56,7 @@ mod erc20_mintable_burnable {
     use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, interface::IERC20Metadata};
-    use starknet::{ContractAddress, get_caller_address,};
+    use starknet::{ContractAddress, get_caller_address};
     use super::IERC20MintableBurnable;
 
     const MINTER_ROLE: felt252 = 'MINTER_ROLE';
@@ -89,7 +106,7 @@ mod erc20_mintable_burnable {
         symbol: ByteArray,
         decimals: u8,
         default_admin: ContractAddress,
-        minter: ContractAddress
+        minter: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.decimals.write(decimals);

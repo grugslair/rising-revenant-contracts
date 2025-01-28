@@ -15,8 +15,8 @@ enum ContributionEvent {
 
 /// Tracks the contribution score for a user in a specific game
 #[dojo::model]
-#[derive(Drop, Serde, Copy)]
-struct Contribution {
+#[derive(Drop, Serde)]
+struct UserContribution {
     /// Unique identifier for the game
     #[key]
     game_id: felt252,
@@ -24,12 +24,13 @@ struct Contribution {
     #[key]
     user: ContractAddress,
     /// Total contribution score for this user
-    score: u128,
+    amount: u128,
 }
+
 
 /// Defines the weight/value of different contribution events
 #[dojo::model]
-#[derive(Drop, Serde, Copy)]
+#[derive(Drop, Serde)]
 struct ContributionWeight {
     /// Unique identifier for the game
     #[key]
@@ -42,29 +43,30 @@ struct ContributionWeight {
 }
 
 #[generate_trait]
-impl ContributionImpl of ContributionTrait {
-    /// Retrieves the contribution record for a specific user in a game
-    fn get_contribution(
-        self: @WorldStorage, game_id: felt252, user: ContractAddress
-    ) -> Contribution {
-        self.read_model((game_id, user))
-    }
-
+impl ContributionImpl of Contribution {
     /// Gets the weight value for a specific contribution event type
-    fn get_contribution_value(self: @WorldStorage, game_id: felt252, event: ContributionEvent) -> u128 {
-        self.read_member(Model::<ContributionWeight>::ptr_from_keys((game_id, event)), selector!("value"))
+    fn get_contribution_value(
+        self: @WorldStorage, game_id: felt252, event: ContributionEvent
+    ) -> u128 {
+        self
+            .read_member(
+                Model::<ContributionWeight>::ptr_from_keys((game_id, event)), selector!("value")
+            )
     }
 
     /// Retrieves the contribution score for a specific user in a game
-    fn get_contribution_score(
+    fn get_contribution_amount(
         self: @WorldStorage, game_id: felt252, user: ContractAddress
     ) -> u128 {
-        self.read_member(Model::<Contribution>::ptr_from_keys((game_id, user)), selector!("score"))
+        self
+            .read_member(
+                Model::<UserContribution>::ptr_from_keys((game_id, user)), selector!("amount")
+            )
     }
 
     /// Gets the total contribution score for all users in a game
-    fn get_total_contribution_score(self: @WorldStorage, game_id: felt252) -> u128 {
-        self.get_contribution_score(game_id, Zero::zero())
+    fn get_total_contribution_amount(self: @WorldStorage, game_id: felt252) -> u128 {
+        self.get_contribution_amount(game_id, Zero::zero())
     }
 
     /// Increases the contribution score for a specific user and updates the total
@@ -72,12 +74,19 @@ impl ContributionImpl of ContributionTrait {
         ref self: WorldStorage, game_id: felt252, user: ContractAddress, event: ContributionEvent
     ) {
         let value = self.get_contribution_value(game_id, event);
-        let mut model = self.get_contribution(game_id, user);
-        let mut total = self.get_contribution(game_id, Zero::zero());
-        model.score += value;
-        total.score += value;
-        self.write_model(@model);
-        self.write_model(@total);
+        self
+            .write_models(
+                [
+                    @UserContribution {
+                        game_id, user, amount: self.get_contribution_amount(game_id, user) + value
+                    },
+                    @UserContribution {
+                        game_id,
+                        user: Zero::zero(),
+                        amount: self.get_contribution_amount(game_id, Zero::zero()) + value
+                    },
+                ].span()
+            );
     }
 
     /// Increases the contribution score for the calling user

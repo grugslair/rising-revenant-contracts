@@ -1,6 +1,5 @@
 use dojo::{world::WorldStorage, model::{Model, ModelStorage}, event::EventStorage};
 use starknet::{get_block_timestamp, ClassHash, get_caller_address, ContractAddress};
-
 /// Represents the different phases a game can be in.
 ///
 /// * `NotCreated` - Game hasn't been created yet
@@ -71,38 +70,24 @@ struct GameName {
     name: ByteArray,
 }
 
-#[dojo::model]
-#[derive(Drop, Serde)]
-struct GameERC20Token {
-    #[key]
-    game_id: felt252,
-    contract_address: ContractAddress,
+mod models {
+    use starknet::ContractAddress;
+    #[dojo::model]
+    #[derive(Drop, Serde)]
+    struct GameWallet {
+        #[key]
+        game_id: felt252,
+        erc20_address: ContractAddress,
+        wallet_address: ContractAddress,
+    }
 }
 
-#[dojo::model]
-#[derive(Drop, Serde, Copy)]
-struct TokenGame {
-    #[key]
-    contract_address: ContractAddress,
-    game_id: felt252,
-}
+use models::GameWallet as GameWalletModel;
 
-/// Implementation of Winner-related functionality
-#[generate_trait]
-impl WinnerImpl of WinnerTrait {
-    /// Sets the winning outpost for a specific game
-    /// * `game_id` - The ID of the game
-    /// * `outpost_id` - The ID of the winning outpost
-    fn set_winning_outpost(ref self: WorldStorage, game_id: felt252, outpost_id: felt252) {
-        self.write_model(@Winner { game_id, outpost_id });
-    }
-
-    /// Retrieves the winning outpost ID for a specific game
-    /// * `game_id` - The ID of the game
-    /// * Returns the outpost ID of the winner
-    fn get_winning_outpost(self: @WorldStorage, game_id: felt252) -> felt252 {
-        self.read_member(Model::<Winner>::ptr_from_keys(game_id), selector!("outpost_id"))
-    }
+#[derive(Drop, Serde, Introspect)]
+struct GameWallet {
+    erc20_address: ContractAddress,
+    wallet_address: ContractAddress,
 }
 
 /// Implementation of game phase related functionality
@@ -148,7 +133,6 @@ impl GamePhasesImpl of GamePhasesTrait {
     ///
     /// * `bool` - `true` if the current phase matches the specified phase, `false` otherwise.
     fn is_phase(self: @GamePhases, phase: GamePhase) -> bool {
-        let var: (@u8, @u8) = (@12_u8, @12_u8).into();
         self.get_phase() == phase
     }
     /// Asserts that the current game phase is 'Preparing'.
@@ -175,7 +159,7 @@ impl GamePhasesImpl of GamePhasesTrait {
     fn assert_prep_ended(self: @GamePhases) {
         assert(
             (*self.prep_start).is_non_zero() && *self.prep_stop >= get_block_timestamp(),
-            'Preparation not started'
+            'Preparation not started',
         );
     }
     /// Asserts that the game has ended.
@@ -187,7 +171,7 @@ impl GamePhasesImpl of GamePhasesTrait {
     fn assert_time_in_prep(self: @GamePhases, timestamp: u64) {
         assert(
             *self.prep_start <= timestamp && timestamp <= *self.prep_stop,
-            'Not in preparation phase'
+            'Not in preparation phase',
         );
     }
 }
@@ -222,8 +206,40 @@ impl GameStorageImpl of GameStorage {
             .write_model(
                 @GamePhases {
                     game_id, prep_start, prep_stop, events_start, claim_period, ended: 0,
-                }
+                },
             );
+    }
+
+    fn get_game_ended(self: @WorldStorage, game_id: felt252) -> u64 {
+        self.read_member(Model::<GamePhases>::ptr_from_keys(game_id), selector!("ended"))
+    }
+
+    fn get_game_claim_period(self: @WorldStorage, game_id: felt252) -> u64 {
+        self.read_member(Model::<GamePhases>::ptr_from_keys(game_id), selector!("claim_period"))
+    }
+
+    fn set_game_ended(ref self: WorldStorage, game_id: felt252, outpost_id: felt252) {
+        self
+            .write_member(
+                Model::<GamePhases>::ptr_from_keys(game_id),
+                selector!("ended"),
+                get_block_timestamp(),
+            );
+        self.write_model(@Winner { game_id, outpost_id });
+    }
+
+    /// Retrieves the winning outpost ID for a specific game
+    /// * `game_id` - The ID of the game
+    /// * Returns the outpost ID of the winner
+    fn get_winning_outpost(self: @WorldStorage, game_id: felt252) -> felt252 {
+        self.read_member(Model::<Winner>::ptr_from_keys(game_id), selector!("outpost_id"))
+    }
+
+    /// Sets the winning outpost for a specific game
+    /// * `game_id` - The ID of the game
+    /// * `outpost_id` - The ID of the winning outpost
+    fn set_winning_outpost(ref self: WorldStorage, game_id: felt252, outpost_id: felt252) {
+        self.write_model(@Winner { game_id, outpost_id });
     }
 
     fn set_class_hash(ref self: WorldStorage, variant: ClassHashVariant, class_hash: ClassHash) {
@@ -234,28 +250,30 @@ impl GameStorageImpl of GameStorage {
         self.read_member(Model::<GameClassHash>::ptr_from_keys(variant), selector!("class_hash"))
     }
 
-
-    fn get_caller_game(self: @WorldStorage) -> felt252 {
-        self
-            .read_member(
-                Model::<TokenGame>::ptr_from_keys(get_caller_address()), selector!("game_id")
-            )
+    fn set_game_wallet(
+        ref self: WorldStorage,
+        game_id: felt252,
+        erc20_address: ContractAddress,
+        wallet_address: ContractAddress,
+    ) {
+        self.write_model(@GameWalletModel { game_id, erc20_address, wallet_address });
     }
 
-    fn set_token_game(ref self: WorldStorage, contract_address: ContractAddress, game_id: felt252) {
-        self.write_model(@TokenGame { contract_address, game_id });
+    fn get_game_wallet(self: @WorldStorage, game_id: felt252) -> GameWallet {
+        self.read_schema(Model::<GameWalletModel>::ptr_from_keys(game_id))
     }
 
     fn get_game_erc20_token(self: @WorldStorage, game_id: felt252) -> ContractAddress {
         self
             .read_member(
-                Model::<GameERC20Token>::ptr_from_keys(game_id), selector!("contract_address")
+                Model::<GameWalletModel>::ptr_from_keys(game_id), selector!("erc20_address"),
             )
     }
 
-    fn set_game_erc20_token(
-        ref self: WorldStorage, game_id: felt252, contract_address: ContractAddress
-    ) {
-        self.write_model(@GameERC20Token { game_id, contract_address });
+    fn get_game_wallet_address(self: @WorldStorage, game_id: felt252) -> ContractAddress {
+        self
+            .read_member(
+                Model::<GameWalletModel>::ptr_from_keys(game_id), selector!("wallet_address"),
+            )
     }
 }

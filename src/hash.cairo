@@ -62,7 +62,7 @@ impl ByteArrayHash<S, +hash::HashStateTrait<S>, +Drop<S>> of Hash<ByteArray, S> 
             state = Hash::update_state(state, *array.at(n));
             n += 1;
         };
-        if len > 1 == (*array.at(len + 1)).is_non_zero() {
+        if (len > 1) == (*array.at(len + 1)).is_non_zero() {
             state = Hash::update_state(state, *array.at(len));
         }
         state

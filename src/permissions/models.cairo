@@ -11,21 +11,39 @@ mod models {
     /// * `requester` - The address of the entity requesting access
     /// * `permissions` - The permission flags stored as a felt252
     #[dojo::model]
-    #[derive(Copy, Drop, Serde)]
-    struct Permissions {
+    #[derive(Drop, Serde)]
+    struct Permission {
         #[key]
         resource: felt252,
         #[key]
         requester: ContractAddress,
-        permissions: felt252,
+        permission: felt252,
     }
 }
-use models::Permissions as PermissionsModel;
+
+#[derive(Drop)]
+struct Permission<P> {
+    resource: felt252,
+    requester: ContractAddress,
+    permission: P,
+}
+
+impl PermissionIntoModel<P, +Into<P, felt252>> of Into<Permission<P>, PermissionModel> {
+    fn into(self: Permission<P>) -> PermissionModel {
+        PermissionModel {
+            resource: self.resource,
+            requester: self.requester,
+            permission: self.permission.into(),
+        }
+    }
+}
+
+use models::Permission as PermissionModel;
 
 /// Trait for reading permissions from storage
 ///
 /// Generic parameter P represents the permission type that will be returned
-trait Permissions<P> {
+trait PermissionStorage<P> {
     /// Retrieves permissions for a given resource and requester
     ///
     /// # Arguments
@@ -35,12 +53,6 @@ trait Permissions<P> {
     /// # Returns
     /// * The permissions of type P for the given resource and requester
     fn get_permission(self: @WorldStorage, resource: felt252, requester: ContractAddress) -> P;
-}
-
-/// Trait for writing permissions to storage
-///
-/// Generic parameter P represents the permission type that will be stored
-trait WritePermissions<P> {
     /// Sets permissions for a given resource and requester
     ///
     /// # Arguments
@@ -48,38 +60,44 @@ trait WritePermissions<P> {
     /// * `requester` - The address requesting access
     /// * `permissions` - The permissions to set
     fn set_permission(
-        ref self: WorldStorage, resource: felt252, requester: ContractAddress, permissions: P
+        ref self: WorldStorage, resource: felt252, requester: ContractAddress, permission: P
     );
+
+    fn set_permissions(
+        ref self: WorldStorage, permissions: Array<Permission<P>>);
 }
 
 /// Implementation of the Permissions trait
 ///
 /// Requires that P can be converted from felt252
-impl PermissionsImpl<P, +TryInto<felt252, P>> of Permissions<P> {
+impl PermissionImpl<P, +Into<P, felt252>, +TryInto<felt252, P>, +Drop<P>> of PermissionStorage<P> {
     fn get_permission(self: @WorldStorage, resource: felt252, requester: ContractAddress) -> P {
         self
             .read_member::<
                 felt252
             >(
-                Model::<PermissionsModel>::ptr_from_keys((resource, requester)),
-                selector!("permissions")
+                Model::<PermissionModel>::ptr_from_keys((resource, requester)),
+                selector!("permission")
             )
             .try_into()
             .unwrap()
     }
-}
 
-/// Implementation of the WritePermissions trait
-///
-/// Requires that P can be converted to felt252 and implements Drop
-impl WritePermissionsImpl<P, +Into<P, felt252>, +Drop<P>> of WritePermissions<P> {
     fn set_permission(
-        ref self: WorldStorage, resource: felt252, requester: ContractAddress, permissions: P
+        ref self: WorldStorage, resource: felt252, requester: ContractAddress, permission: P
     ) {
         self
             .write_model(
-                @PermissionsModel { resource: resource, requester, permissions: permissions.into() }
+                @PermissionModel { resource: resource, requester, permission: permission.into() }
             )
     }
-}
 
+    fn set_permissions(
+        ref self: WorldStorage, permissions: Array<Permission<P>>){
+            let mut array = ArrayTrait::<@PermissionModel>::new();
+            for permission in permissions {
+                array.append(@permission.into());
+            };
+            self.write_models(array.span());
+        }
+}

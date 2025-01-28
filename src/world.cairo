@@ -1,8 +1,10 @@
 use starknet::{get_caller_address, ContractAddress, storage_read_syscall};
 use dojo::{
     world::{WorldStorage, IWorldDispatcher, IWorldDispatcherTrait, WorldStorageTrait},
-    model::ModelStorage, contract::{IContractDispatcherTrait, IContractDispatcher}
+    model::ModelStorage, contract::{IContractDispatcherTrait, IContractDispatcher},
 };
+
+// use dojo::{utils::deserialize_unwrap, model::{Model, ModelPtr, ModelIndex}, meta::Introspect};
 use rising_revenant::hash::hash_value;
 
 const WORLD_STORAGE_ADDRESS: felt252 =
@@ -43,6 +45,19 @@ impl WorldImpl of WorldTrait {
     }
 }
 
+// #[generate_trait]
+// impl ModelSchemaImpl<M, +Model<M>, +Drop<M>> of ModelSchema<M> {
+//     fn read_schema<T, +Serde<T>, +Introspect<T>>(self: @WorldStorage, ptr: ModelPtr<M>) -> T {
+//         deserialize_unwrap(
+//             IWorldDispatcherTrait::entity(
+//                 *self.dispatcher,
+//                 Model::<M>::selector(*self.namespace_hash),
+//                 ModelIndex::Id(ptr.id),
+//                 Introspect::<T>::layout(),
+//             ),
+//         )
+//     }
+// }
 
 fn default_namespace() -> @ByteArray {
     @"rising_revenant"

@@ -4,7 +4,7 @@ use dojo::{world::WorldStorage, model::{ModelStorage, ModelValueStorage, Model}}
 use cubit::f128::{Fixed, FixedTrait};
 use rising_revenant::{
     addresses::{AddressSelectorTrait}, world_events::models::WorldEventType, core::BoundedT,
-    hash::UpdateHashToU128
+    hash::UpdateHashToU128,
 };
 
 const FORTIFICATION_CLASS_HASH_SELECTOR: felt252 = 'fortification';
@@ -97,7 +97,7 @@ impl U64IntoFortifications of Into<u64, Fortifications> {
     /// Converts a `u64` value into a `Fortifications` instance with all fields set to the given
     /// value.
     fn into(self: u64) -> Fortifications {
-        Fortifications { palisades: self, trenches: self, walls: self, basements: self, }
+        Fortifications { palisades: self, trenches: self, walls: self, basements: self }
     }
 }
 
@@ -124,7 +124,7 @@ impl FortificationImpl of FortificationTrait {
             Fortification::Palisade,
             Fortification::Trench,
             Fortification::Wall,
-            Fortification::Basement
+            Fortification::Basement,
         ]
     }
 }
@@ -161,37 +161,37 @@ impl FortificationsImpl of FortificationsTrait {
     /// * `mortalities` - The mortality rates for each fortification type
     /// * `hash_state` - Random state for destruction calculations
     fn apply_destruction(
-        ref self: Fortifications, mortalities: Fortifications, hash_state: HashState
+        ref self: Fortifications, mortalities: Fortifications, hash_state: HashState,
     ) {
         self
             .palisades -=
                 min(
                     self.palisades,
                     fortifications_destroyed(
-                        mortalities.palisades, hash_state, Fortification::Palisade
-                    )
+                        mortalities.palisades, hash_state, Fortification::Palisade,
+                    ),
                 );
         self
             .trenches -=
                 min(
                     self.trenches,
                     fortifications_destroyed(
-                        mortalities.trenches, hash_state, Fortification::Trench
-                    )
+                        mortalities.trenches, hash_state, Fortification::Trench,
+                    ),
                 );
         self
             .walls -=
                 min(
                     self.walls,
-                    fortifications_destroyed(mortalities.walls, hash_state, Fortification::Wall)
+                    fortifications_destroyed(mortalities.walls, hash_state, Fortification::Wall),
                 );
         self
             .basements -=
                 min(
                     self.basements,
                     fortifications_destroyed(
-                        mortalities.basements, hash_state, Fortification::Basement
-                    )
+                        mortalities.basements, hash_state, Fortification::Basement,
+                    ),
                 );
     }
 }
@@ -205,7 +205,7 @@ impl FortificationHashImpl = core::hash::into_felt252_based::HashImpl<Fortificat
 /// # Returns
 /// * Number of fortifications destroyed
 fn fortifications_destroyed(
-    probability: u64, hash_state: HashState, fortification: Fortification
+    probability: u64, hash_state: HashState, fortification: Fortification,
 ) -> u64 {
     if probability == 0 {
         return 0;
@@ -214,7 +214,7 @@ fn fortifications_destroyed(
         return Bounded::MAX;
     };
     let randomness = FixedTrait::new(
-        hash_state.update_to_u128(fortification) & BoundedT::<u64, u128>::max() + 1, false
+        hash_state.update_to_u128(fortification) & BoundedT::<u64, u128>::max() + 1, false,
     );
     let probability = FixedTrait::new(probability.into(), false);
     (randomness.ln() / probability.ln()).try_into().unwrap()
@@ -229,11 +229,11 @@ impl FortificationStorageImpl of FortificationStorage {
         value.into()
     }
     fn get_fortification_contract_address(
-        self: @WorldStorage, game_id: felt252, fortification: Fortification
+        self: @WorldStorage, game_id: felt252, fortification: Fortification,
     ) -> ContractAddress {
         self
             .read_member(
-                Model::<FortificationTokens>::ptr_from_keys(game_id), fortification.selector()
+                Model::<FortificationTokens>::ptr_from_keys(game_id), fortification.selector(),
             )
     }
     fn set_fortifications_contract_address(
@@ -242,7 +242,7 @@ impl FortificationStorageImpl of FortificationStorage {
         palisade: ContractAddress,
         trench: ContractAddress,
         wall: ContractAddress,
-        basement: ContractAddress
+        basement: ContractAddress,
     ) {
         self.write_model(@FortificationTokens { game_id, palisade, trench, wall, basement });
     }

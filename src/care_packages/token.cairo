@@ -1,9 +1,6 @@
 use starknet::ContractAddress;
 use dojo::world::{WorldStorage, IWorldDispatcherTrait};
-use rising_revenant::{
-    addresses::{AddressBook, GetDispatcher}, address_selectors::CARE_PACKAGE_TOKEN_SELECTOR,
-    care_packages::Rarity
-};
+use rising_revenant::care_packages::Rarity;
 
 
 #[starknet::interface]

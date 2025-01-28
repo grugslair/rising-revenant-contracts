@@ -56,7 +56,7 @@ mod outpost_actions {
             Outpost, OutpostTrait, OutpostStorage, systems::{OutpostsActiveTrait, OutpostEventTrait}
         },
         world_events::{WorldEventStorage, WorldEventEffectTrait, WorldEventTrait}, map::PointTrait,
-        contribution::{ContributionTrait, ContributionEvent}, game::GameTrait, vrf::{VRF, Source},
+        contribution::{Contribution, ContributionEvent}, game::GameTrait, vrf::{VRF, Source},
         world::default_namespace, jackpot::JackpotTrait, tokens::erc721_mint
     };
 
@@ -86,7 +86,7 @@ mod outpost_actions {
             let game_id = outpost.game_id;
             let event = world.get_event(game_id);
 
-            world.assert_playing(game_id);
+            world.assert_game_playing(game_id);
             assert(outpost.is_active(), 'Outpost is not active');
             assert(event.in_range(outpost.position), 'Outpost not in radius');
 
