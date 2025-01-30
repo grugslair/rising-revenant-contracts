@@ -44,6 +44,14 @@ struct GameClassHash {
     class_hash: ClassHash,
 }
 
+#[dojo::model]
+#[derive(Drop, Serde)]
+struct GameContractAddress {
+    #[key]
+    selector: felt252,
+    contract_address: ContractAddress,
+}
+
 /// Stores the timing information for different phases of the game
 #[dojo::model]
 #[derive(Drop, Serde, Copy, Default)]
@@ -276,5 +284,19 @@ impl GameStorageImpl of GameStorage {
             .read_member(
                 Model::<GameWalletModel>::ptr_from_keys(game_id), selector!("wallet_address"),
             )
+    }
+
+    fn get_game_contract_address<T, +Serde<T>>(self: @WorldStorage, selector: felt252) -> T {
+        self
+            .read_member(
+                Model::<GameContractAddress>::ptr_from_keys(selector),
+                selector!("contract_address"),
+            )
+    }
+
+    fn set_game_contract_address(
+        ref self: WorldStorage, selector: felt252, contract_address: ContractAddress,
+    ) {
+        self.write_model(@GameContractAddress { selector, contract_address });
     }
 }

@@ -1,11 +1,11 @@
+use super::world::WorldTrait;
 use starknet::ContractAddress;
 use dojo::{world::WorldStorage, model::ModelStorage};
 
 // use cartridge_vrf::{IVrfProviderDispatcher, IVrfProviderDispatcherTrait, Source};
-use rising_revenant::{
-    addresses::{AddressBook,}, address_selectors::VRF_ADDRESS_SELECTOR, utils::felt252_to_u128,
-    hash::hash_value
-};
+use rising_revenant::{utils::felt252_to_u128, hash::hash_value, game::GameStorage};
+
+const VRF_ADDRESS_SELECTOR: felt252 = 'vrf-address';
 
 #[derive(Drop, Copy, Clone, Serde)]
 enum Source {
@@ -47,7 +47,7 @@ trait IVrfProvider<TContractState> {
 #[generate_trait]
 impl VrfProviderImpl of GetDispatcher {
     fn get_dispatcher(self: @WorldStorage) -> IVrfProviderDispatcher {
-        IVrfProviderDispatcher { contract_address: self.get_address(VRF_ADDRESS_SELECTOR) }
+        self.get_game_contract_address(VRF_ADDRESS_SELECTOR)
     }
 }
 
@@ -55,7 +55,7 @@ trait VRF {
     fn randomness(ref self: WorldStorage, key: Source) -> felt252;
     fn random_u128(ref self: WorldStorage, key: Source) -> u128;
     fn random_range<T, +TryInto<u128, T>, +Into<T, u128>, +Drop<T>>(
-        ref self: WorldStorage, key: Source, range: T
+        ref self: WorldStorage, key: Source, range: T,
     ) -> T;
 }
 
@@ -70,7 +70,7 @@ impl VrfImpl of VRF {
         felt252_to_u128(self.randomness(key))
     }
     fn random_range<T, +TryInto<u128, T>, +Into<T, u128>, +Drop<T>>(
-        ref self: WorldStorage, key: Source, range: T
+        ref self: WorldStorage, key: Source, range: T,
     ) -> T {
         (self.random_u128(key) % range.into()).try_into().unwrap()
     }

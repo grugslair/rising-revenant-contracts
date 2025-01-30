@@ -2,8 +2,8 @@ use starknet::{ContractAddress, get_block_timestamp};
 use dojo::{world::WorldStorage, model::ModelStorage};
 use openzeppelin_token::erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
 use rising_revenant::{
-    addresses::GetDispatcher, game::{GamePhasesTrait, GamePhase, GameStorage},
-    outposts::OutpostStorage, tokens::erc721_owner_of,
+    game::{GamePhasesTrait, GamePhase, GameStorage}, outposts::OutpostStorage,
+    tokens::erc721_owner_of,
 };
 
 /// Trait implementation for game-related functionality

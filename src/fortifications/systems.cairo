@@ -4,14 +4,10 @@ use dojo::{world::WorldStorage, model::{ModelStorage, ModelValueStorage}};
 use rising_revenant::{
     fortifications::{
         Fortification, Fortifications, FortificationTrait, FortificationStorage,
-        FortificationTokens, FORTIFICATION_CLASS_HASH_SELECTOR,
+        FortificationTokens,
     },
-    game::{GameStorage, ClassHashVariant}, utils::deploy_contract,
-    tokens::{
-        deploy_erc20_mintable_burnable, IERC20MintableBurnableDispatcher,
-        IERC20MintableBurnableDispatcherTrait, erc20_mint
-    },
-    world::WorldTrait
+    game::{GameStorage, ClassHashVariant},
+    tokens::{deploy_erc20_mintable_burnable, erc20_burn_from, erc20_mint}, world::WorldTrait,
 };
 
 
@@ -38,7 +34,7 @@ impl FortificationTokenImpl of FortificationTokenTrait {
         game_name: @ByteArray,
         admin: ContractAddress,
         minter: ContractAddress,
-        fortification: Fortification
+        fortification: Fortification,
     ) -> ContractAddress {
         let fortification_felt: felt252 = fortification.into();
         deploy_erc20_mintable_burnable(
@@ -62,19 +58,19 @@ impl FortificationTokenImpl of FortificationTokenTrait {
                 game_id,
                 self
                     .deploy_fortification_token(
-                        class_hash, game_id, game_name, admin, minter, Fortification::Palisade
+                        class_hash, game_id, game_name, admin, minter, Fortification::Palisade,
                     ),
                 self
                     .deploy_fortification_token(
-                        class_hash, game_id, game_name, admin, minter, Fortification::Trench
+                        class_hash, game_id, game_name, admin, minter, Fortification::Trench,
                     ),
                 self
                     .deploy_fortification_token(
-                        class_hash, game_id, game_name, admin, minter, Fortification::Wall
+                        class_hash, game_id, game_name, admin, minter, Fortification::Wall,
                     ),
                 self
                     .deploy_fortification_token(
-                        class_hash, game_id, game_name, admin, minter, Fortification::Basement
+                        class_hash, game_id, game_name, admin, minter, Fortification::Basement,
                     ),
             );
     }
@@ -84,11 +80,10 @@ impl FortificationTokenImpl of FortificationTokenTrait {
         game_id: felt252,
         fortification: Fortification,
         from: ContractAddress,
-        amount: u256
+        amount: u256,
     ) {
-        IERC20MintableBurnableDispatcher {
-            contract_address: self.get_fortification_contract_address(game_id, fortification),
-        }
-            .burn_from(from, amount);
+        erc20_burn_from(
+            self.get_fortification_contract_address(game_id, fortification), from, amount,
+        );
     }
 }

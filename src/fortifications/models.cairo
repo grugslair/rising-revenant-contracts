@@ -2,12 +2,8 @@ use core::{cmp::min, poseidon::HashState, num::traits::Bounded};
 use starknet::ContractAddress;
 use dojo::{world::WorldStorage, model::{ModelStorage, ModelValueStorage, Model}};
 use cubit::f128::{Fixed, FixedTrait};
-use rising_revenant::{
-    addresses::{AddressSelectorTrait}, world_events::models::WorldEventType, core::BoundedT,
-    hash::UpdateHashToU128,
-};
+use rising_revenant::{core::BoundedT, hash::UpdateHashToU128};
 
-const FORTIFICATION_CLASS_HASH_SELECTOR: felt252 = 'fortification';
 
 /// Represents different types of fortifications.
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
@@ -23,7 +19,7 @@ enum Fortification {
 }
 
 /// Holds the count of each type of fortification.
-#[derive(Copy, Drop, Serde, IntrospectPacked, Default)]
+#[derive(Copy, Drop, Serde, Introspect, Default)]
 struct Fortifications {
     palisades: u64,
     trenches: u64,
@@ -31,21 +27,34 @@ struct Fortifications {
     basements: u64,
 }
 
-#[dojo::model]
-#[derive(Drop, Serde, Copy)]
+mod models {
+    use starknet::ContractAddress;
+
+    #[dojo::model]
+    #[derive(Drop, Serde, Copy)]
+    struct FortificationTokens {
+        #[key]
+        game_id: felt252,
+        palisade: ContractAddress,
+        trench: ContractAddress,
+        wall: ContractAddress,
+        basement: ContractAddress,
+    }
+}
+
+use models::FortificationTokens as FortificationTokensModel;
+
+#[derive(Drop, Serde, Copy, Introspect)]
 struct FortificationTokens {
-    #[key]
-    game_id: felt252,
     palisade: ContractAddress,
     trench: ContractAddress,
     wall: ContractAddress,
     basement: ContractAddress,
 }
 
-
-impl FortificationTokensIntoArray of Into<FortificationTokensValue, Array<ContractAddress>> {
+impl FortificationTokensIntoArray of Into<FortificationTokens, Array<ContractAddress>> {
     /// Converts a `FortificationToken` instance into an array of `ContractAddress`.
-    fn into(self: FortificationTokensValue) -> Array<ContractAddress> {
+    fn into(self: FortificationTokens) -> Array<ContractAddress> {
         array![self.palisade, self.trench, self.wall, self.basement]
     }
 }
@@ -225,7 +234,8 @@ impl FortificationStorageImpl of FortificationStorage {
     fn get_fortification_contract_addresses(
         self: @WorldStorage, game_id: felt252,
     ) -> Array<ContractAddress> {
-        let value: FortificationTokensValue = self.read_value(game_id);
+        let value: FortificationTokens = self
+            .read_schema(Model::<FortificationTokensModel>::ptr_from_keys(game_id));
         value.into()
     }
     fn get_fortification_contract_address(
@@ -233,7 +243,7 @@ impl FortificationStorageImpl of FortificationStorage {
     ) -> ContractAddress {
         self
             .read_member(
-                Model::<FortificationTokens>::ptr_from_keys(game_id), fortification.selector(),
+                Model::<FortificationTokensModel>::ptr_from_keys(game_id), fortification.selector(),
             )
     }
     fn set_fortifications_contract_address(
@@ -244,6 +254,6 @@ impl FortificationStorageImpl of FortificationStorage {
         wall: ContractAddress,
         basement: ContractAddress,
     ) {
-        self.write_model(@FortificationTokens { game_id, palisade, trench, wall, basement });
+        self.write_model(@FortificationTokensModel { game_id, palisade, trench, wall, basement });
     }
 }

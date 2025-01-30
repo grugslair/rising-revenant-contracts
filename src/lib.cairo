@@ -3,22 +3,12 @@ mod core;
 mod utils;
 mod hash;
 
-// mod finance;
 mod fixed;
 mod vrgda;
 mod contribution;
 mod map;
-mod address_selectors;
 
 // mod market;
-
-mod addresses {
-    mod systems;
-    mod contract;
-
-    use systems::{AddressBook, AddressSelectorTrait, GetDispatcher};
-}
-
 mod permissions {
     mod models;
     mod systems;
@@ -51,7 +41,7 @@ mod fortifications {
     mod systems;
     use models::{
         Fortification, Fortifications, FortificationTrait, FortificationsTrait, FortificationTokens,
-        FORTIFICATION_CLASS_HASH_SELECTOR, FortificationStorage,
+        FortificationStorage,
     };
     use systems::FortificationTokenTrait;
 }

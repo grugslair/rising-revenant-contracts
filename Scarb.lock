@@ -8,8 +8,8 @@ source = "git+https://github.com/bengineer42/cubit?tag=cairo--2.8.0#32a20af893b3
 
 [[package]]
 name = "dojo"
-version = "1.1.0"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.1.0#dd7e42d92ecd5cf59354a34c5dbe6f9d6e20ed0e"
+version = "1.1.2"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.1.2#4f3373ed4f98e1778022ed6f6502ce89f9d29b58"
 dependencies = [
  "dojo_plugin",
 ]
@@ -17,7 +17,7 @@ dependencies = [
 [[package]]
 name = "dojo_plugin"
 version = "2.9.2"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.1.0#dd7e42d92ecd5cf59354a34c5dbe6f9d6e20ed0e"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.1.2#4f3373ed4f98e1778022ed6f6502ce89f9d29b58"
 
 [[package]]
 name = "openzeppelin_access"
