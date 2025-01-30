@@ -66,6 +66,10 @@ impl GameImpl of GameTrait {
         self.get_game_phases(game_id).assert_ended()
     }
 
+    fn assert_game_not_ended(self: @WorldStorage, game_id: felt252) {
+        assert(self.get_game_ended(game_id).is_zero(), 'Game has ended');
+    }
+
     /// Returns the contract address of the winning player
     /// # Arguments
     /// * `game_id` - The unique identifier of the game

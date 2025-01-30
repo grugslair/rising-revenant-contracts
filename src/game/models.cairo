@@ -79,20 +79,6 @@ struct GameName {
     name: ByteArray,
 }
 
-mod models {
-    use starknet::ContractAddress;
-    #[dojo::model]
-    #[derive(Drop, Serde)]
-    struct GameWallet {
-        #[key]
-        game_id: felt252,
-        erc20_address: ContractAddress,
-        wallet_address: ContractAddress,
-    }
-}
-
-use models::GameWallet as GameWalletModel;
-
 #[derive(Drop, Serde, Introspect)]
 struct GameWallet {
     erc20_address: ContractAddress,
@@ -257,33 +243,6 @@ impl GameStorageImpl of GameStorage {
 
     fn get_class_hash(self: @WorldStorage, variant: ClassHashVariant) -> ClassHash {
         self.read_member(Model::<GameClassHash>::ptr_from_keys(variant), selector!("class_hash"))
-    }
-
-    fn set_game_wallet(
-        ref self: WorldStorage,
-        game_id: felt252,
-        erc20_address: ContractAddress,
-        wallet_address: ContractAddress,
-    ) {
-        self.write_model(@GameWalletModel { game_id, erc20_address, wallet_address });
-    }
-
-    fn get_game_wallet(self: @WorldStorage, game_id: felt252) -> GameWallet {
-        self.read_schema(Model::<GameWalletModel>::ptr_from_keys(game_id))
-    }
-
-    fn get_game_erc20_token(self: @WorldStorage, game_id: felt252) -> ContractAddress {
-        self
-            .read_member(
-                Model::<GameWalletModel>::ptr_from_keys(game_id), selector!("erc20_address"),
-            )
-    }
-
-    fn get_game_wallet_address(self: @WorldStorage, game_id: felt252) -> ContractAddress {
-        self
-            .read_member(
-                Model::<GameWalletModel>::ptr_from_keys(game_id), selector!("wallet_address"),
-            )
     }
 
     fn get_game_contract_address<T, +Serde<T>>(self: @WorldStorage, selector: felt252) -> T {

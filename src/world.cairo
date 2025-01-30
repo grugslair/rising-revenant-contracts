@@ -31,12 +31,6 @@ impl WorldImpl of WorldTrait {
         assert((*self.dispatcher).is_writer(selector_hash, caller), 'Not Writer');
         caller
     }
-    fn uuid(ref self: WorldStorage) -> felt252 {
-        let mut value: UUID = self.read_model(0);
-        value.value += 1;
-        self.write_model(@value);
-        hash_value(@('uuid', value.value))
-    }
     fn get_contract_address(self: @WorldStorage, contract_name: ByteArray) -> ContractAddress {
         match self.dns(@contract_name) {
             Option::Some((address, _)) => address,
@@ -45,29 +39,6 @@ impl WorldImpl of WorldTrait {
     }
 }
 
-// #[generate_trait]
-// impl ModelSchemaImpl<M, +Model<M>, +Drop<M>> of ModelSchema<M> {
-//     fn read_schema<T, +Serde<T>, +Introspect<T>>(self: @WorldStorage, ptr: ModelPtr<M>) -> T {
-//         deserialize_unwrap(
-//             IWorldDispatcherTrait::entity(
-//                 *self.dispatcher,
-//                 Model::<M>::selector(*self.namespace_hash),
-//                 ModelIndex::Id(ptr.id),
-//                 Introspect::<T>::layout(),
-//             ),
-//         )
-//     }
-// }
-
 fn default_namespace() -> @ByteArray {
     @"rising_revenant"
-}
-
-
-#[dojo::model]
-#[derive(Copy, Drop, Serde)]
-struct UUID {
-    #[key]
-    id: felt252,
-    value: felt252,
 }

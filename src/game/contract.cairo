@@ -74,7 +74,9 @@ trait IGameAdmin<TContractState> {
 #[dojo::contract]
 mod game_actions {
     use core::num::traits::Zero;
-    use starknet::{get_block_timestamp, ContractAddress, get_caller_address, ClassHash};
+    use starknet::{
+        get_block_timestamp, ContractAddress, get_caller_address, ClassHash, get_tx_info,
+    };
     use dojo::{model::{ModelStorage}, world::WorldStorage};
     use super::{IGameActions, IGameAdmin};
     use rising_revenant::{
@@ -88,6 +90,13 @@ mod game_actions {
         world_events::{WorldEventSetup, WorldEventStorage, WorldEventType},
         world::default_namespace, utils::uuid, vrf::VRF_ADDRESS_SELECTOR,
     };
+
+    fn dojo_init(ref self: ContractState) {
+        let mut world = self.world(default_namespace());
+
+        let admin = get_tx_info().unbox().account_contract_address;
+        world.set_admin_permission(admin, true);
+    }
 
     #[abi(embed_v0)]
     impl GameActionsImp of IGameActions<ContractState> {

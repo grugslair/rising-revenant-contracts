@@ -7,7 +7,7 @@ use rising_revenant::{
     fortifications::{Fortifications, FortificationTokenTrait}, core::ToNonZero,
     utils::{felt252_to_u128, deploy_contract},
     care_packages::{Rarity, CarePackageStorage, CarePackage},
-    tokens::{deploy_erc721_mintable, erc721_owner_of}, world::WorldTrait
+    tokens::{deploy_erc721_mintable, erc721_owner_of}, world::WorldTrait,
 };
 use core::integer::u128_safe_divmod;
 // use origami_defi::auction::vrgda::{LogisticVRGDA, VRGDATrait};
@@ -31,7 +31,7 @@ fn get_fortifications_types(total: u128, randomness: u128) -> Fortifications {
     let walls = (walls_s - trenches_s).try_into().unwrap();
     let basements = (total - walls_s).try_into().unwrap();
     let palisades = palisades.try_into().unwrap();
-    Fortifications { palisades, trenches, walls, basements, }
+    Fortifications { palisades, trenches, walls, basements }
 }
 
 /// Returns the range of fortifications based on the rarity.
@@ -128,10 +128,10 @@ impl CarePackageImpl of CarePackageTrait {
             self.get_class_hash(ClassHashVariant::ERC721Mintable),
             game_id,
             format!("RR Care Package {}", game_name),
-            "RRCP-{}",
+            "RRCP",
             base_uri,
             admin,
-            self.get_contract_address("care_package_actions")
+            self.get_contract_address("care_package_actions"),
         )
     }
 
@@ -161,7 +161,7 @@ impl CarePackageImpl of CarePackageTrait {
     fn get_care_package_owner(self: @WorldStorage, care_package: @CarePackage) -> ContractAddress {
         erc721_owner_of(
             self.get_care_package_token_address(*care_package.game_id),
-            (*care_package.token_id).into()
+            (*care_package.token_id).into(),
         )
     }
     fn get_care_package_owner_from_id(self: @WorldStorage, token_id: felt252) -> ContractAddress {

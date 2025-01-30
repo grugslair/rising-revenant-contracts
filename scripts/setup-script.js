@@ -23,7 +23,9 @@ const erc721ContractName = "erc721_mintable";
 const gamePotContractName = "game_pot";
 
 const gameActionsTag = "rising_revenant-game_actions";
+
 const setClassHashEntryPoint = "set_class_hash";
+const setVRFAddressEntryPoint = "set_vrf_address";
 
 const loadJson = (rpath) => {
   return JSON.parse(fs.readFileSync(path.resolve(__dirname, rpath)));
@@ -45,6 +47,7 @@ const getContract = async (provider, contractAddress) => {
 };
 
 const manifest = loadJson(`../manifest_${profile}.json`);
+const config = loadJson(`../config/${profile}.json`);
 
 // connect provider
 const provider = new RpcProvider({ nodeUrl: process.env.STARKNET_RPC_URL });
@@ -60,7 +63,7 @@ const erc20MintableBurnableCairoEnum = new CairoCustomEnum({
 const erc721MintableCairoEnum = new CairoCustomEnum({ ERC721Mintable: {} });
 const gamePotCairoEnum = new CairoCustomEnum({ GamePot: {} });
 
-let gameContract = await getContract(
+const gameContract = await getContract(
   provider,
   getContractAddress(manifest, gameActionsTag)
 );
@@ -108,21 +111,77 @@ const gamePotClassHash = await declareContract(
   gamePotContractName
 );
 
+const executeCalls = async (provider, account, calls) => {
+  const transaction = await account.execute(calls);
+  const response = await provider.waitForTransaction(
+    transaction.transaction_hash
+  );
+  return response.transaction_hash;
+};
+
 const makeSetClassHashCall = (variant, classHash) => {
-  gameContract.populate(setClassHashEntryPoint, {
+  return gameContract.populate(setClassHashEntryPoint, {
     class_hash: classHash,
     variant,
   });
 };
 
-const calls = [
-  makeSetClassHashCall(erc721MintableCairoEnum, erc721ClassHash),
-  makeSetClassHashCall(erc20MintableBurnableCairoEnum, erc20ClassHash),
-  makeSetClassHashCall(gamePotCairoEnum, gamePotClassHash),
-];
+const makeSetClassHashCalls = async (classHashes) => {
+  let calls = [];
+  for (const [variant, classHash] of classHashes) {
+    if (BigInt(classHash) !== (await gameContract.get_class_hash(variant)))
+      calls.push(makeSetClassHashCall(variant, classHash));
+  }
+  return calls;
+};
 
-const transaction = await account.execute(calls);
-const response = await provider.waitForTransaction(
-  transaction.transaction_hash
-);
-console.log(response.transaction_hash);
+const makeSetVRFAddressCall = async (vrfAddress) => {
+  const CurrentVRFAddress = await gameContract.get_vrf_address();
+  if ((await gameContract.get_vrf_address()) !== BigInt(vrfAddress)) {
+    return [
+      gameContract.populate(setVRFAddressEntryPoint, {
+        contract_address: vrfAddress,
+      }),
+    ];
+  }
+  return [];
+};
+
+const makeSetCreatorCalls = async (creatorAddresses) => {
+  let calls = [];
+  for (const address of creatorAddresses) {
+    if (!(await gameContract.get_is_creator(address))) {
+      calls.push(
+        gameContract.populate("set_is_creator", { user: address, has: true })
+      );
+    }
+  }
+  return calls;
+};
+
+const makeSetAdminCalls = async (adminAddresses) => {
+  let calls = [];
+  for (const address of adminAddresses) {
+    if (!(await gameContract.get_is_admin(address))) {
+      calls.push(
+        gameContract.populate("set_is_admin", { user: address, has: true })
+      );
+    }
+  }
+  return calls;
+};
+
+const calls = (
+  await makeSetClassHashCalls([
+    [erc721MintableCairoEnum, erc721ClassHash],
+    [erc20MintableBurnableCairoEnum, erc20ClassHash],
+    [gamePotCairoEnum, gamePotClassHash],
+  ])
+)
+  .concat(await makeSetVRFAddressCall(config.vrf_address))
+  .concat(await makeSetCreatorCalls(config.creators))
+  .concat(await makeSetAdminCalls(config.admins));
+console.log(calls);
+if (calls.length) {
+  console.log(await executeCalls(provider, account, calls));
+}

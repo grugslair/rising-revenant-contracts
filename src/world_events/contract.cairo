@@ -19,10 +19,10 @@ mod world_event_actions {
         game::GameTrait, map::MapTrait,
         world_events::{
             models::{CurrentEvent, WorldEventType, WorldEventSetupTrait, WorldEventStorage},
-            systems::WorldEventTrait
+            systems::WorldEventTrait,
         },
         contribution::{Contribution, ContributionEvent}, vrf::{VRF, Source},
-        world::default_namespace, hash::hash_value
+        world::default_namespace, hash::hash_value,
     };
     use super::{IWorldEventActions};
 

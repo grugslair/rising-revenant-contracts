@@ -1,13 +1,13 @@
 use core::{
     num::traits::Bounded, hash::{HashStateTrait, HashStateExTrait, Hash},
     poseidon::{PoseidonTrait, HashState, poseidon_hash_span},
-    fmt::{Display, Formatter, Error, Debug}, integer::u128_safe_divmod
+    fmt::{Display, Formatter, Error, Debug}, integer::u128_safe_divmod,
 };
 use starknet::{
     ContractAddress, ClassHash, get_contract_address, get_caller_address, get_tx_info,
     get_block_timestamp, StorageAddress, StorageBaseAddress, SyscallResultTrait,
     syscalls::{storage_read_syscall, storage_write_syscall, deploy_syscall},
-    storage_address_from_base, storage_base_address_const
+    storage_address_from_base, storage_base_address_const,
 };
 use rising_revenant::{core::{Felt252BitAnd, BoundedT}};
 
@@ -40,7 +40,7 @@ trait SeedProbability {
 
 impl SeedProbabilityImpl of SeedProbability {
     fn get_outcome<T, +Into<T, u128>>(
-        ref self: u128, scale: NonZero<u128>, probability: T
+        ref self: u128, scale: NonZero<u128>, probability: T,
     ) -> bool {
         let (seed, value) = u128_safe_divmod(self, scale);
         self = seed;
@@ -59,7 +59,7 @@ fn get_transaction_hash() -> felt252 {
 }
 
 fn deploy_contract(
-    class_hash: ClassHash, calldata: Span<felt252>, salt: felt252
+    class_hash: ClassHash, calldata: Span<felt252>, salt: felt252,
 ) -> ContractAddress {
     let (contract_address, _) = deploy_syscall(class_hash, salt, calldata, true).unwrap_syscall();
     contract_address

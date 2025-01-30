@@ -1,8 +1,7 @@
 use dojo::{world::WorldStorage, model::{ModelStorage, Model, ModelValueStorage}};
 use starknet::ContractAddress;
 use rising_revenant::{
-    map::{Point, Map, PointTrait}, fortifications::{Fortifications, FortificationsTrait},
-    core::in_range,
+    map::{Point, PointTrait}, fortifications::{Fortifications, FortificationsTrait}, core::in_range,
 };
 
 // use rising_revenant::world::ModelSchema;
@@ -16,7 +15,7 @@ const NUM_WORLD_EVENTS: u8 = 3;
 struct WorldEventMinInterval {
     #[key]
     game_id: felt252,
-    min_interval: u64
+    min_interval: u64,
 }
 
 
@@ -34,7 +33,7 @@ struct WorldEventEffect {
     efficacy: Fortifications,
     mortalities: Fortifications,
     power: u64,
-    f_value: u64
+    f_value: u64,
 }
 /// Represents the currently active world event
 /// game_id: Unique identifier for the game session
@@ -50,7 +49,7 @@ struct CurrentEvent {
     event_id: felt252,
     event_type: WorldEventType,
     position: Point,
-    timestamp: u64
+    timestamp: u64,
 }
 
 mod models {
@@ -88,7 +87,7 @@ mod models {
         efficacy: Fortifications,
         mortalities: Fortifications,
         power: u64,
-        f_value: u64
+        f_value: u64,
     }
 }
 
@@ -125,7 +124,7 @@ struct WorldEventEvent {
     game_id: felt252,
     event_type: WorldEventType,
     position: Point,
-    time_stamp: u64
+    time_stamp: u64,
 }
 
 /// Complete information about a world event
@@ -148,7 +147,7 @@ struct WorldEvent {
     position: Point,
     radius_sq: u32,
     power: u64,
-    f_value: u64
+    f_value: u64,
 }
 
 #[generate_trait]

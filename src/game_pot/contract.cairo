@@ -1,7 +1,4 @@
-use starknet::{
-    ContractAddress,
-    storage::{StoragePointerReadAccess, StoragePointerWriteAccess, StoragePathEntry, Map},
-};
+use starknet::{ContractAddress};
 
 #[starknet::interface]
 trait IGamePot<TContractState> {
@@ -17,15 +14,23 @@ trait IGamePot<TContractState> {
     fn win_claimed(self: @TContractState) -> bool;
     /// Checks if a specific contributor has claimed their reward
     fn contribution_claimed(self: @TContractState, user: ContractAddress) -> bool;
+
+    fn get_token_address(self: @TContractState) -> ContractAddress;
+    fn get_winners_bonus_pot(self: @TContractState) -> u256;
+    fn get_contributors_bonus_pot(self: @TContractState) -> u256;
 }
 
 #[starknet::contract]
 mod game_pot {
-    use starknet::{ContractAddress, get_caller_address, get_contract_address};
+    use starknet::{
+        ContractAddress, get_caller_address, get_contract_address,
+        storage::{StoragePointerReadAccess, StoragePointerWriteAccess, StoragePathEntry, Map},
+    };
     use dojo::world::WorldStorage;
-    use rising_revenant::game_pot::{GamePotTrait, GamePotStorage};
+    use rising_revenant::game_pot::GamePotStorage;
     use rising_revenant::game::GameTrait;
-    use rising_revenant::tokens::{erc20_balance_of, erc20_transfer};
+    use rising_revenant::tokens::{erc20_balance_of, erc20_transfer, erc20_transfer_from};
+    use rising_revenant::contribution::Contribution;
     use super::IGamePot;
 
     impl WorldStorageStore of starknet::StorePacking<WorldStorage, (ContractAddress, felt252)> {
@@ -48,6 +53,7 @@ mod game_pot {
         namespace_hash: felt252,
         game_id: felt252,
         owner: ContractAddress,
+        token_address: ContractAddress,
     ) {
         self
             .world_storage
@@ -63,6 +69,7 @@ mod game_pot {
             );
         self.game_id.write(game_id);
         self.owner.write(owner);
+        self.token_address.write(token_address);
     }
 
     #[storage]
@@ -70,53 +77,86 @@ mod game_pot {
         world_storage: WorldStorage,
         game_id: felt252,
         owner: ContractAddress,
+        token_address: ContractAddress,
+        winners: u256,
+        contributors: u256,
+        winners_claimed: bool,
+        contributors_claimed: Map<ContractAddress, bool>,
     }
 
     #[abi(embed_v0)]
     impl IGamePotImpl of IGamePot<ContractState> {
         fn increase_contributor_pot(ref self: ContractState, amount: u256) {
-            let mut world = self.world_storage.read();
-            world.pay_into_contributors_pot(self.game_id.read(), get_caller_address(), amount);
+            self.world_storage.read().assert_game_not_ended(self.game_id.read());
+            erc20_transfer_from(
+                self.token_address.read(), get_caller_address(), get_contract_address(), amount,
+            );
+            self.contributors.write(self.contributors.read() + amount);
         }
 
         fn increase_winner_pot(ref self: ContractState, amount: u256) {
-            let mut world = self.world_storage.read();
-            world.pay_into_winners_pot(self.game_id.read(), get_caller_address(), amount);
+            self.world_storage.read().assert_game_not_ended(self.game_id.read());
+            erc20_transfer_from(
+                self.token_address.read(), get_caller_address(), get_contract_address(), amount,
+            );
+            self.winners.write(self.winners.read() + amount);
         }
-
 
         fn claim_win(ref self: ContractState) {
             let mut world = self.world_storage.read();
             let game_id = self.game_id.read();
             world.assert_game_claiming(game_id);
+            assert(!self.winners_claimed.read(), 'Already claimed');
+            self.winners_claimed.write(true);
+
             let caller = get_caller_address();
             assert(caller == world.get_owner_of_winning_outpost(game_id), 'Not winner');
-            world.payout_winners_pot(game_id, get_caller_address());
+            let amount = self.winners.read() + world.get_winners_purchases_amount(game_id);
+            erc20_transfer(self.token_address.read(), caller, amount);
         }
 
         fn claim_contribution(ref self: ContractState) {
             let mut world = self.world_storage.read();
             let game_id = self.game_id.read();
             world.assert_game_claiming(game_id);
-            world.payout_contributors_pot(self.game_id.read(), get_caller_address())
+            let caller = get_caller_address();
+            let contributor = self.contributors_claimed.entry(caller);
+            assert(!contributor.read(), 'Already claimed');
+            contributor.write(true);
+
+            let total = self.contributors.read() + world.get_contributors_purchases_amount(game_id);
+            let amount = world.get_contribution_portion(game_id, caller, total);
+            erc20_transfer(self.token_address.read(), caller, amount);
         }
 
         fn claim_remainder(ref self: ContractState) {
-            let world = self.world_storage.read();
+            let caller = get_caller_address();
             assert(get_caller_address() == self.owner.read(), 'Not owner');
-            let game_id = self.game_id.read();
-            world.assert_game_claim_ended(game_id);
-            let token_address = world.get_game_token_address(game_id);
+            self.world_storage.read().assert_game_claim_ended(self.game_id.read());
+
+            let token_address = self.token_address.read();
             let balance = erc20_balance_of(token_address, get_contract_address());
-            erc20_transfer(token_address, get_caller_address(), balance);
+            erc20_transfer(token_address, caller, balance);
         }
 
         fn win_claimed(self: @ContractState) -> bool {
-            self.world_storage.read().get_game_pot_winner_claimed(self.game_id.read())
+            self.winners_claimed.read()
         }
 
         fn contribution_claimed(self: @ContractState, user: ContractAddress) -> bool {
-            self.world_storage.read().get_game_pot_contributor_claimed(self.game_id.read(), user)
+            self.contributors_claimed.entry(user).read()
+        }
+
+        fn get_token_address(self: @ContractState) -> ContractAddress {
+            self.token_address.read()
+        }
+
+        fn get_winners_bonus_pot(self: @ContractState) -> u256 {
+            self.winners.read()
+        }
+
+        fn get_contributors_bonus_pot(self: @ContractState) -> u256 {
+            self.contributors.read()
         }
     }
 }

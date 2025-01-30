@@ -21,7 +21,7 @@ pub trait ICarePackage<TContractState> {
 
 
 #[dojo::contract]
-mod care_package {
+mod care_package_actions {
     use core::poseidon::poseidon_hash_span;
     use starknet::{get_caller_address, ContractAddress, get_contract_address, get_block_timestamp};
     use dojo::world::WorldStorage;
