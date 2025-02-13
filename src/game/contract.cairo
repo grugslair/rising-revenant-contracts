@@ -37,12 +37,39 @@ trait IGameAdmin<TContractState> {
     fn set_vrf_address(ref self: TContractState, contract_address: ContractAddress);
     fn get_vrf_address(self: @TContractState) -> ContractAddress;
 
-    /// Creates a new game instance with specified phase timings
-    /// * `prep_start` - Start time of preparation phase
-    /// * `prep_stop` - End time of preparation phase
-    /// * `events_start` - Start time of events phase
-    /// * `claim_period` - Duration of claim period
-    /// Returns: game_id - Unique identifier for the created game
+    /// Initializes and creates a new game with the specified parameters.
+    /// All time are in seconds and timestamps are in seconds since epoch.
+    ///
+    /// # Parameters
+    /// - `name`: The name of the game (`ByteArray`).
+    /// - `prep_start`: The timestamp when the preparation phase starts in seconds since epoch
+    /// (`u64`).
+    /// - `prep_stop`: The timestamp when the preparation phase ends (`u64`).
+    /// - `events_start`: The timestamp when the game events start (`u64`).
+    /// - `claim_period`: The duration of the claim period after the game ends (`u64`).
+    /// - `game_erc20_token`: The address of the ERC20 token used in the game (`ContractAddress`).
+    /// - `game_beneficiary`: The address of the game beneficiary (`ContractAddress`).
+    /// - `map_size_x`: The size of the game map in the x-dimension (`u16`).
+    /// - `map_size_y`: The size of the game map in the y-dimension (`u16`).
+    /// - `outpost_price`: The price of an outpost (`u256`).
+    /// - `outpost_hp`: The health points of an outpost (`u64`).
+    /// - `outpost_uri`: The URI for the outpost (`ByteArray`).
+    /// - `care_package_target_price_mag`: The target price magnitude for care packages (`u128`).
+    /// - `care_package_decay_constant_mag`: The decay constant magnitude for care packages
+    /// (`u128`).
+    /// - `care_package_max_sellable`: The maximum number of sellable care packages (`u64`).
+    /// - `care_package_time_scale_mag`: The time scale magnitude for care packages (`u128`).
+    /// - `care_package_uri`: The URI for the care packages (`ByteArray`).
+    /// - `event_min_interval`: The minimum interval between events (`u64`).
+    /// - `dragon_vars`: The setup variables for dragon events (`WorldEventSetup`).
+    /// - `goblin_vars`: The setup variables for goblin events (`WorldEventSetup`).
+    /// - `earthquake_vars`: The setup variables for earthquake events (`WorldEventSetup`).
+    /// - `winner_purchase_permille`: The permille for winner purchases (`u16`).
+    /// - `contribution_purchase_permille`: The permille for contribution purchases (`u16`).
+    ///
+    ///
+    /// # Returns
+    /// - `felt252`: The unique identifier for the created game.
     fn create_game(
         ref self: TContractState,
         name: ByteArray,

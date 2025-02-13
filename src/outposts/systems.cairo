@@ -1,3 +1,4 @@
+use cubit::f64::ops::WideMul;
 use core::{cmp::min, poseidon::HashState, num::traits::Bounded, poseidon::poseidon_hash_span};
 use starknet::ContractAddress;
 use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
@@ -8,10 +9,10 @@ use rising_revenant::{
     outposts::{Outpost, OutpostStorage}, game::{GameStorage, ClassHashVariant},
     tokens::{
         IERC721MintableDispatcher, IERC721MintableDispatcherTrait, deploy_erc721_mintable,
-        erc721_owner_of
+        erc721_owner_of,
     },
     hash::{hash_value, make_hash_state}, map::{MapTrait, PointTrait}, core::BoundedT,
-    world::WorldTrait
+    world::WorldTrait,
 };
 
 //! Outpost system implementations for managing outposts and their interactions in the game.
@@ -69,7 +70,7 @@ impl OutpostImpl of OutpostTrait {
     /// # Returns
     /// * The ID of the newly created outpost
     fn make_outpost(
-        ref self: WorldStorage, game_id: felt252, owner: ContractAddress, hp: u64, seed: felt252
+        ref self: WorldStorage, game_id: felt252, owner: ContractAddress, hp: u64, seed: felt252,
     ) -> felt252 {
         let outposts_active = self.get_active_outposts(game_id) + 1;
         let id = poseidon_hash_span(['outpost', game_id, outposts_active.into()].span());
@@ -129,18 +130,18 @@ impl OutpostImpl of OutpostTrait {
     }
 
     fn increase_outpost_fortification(
-        ref self: WorldStorage, outpost_id: felt252, fortification: Fortification, amount: u64
+        ref self: WorldStorage, outpost_id: felt252, fortification: Fortification, amount: u64,
     ) {
         self
             .set_outpost_fortification(
                 outpost_id,
                 fortification,
-                self.get_outpost_fortification(outpost_id, fortification) + amount
+                self.get_outpost_fortification(outpost_id, fortification) + amount,
             );
     }
 
     fn get_outpost_owner(
-        self: @WorldStorage, game_id: felt252, outpost_id: felt252
+        self: @WorldStorage, game_id: felt252, outpost_id: felt252,
     ) -> ContractAddress {
         erc721_owner_of(self.get_outpost_token_address(game_id), outpost_id.into())
     }
@@ -159,7 +160,7 @@ impl OutpostImpl of OutpostTrait {
             "RROP",
             base_uri,
             admin,
-            self.get_contract_address("outpost_actions")
+            self.get_contract_address("outpost_actions"),
         )
     }
 
@@ -170,25 +171,12 @@ impl OutpostImpl of OutpostTrait {
         base_uri: ByteArray,
         admin: ContractAddress,
         price: u256,
-        hp: u64
+        hp: u64,
     ) {
         self
             .set_outpost_setup(
-                game_id, self.deploy_outpost_token(game_id, game_name, base_uri, admin), price, hp
+                game_id, self.deploy_outpost_token(game_id, game_name, base_uri, admin), price, hp,
             );
     }
-}
-
-
-/// Calculates protection provided by fortifications
-/// # Arguments
-/// * `fortifications` - Current fortification levels
-/// * `efficacy` - Effectiveness of each fortification type
-/// * `f_value` - Decay factor
-/// # Returns
-/// * Protection value as a u64
-fn get_protection(fortifications: Fortifications, efficacy: Fortifications, f_value: u64) -> u64 {
-    let total = (fortifications * efficacy).sum();
-    total / (total + f_value)
 }
 

@@ -69,10 +69,10 @@ mod models {
     /// min_radius_sq: u32,  Minimum squared radius of event effect (starting radius)
     /// max_radius_sq: u32,  Maximum squared radius of event effect
     /// radius_sq_increase: u32,  Rate at which the radius increases
-    // efficacy: Fortifications,
-    // mortalities: Fortifications,
+    // efficacy: Fortifications, Base efficacy of fortifications against the event
+    // mortalities: Fortifications, Base chance in % of a single fortification being destroyed
     // power: u64, Base power/impact of the event
-    // f_value: u64
+    // f_value: u64, Number of relative fortifications at which the effect is halved
 
     #[dojo::model]
     #[derive(Drop, Serde, Copy)]
@@ -99,6 +99,17 @@ struct LastEventOfType {
     did_hit: bool,
 }
 
+/// Represents the setup configuration for a world event in the game.
+///
+/// # Fields
+/// - `efficacy`: The weighted efficacy of the fortifications.
+/// - `mortalities`: The fortifications related to the mortalities caused by the event.
+/// - `min_radius_sq`: The minimum radius squared within which the event can occur.
+/// - `max_radius_sq`: The maximum radius squared within which the event can occur.
+/// - `radius_sq_increase`: The increase in radius squared for the event if no outposts are
+/// effected.
+/// - `power`: The damage caused by an event with no fortifications.
+/// - `f_value`: The relative amount of fortifications that half the damage dealt by an event.
 #[derive(Drop, Serde, Introspect)]
 struct WorldEventSetup {
     efficacy: Fortifications,
@@ -131,8 +142,8 @@ struct WorldEventEvent {
 ///
 /// event_id: felt252, /// Unique identifier for the event
 /// event_type: WorldEventType, /// Type of event
-/// efficacy: Fortifications,
-/// mortalities: Fortifications,
+/// efficacy: Fortifications, efficacy
+/// mortalities: Fortifications, chance in % of a single fortification being destroyed
 /// position: Point, /// Location where the event is centered
 /// radius_sq: u32, /// Squared radius of effect
 /// power: u64, /// Current power/impact of the event
@@ -150,11 +161,24 @@ struct WorldEvent {
     f_value: u64,
 }
 
+/// Calculates protection provided by fortifications
+/// # Arguments
+/// * `fortifications` - Current fortification levels
+/// * `efficacy` - Effectiveness of each fortification type
+/// * `f_value` - Decay factor
+/// # Returns
+/// * Protection value as a u64
+fn get_damage(
+    fortifications: Fortifications, efficacy: Fortifications, f_value: u64, power: u64,
+) -> u64 {
+    let total = (fortifications * efficacy).sum();
+    power - (total * power) / (total + f_value)
+}
+
 #[generate_trait]
 impl WorldEventEffectImpl of WorldEventEffectTrait {
     fn get_damage(self: @WorldEvent, fortifications: Fortifications) -> u64 {
-        let total: u128 = (fortifications * *self.efficacy).sum().into();
-        (total * (*self.power).into() / (total + (*self.f_value).into())).try_into().unwrap()
+        get_damage(fortifications, *self.efficacy, *self.f_value, *self.power)
     }
 
     /// Checks if a given location is within the event's area of effect

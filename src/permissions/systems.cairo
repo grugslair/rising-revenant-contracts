@@ -63,7 +63,7 @@ impl GamePermissionsImpl of GamePermissions {
             permissions
                 .append(
                     Permission {
-                        resource: SETUP_PERMISSION_SELECTOR, requester: user, permission: has,
+                        resource: ADMIN_PERMISSION_SELECTOR, requester: user, permission: has,
                     },
                 );
         };
