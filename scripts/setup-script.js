@@ -42,7 +42,7 @@ const getContractAddress = (mainfest, contractName) => {
 
 const getContract = async (provider, contractAddress) => {
   console.log(contractAddress);
-  const { abi: abi } = await provider.getClassAt(contractAddress);
+  const { abi } = await provider.getClassAt(contractAddress);
   return new Contract(abi, contractAddress, provider);
 };
 

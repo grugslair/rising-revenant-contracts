@@ -1,0 +1,77 @@
+{
+  "prep_time": 3600,
+  "grace_time": 300,
+  "claim_period": 3600,
+  "game_erc20_token": "0x019c92fa87f4d5e3bE25C3DD6a284f30282a07e87cd782f5Fd387B82c8142017",
+  "game_beneficiary": "0x058e3B49d870f08C96a02f794C82b5f6C868c074DeaDD6bA04E8d2194723B5bd",
+  "map_size_x": 8192,
+  "map_size_y": 16384,
+  "outpost_price": 10.0,
+  "outpost_hp": 1000,
+  "outpost_uri": "",
+  "care_package_target_price": 2.0,
+  "care_package_decay_constant": 0.001,
+  "care_package_max_sellable": 1000.0,
+  "care_package_time_scale": 3600.0,
+  "care_package_uri": "",
+  "event_min_interval": 120,
+  "dragon_vars": {
+    "efficacy": {
+      "palisades": 2,
+      "trenches": 1,
+      "walls": 4,
+      "basements": 1
+    },
+    "mortalities": {
+      "palisades": 80,
+      "trenches": 10,
+      "walls": 60,
+      "basements": 10
+    },
+    "min_radius": 400,
+    "max_radius": 800,
+    "radius_increase": 50,
+    "power": 1000,
+    "f_value": 10
+  },
+  "goblin_vars": {
+    "efficacy": {
+      "palisades": 2,
+      "trenches": 4,
+      "walls": 1,
+      "basements": 1
+    },
+    "mortalities": {
+      "palisades": 70,
+      "trenches": 70,
+      "walls": 30,
+      "basements": 10
+    },
+    "min_radius": 100,
+    "max_radius": 1000,
+    "radius_increase": 100,
+    "power": 300,
+    "f_value": 1
+  },
+  "earthquake_vars": {
+    "efficacy": {
+      "palisades": 2,
+      "trenches": 1,
+      "walls": 1,
+      "basements": 4
+    },
+    "mortalities": {
+      "palisades": 60,
+      "trenches": 60,
+      "walls": 60,
+      "basements": 60
+    },
+    "min_radius": 1000,
+    "max_radius": 10000,
+    "radius_increase": 500,
+    "power": 100,
+    "f_value": 1000
+  },
+  "winner_purchase_percent": 70.0,
+  "contribution_purchase_percent": 15.0
+}
