@@ -14,6 +14,7 @@ account_address = "0x058e3B49d870f08C96a02f794C82b5f6C868c074DeaDD6bA04E8d219472
 
 [writers]
 
+"rising_revenant-GameName" = ["rising_revenant-game_actions"]
 "rising_revenant-GameClassHash" = ["rising_revenant-game_actions"]
 "rising_revenant-GameContractAddress" = ["rising_revenant-game_actions"]
 "rising_revenant-CarePackageTokenAddress" = ["rising_revenant-game_actions"]
