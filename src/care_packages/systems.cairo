@@ -6,8 +6,9 @@ use rising_revenant::{
     game::{GamePhasesTrait, GameStorage, ClassHashVariant},
     fortifications::{Fortifications, FortificationTokenTrait}, core::ToNonZero,
     utils::{felt252_to_u128, deploy_contract},
-    care_packages::{Rarity, CarePackageStorage, CarePackage},
-    tokens::{deploy_erc721_mintable, erc721_owner_of}, world::WorldTrait,
+    care_packages::{Rarity, CarePackageStorage, CarePackage, CarePackageMarketTrait},
+    tokens::{deploy_erc721_mintable, erc721_owner_of, erc721_mint}, game_pot::GamePotTrait,
+    world::WorldTrait,
 };
 use core::integer::u128_safe_divmod;
 // use origami_defi::auction::vrgda::{LogisticVRGDA, VRGDATrait};
@@ -144,6 +145,24 @@ impl CarePackageImpl of CarePackageTrait {
         let fortifications = get_fortifications(care_package.rarity, randomness);
         self.mint_fortifications(care_package.game_id, caller, fortifications);
         self.emit_care_package_contents(care_package.game_id, token_id, caller, fortifications);
+    }
+
+    fn purchase_care_package(
+        ref self: WorldStorage, game_id: felt252, caller: ContractAddress,
+    ) -> felt252 {
+        let timestamp = get_block_timestamp();
+        let phases = self.get_game_phases(game_id);
+        phases.assert_time_in_prep(timestamp);
+
+        let mut market = self.get_care_package_market(game_id);
+        let price = market.purchase_care_package(phases.prep_start, timestamp);
+        let id = poseidon_hash_span([market.token_address.into(), market.sold.into()].span());
+        self.set_care_package_sold(game_id, market.sold);
+
+        self.pay_into_purchases_pot(game_id, caller, price);
+        erc721_mint(market.token_address, caller, id.into());
+
+        id
     }
 
     // fn reveal_care_package_rarity(

@@ -2,7 +2,7 @@ use starknet::ContractAddress;
 use dojo::{world::WorldStorage, model::{ModelStorage, Model}, event::EventStorage};
 use rising_revenant::{
     fortifications::models::Fortifications, core::ToNonZero, utils::felt252_to_u128,
-    vrgda::{LogisticVRGDA, VRGDATrait}, fixed::FixedToDecimal
+    vrgda::{LogisticVRGDA, VRGDATrait}, fixed::FixedToDecimal,
 };
 use cubit::f128::{Fixed, FixedTrait, ONE_u128};
 
@@ -36,7 +36,7 @@ impl LogisticVRGDAStoreIntoLogisticVRGDA of Into<@LogisticVRGDAStore, LogisticVR
     }
 }
 
-impl UTIntoRarity<T, +TryInto<T, u8>,> of Into<T, Rarity> {
+impl UTIntoRarity<T, +TryInto<T, u8>> of Into<T, Rarity> {
     fn into(self: T) -> Rarity {
         match self.try_into().unwrap() {
             0_u8 => Rarity::None,
@@ -107,7 +107,7 @@ impl CarePackageStorageImpl of CarePackageStorage {
     }
 
     fn set_care_package_rarity(
-        ref self: WorldStorage, game_id: felt252, token_id: felt252, rarity: Rarity
+        ref self: WorldStorage, game_id: felt252, token_id: felt252, rarity: Rarity,
     ) {
         self.write_model(@CarePackage { token_id, game_id, rarity, opened: false });
     }
@@ -144,10 +144,10 @@ impl CarePackageStorageImpl of CarePackageStorage {
                     game_id,
                     token_address,
                     vrgda: LogisticVRGDAStore {
-                        target_price_mag, decay_constant_mag, max_sellable_mag, time_scale_mag
+                        target_price_mag, decay_constant_mag, max_sellable_mag, time_scale_mag,
                     },
-                    sold: 0
-                }
+                    sold: 0,
+                },
             );
     }
 
@@ -158,8 +158,16 @@ impl CarePackageStorageImpl of CarePackageStorage {
     fn get_care_package_token_address(self: @WorldStorage, game_id: felt252) -> ContractAddress {
         self
             .read_member(
-                Model::<CarePackageTokenAddress>::ptr_from_keys(game_id), selector!("token_address")
+                Model::<CarePackageTokenAddress>::ptr_from_keys(game_id),
+                selector!("token_address"),
             )
+    }
+
+    fn set_care_package_sold(ref self: WorldStorage, game_id: felt252, sold: u128) {
+        self
+            .write_member(
+                Model::<CarePackageMarket>::ptr_from_keys(game_id), selector!("sold"), sold,
+            );
     }
 
     fn emit_care_package_contents(

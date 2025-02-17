@@ -27,11 +27,8 @@ mod care_package_actions {
     use dojo::world::WorldStorage;
     use rising_revenant::{
         fortifications::FortificationTokenTrait, game::{GameTrait, GameStorage, GamePhasesTrait},
-        care_packages::{
-            Rarity, CarePackageTrait, CarePackageStorage, get_rarity, CarePackageMarketTrait,
-        },
-        tokens::{erc721_mint, erc721_owner_of}, world::default_namespace, vrf::{VRF, Source},
-        game_pot::GamePotTrait,
+        care_packages::{Rarity, CarePackageTrait, CarePackageStorage, get_rarity},
+        tokens::{erc721_owner_of}, world::default_namespace, vrf::{VRF, Source},
     };
 
     use rising_revenant::vrgda::{LogisticVRGDA, VRGDATrait};
@@ -42,21 +39,11 @@ mod care_package_actions {
     impl CarePackagesImpl of ICarePackage<ContractState> {
         fn purchase(ref self: ContractState, game_id: felt252) -> felt252 {
             let mut world = self.world(default_namespace());
-
-            let timestamp = get_block_timestamp();
-            let phases = world.get_game_phases(game_id);
-
-            phases.assert_time_in_prep(timestamp);
-
-            let mut market = world.get_care_package_market(game_id);
-            let price = market.purchase_care_package(phases.prep_start, timestamp);
-            let id = poseidon_hash_span([get_contract_address().into(), market.sold.into()].span());
-
             let caller = get_caller_address();
-            world.pay_into_purchases_pot(game_id, caller, price);
-            erc721_mint(market.token_address, caller, id.into());
             let randomness = world.randomness(Source::Nonce(caller));
+            let id = world.purchase_care_package(game_id, caller);
             world.set_care_package_rarity(game_id, id, get_rarity(randomness));
+
             id
         }
 

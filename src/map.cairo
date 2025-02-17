@@ -1,14 +1,14 @@
 use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
 use rising_revenant::{
-    utils::{felt252_to_u128, SeedProbability}, core::{ToNonZero, BoundedT}, hash::UpdateHashToU128
+    utils::{felt252_to_u128, SeedProbability}, core::{ToNonZero, BoundedT}, hash::UpdateHashToU128,
 };
 use core::{
-    num::traits::Bounded, integer::{u128_safe_divmod, u32_safe_divmod}, zeroable::NonZero,
-    hash::HashStateTrait, poseidon::{HashState}
+    num::traits::{Bounded, WideMul}, integer::{u128_safe_divmod, u32_safe_divmod},
+    zeroable::NonZero, hash::HashStateTrait, poseidon::{HashState},
 };
 
 
-#[derive(Drop, Serde, Copy, IntrospectPacked, Default,)]
+#[derive(Drop, Serde, Copy, IntrospectPacked, Default)]
 struct Point {
     x: u16,
     y: u16,
@@ -60,7 +60,7 @@ impl U128PointImpl of GeneratePointTrait {
     fn generate_point(ref self: u128, map_size: Point) -> Point {
         Point {
             x: self.get_value(map_size.x.non_zero()).try_into().unwrap(),
-            y: self.get_value(map_size.y.non_zero()).try_into().unwrap()
+            y: self.get_value(map_size.y.non_zero()).try_into().unwrap(),
         }
     }
 }
@@ -98,19 +98,19 @@ impl MapImpl of MapTrait {
     fn is_position_empty(self: @WorldStorage, game_id: felt252, position: Point) -> bool {
         self
             .read_member::<
-                felt252
+                felt252,
             >(Model::<Map>::ptr_from_keys((game_id, position)), selector!("outpost"))
             .is_zero()
     }
     fn set_outpost_at_position(
-        ref self: WorldStorage, game_id: felt252, position: Point, outpost_id: felt252
+        ref self: WorldStorage, game_id: felt252, position: Point, outpost_id: felt252,
     ) {
         self.write_model(@Map { game_id, position, outpost: outpost_id });
     }
     fn get_empty_point(self: @WorldStorage, game_id: felt252, mut hash: HashState) -> Point {
         let map_size = self.get_map_size(game_id);
         let mut seed = hash.to_u128();
-        let min_seed: u128 = (map_size.x * map_size.y).into();
+        let min_seed: u128 = map_size.x.wide_mul(map_size.y).into();
         loop {
             if seed < min_seed {
                 hash = hash.update('butter');
