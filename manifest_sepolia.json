@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x4b767fda48530353c2e44e4b9433f4d75c6c9974aaff43ecc00de9455eb71b8",
-    "address": "0x1a1c8f8342517327ca0643e0d89dfad614282c45c154083382bfa4f997266cd",
-    "seed": "rising-revenant-0.5.3",
+    "address": "0x640f63a32d8c0779101f3ea638df9fba65c2db7ffb85fbf3ed238e42ed7c16f",
+    "seed": "rising-revenant-0.6",
     "name": "rising-revenant",
     "entrypoints": [
       "uuid",
@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x72b2bf25ced82f117ae5a4625c6839417fb5de8c32c475826b32e9780820362",
-      "class_hash": "0x7f07ad247343c46181d3c3f740f33859a5d640f8d5c5a97c99467388fff8ecc",
+      "address": "0x6057af191276fad0a89089cfb50f06bc134d168c5875fb0f47aa71a14500919",
+      "class_hash": "0x499eef233fff88fb58fca5545e9667bd1201393d7c2e70be666e24d6c633f63",
       "abi": [
         {
           "type": "impl",
@@ -1573,8 +1573,8 @@
       ]
     },
     {
-      "address": "0x2c46ca59b0b160cb5a9df5fd1122eb780e08362380c8ff9fc4ae4020f215308",
-      "class_hash": "0x1fb5f3ed7bed22a6190552fe854af4ec2667f6ba7533f951942e56fd3e327cc",
+      "address": "0x56b48616efcedd37920ce50744feca9761c6be34d9c24eaa8bbf430aca9a333",
+      "class_hash": "0x45a73407c511d87730698702f7aa7f0f24c141f05e5dbcc4b61432ded824aac",
       "abi": [
         {
           "type": "impl",
@@ -2033,6 +2033,18 @@
                 {
                   "name": "contribution_purchase_permille",
                   "type": "core::integer::u16"
+                },
+                {
+                  "name": "event_created_contribution_points",
+                  "type": "core::integer::u128"
+                },
+                {
+                  "name": "event_applied_contribution_points",
+                  "type": "core::integer::u128"
+                },
+                {
+                  "name": "outpost_destroyed_contribution_points",
+                  "type": "core::integer::u128"
                 }
               ],
               "outputs": [
@@ -2167,7 +2179,7 @@
       ]
     },
     {
-      "address": "0x5a411881f467088f796cd0fe756e43e6e7ece707f77642bf6a3df140b5e1da8",
+      "address": "0x63092ec65e97ede1bbaff7d0c14cd53121c46d79183e6b43b72f8dd59db9720",
       "class_hash": "0x46bbe795deab069628b2c1936c8d7874fc1b36b2996511fcbe4df98c7b469ae",
       "abi": [
         {
@@ -2519,8 +2531,8 @@
       ]
     },
     {
-      "address": "0x4320871e4cc7bd8077c14fb7d2f78f2ca7096a640f7cf4ae71144ebb5b8f9a4",
-      "class_hash": "0x2e292fbca2ad9fc0aadad088d8ef2acc36a008fd0c5290525971e921564d463",
+      "address": "0x4651b57a7e0e409d58f6e170c929cb5bacb79fe94071aa34c5393a000820265",
+      "class_hash": "0x2335672b6f1d01619044702e4c26294e42169a8ae52368b7c7ab3323cb1dbb",
       "abi": [
         {
           "type": "impl",
@@ -2734,12 +2746,6 @@
     },
     {
       "members": [],
-      "class_hash": "0x74d8bde6e094d5763bc465a2b817dd3528dbc20c6d70c44da8b97319bb8fa5b",
-      "tag": "rising_revenant-CarePackageTokenAddress",
-      "selector": "0x3efdc0757264e06e5bc0773c80a8b4161f00dfd76a92e6daca0902fcd20da53"
-    },
-    {
-      "members": [],
       "class_hash": "0x6ec4f4ba6e0f927e1fc0cfdda91d21dab5194481111a93879b94f6353bb7576",
       "tag": "rising_revenant-ContributionWeight",
       "selector": "0x19e85484d860f57bb13f2c4f27797f653d048869930087821808505f6e69247"
@@ -2818,12 +2824,6 @@
     },
     {
       "members": [],
-      "class_hash": "0x1394d8145d7cd26bd3c567bcbd03c693c575198d717b91d7e322a226e1634e",
-      "tag": "rising_revenant-OutpostTokenAddress",
-      "selector": "0x376d9e75b1c5edf46ce344483f7bfa1f68448cacd683bd395a6c557f5514c7d"
-    },
-    {
-      "members": [],
       "class_hash": "0xcdc5a8382db3359406fc5e0d6070ec151302a2f06217d4007a3ea40c715ae4",
       "tag": "rising_revenant-OutpostsActive",
       "selector": "0x627835d08155fc2fed99b87aab138f994a3419fef55009288596c66719f141d"
@@ -2874,7 +2874,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x5de322ea4326995387ea1af0578d69276850cdf60bc432968b494f9edeb60a9",
+      "class_hash": "0x16c94cecdc97d207c817d770ff2bda7228e35c4243f1c70beb34a2626e9e264",
       "tag": "rising_revenant-WorldEventEvent",
       "selector": "0x30e5cf0423a924b24ede261b11909bda4f202010f14001afa83b559856e2d2e"
     }

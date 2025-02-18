@@ -180,17 +180,8 @@ impl OutpostStorageImpl of OutpostStorage {
         self.read_member(Model::<OutpostsActive>::ptr_from_keys(game_id), selector!("active"))
     }
 
-    fn set_outpost_token_address(
-        ref self: WorldStorage, game_id: felt252, contract_address: ContractAddress,
-    ) {
-        self.write_model(@OutpostTokenAddress { game_id, contract_address });
-    }
-
     fn get_outpost_token_address(self: @WorldStorage, game_id: felt252) -> ContractAddress {
-        self
-            .read_member(
-                Model::<OutpostTokenAddress>::ptr_from_keys(game_id), selector!("contract_address"),
-            )
+        self.read_member(Model::<OutpostSetup>::ptr_from_keys(game_id), selector!("token_address"))
     }
 
     fn get_outpost_fortification(

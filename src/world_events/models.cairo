@@ -1,4 +1,6 @@
-use dojo::{world::WorldStorage, model::{ModelStorage, Model, ModelValueStorage}};
+use dojo::{
+    world::WorldStorage, model::{ModelStorage, Model, ModelValueStorage}, event::EventStorage,
+};
 use starknet::ContractAddress;
 use rising_revenant::{
     map::{Point, PointTrait}, fortifications::{Fortifications, FortificationsTrait}, core::in_range,
@@ -135,6 +137,7 @@ struct WorldEventEvent {
     game_id: felt252,
     event_type: WorldEventType,
     position: Point,
+    radius_sq: u32,
     time_stamp: u64,
 }
 
@@ -261,6 +264,21 @@ impl WorldEventStorageImpl of WorldEventStorage {
             power: current_effect.power,
             f_value: current_effect.f_value,
         }
+    }
+
+    fn emit_world_event_event(
+        ref self: WorldStorage,
+        event_id: felt252,
+        game_id: felt252,
+        event_type: WorldEventType,
+        position: Point,
+        radius_sq: u32,
+        time_stamp: u64,
+    ) {
+        self
+            .emit_event(
+                @WorldEventEvent { event_id, game_id, event_type, position, radius_sq, time_stamp },
+            );
     }
 
     fn get_current_event(self: @WorldStorage, game_id: felt252) -> CurrentEvent {

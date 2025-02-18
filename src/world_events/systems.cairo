@@ -3,9 +3,9 @@ use rising_revenant::{
     utils::{felt252_to_u128, SeedProbability},
     world_events::{
         CurrentEvent, WorldEventType, NUM_WORLD_EVENTS, WorldEventSetupTrait, LastEventOfType,
-        WorldEventStorage
+        WorldEventStorage,
     },
-    map::{Point, GeneratePointTrait, PointTrait}, core::ToNonZero
+    map::{Point, GeneratePointTrait, PointTrait}, core::ToNonZero,
 };
 
 
@@ -25,24 +25,19 @@ impl WorldEventImpl of WorldEventTrait {
         last_event: CurrentEvent,
         map_size: Point,
         randomness: felt252,
-        timestamp: u64
+        timestamp: u64,
     ) {
         let mut seed = felt252_to_u128(randomness);
         let event_type = seed.get_value(NUM_WORLD_EVENTS.non_zero()).into();
         let last_event_of_type = self.get_last_event_of_type(last_event.game_id, event_type);
         let event_setup = self.get_event_setup(last_event.game_id, event_type);
-
+        let position = seed.generate_point(map_size);
+        let radius_sq = event_setup.get_radius_sq(last_event_of_type);
+        self.set_last_event_of_type(last_event.game_id, event_type, radius_sq);
+        self.set_current_event(last_event.game_id, randomness, event_type, position, timestamp);
         self
-            .set_last_event_of_type(
-                last_event.game_id, event_type, event_setup.get_radius_sq(last_event_of_type)
-            );
-        self
-            .set_current_event(
-                last_event.game_id,
-                randomness,
-                event_type,
-                seed.generate_point(map_size),
-                timestamp,
+            .emit_world_event_event(
+                randomness, last_event.game_id, event_type, position, radius_sq, timestamp,
             );
     }
 }
