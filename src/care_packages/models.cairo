@@ -159,7 +159,7 @@ impl CarePackageStorageImpl of CarePackageStorage {
         self
             .read_member(
                 Model::<CarePackageTokenAddress>::ptr_from_keys(game_id),
-                selector!("token_address"),
+                selector!("contract_address"),
             )
     }
 
