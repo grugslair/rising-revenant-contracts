@@ -35,9 +35,8 @@ impl FixedU128ToDecimalImpl of FixedToDecimal<Fixed> {
 fn test_places() {
     let fixed = FixedTrait::new(100, false);
     let decimal = fixed.to_decimal(2);
-    assert(decimal == 10000.into(), "Decimal conversion failed");
+    assert(decimal == 10000.into(), 'Decimal conversion failed');
     let fixed = FixedTrait::new(100, false);
     let decimal = fixed.to_decimal(3);
-    assert(decimal == 100000.into(), "Decimal conversion failed");
-    let decimal = 10000.into();
+    assert(decimal == 100000.into(), 'Decimal conversion failed');
 }
