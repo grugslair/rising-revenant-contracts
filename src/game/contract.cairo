@@ -66,6 +66,11 @@ trait IGameAdmin<TContractState> {
     /// - `earthquake_vars`: The setup variables for earthquake events (`WorldEventSetup`).
     /// - `winner_purchase_permille`: The permille for winner purchases (`u16`).
     /// - `contribution_purchase_permille`: The permille for contribution purchases (`u16`).
+    /// - `event_created_contribution_points`: The contribution points for created new world events
+    /// (`u128`).
+    /// - `event_applied_contribution_points`: The contribution points for appling events to
+    /// outposts (`u128`).
+    /// - `outpost_destroyed_contribution_points`: The contribution points for destroying outposts
     ///
     ///
     /// # Returns
