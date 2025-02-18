@@ -7,6 +7,7 @@ mod fixed;
 mod vrgda;
 mod contribution;
 mod map;
+mod seed;
 
 // mod market;
 mod permissions {

@@ -8,11 +8,11 @@ use rising_revenant::{
     utils::{felt252_to_u128, deploy_contract},
     care_packages::{Rarity, CarePackageStorage, CarePackage, CarePackageMarketTrait},
     tokens::{deploy_erc721_mintable, erc721_owner_of, erc721_mint}, game_pot::GamePotTrait,
-    world::WorldTrait,
+    world::WorldTrait, seed::SeedProbability,
 };
-use core::integer::u128_safe_divmod;
 // use origami_defi::auction::vrgda::{LogisticVRGDA, VRGDATrait};
 use cubit::f128::types::fixed::{Fixed, FixedTrait};
+
 /// Calculates the types of fortifications based on total and randomness.
 ///
 /// # Arguments
@@ -24,15 +24,16 @@ use cubit::f128::types::fixed::{Fixed, FixedTrait};
 ///
 /// A `Fortifications` struct containing the calculated number of palisades, trenches, walls, and
 /// basements.
-fn get_fortifications_types(total: u128, randomness: u128) -> Fortifications {
-    let (randomness, trenches_s) = u128_safe_divmod(randomness, (total + 1).non_zero());
-    let (randomness, palisades) = u128_safe_divmod(randomness, (trenches_s + 1).non_zero());
-    let (_, walls_s) = u128_safe_divmod(randomness, (total - trenches_s + 1).non_zero());
-    let trenches = (trenches_s - palisades).try_into().unwrap();
-    let walls = (walls_s - trenches_s).try_into().unwrap();
-    let basements = (total - walls_s).try_into().unwrap();
-    let palisades = palisades.try_into().unwrap();
-    Fortifications { palisades, trenches, walls, basements }
+fn get_fortifications_types(total: u128, mut randomness: u128) -> Fortifications {
+    let (palisades_trenches, walls_and_basements) = randomness.split_value(total);
+    let (palisades_u128, trenches_u128) = randomness.split_value(palisades_trenches);
+    let (walls_u128, basements_u128) = randomness.split_value(walls_and_basements);
+    Fortifications {
+        palisades: palisades_u128.try_into().unwrap(),
+        trenches: trenches_u128.try_into().unwrap(),
+        walls: walls_u128.try_into().unwrap(),
+        basements: basements_u128.try_into().unwrap(),
+    }
 }
 
 /// Returns the range of fortifications based on the rarity.
@@ -65,9 +66,9 @@ fn get_range_of_fortifications(rarity: Rarity) -> (u128, u128) {
 ///
 /// A `Fortifications` struct with the calculated fortifications.
 fn get_fortifications(rarity: Rarity, randomness: felt252) -> Fortifications {
-    let randomness = felt252_to_u128(randomness);
+    let mut randomness = felt252_to_u128(randomness);
     let (base, divmod) = get_range_of_fortifications(rarity);
-    let (randomness, value) = u128_safe_divmod(randomness, divmod.non_zero());
+    let value = randomness.get_value(divmod.non_zero());
     get_fortifications_types(base + value, randomness)
 }
 
