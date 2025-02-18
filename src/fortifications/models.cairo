@@ -79,6 +79,18 @@ impl FortificationIntoFelt252 of Into<Fortification, felt252> {
     }
 }
 
+impl FortificationIntoByteArray of Into<Fortification, ByteArray> {
+    /// Converts a `Fortification` enum variant into a `felt252` identifier.
+    fn into(self: Fortification) -> ByteArray {
+        match self {
+            Fortification::Palisade => "palisade",
+            Fortification::Trench => "trench",
+            Fortification::Wall => "wall",
+            Fortification::Basement => "basement",
+        }
+    }
+}
+
 impl AddEqFortifications of core::ops::AddAssign<Fortifications, Fortifications> {
     /// Adds the values of another `Fortifications` instance to this one.
     fn add_assign(ref self: Fortifications, rhs: Fortifications) {

@@ -36,11 +36,10 @@ impl FortificationTokenImpl of FortificationTokenTrait {
         minter: ContractAddress,
         fortification: Fortification,
     ) -> ContractAddress {
-        let fortification_felt: felt252 = fortification.into();
         deploy_erc20_mintable_burnable(
             class_hash,
-            poseidon_hash_span([game_id, fortification_felt].span()),
-            format!("RR {} {}", fortification_felt, game_name),
+            poseidon_hash_span([game_id, fortification.into()].span()),
+            "RR " + fortification.into() + " " + game_name.clone(),
             fortification.symbol(),
             0,
             admin,
