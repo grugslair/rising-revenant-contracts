@@ -99,6 +99,9 @@ const parseSetUpValues = (values, gameName, start_time) => {
     "outpost_uri",
     "care_package_uri",
     "claim_period",
+    "event_created_contribution_points",
+    "event_applied_contribution_points",
+    "outpost_destroyed_contribution_points",
   ]) {
     new_values[str] = values[str];
   }

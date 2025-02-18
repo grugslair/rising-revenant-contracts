@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
 use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
 use rising_revenant::{
-    map::Point, fortifications::{Fortification, FortificationTrait, Fortifications}
+    map::Point, fortifications::{Fortification, FortificationTrait, Fortifications},
 };
 
 /// Represents the initial setup configuration for outposts in a game
@@ -104,14 +104,6 @@ struct OutpostsActive {
     active: u32,
 }
 
-#[dojo::model]
-#[derive(Drop, Serde, Copy)]
-struct OutpostTokenAddress {
-    #[key]
-    game_id: felt252,
-    contract_address: ContractAddress,
-}
-
 #[generate_trait]
 impl OutpostStorageImpl of OutpostStorage {
     fn read_outpost_model(self: @WorldStorage, id: felt252) -> model::Outpost {
@@ -130,13 +122,13 @@ impl OutpostStorageImpl of OutpostStorage {
     }
 
     fn new_outpost(
-        ref self: WorldStorage, id: felt252, game_id: felt252, position: Point, hp: u64
+        ref self: WorldStorage, id: felt252, game_id: felt252, position: Point, hp: u64,
     ) {
         self
             .write_model(
                 @model::Outpost {
-                    id, game_id, position, palisades: 0, trenches: 0, walls: 0, basements: 0, hp
-                }
+                    id, game_id, position, palisades: 0, trenches: 0, walls: 0, basements: 0, hp,
+                },
             );
     }
 
@@ -150,18 +142,18 @@ impl OutpostStorageImpl of OutpostStorage {
         game_id: felt252,
         token_address: ContractAddress,
         price: u256,
-        hp: u64
+        hp: u64,
     ) {
         self.write_model(@OutpostSetup { game_id, token_address, price, hp });
     }
 
     /// Retrieves an event associated with a specific outpost
     fn get_outpost_event_applied(
-        self: @WorldStorage, outpost_id: felt252, event_id: felt252
+        self: @WorldStorage, outpost_id: felt252, event_id: felt252,
     ) -> bool {
         self
             .read_member(
-                Model::<OutpostEvent>::ptr_from_keys((outpost_id, event_id)), selector!("applied")
+                Model::<OutpostEvent>::ptr_from_keys((outpost_id, event_id)), selector!("applied"),
             )
     }
 
@@ -197,22 +189,22 @@ impl OutpostStorageImpl of OutpostStorage {
     fn get_outpost_token_address(self: @WorldStorage, game_id: felt252) -> ContractAddress {
         self
             .read_member(
-                Model::<OutpostTokenAddress>::ptr_from_keys(game_id), selector!("contract_address")
+                Model::<OutpostTokenAddress>::ptr_from_keys(game_id), selector!("contract_address"),
             )
     }
 
     fn get_outpost_fortification(
-        self: @WorldStorage, id: felt252, fortification: Fortification
+        self: @WorldStorage, id: felt252, fortification: Fortification,
     ) -> u64 {
         self.read_member(Model::<model::Outpost>::ptr_from_keys(id), fortification.selector())
     }
 
     fn set_outpost_fortification(
-        ref self: WorldStorage, id: felt252, fortification: Fortification, amount: u64
+        ref self: WorldStorage, id: felt252, fortification: Fortification, amount: u64,
     ) {
         self
             .write_member(
-                Model::<model::Outpost>::ptr_from_keys(id), fortification.selector(), amount
+                Model::<model::Outpost>::ptr_from_keys(id), fortification.selector(), amount,
             );
     }
 }

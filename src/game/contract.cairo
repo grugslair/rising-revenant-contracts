@@ -95,6 +95,9 @@ trait IGameAdmin<TContractState> {
         earthquake_vars: WorldEventSetup,
         winner_purchase_permille: u16,
         contribution_purchase_permille: u16,
+        event_created_contribution_points: u128,
+        event_applied_contribution_points: u128,
+        outpost_destroyed_contribution_points: u128,
     ) -> felt252;
 }
 
@@ -179,6 +182,9 @@ mod game_actions {
             earthquake_vars: WorldEventSetup,
             winner_purchase_permille: u16,
             contribution_purchase_permille: u16,
+            event_created_contribution_points: u128,
+            event_applied_contribution_points: u128,
+            outpost_destroyed_contribution_points: u128,
         ) -> felt252 {
             let mut world = self.world(default_namespace());
             let caller = get_caller_address();
@@ -216,6 +222,13 @@ mod game_actions {
                     winner_purchase_permille,
                     contribution_purchase_permille,
                     game_erc20_token,
+                );
+            world
+                .set_contribution_values(
+                    game_id,
+                    event_created_contribution_points,
+                    event_applied_contribution_points,
+                    outpost_destroyed_contribution_points,
                 );
             world.set_game_name(game_id, name);
 

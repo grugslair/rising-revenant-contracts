@@ -54,6 +54,32 @@ impl ContributionImpl of Contribution {
             )
     }
 
+    fn set_contribution_values(
+        ref self: WorldStorage,
+        game_id: felt252,
+        event_created: u128,
+        event_applied: u128,
+        outpost_destroyed: u128,
+    ) {
+        self
+            .write_models(
+                [
+                    @ContributionWeight {
+                        game_id, event: ContributionEvent::EventCreated, value: event_created,
+                    },
+                    @ContributionWeight {
+                        game_id, event: ContributionEvent::EventApplied, value: event_applied,
+                    },
+                    @ContributionWeight {
+                        game_id,
+                        event: ContributionEvent::OutpostDestroyed,
+                        value: outpost_destroyed,
+                    },
+                ]
+                    .span(),
+            );
+    }
+
     /// Retrieves the contribution score for a specific user in a game
     fn get_contribution_amount(
         self: @WorldStorage, game_id: felt252, user: ContractAddress,

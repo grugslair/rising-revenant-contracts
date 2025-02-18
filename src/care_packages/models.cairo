@@ -69,14 +69,6 @@ struct CarePackage {
     opened: bool,
 }
 
-#[dojo::model]
-#[derive(Drop, Serde, Copy)]
-struct CarePackageTokenAddress {
-    #[key]
-    game_id: felt252,
-    contract_address: ContractAddress,
-}
-
 #[dojo::event]
 #[derive(Drop, Serde, Copy)]
 struct CarePackageContents {
@@ -158,8 +150,7 @@ impl CarePackageStorageImpl of CarePackageStorage {
     fn get_care_package_token_address(self: @WorldStorage, game_id: felt252) -> ContractAddress {
         self
             .read_member(
-                Model::<CarePackageTokenAddress>::ptr_from_keys(game_id),
-                selector!("contract_address"),
+                Model::<CarePackageMarket>::ptr_from_keys(game_id), selector!("token_address"),
             )
     }
 

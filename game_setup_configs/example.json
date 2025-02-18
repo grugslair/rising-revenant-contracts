@@ -73,5 +73,8 @@
     "f_value": 1000
   },
   "winner_purchase_percent": 70.0,
-  "contribution_purchase_percent": 15.0
+  "contribution_purchase_percent": 15.0,
+  "event_created_contribution_points": 20,
+  "event_applied_contribution_points": 5,
+  "outpost_destroyed_contribution_points": 10
 }
