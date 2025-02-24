@@ -1,4 +1,6 @@
-use dojo::{world::WorldStorage, model::{Model, ModelStorage}, event::EventStorage};
+use dojo::{
+    world::WorldStorage, model::{Model, ModelStorage}, event::EventStorage, meta::Introspect,
+};
 use starknet::{get_block_timestamp, ClassHash, get_caller_address, ContractAddress};
 /// Represents the different phases a game can be in.
 ///
@@ -71,6 +73,36 @@ struct GamePhases {
     ended: u64,
 }
 
+#[derive(Drop, Serde, Introspect)]
+struct GamePhasePrepping {
+    prep_start: u64,
+    prep_stop: u64,
+}
+
+#[derive(Drop, Serde, Introspect)]
+struct GamePhasePlaying {
+    events_start: u64,
+    ended: u64,
+}
+
+#[derive(Drop, Serde, Introspect)]
+struct GamePhaseClaiming {
+    ended: u64,
+    claim_period: u64,
+}
+
+#[generate_trait]
+impl GamePhasePreppingImpl of GamePhasePreppingTrait {
+    fn assert_preparing(self: @GamePhasePrepping, timestamp: u64) {
+        let timestamp = get_block_timestamp();
+        assert(
+            timestamp >= *self.prep_start && timestamp <= *self.prep_stop,
+            'Game is not in preparing phase',
+        );
+    }
+}
+
+
 #[dojo::event]
 #[derive(Drop, Serde)]
 struct GameName {
@@ -79,114 +111,12 @@ struct GameName {
     name: ByteArray,
 }
 
-#[derive(Drop, Serde, Introspect)]
-struct GameWallet {
-    erc20_address: ContractAddress,
-    wallet_address: ContractAddress,
-}
-
-/// Implementation of game phase related functionality
-#[generate_trait]
-impl GamePhasesImpl of GamePhasesTrait {
-    /// Determines the current phase of the game based on timestamps
-    /// Returns the current GamePhase enum value
-    fn get_phase(self: @GamePhases) -> GamePhase {
-        let timestamp = get_block_timestamp();
-        if (*self.prep_start).is_non_zero() {
-            if timestamp < *self.prep_start {
-                GamePhase::Created
-            } else if timestamp < *self.prep_stop {
-                GamePhase::Preparing
-            } else if timestamp < *self.events_start {
-                GamePhase::Hold
-            } else {
-                GamePhase::Playing
-            }
-        } else if *self.ended > 0 {
-            if self.get_claim_end() >= timestamp {
-                GamePhase::Claim
-            } else {
-                GamePhase::Ended
-            }
-        } else {
-            GamePhase::NotCreated
-        }
-    }
-
-    // Get when the claim period ends
-    fn get_claim_end(self: @GamePhases) -> u64 {
-        *self.ended + *self.claim_period
-    }
-    /// Checks if the current game phase matches the specified phase.
-    ///
-    /// # Arguments
-    ///
-    /// * `self` - A reference to the `GamePhases` instance.
-    /// * `phase` - The `GamePhase` to compare against the current phase.
-    ///
-    /// # Returns
-    ///
-    /// * `bool` - `true` if the current phase matches the specified phase, `false` otherwise.
-    fn is_phase(self: @GamePhases, phase: GamePhase) -> bool {
-        self.get_phase() == phase
-    }
-    /// Asserts that the current game phase is 'Preparing'.
-    /// If the game is not in the 'Preparing' phase, it will raise an error with the message 'Not in
-    /// preparing phase'.
-    fn assert_preparing(self: @GamePhases) {
-        assert(self.is_phase(GamePhase::Preparing), 'Not in preparing phase');
-    }
-    /// Asserts that the current game phase is 'Playing'.
-    /// If the game is not in the 'Playing' phase, it will raise an error with the message 'Not in
-    /// play phase'.
-    fn assert_playing(self: @GamePhases) {
-        assert(self.is_phase(GamePhase::Playing), 'Not in play phase');
-    }
-    /// Asserts that the current game phase is 'Claim'.
-    /// If the game is not in the 'Claim' phase, it will raise an error with the message 'Not in
-    /// claim phase'.
-    fn assert_claiming(self: @GamePhases) {
-        assert(self.is_phase(GamePhase::Claim), 'Not in claim phase');
-    }
-    /// Asserts that the preparation phase has started and has not yet ended.
-    /// If the preparation phase has not started or has already ended, it will raise an error with
-    /// the message 'Preparation not started'.
-    fn assert_prep_ended(self: @GamePhases) {
-        assert(
-            (*self.prep_start).is_non_zero() && *self.prep_stop >= get_block_timestamp(),
-            'Preparation not started',
-        );
-    }
-    /// Asserts that the game has ended.
-    /// If the game has not ended, it will raise an error with the message 'Game not ended'.
-    fn assert_ended(self: @GamePhases) {
-        assert(*self.ended > 0 && get_block_timestamp() > self.get_claim_end(), 'Game not ended');
-    }
-
-    fn assert_time_in_prep(self: @GamePhases, timestamp: u64) {
-        assert(
-            *self.prep_start <= timestamp && timestamp <= *self.prep_stop,
-            'Not in preparation phase',
-        );
-    }
-}
-
 #[generate_trait]
 impl GameStorageImpl of GameStorage {
     /// Retrieves the complete GamePhases struct for a specific game
     /// * `game_id` - The ID of the game
     fn get_game_phases(self: @WorldStorage, game_id: felt252) -> GamePhases {
         self.read_model(game_id)
-    }
-
-    /// Gets the preparation start timestamp for a specific game
-    /// * `game_id` - The ID of the game
-    fn get_prep_start(self: @WorldStorage, game_id: felt252) -> u64 {
-        self.read_member(Model::<GamePhases>::ptr_from_keys(game_id), selector!("prep_start"))
-    }
-
-    fn set_game_name(ref self: WorldStorage, game_id: felt252, name: ByteArray) {
-        self.emit_event(@GameName { game_id, name });
     }
 
     fn new_game_phases(
@@ -205,22 +135,44 @@ impl GameStorageImpl of GameStorage {
             );
     }
 
+    fn get_game_phases_schema<T, +Serde<T>, +Introspect<T>>(
+        self: @WorldStorage, game_id: felt252,
+    ) -> T {
+        self.read_schema(Model::<GamePhases>::ptr_from_keys(game_id))
+    }
+
+    fn get_game_phase_prepping(self: @WorldStorage, game_id: felt252) -> GamePhasePrepping {
+        self.get_game_phases_schema(game_id)
+    }
+
+    fn get_game_phase_playing(self: @WorldStorage, game_id: felt252) -> GamePhasePlaying {
+        self.get_game_phases_schema(game_id)
+    }
+
+    fn get_game_phase_claiming(self: @WorldStorage, game_id: felt252) -> GamePhaseClaiming {
+        self.get_game_phases_schema(game_id)
+    }
+
+    fn get_game_phase_prep_ended(self: @WorldStorage, game_id: felt252) -> u64 {
+        self.read_member(Model::<GamePhases>::ptr_from_keys(game_id), selector!("prep_stop"))
+    }
+
+    fn set_game_name(ref self: WorldStorage, game_id: felt252, name: ByteArray) {
+        self.emit_event(@GameName { game_id, name });
+    }
+
+
     fn get_game_ended(self: @WorldStorage, game_id: felt252) -> u64 {
         self.read_member(Model::<GamePhases>::ptr_from_keys(game_id), selector!("ended"))
     }
 
-    fn get_game_claim_period(self: @WorldStorage, game_id: felt252) -> u64 {
-        self.read_member(Model::<GamePhases>::ptr_from_keys(game_id), selector!("claim_period"))
-    }
-
-    fn set_game_ended(ref self: WorldStorage, game_id: felt252, outpost_id: felt252) {
+    fn set_game_ended(ref self: WorldStorage, game_id: felt252) {
         self
             .write_member(
                 Model::<GamePhases>::ptr_from_keys(game_id),
                 selector!("ended"),
                 get_block_timestamp(),
             );
-        self.write_model(@Winner { game_id, outpost_id });
     }
 
     /// Retrieves the winning outpost ID for a specific game

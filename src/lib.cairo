@@ -31,10 +31,7 @@ mod game {
     mod models;
     mod systems;
     mod contract;
-    use models::{
-        GamePhase, GamePhases, GamePhasesTrait, Winner, GameName, GameStorage, ClassHashVariant,
-        GameWallet,
-    };
+    use models::{GamePhase, GamePhases, Winner, GameName, GameStorage, ClassHashVariant};
     use systems::{GameTrait};
 }
 mod fortifications {

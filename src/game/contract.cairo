@@ -116,10 +116,7 @@ mod game_actions {
     use super::{IGameActions, IGameAdmin};
     use rising_revenant::{
         map::MapTrait, permissions::GamePermissions, fortifications::FortificationTokenTrait,
-        game::{
-            GamePhases, GamePhase, Winner, GameStorage, GamePhasesTrait, GameTrait,
-            ClassHashVariant,
-        },
+        game::{GamePhases, GamePhase, Winner, GameStorage, GameTrait, ClassHashVariant},
         contribution::Contribution, outposts::{OutpostTrait, OutpostStorage},
         care_packages::CarePackageTrait, game_pot::GamePotTrait,
         world_events::{WorldEventSetup, WorldEventStorage, WorldEventType},
@@ -142,7 +139,9 @@ mod game_actions {
 
             world.assert_is_winner(outpost);
             world.assert_game_playing(game_id);
-            world.set_game_ended(game_id, outpost_id);
+
+            world.set_game_ended(game_id);
+            world.set_winning_outpost(game_id, outpost_id);
         }
 
         fn get_winning_outpost(self: @ContractState, game_id: felt252) -> felt252 {

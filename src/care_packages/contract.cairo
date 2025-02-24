@@ -26,7 +26,7 @@ mod care_package_actions {
     use starknet::{get_caller_address, ContractAddress, get_contract_address, get_block_timestamp};
     use dojo::world::WorldStorage;
     use rising_revenant::{
-        fortifications::FortificationTokenTrait, game::{GameTrait, GameStorage, GamePhasesTrait},
+        fortifications::FortificationTokenTrait, game::{GameTrait, GameStorage},
         care_packages::{Rarity, CarePackageTrait, CarePackageStorage, get_rarity},
         tokens::{erc721_owner_of}, world::default_namespace, vrf::{VRF, Source},
     };

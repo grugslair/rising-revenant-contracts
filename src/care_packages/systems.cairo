@@ -3,7 +3,7 @@ use starknet::{ContractAddress, get_block_timestamp, get_caller_address};
 use dojo::{world::WorldStorage, model::ModelStorage};
 use openzeppelin_token::erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
 use rising_revenant::{
-    game::{GamePhasesTrait, GameStorage, ClassHashVariant},
+    game::{GameStorage, ClassHashVariant, models::GamePhasePreppingTrait, GameTrait},
     fortifications::{Fortifications, FortificationTokenTrait}, core::ToNonZero,
     utils::{felt252_to_u128, deploy_contract},
     care_packages::{Rarity, CarePackageStorage, CarePackage, CarePackageMarketTrait},
@@ -140,6 +140,7 @@ impl CarePackageImpl of CarePackageTrait {
     fn open_care_package(ref self: WorldStorage, token_id: felt252, randomness: felt252) {
         let caller = get_caller_address();
         let care_package = self.get_care_package(token_id);
+        self.assert_prep_ended(care_package.game_id);
         assert(caller == self.get_care_package_owner(@care_package), 'Not Owner');
         assert(!care_package.opened, 'Already opened');
         self.set_care_package_opened(token_id);
@@ -152,8 +153,8 @@ impl CarePackageImpl of CarePackageTrait {
         ref self: WorldStorage, game_id: felt252, caller: ContractAddress,
     ) -> felt252 {
         let timestamp = get_block_timestamp();
-        let phases = self.get_game_phases(game_id);
-        phases.assert_time_in_prep(timestamp);
+        let phases = self.get_game_phase_prepping(game_id);
+        phases.assert_preparing(timestamp);
 
         let mut market = self.get_care_package_market(game_id);
         let price = market.purchase_care_package(phases.prep_start, timestamp);
