@@ -17,10 +17,11 @@ impl GameImpl of GameTrait {
         self.get_game_phase_prepping(game_id).assert_preparing(get_block_timestamp());
     }
 
-    fn assert_game_playing(self: @WorldStorage, game_id: felt252) {
+    fn assert_game_playing(self: @WorldStorage, game_id: felt252) -> u64 {
         let schema = self.get_game_phase_playing(game_id);
-        assert(schema.events_start > get_block_timestamp(), 'Game play phase not started');
+        assert(schema.events_start < get_block_timestamp(), 'Game play phase not started');
         assert(schema.ended.is_zero(), 'Game has ended');
+        schema.events_start
     }
 
     /// Asserts that the game is in the claiming phase

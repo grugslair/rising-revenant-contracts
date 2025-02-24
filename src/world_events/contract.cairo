@@ -42,7 +42,7 @@ mod world_event_actions {
             let timestamp = get_block_timestamp();
             let min_interval = world.get_event_min_interval(game_id);
             let last_event = world.get_current_event(game_id);
-            assert(last_event.timestamp + min_interval >= timestamp, 'Event too soon');
+            assert(last_event.timestamp + min_interval <= timestamp, 'Event too soon');
             let randomness = world
                 .randomness(Source::Salt(hash_value(@(game_id, last_event.event_id))));
             let map_size = world.get_map_size(game_id);
