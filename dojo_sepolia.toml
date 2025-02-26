@@ -29,11 +29,12 @@ keystore_path = "/home/ben/sn-keystore/sepolia/rr-admin"
 "rising_revenant-Winner" = ["rising_revenant-game_actions"]
 
 "rising_revenant-CarePackage" = ["rising_revenant-care_package_actions"]
+"rising_revenant-CarePackageContents" = ["rising_revenant-care_package_actions"]
+"rising_revenant-CarePackageSold" = ["rising_revenant-care_package_actions"]
 "rising_revenant-CarePackageMarket" = [
     "rising_revenant-game_actions",
     "rising_revenant-care_package_actions",
 ]
-"rising_revenant-CarePackageContents" = ["rising_revenant-care_package_actions"]
 
 "rising_revenant-Map" = ["rising_revenant-outpost_actions"]
 "rising_revenant-Outpost" = ["rising_revenant-outpost_actions"]

@@ -17,6 +17,7 @@ pub trait ICarePackage<TContractState> {
     fn is_opened(self: @TContractState, token_id: felt252) -> bool;
     fn get_owner(self: @TContractState, token_id: felt252) -> ContractAddress;
     fn get_game_id(self: @TContractState, token_id: felt252) -> felt252;
+    fn get_price(self: @TContractState, game_id: felt252) -> u256;
 }
 
 
@@ -27,7 +28,7 @@ mod care_package_actions {
     use dojo::world::WorldStorage;
     use rising_revenant::{
         fortifications::FortificationTokenTrait, game::{GameTrait, GameStorage},
-        care_packages::{Rarity, CarePackageTrait, CarePackageStorage, get_rarity},
+        care_packages::{Rarity, CarePackageTrait, CarePackageStorage, CarePackageMarketTrait},
         tokens::{erc721_owner_of}, world::default_namespace, vrf::{VRF, Source},
     };
 
@@ -41,8 +42,7 @@ mod care_package_actions {
             let mut world = self.world(default_namespace());
             let caller = get_caller_address();
             let randomness = world.randomness(Source::Nonce(caller));
-            let id = world.purchase_care_package(game_id, caller);
-            world.set_care_package_rarity(game_id, id, get_rarity(randomness));
+            let id = world.purchase_care_package(game_id, caller, randomness);
 
             id
         }
@@ -68,6 +68,14 @@ mod care_package_actions {
         fn get_game_id(self: @ContractState, token_id: felt252) -> felt252 {
             let world = self.world(default_namespace());
             world.get_care_package_game_id(token_id)
+        }
+        fn get_price(self: @ContractState, game_id: felt252) -> u256 {
+            let world = self.world(default_namespace());
+            let market = world.get_care_package_market(game_id);
+            market
+                .get_care_package_price(
+                    world.get_game_phase_prep_start(game_id), get_block_timestamp(),
+                )
         }
     }
 }

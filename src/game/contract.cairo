@@ -21,6 +21,7 @@ trait IGameActions<TContractState> {
     ) -> u128;
 
     fn get_total_contribution(self: @TContractState, game_id: felt252) -> u128;
+    fn get_block_timestamp(self: @TContractState) -> u64;
 }
 
 #[starknet::interface]
@@ -157,6 +158,9 @@ mod game_actions {
 
         fn get_total_contribution(self: @ContractState, game_id: felt252) -> u128 {
             self.world(default_namespace()).get_contribution_amount(game_id, Zero::zero())
+        }
+        fn get_block_timestamp(self: @ContractState) -> u64 {
+            get_block_timestamp()
         }
     }
 

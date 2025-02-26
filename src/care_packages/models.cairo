@@ -49,6 +49,19 @@ impl UTIntoRarity<T, +TryInto<T, u8>> of Into<T, Rarity> {
     }
 }
 
+#[dojo::event]
+#[derive(Drop, Serde)]
+struct CarePackageSold {
+    #[key]
+    game_id: felt252,
+    #[key]
+    token_id: felt252,
+    rarity: Rarity,
+    timestamp: u64,
+    price: u256,
+    buyer: ContractAddress,
+}
+
 #[dojo::model]
 #[derive(Drop, Serde)]
 struct CarePackageMarket {
@@ -159,6 +172,18 @@ impl CarePackageStorageImpl of CarePackageStorage {
             .write_member(
                 Model::<CarePackageMarket>::ptr_from_keys(game_id), selector!("sold"), sold,
             );
+    }
+
+    fn emit_care_package_sold(
+        ref self: WorldStorage,
+        game_id: felt252,
+        token_id: felt252,
+        rarity: Rarity,
+        timestamp: u64,
+        price: u256,
+        buyer: ContractAddress,
+    ) {
+        self.emit_event(@CarePackageSold { game_id, token_id, rarity, timestamp, price, buyer });
     }
 
     fn emit_care_package_contents(
