@@ -153,6 +153,10 @@ impl GameStorageImpl of GameStorage {
         self.get_game_phases_schema(game_id)
     }
 
+    fn get_game_phase_prep_start(self: @WorldStorage, game_id: felt252) -> u64 {
+        self.read_member(Model::<GamePhases>::ptr_from_keys(game_id), selector!("prep_start"))
+    }
+
     fn get_game_phase_prep_ended(self: @WorldStorage, game_id: felt252) -> u64 {
         self.read_member(Model::<GamePhases>::ptr_from_keys(game_id), selector!("prep_stop"))
     }

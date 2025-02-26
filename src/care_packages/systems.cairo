@@ -150,7 +150,7 @@ impl CarePackageImpl of CarePackageTrait {
     }
 
     fn purchase_care_package(
-        ref self: WorldStorage, game_id: felt252, caller: ContractAddress,
+        ref self: WorldStorage, game_id: felt252, caller: ContractAddress, randomness: felt252,
     ) -> felt252 {
         let timestamp = get_block_timestamp();
         let phases = self.get_game_phase_prepping(game_id);
@@ -163,7 +163,9 @@ impl CarePackageImpl of CarePackageTrait {
 
         self.pay_into_purchases_pot(game_id, caller, price);
         erc721_mint(market.token_address, caller, id.into());
-
+        let rarity = get_rarity(randomness);
+        self.set_care_package_rarity(game_id, id, rarity);
+        self.emit_care_package_sold(game_id, id, rarity, timestamp, price, caller);
         id
     }
 
