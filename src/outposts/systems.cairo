@@ -70,12 +70,17 @@ impl OutpostImpl of OutpostTrait {
     /// # Returns
     /// * The ID of the newly created outpost
     fn make_outpost(
-        ref self: WorldStorage, game_id: felt252, owner: ContractAddress, hp: u64, seed: felt252,
+        ref self: WorldStorage,
+        game_id: felt252,
+        owner: ContractAddress,
+        hp: u64,
+        max_outposts: u32,
+        seed: felt252,
     ) -> felt252 {
         let outposts_active = self.get_active_outposts(game_id) + 1;
+        assert(outposts_active <= max_outposts, 'Max outposts reached');
         let id = poseidon_hash_span(['outpost', game_id, outposts_active.into()].span());
         let position = self.get_empty_point(game_id, make_hash_state(seed));
-
         self.new_outpost(id, game_id, position, hp);
         self.set_outpost_at_position(game_id, position, id);
         self.set_outposts_active(game_id, outposts_active);
@@ -171,11 +176,16 @@ impl OutpostImpl of OutpostTrait {
         base_uri: ByteArray,
         admin: ContractAddress,
         price: u256,
+        max_outposts: u32,
         hp: u64,
     ) {
         self
             .set_outpost_setup(
-                game_id, self.deploy_outpost_token(game_id, game_name, base_uri, admin), price, hp,
+                game_id,
+                self.deploy_outpost_token(game_id, game_name, base_uri, admin),
+                price,
+                max_outposts,
+                hp,
             );
     }
 }

@@ -87,6 +87,7 @@ trait IGameAdmin<TContractState> {
         map_size_x: u16,
         map_size_y: u16,
         outpost_price: u256,
+        max_outposts: u32,
         outpost_hp: u64,
         outpost_uri: ByteArray,
         care_package_target_price_mag: u128,
@@ -173,6 +174,7 @@ mod game_actions {
             map_size_x: u16,
             map_size_y: u16,
             outpost_price: u256,
+            max_outposts: u32,
             outpost_hp: u64,
             outpost_uri: ByteArray,
             care_package_target_price_mag: u128,
@@ -205,7 +207,7 @@ mod game_actions {
             // TODO: Create tokens
             world
                 .setup_outpost_market(
-                    game_id, @name, outpost_uri, caller, outpost_price, outpost_hp,
+                    game_id, @name, outpost_uri, caller, outpost_price, max_outposts, outpost_hp,
                 );
             world
                 .setup_care_package_market(

@@ -70,7 +70,7 @@ mod outpost_actions {
             let randomness = world.randomness(Source::Nonce(get_contract_address()));
             let setup = world.get_outpost_setup(game_id);
 
-            let id = world.make_outpost(game_id, caller, setup.hp, randomness);
+            let id = world.make_outpost(game_id, caller, setup.hp, setup.max_outposts, randomness);
             world.pay_into_purchases_pot(game_id, caller, setup.price);
             erc721_mint(setup.token_address, caller, id.into());
             id

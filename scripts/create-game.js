@@ -93,6 +93,7 @@ const parseSetUpValues = (values, gameName, start_time) => {
     "game_beneficiary",
     "map_size_x",
     "map_size_y",
+    "max_outposts",
     "outpost_hp",
     "care_package_max_sellable",
     "event_min_interval",

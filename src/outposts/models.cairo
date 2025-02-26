@@ -15,6 +15,7 @@ struct OutpostSetup {
     game_id: felt252,
     price: u256,
     token_address: ContractAddress,
+    max_outposts: u32,
     hp: u64,
 }
 
@@ -142,9 +143,10 @@ impl OutpostStorageImpl of OutpostStorage {
         game_id: felt252,
         token_address: ContractAddress,
         price: u256,
+        max_outposts: u32,
         hp: u64,
     ) {
-        self.write_model(@OutpostSetup { game_id, token_address, price, hp });
+        self.write_model(@OutpostSetup { game_id, token_address, price, max_outposts, hp });
     }
 
     /// Retrieves an event associated with a specific outpost
