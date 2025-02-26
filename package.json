@@ -1,10 +1,12 @@
 {
   "dependencies": {
     "dotenv": "^16.4.5",
+    "ethereum-keyfile-recognizer": "^1.0.2",
     "jq": "^1.7.2",
     "requirejs": "^2.3.7",
     "starknet": "6.11",
-    "toml": "^3.0.0"
+    "toml": "^3.0.0",
+    "web3-eth-accounts": "^4.3.1"
   },
   "type": "module"
 }

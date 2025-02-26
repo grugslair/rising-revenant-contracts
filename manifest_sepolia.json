@@ -1,8 +1,8 @@
 {
   "world": {
-    "class_hash": "0x4b767fda48530353c2e44e4b9433f4d75c6c9974aaff43ecc00de9455eb71b8",
-    "address": "0x640f63a32d8c0779101f3ea638df9fba65c2db7ffb85fbf3ed238e42ed7c16f",
-    "seed": "rising-revenant-0.6",
+    "class_hash": "0x7c9469d45a9cdbab775035afb48e1fa73fb35ab059fcb9dfb0a301aa973e783",
+    "address": "0x1e684bd8ed0ae1e7f3ec115f74e059aefc84238c86818ab15a11627338ad7a2",
+    "seed": "rising-revenant-0.7",
     "name": "rising-revenant",
     "entrypoints": [
       "uuid",
@@ -11,6 +11,7 @@
       "register_event",
       "register_model",
       "register_contract",
+      "register_library",
       "init_contract",
       "upgrade_event",
       "upgrade_model",
@@ -78,6 +79,10 @@
           {
             "name": "Unregistered",
             "type": "()"
+          },
+          {
+            "name": "Library",
+            "type": "(core::starknet::class_hash::ClassHash, core::felt252)"
           }
         ]
       },
@@ -358,6 +363,34 @@
             "outputs": [
               {
                 "type": "core::starknet::contract_address::ContractAddress"
+              }
+            ],
+            "state_mutability": "external"
+          },
+          {
+            "type": "function",
+            "name": "register_library",
+            "inputs": [
+              {
+                "name": "namespace",
+                "type": "core::byte_array::ByteArray"
+              },
+              {
+                "name": "class_hash",
+                "type": "core::starknet::class_hash::ClassHash"
+              },
+              {
+                "name": "name",
+                "type": "core::byte_array::ByteArray"
+              },
+              {
+                "name": "version",
+                "type": "core::byte_array::ByteArray"
+              }
+            ],
+            "outputs": [
+              {
+                "type": "core::starknet::class_hash::ClassHash"
               }
             ],
             "state_mutability": "external"
@@ -967,6 +1000,28 @@
       },
       {
         "type": "event",
+        "name": "dojo::world::world_contract::world::LibraryRegistered",
+        "kind": "struct",
+        "members": [
+          {
+            "name": "name",
+            "type": "core::byte_array::ByteArray",
+            "kind": "key"
+          },
+          {
+            "name": "namespace",
+            "type": "core::byte_array::ByteArray",
+            "kind": "key"
+          },
+          {
+            "name": "class_hash",
+            "type": "core::starknet::class_hash::ClassHash",
+            "kind": "data"
+          }
+        ]
+      },
+      {
+        "type": "event",
         "name": "dojo::world::world_contract::world::EventEmitted",
         "kind": "struct",
         "members": [
@@ -1207,6 +1262,11 @@
             "kind": "nested"
           },
           {
+            "name": "LibraryRegistered",
+            "type": "dojo::world::world_contract::world::LibraryRegistered",
+            "kind": "nested"
+          },
+          {
             "name": "EventEmitted",
             "type": "dojo::world::world_contract::world::EventEmitted",
             "kind": "nested"
@@ -1252,7 +1312,7 @@
   },
   "contracts": [
     {
-      "address": "0x6057af191276fad0a89089cfb50f06bc134d168c5875fb0f47aa71a14500919",
+      "address": "0x6f1f2835597e0c94835fe1a0b7203790552f987c24fb7f0697ffd510dceb758",
       "class_hash": "0x74727b209945e70f514473059ecd20a117fc5d7a843d53b0d01412b954e2c63",
       "abi": [
         {
@@ -1573,8 +1633,8 @@
       ]
     },
     {
-      "address": "0x56b48616efcedd37920ce50744feca9761c6be34d9c24eaa8bbf430aca9a333",
-      "class_hash": "0xc746c861a0e31a9e2760e9a9331cce19c134ee29074dd8654e53029f5212cc",
+      "address": "0x3f893cd91714ca97c3cbc73cbef786aee689ff759aa2a3eac9eb1d38411cda9",
+      "class_hash": "0x31a6d291619008f7ba29237591feca527fb0370d2cb9098beb5c7a7545c4d13",
       "abi": [
         {
           "type": "impl",
@@ -1983,6 +2043,10 @@
                   "type": "core::integer::u256"
                 },
                 {
+                  "name": "max_outposts",
+                  "type": "core::integer::u32"
+                },
+                {
                   "name": "outpost_hp",
                   "type": "core::integer::u64"
                 },
@@ -2179,8 +2243,8 @@
       ]
     },
     {
-      "address": "0x63092ec65e97ede1bbaff7d0c14cd53121c46d79183e6b43b72f8dd59db9720",
-      "class_hash": "0x78eae535a9db0bfc3637b44efbe7c2961868a7e5b1193ee705d7b85076ddef5",
+      "address": "0x731b2db4217b8169103ca3ebda69ed01c414482abbce59c27a91a6a9c0c5904",
+      "class_hash": "0x1cba826ac8bc8a3df0e13221fb682b841388b9bd0af555797d17427dc4d411a",
       "abi": [
         {
           "type": "impl",
@@ -2531,7 +2595,7 @@
       ]
     },
     {
-      "address": "0x4651b57a7e0e409d58f6e170c929cb5bacb79fe94071aa34c5393a000820265",
+      "address": "0x73680f8f53b0a06ae9d2b2ec291e5bd8dba2f003cdb7ce2e69a9d64a7a14832",
       "class_hash": "0x5264ab89eb9dc137df35a56adbf563ec0fd9cc36e2cf2e558b458d0b84eb40f",
       "abi": [
         {
@@ -2731,6 +2795,7 @@
       ]
     }
   ],
+  "libraries": [],
   "models": [
     {
       "members": [],
@@ -2818,7 +2883,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x129bda46533bcca8216497bca14f274164c0106e224b97d66d523e026ab5ad8",
+      "class_hash": "0x64780d9ab4a160186573dc3f2915667abba6e2fd913843b6d6d238379484c52",
       "tag": "rising_revenant-OutpostSetup",
       "selector": "0x1707ae5fc94903cfbc1265783d30a00bbb44dcf32e5f166c2c2e7fdefd9cd7a"
     },
@@ -2878,5 +2943,6 @@
       "tag": "rising_revenant-WorldEventEvent",
       "selector": "0x30e5cf0423a924b24ede261b11909bda4f202010f14001afa83b559856e2d2e"
     }
-  ]
+  ],
+  "external_contracts": []
 }

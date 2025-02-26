@@ -12,6 +12,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import toml from "toml";
+import * as accounts from "web3-eth-accounts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,8 +29,24 @@ const gameActionsTag = "rising_revenant-game_actions";
 const setClassHashEntryPoint = "set_class_hash";
 const setVRFAddressEntryPoint = "set_vrf_address";
 
+const loadToml = (rpath) => {
+  return toml.parse(fs.readFileSync(rpath));
+};
+
 const loadJson = (rpath) => {
   return JSON.parse(fs.readFileSync(path.resolve(__dirname, rpath)));
+};
+
+let dojo_profile = loadToml(`./dojo_${profile}.toml`);
+
+const accountAddress = dojo_profile.env.account_address;
+const rpcUrl = dojo_profile.env.rpc_url;
+const keystorePath = dojo_profile.env.keystore_path;
+
+const readKeystorePK = async (keystorePath, accountAddress, password) => {
+  let data = loadJson(keystorePath);
+  data.address = accountAddress;
+  return (await accounts.decrypt(data, password)).privateKey;
 };
 
 const getContractAddress = (mainfest, contractName) => {
@@ -50,12 +68,15 @@ const manifest = loadJson(`../manifest_${profile}.json`);
 const config = loadJson(`../config/${profile}.json`);
 
 // connect provider
-const provider = new RpcProvider({ nodeUrl: process.env.STARKNET_RPC_URL });
+const provider = new RpcProvider({ nodeUrl: rpcUrl });
 
 // connect your account. To adapt to your own account:
-const account1Address = process.env.DOJO_ACCOUNT_ADDRESS;
-const privateKey1 = process.env.DOJO_PRIVATE_KEY;
-const account = new Account(provider, account1Address, privateKey1);
+const privateKey = await readKeystorePK(
+  keystorePath,
+  accountAddress,
+  process.env.KEYSTORE_PASSWORD
+);
+const account = new Account(provider, accountAddress, privateKey);
 
 const erc20MintableBurnableCairoEnum = new CairoCustomEnum({
   ERC20MintableBurnable: {},
