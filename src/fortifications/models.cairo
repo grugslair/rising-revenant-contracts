@@ -19,7 +19,7 @@ enum Fortification {
 }
 
 /// Holds the count of each type of fortification.
-#[derive(Copy, Drop, Serde, Introspect, Default)]
+#[derive(Drop, Copy, Serde, Introspect, Default)]
 struct Fortifications {
     palisades: u64,
     trenches: u64,
@@ -98,6 +98,16 @@ impl AddEqFortifications of core::ops::AddAssign<Fortifications, Fortifications>
         self.trenches += rhs.trenches;
         self.walls += rhs.walls;
         self.basements += rhs.basements;
+    }
+}
+
+impl SubEqFortifications of core::ops::SubAssign<Fortifications, Fortifications> {
+    /// Adds the values of another `Fortifications` instance to this one.
+    fn sub_assign(ref self: Fortifications, rhs: Fortifications) {
+        self.palisades -= rhs.palisades;
+        self.trenches -= rhs.trenches;
+        self.walls -= rhs.walls;
+        self.basements -= rhs.basements;
     }
 }
 
@@ -183,37 +193,31 @@ impl FortificationsImpl of FortificationsTrait {
     /// * `hash_state` - Random state for destruction calculations
     fn apply_destruction(
         ref self: Fortifications, mortalities: Fortifications, hash_state: HashState,
-    ) {
-        self
-            .palisades -=
-                min(
-                    self.palisades,
-                    fortifications_destroyed(
-                        mortalities.palisades, hash_state, Fortification::Palisade,
-                    ),
-                );
-        self
-            .trenches -=
-                min(
-                    self.trenches,
-                    fortifications_destroyed(
-                        mortalities.trenches, hash_state, Fortification::Trench,
-                    ),
-                );
-        self
-            .walls -=
-                min(
-                    self.walls,
-                    fortifications_destroyed(mortalities.walls, hash_state, Fortification::Wall),
-                );
-        self
-            .basements -=
-                min(
-                    self.basements,
-                    fortifications_destroyed(
-                        mortalities.basements, hash_state, Fortification::Basement,
-                    ),
-                );
+    ) -> Fortifications {
+        let fortifications_destroyed = Fortifications {
+            palisades: min(
+                self.palisades,
+                fortifications_destroyed(
+                    mortalities.palisades, hash_state, Fortification::Palisade,
+                ),
+            ),
+            trenches: min(
+                self.trenches,
+                fortifications_destroyed(mortalities.trenches, hash_state, Fortification::Trench),
+            ),
+            walls: min(
+                self.walls,
+                fortifications_destroyed(mortalities.walls, hash_state, Fortification::Wall),
+            ),
+            basements: min(
+                self.basements,
+                fortifications_destroyed(
+                    mortalities.basements, hash_state, Fortification::Basement,
+                ),
+            ),
+        };
+        self -= fortifications_destroyed;
+        fortifications_destroyed
     }
 }
 

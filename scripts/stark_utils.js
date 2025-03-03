@@ -61,20 +61,43 @@ const declareContract = async (account, contract, casm_path) => {
   return classHash;
 };
 
-const getContractPaths = (targetPath) => {
+const getContracts = (targetPath) => {
   let contracts = {};
   for (const file of fs.readdirSync(targetPath)) {
     const name = path.basename(file).split(".", 1);
 
     if (file.endsWith(".contract_class.json")) {
       name in contracts || (contracts[name] = {});
-      contracts[name].contract = path.join(targetPath, file);
+      contracts[name].contract = loadJson(path.join(targetPath, file));
     } else if (file.endsWith(".compiled_contract_class.json")) {
       name in contracts || (contracts[name] = {});
-      contracts[name].casm = path.join(targetPath, file);
+      contracts[name].casm_path = path.join(targetPath, file);
     }
   }
   return contracts;
+};
+
+
+const calculateUDCContractAddressFromHash = (
+  salt,
+  classHash,
+  callData,
+  deployerAddress,
+  unique
+) => {
+  if (unique) {
+    salt = hash.computePedersenHash(salt, deployerAddress);
+    deployerAddress =
+      "0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf";
+  } else {
+    deployerAddress = "0x0";
+  }
+  return hash.calculateContractAddressFromHash(
+    salt,
+    classHash,
+    callData,
+    deployerAddress
+  );
 };
 
 const deployContract = async (account, classHash, callData, salt, unique) => {

@@ -44,6 +44,7 @@ trait IOutpost<TContractState> {
 
 #[dojo::contract]
 mod outpost_actions {
+    use hash::HashStateTrait;
     use starknet::{get_caller_address, get_contract_address};
     use super::{IOutpost};
     use dojo::model::ModelStorage;
@@ -56,6 +57,7 @@ mod outpost_actions {
             Outpost, OutpostTrait, OutpostStorage,
             systems::{OutpostsActiveTrait, OutpostEventTrait},
         },
+        debris::DebrisTrait,
         world_events::{WorldEventStorage, WorldEventEffectTrait, WorldEventTrait}, map::PointTrait,
         contribution::{Contribution, ContributionEvent}, game::GameTrait, vrf::{VRF, Source},
         world::default_namespace, game_pot::GamePotTrait, tokens::erc721_mint,
@@ -93,7 +95,10 @@ mod outpost_actions {
 
             world.set_event_applied(outpost_id, event.event_id);
             world.set_event_did_hit(game_id, event.event_type);
-            outpost.apply_event(@event, make_hash_state((event.event_id, outpost.id)));
+            let mut hash_state = make_hash_state((event.event_id, outpost.id));
+            let destroyed = outpost.apply_event(@event, hash_state);
+            world.fortifications_to_debris(@outpost, destroyed, hash_state.update('debris'));
+
             world.increase_caller_contribution(game_id, ContributionEvent::EventApplied);
             if !outpost.is_active() {
                 world.increase_caller_contribution(game_id, ContributionEvent::OutpostDestroyed);

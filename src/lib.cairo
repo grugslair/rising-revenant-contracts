@@ -71,7 +71,13 @@ mod game_pot {
     use models::{GamePotStorage};
     // use contract::{IGamePot, IGamePotDispatcher, IGamePotDispatcherTrait};
 }
-mod debris {}
+mod debris {
+    mod models;
+    mod systems;
+
+    use models::{Debris, DebrisStorage};
+    use systems::{DebrisTrait};
+}
 
 mod tokens {
     use super::erc20_mintable_burnable::{
@@ -91,6 +97,7 @@ mod tokens {
 mod vrf;
 mod erc20_mintable_burnable;
 mod erc721_mintable;
+mod a_contract;
 
 #[cfg(test)]
 mod tests;

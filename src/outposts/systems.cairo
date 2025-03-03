@@ -107,19 +107,19 @@ impl OutpostImpl of OutpostTrait {
     /// # Arguments
     /// * `mortalities` - The mortality rates for different fortification types
     /// * `hash_state` - Random state for destruction calculations
-    fn apply_destruction(ref self: Outpost, mortalities: Fortifications, hash_state: HashState) {
-        self.fortifications.apply_destruction(mortalities, hash_state);
+    fn apply_destruction(
+        ref self: Outpost, mortalities: Fortifications, hash_state: HashState,
+    ) -> Fortifications {
+        self.fortifications.apply_destruction(mortalities, hash_state)
     }
     /// Applies a world event to an outpost, including damage and destruction
     /// # Arguments
     /// * `event` - The world event to apply
     /// * `attributes` - Fortification attributes affecting the event
     /// * `hash_state` - Random state for calculations
-    fn apply_event(ref self: Outpost, event: @WorldEvent, hash_state: HashState) {
+    fn apply_event(ref self: Outpost, event: @WorldEvent, hash_state: HashState) -> Fortifications {
         self.apply_damage(event);
-        if self.is_active() {
-            self.apply_destruction(*event.mortalities, hash_state);
-        };
+        self.apply_destruction(*event.mortalities, hash_state)
     }
     /// Checks if an outpost is still active (has HP)
     #[inline(always)]

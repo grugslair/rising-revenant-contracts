@@ -8,7 +8,7 @@ default = "rising_revenant"
 [env]
 rpc_url = "https://api.cartridge.gg/rpc/starknet-sepolia"
 account_address = "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
-keystore_path = "/home/ben/sn-accounts/0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd-keystore.json"
+keystore_path = "~/sn-accounts/0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd-keystore.json"
 
 [init_call_args]
 "rising_revenant-game_actions" = []
