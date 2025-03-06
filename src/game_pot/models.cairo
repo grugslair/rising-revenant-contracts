@@ -1,12 +1,20 @@
 use starknet::ContractAddress;
 use dojo::{world::WorldStorage, model::{ModelStorage, Model}, meta::Introspect};
 
-
-/// Represents the total amount in a game_pot for a specific game
-/// @param game_id - Unique identifier for the game
-/// @param total - Total amount in the game_pot in wei
-/// @param winner_permille - Winner's share in permille (parts per thousand)
-/// @param contribution_permille - Contributors' share in permille
+/// Represents the game's pot configuration and state
+///
+/// Setup Model
+///
+/// # Arguments
+/// * `game_id` - Unique identifier for the game instance
+/// * `purchases` - Total number of purchases made in the game
+/// * `winner_purchases_permille` - Winner's share of purchases in permille (per thousand)
+/// * `contribution_purchases_permille` - Contribution share of purchases in permille
+/// * `pot_address` - Contract address where the pot funds are stored
+/// * `token_address` - Address of the token contract used for transactions
+///
+/// The GamePot structure manages the financial aspects of the game, including
+/// purchase tracking and prize distribution parameters.
 #[dojo::model]
 #[derive(Drop, Serde)]
 struct GamePot {

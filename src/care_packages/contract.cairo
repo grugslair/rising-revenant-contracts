@@ -1,22 +1,71 @@
 use starknet::ContractAddress;
 use rising_revenant::care_packages::Rarity;
 
-/// Interface for the Care Package contract.
-///
-/// This interface defines the methods for interacting with care packages in the game.
-///
-/// # Methods
-/// - `get_price`: Retrieves the price of a care package for a given game ID.
-/// - `purchase`: Purchases a care package for a given game ID.
-/// - `open`: Opens a purchased care package using its token ID.
+
 #[starknet::interface]
 pub trait ICarePackage<TContractState> {
+    /// ## purchase
+    /// Purchase a care package for a specific game
+    /// * `game_id` - The ID of the game to purchase the care package for
+    /// * Returns the token ID of the purchased care package
+    ///
+    /// Models:
+    /// * CarePackageMarket
+    /// * CarePackage
+    /// * GamePot
+    ///
+    /// Event:
+    /// * CarePackageSold
+    ///
+    /// ERC721:
+    /// * CarePackage
+    ///
+    /// ERC20:
+    /// * Game token
     fn purchase(ref self: TContractState, game_id: felt252) -> felt252;
+
+    /// ## open
+    /// Opens a care package NFT
+    /// * `token_id` - The ID of the care package token to open
+    ///
+    /// Models:
+    /// * CarePackage
+    ///
+    /// Event:
+    /// * CarePackageContents
+    /// ERC20:
+    /// * Fortifications
+    ///
     fn open(ref self: TContractState, token_id: felt252);
+
+    /// ## get_rarity
+    /// Gets the rarity level of a care package
+    /// * `token_id` - The ID of the care package token
+    /// * Returns the Rarity enum value
     fn get_rarity(self: @TContractState, token_id: felt252) -> Rarity;
+
+    /// ## is_opened
+    /// Checks if a care package has been opened
+    /// * `token_id` - The ID of the care package token
+    /// * Returns true if opened, false otherwise
     fn is_opened(self: @TContractState, token_id: felt252) -> bool;
+
+    /// ## get_owner
+    /// Gets the owner address of a care package
+    /// * `token_id` - The ID of the care package token
+    /// * Returns the owner's ContractAddress
     fn get_owner(self: @TContractState, token_id: felt252) -> ContractAddress;
+
+    /// ## get_game_id
+    /// Gets the associated game ID for a care package
+    /// * `token_id` - The ID of the care package token
+    /// * Returns the game ID
     fn get_game_id(self: @TContractState, token_id: felt252) -> felt252;
+
+    /// ## get_price
+    /// Gets the purchase price for care packages in a specific game
+    /// * `game_id` - The ID of the game to check price for
+    /// * Returns the price as a u256
     fn get_price(self: @TContractState, game_id: felt252) -> u256;
 }
 

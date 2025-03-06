@@ -6,6 +6,14 @@ trait IWorldEventActions<TContractState> {
     /// Creates a new world event for the specified game
     /// # Arguments
     /// * `game_id` - The unique identifier of the game
+    ///
+    /// Models:
+    /// * LastEventOfType
+    /// * CurrentEvent
+    /// * UserContribution
+    ///
+    /// Events:
+    /// * WorldEventEvent
     fn new_event(ref self: TContractState, game_id: felt252);
 }
 

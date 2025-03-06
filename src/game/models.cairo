@@ -23,6 +23,7 @@ enum GamePhase {
 }
 
 /// Stores the winning outpost information for a completed game
+/// Game Model
 #[dojo::model]
 #[derive(Drop, Serde)]
 struct Winner {
@@ -38,6 +39,18 @@ enum ClassHashVariant {
     GamePot,
 }
 
+/// Models for storing game-related class hashes and contract addresses
+/// Setup Models
+///
+/// # GameClassHash
+/// Represents a mapping between a class hash variant and its corresponding class hash value
+/// * `variant` - The variant type of the class hash
+/// * `class_hash` - The actual class hash value
+///
+/// # GameContractAddress
+/// Stores contract addresses indexed by their selectors
+/// * `selector` - A unique identifier (felt252) used as a key for the contract address
+/// * `contract_address` - The actual contract address associated with the selector
 #[dojo::model]
 #[derive(Drop, Serde)]
 struct GameClassHash {
@@ -55,6 +68,8 @@ struct GameContractAddress {
 }
 
 /// Stores the timing information for different phases of the game
+///
+/// Game Model
 #[dojo::model]
 #[derive(Drop, Serde, Copy, Default)]
 struct GamePhases {
@@ -72,6 +87,7 @@ struct GamePhases {
     /// Timestamp when the game ended
     ended: u64,
 }
+
 
 #[derive(Drop, Serde, Introspect)]
 struct GamePhasePrepping {

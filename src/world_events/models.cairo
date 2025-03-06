@@ -12,6 +12,13 @@ use rising_revenant::{
 const NUM_WORLD_EVENTS: u8 = 3;
 
 
+/// Represents the minimum interval between world events for a specific game
+///
+/// Setup Model
+///
+/// # Fields
+/// * `game_id` - The unique identifier of the game instance
+/// * `min_interval` - The minimum time (in seconds) that must elapse between world events
 #[dojo::model]
 #[derive(Drop, Serde, Copy)]
 struct WorldEventMinInterval {
@@ -37,12 +44,17 @@ struct WorldEventEffect {
     power: u64,
     f_value: u64,
 }
-/// Represents the currently active world event
-/// game_id: Unique identifier for the game session
-/// event_id: Unique identifier for the event
-/// event_type: Type of the current event
-/// position: Location where the event is centered
-/// timestamp: When the event was created
+
+/// Represents the current active world event in the game
+///
+/// Game Model
+///
+/// # Fields
+/// * `game_id` - Unique identifier for the game instance (key field)
+/// * `event_id` - Unique identifier for the specific event
+/// * `event_type` - Type of the world event (enum WorldEventType)
+/// * `position` - Coordinates of the event in the game world (Point struct)
+/// * `timestamp` - Unix timestamp when the event was created
 #[dojo::model]
 #[derive(Copy, Drop, Serde, Default)]
 struct CurrentEvent {
@@ -54,8 +66,18 @@ struct CurrentEvent {
     timestamp: u64,
 }
 
+
 mod models {
     use super::{WorldEventType, Fortifications};
+    /// Represents the most recent event of a specific type in the game.
+    ///
+    /// GameModel
+    ///
+    /// # Fields
+    /// * `game_id` - Unique identifier for the game instance this event belongs to
+    /// * `event_type` - The type of world event
+    /// * `radius_sq` - The squared radius of the event's area of effect
+    /// * `did_hit` - Boolean indicating whether the event successfully affected any outposts
     #[dojo::model]
     #[derive(Copy, Drop, Serde, Default)]
     struct LastEventOfType {
@@ -67,15 +89,21 @@ mod models {
         did_hit: bool,
     }
 
-    /// event_type: WorldEventType,  Type of the event
-    /// min_radius_sq: u32,  Minimum squared radius of event effect (starting radius)
-    /// max_radius_sq: u32,  Maximum squared radius of event effect
-    /// radius_sq_increase: u32,  Rate at which the radius increases
-    // efficacy: Fortifications, Base efficacy of fortifications against the event
-    // mortalities: Fortifications, Base chance in % of a single fortification being destroyed
-    // power: u64, Base power/impact of the event
-    // f_value: u64, Number of relative fortifications at which the effect is halved
 
+    /// Represents the configuration parameters for a world event in the game
+    ///
+    /// Setup Model
+    ///
+    /// # Members
+    /// * `game_id` - Unique identifier for the game instance
+    /// * `event_type` - The type of world event (enum WorldEventType)
+    /// * `min_radius_sq` - Minimum squared radius of the event's area of effect
+    /// * `max_radius_sq` - Maximum squared radius of the event's area of effect
+    /// * `radius_sq_increase` - Rate at which the radius squared increases
+    /// * `efficacy` - Impact on fortification effectiveness (enum Fortifications)
+    /// * `mortalities` - Mortality rates affected by the event (enum Fortifications)
+    /// * `power` - Power level of the event
+    /// * `f_value` - Financial/economic value associated with the event
     #[dojo::model]
     #[derive(Drop, Serde, Copy)]
     struct WorldEventSetup {
@@ -123,12 +151,18 @@ struct WorldEventSetup {
     f_value: u64,
 }
 
-// event_id: felt252, /// Unique identifier for the event
-// game_id: felt252, /// Unique identifier for the game session
-// event_type: WorldEventType, /// Type of the current event
-// position: Point, /// Location where the event is centered
-// time_stamp: u64 /// When the event was created
 
+/// Event emitted when a world event occurs in the game
+///
+/// Game Event
+///
+/// # Fields
+/// * `event_id` - Unique identifier for the world event
+/// * `game_id` - Identifier of the game instance this event belongs to
+/// * `event_type` - Type of world event (enum WorldEventType)
+/// * `position` - Coordinates where the event occurs (Point struct)
+/// * `radius_sq` - Square of the radius defining event's area of effect
+/// * `time_stamp` - Unix timestamp when the event was created
 #[dojo::event]
 #[derive(Copy, Drop, Serde, Default)]
 struct WorldEventEvent {

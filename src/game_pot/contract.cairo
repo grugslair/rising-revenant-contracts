@@ -2,21 +2,61 @@ use starknet::{ContractAddress};
 
 #[starknet::interface]
 trait IGamePot<TContractState> {
+    // All the write methods here only effect the internal storage of this contract and not the
+    // world storage
+
+    /// Increases the winners' reward pot by the specified amount
+    ///
+    /// # Arguments
+    /// * `amount` - Amount to increase the winners' pot by
     fn increase_winner_pot(ref self: TContractState, amount: u256);
+
+    /// Increases the contributors' reward pot by the specified amount
+    ///
+    /// # Arguments
+    /// * `amount` - Amount to increase the contributors' pot by
     fn increase_contributor_pot(ref self: TContractState, amount: u256);
-    /// Allows the winner to claim their winnings from the game_pot
+
+    /// Claims winnings from the winners' pot
     fn claim_win(ref self: TContractState);
-    /// Allows contributors to claim their contribution rewards
+
+    /// Claims contribution rewards from the contributors' pot
     fn claim_contribution(ref self: TContractState);
-    /// Claims any remaining funds in the game_pot after all other claims
+
+    /// Claims any remaining unclaimed rewards
     fn claim_remainder(ref self: TContractState);
-    /// Checks if the winner has claimed their prize
+
+    /// Returns whether winning rewards have been claimed
+    ///
+    /// # Returns
+    /// * `bool` - True if winnings have been claimed, false otherwise
     fn win_claimed(self: @TContractState) -> bool;
-    /// Checks if a specific contributor has claimed their reward
+
+    /// Checks if a specific user has claimed their contribution rewards
+    ///
+    /// # Arguments
+    /// * `user` - Address of the user to check
+    ///
+    /// # Returns
+    /// * `bool` - True if user has claimed their contribution, false otherwise
     fn contribution_claimed(self: @TContractState, user: ContractAddress) -> bool;
 
+    /// Gets the address of the token used for rewards
+    ///
+    /// # Returns
+    /// * `ContractAddress` - Address of the token contract
     fn get_token_address(self: @TContractState) -> ContractAddress;
+
+    /// Gets the current amount in the winners' bonus pot
+    ///
+    /// # Returns
+    /// * `u256` - Current amount in winners' pot
     fn get_winners_bonus_pot(self: @TContractState) -> u256;
+
+    /// Gets the current amount in the contributors' bonus pot
+    ///
+    /// # Returns
+    /// * `u256` - Current amount in contributors' pot
     fn get_contributors_bonus_pot(self: @TContractState) -> u256;
 }
 

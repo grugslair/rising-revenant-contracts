@@ -49,6 +49,19 @@ impl UTIntoRarity<T, +TryInto<T, u8>> of Into<T, Rarity> {
     }
 }
 
+/// Game Model
+
+/// Event emitted when a care package is sold in the game.
+///
+/// Game Model
+///
+/// # Arguments
+/// * `game_id` - The unique identifier of the game instance
+/// * `token_id` - The unique identifier of the care package token
+/// * `rarity` - The rarity level of the care package
+/// * `timestamp` - The Unix timestamp when the sale occurred
+/// * `price` - The price at which the care package was sold
+/// * `buyer` - The address of the account that purchased the care package
 #[dojo::event]
 #[derive(Drop, Serde)]
 struct CarePackageSold {
@@ -62,6 +75,19 @@ struct CarePackageSold {
     buyer: ContractAddress,
 }
 
+/// A model representing the care package market in the game
+///
+/// This structure holds the configuration and state of a care package market,
+/// including its associated game, payment token, auction mechanics, and sales tracking.
+///
+/// Game and Setup Model
+///
+/// # Arguments
+///
+/// * `game_id` - unique identifier for the game
+/// * `token_address` - address of the token contract used for transactions
+/// * `vrgda` - Variable Rate Generic Dutch Auction store configuration
+/// * `sold` - total number of care packages sold in this market
 #[dojo::model]
 #[derive(Drop, Serde)]
 struct CarePackageMarket {
@@ -72,6 +98,17 @@ struct CarePackageMarket {
     sold: u128,
 }
 
+/// Represents a Care Package in the game system
+///
+/// Game Model
+///
+/// # Fields
+/// * `token_id` - Unique identifier for the care package token
+/// * `game_id` - Identifier of the game instance this care package belongs to
+/// * `rarity` - Rarity level of the care package
+/// * `opened` - Boolean flag indicating if the care package has been opened
+///
+/// This struct is a Dojo model that implements Drop, Serde, and Copy traits.
 #[dojo::model]
 #[derive(Drop, Serde, Copy)]
 struct CarePackage {
@@ -82,6 +119,18 @@ struct CarePackage {
     opened: bool,
 }
 
+/// Event emitted with the contents of a care package when opened
+///
+/// Game Model
+///
+/// # Arguments
+/// * `token_id` - The unique identifier of the care package token
+/// * `game_id` - The identifier of the game instance this care package belongs to
+/// * `recipient` - The address of the player receiving the care package
+/// * `fortifications` - The fortification items contained in the care package
+///
+/// # Event
+/// Emitted when a care package is opened and its contents are revealed
 #[dojo::event]
 #[derive(Drop, Serde, Copy)]
 struct CarePackageContents {

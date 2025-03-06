@@ -30,6 +30,20 @@ struct Fortifications {
 mod models {
     use starknet::ContractAddress;
 
+    /// Represents the token addresses for different types of fortifications in a game
+    ///
+    /// Setup Model
+    ///
+    /// # Arguments
+    /// * `game_id` - Unique identifier for the game instance
+    /// * `palisade` - Contract address for the palisade fortification token
+    /// * `trench` - Contract address for the trench fortification token
+    /// * `wall` - Contract address for the wall fortification token
+    /// * `basement` - Contract address for the basement fortification token
+    ///
+    /// This model stores the contract addresses of various fortification types that can be used
+    /// within a specific game instance. Each fortification type is represented by its own ERC
+    /// token.
     #[dojo::model]
     #[derive(Drop, Serde, Copy)]
     struct FortificationTokens {

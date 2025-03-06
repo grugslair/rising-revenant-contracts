@@ -9,6 +9,17 @@ trait IOutpost<TContractState> {
     /// * `game_id` - The ID of the game to create the outpost in
     /// # Returns
     /// * The ID of the newly created outpost
+    ///
+    /// Models:
+    /// * Outpost
+    /// * Map
+    /// * OutpostsActive
+    ///
+    /// ERC721:
+    /// * Outpost
+    ///
+    /// ERC20:
+    /// * Game token
     fn purchase(ref self: TContractState, game_id: felt252) -> felt252;
 
     /// Retrieves an outpost's data by its ID
@@ -24,6 +35,13 @@ trait IOutpost<TContractState> {
     /// # Panics
     /// * If the outpost is not active
     /// * If the outpost is not in the event's radius
+    ///
+    /// Models:
+    /// * Outpost
+    /// * OutpostsActive
+    /// * OutpostEvent
+    /// * LastEventOfTypeModel
+    /// * UserContribution
     fn apply_event(ref self: TContractState, outpost_id: felt252);
 
     /// Adds fortifications to an outpost
@@ -34,6 +52,12 @@ trait IOutpost<TContractState> {
     /// # Panics
     /// * If the outpost is not active
     /// * If the outpost is under an active event
+    ///
+    /// Models:
+    /// * Outpost
+    ///
+    /// ERC20:
+    /// * Fortifications
     fn fortify(
         ref self: TContractState,
         outpost_id: felt252,

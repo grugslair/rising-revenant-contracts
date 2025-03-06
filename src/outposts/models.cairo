@@ -4,10 +4,20 @@ use rising_revenant::{
     map::Point, fortifications::{Fortification, FortificationTrait, Fortifications},
 };
 
-/// Represents the initial setup configuration for outposts in a game
-/// @param game_id - Unique identifier for the game instance
-/// @param price - Cost to create an outpost
-/// @param hp - Initial health points for new outposts
+
+/// OutpostSetup model represents configuration parameters for outposts in a game
+///
+/// Setup Model
+///
+/// # Arguments
+/// * `game_id` - Unique identifier for the game instance (key field)
+/// * `price` - Cost to create an outpost in this game
+/// * `token_address` - Contract address of the token used for payments
+/// * `max_outposts` - Maximum number of outposts allowed in the game
+/// * `hp` - Initial health points for each outpost
+///
+/// The struct defines core setup values that determine how outposts function
+/// within a specific game instance, including economic and gameplay parameters.
 #[dojo::model]
 #[derive(Drop, Serde, Copy)]
 struct OutpostSetup {
@@ -32,6 +42,20 @@ struct Outpost {
 
 mod model {
     use super::Point;
+    /// A fortified structure that can be built and defended in the game.
+    ///
+    /// Game Model
+    ///
+    /// # Fields
+    ///
+    /// * `id` - Unique identifier for the outpost
+    /// * `game_id` - The ID of the game instance this outpost belongs to
+    /// * `position` - The coordinates of the outpost on the game map
+    /// * `palisades` - Number of palisade defenses built
+    /// * `trenches` - Number of trench defenses dug
+    /// * `walls` - Number of wall defenses constructed
+    /// * `basements` - Number of basements built
+    /// * `hp` - Current health points of the outpost
     #[dojo::model]
     #[derive(Drop, Serde)]
     struct Outpost {
@@ -81,9 +105,14 @@ impl OutpostModelIntoOutpost of Into<model::Outpost, Outpost> {
 
 
 /// Tracks events that affect specific outposts
-/// @param outpost_id - ID of the affected outpost
-/// @param event_id - Unique identifier for the event
-/// @param applied - Whether the event has been processed
+///
+/// Game Model
+///
+/// # Fields
+///
+/// * `outpost_id` - ID of the affected outpost
+/// * `event_id` - Unique identifier for the event
+/// * `applied` - Whether the event has been processed
 #[dojo::model]
 #[derive(Drop, Serde, Copy)]
 struct OutpostEvent {
@@ -95,8 +124,13 @@ struct OutpostEvent {
 }
 
 /// Tracks the number of active outposts in a game
-/// @param game_id - Associated game instance
-/// @param active - Count of currently active outposts
+///
+/// Game Model
+///
+/// # Arguments
+///
+/// * `game_id` - Associated game instance
+/// * `active` - Count of currently active outposts
 #[dojo::model]
 #[derive(Drop, Serde, Copy)]
 struct OutpostsActive {
