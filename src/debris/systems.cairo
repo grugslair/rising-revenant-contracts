@@ -10,7 +10,8 @@ use rising_revenant::{
 use super::{DebrisStorage, Debris};
 
 fn debris_calculation(ref seed: u128) -> u256 {
-    let val = seed.get_value(1000.non_zero());
+    // let val = seed.get_value(1000.non_zero());
+    0
 }
 
 #[generate_trait]

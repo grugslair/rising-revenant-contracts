@@ -8,21 +8,21 @@ source = "git+https://github.com/bengineer42/cubit?tag=cairo--2.8.0#32a20af893b3
 
 [[package]]
 name = "dojo"
-version = "1.2.1"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.2.1#3d4b1a3e662f70679813f9fb65c0b5c7fa5d6f0a"
+version = "1.5.0"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.5.0#812f17c9c57fd057d0bf1e648a591ea0ca9ea718"
 dependencies = [
  "dojo_plugin",
 ]
 
 [[package]]
 name = "dojo_plugin"
-version = "2.9.2"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.2.1#3d4b1a3e662f70679813f9fb65c0b5c7fa5d6f0a"
+version = "2.10.1"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.5.0#812f17c9c57fd057d0bf1e648a591ea0ca9ea718"
 
 [[package]]
 name = "openzeppelin_access"
-version = "0.19.0"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v0.19.0#8d49e8c445efd9bdc99b050c8b7d11ae5ad19628"
+version = "1.0.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v1.0.0#755ce1adbf8d89ed23fbb8daa328fcbeab7c6424"
 dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_utils",
@@ -30,8 +30,8 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_account"
-version = "0.19.0"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v0.19.0#8d49e8c445efd9bdc99b050c8b7d11ae5ad19628"
+version = "1.0.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v1.0.0#755ce1adbf8d89ed23fbb8daa328fcbeab7c6424"
 dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_utils",
@@ -39,13 +39,13 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_introspection"
-version = "0.19.0"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v0.19.0#8d49e8c445efd9bdc99b050c8b7d11ae5ad19628"
+version = "1.0.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v1.0.0#755ce1adbf8d89ed23fbb8daa328fcbeab7c6424"
 
 [[package]]
 name = "openzeppelin_token"
-version = "0.19.0"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v0.19.0#8d49e8c445efd9bdc99b050c8b7d11ae5ad19628"
+version = "1.0.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v1.0.0#755ce1adbf8d89ed23fbb8daa328fcbeab7c6424"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -55,12 +55,12 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_utils"
-version = "0.19.0"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v0.19.0#8d49e8c445efd9bdc99b050c8b7d11ae5ad19628"
+version = "1.0.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts?tag=v1.0.0#755ce1adbf8d89ed23fbb8daa328fcbeab7c6424"
 
 [[package]]
 name = "rising_revenant"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "cubit",
  "dojo",

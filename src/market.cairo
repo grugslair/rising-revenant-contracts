@@ -2,19 +2,19 @@ use starknet::{ContractAddress, get_contract_address};
 use dojo::{world::WorldStorage, model::ModelStorage};
 use openzeppelin_token::{
     erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait},
-    erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait}
+    erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait},
 };
 
 #[derive(Copy, Drop, Serde, Introspect)]
 struct ERC20Amount {
     contract_address: ContractAddress,
-    amount: u256
+    amount: u256,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
 struct ERC721Token {
     contract_address: ContractAddress,
-    token_id: u256
+    token_id: u256,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
@@ -44,7 +44,7 @@ struct AuctionBid {
     bidder: ContractAddress,
     bid: Goods,
     expiration: u64,
-    open: bool
+    open: bool,
 }
 
 trait TTokenTrait<T, D> {
@@ -156,11 +156,11 @@ mod discretionary_auction {
     use dojo::model::Model;
     use super::{
         IDiscretionaryAuction, AuctionOffer, AuctionBid, Token, ERC20Amount, ERC721Token, Goods,
-        EnumTokenTrait, CheckOpen, AuctionOfferStore, AuctionBidStore
+        EnumTokenTrait, CheckOpen, AuctionOfferStore, AuctionBidStore,
     };
     use openzeppelin_token::{
         erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait},
-        erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait}
+        erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait},
     };
 
     impl IDiscretionaryAuctionImpl of IDiscretionaryAuction<ContractState> {
@@ -168,7 +168,7 @@ mod discretionary_auction {
             let seller = get_caller_address();
             let offer_id = world.uuid().into();
             AuctionOffer {
-                offer_id, seller, offer: offer.clone(), expiration, open: true, accepted_bid: 0
+                offer_id, seller, offer: offer.clone(), expiration, open: true, accepted_bid: 0,
             }
                 .set(world);
             assert(offer.has_goods(seller), 'Not allowed');

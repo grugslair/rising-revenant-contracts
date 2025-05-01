@@ -11,12 +11,11 @@ import {
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import { dirname } from "path";
 import toml from "toml";
 import * as accounts from "web3-eth-accounts";
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 const profile = process.argv[2];
 
