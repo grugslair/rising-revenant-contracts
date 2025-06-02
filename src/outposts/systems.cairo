@@ -188,5 +188,11 @@ impl OutpostImpl of OutpostTrait {
                 hp,
             );
     }
+
+    fn increase_outpost_hits(ref self: WorldStorage, outpost_id: felt252) -> u32 {
+        let hits = self.get_outpost_hits(outpost_id) + 1;
+        self.set_outpost_hits(outpost_id, hits);
+        hits
+    }
 }
 

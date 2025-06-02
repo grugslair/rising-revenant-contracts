@@ -85,7 +85,7 @@ impl OutpostModelIntoOutpost of Into<model::Outpost, Outpost> {
 /// @param event_id - Unique identifier for the event
 /// @param applied - Whether the event has been processed
 #[dojo::model]
-#[derive(Drop, Serde, Copy)]
+#[derive(Drop, Serde, Copy)]``
 struct OutpostEvent {
     #[key]
     outpost_id: felt252,
@@ -93,6 +93,15 @@ struct OutpostEvent {
     event_id: felt252,
     applied: bool,
 }
+
+#[dojo::model]
+#[derive(Drop, Serde)]
+struct OutpostEventsHit {
+    #[key]
+    outpost_id: felt252,
+    hits: u32
+}
+
 
 /// Tracks the number of active outposts in a game
 /// @param game_id - Associated game instance
@@ -199,6 +208,15 @@ impl OutpostStorageImpl of OutpostStorage {
             .write_member(
                 Model::<model::Outpost>::ptr_from_keys(id), fortification.selector(), amount,
             );
+    }
+
+    fn set_outpost_hits(
+        ref self: WorldStorage, outpost_id: felt252, hits: u32,
+    ) {
+        self.write_model(@OutpostEventsHit { outpost_id, hits });
+    }
+    fn get_outpost_hits(self: @WorldStorage, outpost_id: felt252) -> u32 {
+        self.read_member(Model::<OutpostEventsHit>::ptr_from_keys(outpost_id), selector!("hits"))
     }
 }
 
