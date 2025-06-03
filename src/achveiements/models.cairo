@@ -7,12 +7,21 @@ use achievement::events::progress::TrophyProgression;
 const ACHIEVEMENTS_NAMESPACE_HASH: felt252 = bytearray_hash!("achievements");
 
 #[derive(Drop, Serde, Copy, PartialEq)]
-enum TaskId {}
+enum TaskId {
+    GamesPlayed,
+    ReinforcementsDeployed,
+    AttacksSustained,
+    Victories,
+    OutpostsDestroyed,
+    
+}
 
 
 impl TaskIdIntoFelt252 of Into<TaskId, felt252> {
     fn into(self: TaskId) -> felt252 {
-        match self {}
+        match self {
+            GamesPlayed => 
+        }
     }
 }
 
