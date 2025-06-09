@@ -13,7 +13,6 @@ enum TaskId {
     AttacksSustained,
     Victories,
     OutpostsDestroyed,
-    
 }
 
 

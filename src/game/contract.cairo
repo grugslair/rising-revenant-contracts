@@ -1,5 +1,5 @@
-use starknet::{ContractAddress, ClassHash};
-use rising_revenant::{world_events::WorldEventSetup, game::ClassHashVariant};
+use rising_revenant::{game::ClassHashVariant, world_events::WorldEventSetup};
+use starknet::{ClassHash, ContractAddress};
 
 /// Interface for core game actions
 ///
@@ -111,19 +111,21 @@ trait IGameAdmin<TContractState> {
 #[dojo::contract]
 mod game_actions {
     use core::num::traits::Zero;
-    use starknet::{
-        get_block_timestamp, ContractAddress, get_caller_address, ClassHash, get_tx_info,
-    };
+    use crate::erc721_mintable::erc721_owner_of;
     use dojo::{model::{ModelStorage}, world::WorldStorage};
-    use super::{IGameActions, IGameAdmin};
     use rising_revenant::{
-        map::MapTrait, permissions::GamePermissions, fortifications::FortificationTokenTrait,
-        game::{GamePhases, GamePhase, Winner, GameStorage, GameTrait, ClassHashVariant},
-        contribution::Contribution, outposts::{OutpostTrait, OutpostStorage},
-        care_packages::CarePackageTrait, game_pot::GamePotTrait,
+        care_packages::CarePackageTrait, contribution::Contribution,
+        fortifications::FortificationTokenTrait,
+        game::{ClassHashVariant, GamePhase, GamePhases, GameStorage, GameTrait, Winner},
+        game_pot::GamePotTrait, map::MapTrait, outposts::{OutpostStorage, OutpostTrait},
+        permissions::GamePermissions, utils::uuid, vrf::VRF_ADDRESS_SELECTOR,
+        world::default_namespace,
         world_events::{WorldEventSetup, WorldEventStorage, WorldEventType},
-        world::default_namespace, utils::uuid, vrf::VRF_ADDRESS_SELECTOR,
     };
+    use starknet::{
+        ClassHash, ContractAddress, get_block_timestamp, get_caller_address, get_tx_info,
+    };
+    use super::{IGameActions, IGameAdmin};
 
     fn dojo_init(ref self: ContractState) {
         let mut world = self.world(default_namespace());
@@ -144,6 +146,7 @@ mod game_actions {
 
             world.set_game_ended(game_id);
             world.set_winning_outpost(game_id, outpost_id);
+            world.increment_games_won(erc721_owner_of(outpost_id));
         }
 
         fn get_winning_outpost(self: @ContractState, game_id: felt252) -> felt252 {

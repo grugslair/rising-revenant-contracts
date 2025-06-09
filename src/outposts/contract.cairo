@@ -1,5 +1,5 @@
-use super::models::Outpost;
 use rising_revenant::fortifications::Fortification;
+use super::models::Outpost;
 
 /// Interface for managing outposts in the Rising Revenant game
 #[starknet::interface]
@@ -44,24 +44,32 @@ trait IOutpost<TContractState> {
 
 #[dojo::contract]
 mod outpost_actions {
-    use hash::HashStateTrait;
-    use starknet::{get_caller_address, get_contract_address};
-    use super::{IOutpost};
-    use dojo::model::ModelStorage;
-    use rising_revenant::{
-        hash::make_hash_state,
-        fortifications::{
-            Fortifications, Fortification, FortificationsTrait, FortificationTokenTrait,
-        },
-        outposts::{
-            Outpost, OutpostTrait, OutpostStorage,
-            systems::{OutpostsActiveTrait, OutpostEventTrait},
-        },
-        debris::DebrisTrait,
-        world_events::{WorldEventStorage, WorldEventEffectTrait, WorldEventTrait}, map::PointTrait,
-        contribution::{Contribution, ContributionEvent}, game::GameTrait, vrf::{VRF, Source},
-        world::default_namespace, game_pot::GamePotTrait, tokens::erc721_mint,
+    use crate::achievements::{Achievements, TaskId};
+    use crate::contribution::{Contribution, ContributionEvent};
+    use crate::debris::DebrisTrait;
+    use crate::fortifications::{
+        Fortification, FortificationTokenTrait, Fortifications, FortificationsTrait,
     };
+    use crate::game::GameTrait;
+    use crate::game_pot::GamePotTrait;
+    use crate::hash::make_hash_state;
+    use crate::map::PointTrait;
+    use crate::outposts::{
+        Outpost, OutpostStorage, OutpostTrait, systems::{OutpostEventTrait, OutpostsActiveTrait},
+    };
+    use crate::tokens::erc721_mint;
+    use crate::vrf::{Source, VRF};
+    use crate::world::default_namespace;
+    use crate::world_events::{WorldEventEffectTrait, WorldEventStorage, WorldEventTrait};
+
+
+    use dojo::model::ModelStorage;
+
+    use hash::HashStateTrait;
+
+    use starknet::{get_caller_address, get_contract_address};
+
+    use super::{IOutpost};
 
     #[abi(embed_v0)]
     impl OutpostImpl of IOutpost<ContractState> {
@@ -123,6 +131,7 @@ mod outpost_actions {
                 .increase_outpost_fortification(
                     outpost_id, fortification_type, amount.try_into().unwrap(),
                 );
+            world.progress_achievement_now(TaskId::FortifyOutpost, amount);
         }
     }
 }

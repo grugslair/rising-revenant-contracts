@@ -1,7 +1,7 @@
 use dojo::{
-    world::WorldStorage, model::{Model, ModelStorage}, event::EventStorage, meta::Introspect,
+    event::EventStorage, meta::Introspect, model::{Model, ModelStorage}, world::WorldStorage,
 };
-use starknet::{get_block_timestamp, ClassHash, get_caller_address, ContractAddress};
+use starknet::{ClassHash, ContractAddress, get_block_timestamp, get_caller_address};
 /// Represents the different phases a game can be in.
 ///
 /// * `NotCreated` - Game hasn't been created yet
@@ -111,6 +111,14 @@ struct GameName {
     name: ByteArray,
 }
 
+#[dojo::model]
+#[derive(Drop, Serde)]
+struct GamesWons {
+    #[key]
+    player: ContractAddress,
+    won: u32,
+}
+
 #[generate_trait]
 impl GameStorageImpl of GameStorage {
     /// Retrieves the complete GamePhases struct for a specific game
@@ -213,5 +221,12 @@ impl GameStorageImpl of GameStorage {
         ref self: WorldStorage, selector: felt252, contract_address: ContractAddress,
     ) {
         self.write_model(@GameContractAddress { selector, contract_address });
+    }
+
+    fn get_games_won(self: @WorldStorage, player: ContractAddress) -> u32 {
+        self.read_member(Model::<GamesWons>::ptr_from_keys(player), selector!("won"))
+    }
+    fn set_games_won(ref self: WorldStorage, player: ContractAddress, won: u32) {
+        self.write_model(@GamesWons { player, won });
     }
 }

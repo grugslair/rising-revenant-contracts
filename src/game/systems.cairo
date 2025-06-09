@@ -1,10 +1,10 @@
-use super::models::GamePhasePreppingTrait;
-use starknet::{ContractAddress, get_block_timestamp};
-use dojo::{world::WorldStorage, model::ModelStorage};
+use dojo::{model::ModelStorage, world::WorldStorage};
 use openzeppelin_token::erc721::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
 use rising_revenant::{
     game::{GamePhase, GameStorage}, outposts::OutpostStorage, tokens::erc721_owner_of,
 };
+use starknet::{ContractAddress, get_block_timestamp};
+use super::models::GamePhasePreppingTrait;
 
 /// Trait implementation for game-related functionality
 /// Provides methods to check game phases and determine winners
@@ -65,5 +65,11 @@ impl GameImpl of GameTrait {
         erc721_owner_of(
             self.get_outpost_token_address(game_id), self.get_winning_outpost(game_id).into(),
         )
+    }
+
+    fn increment_games_won(ref self: WorldStorage, player: ContractAddress) -> u32 {
+        let value = self.get_games_won(player) + 1;
+        self.set_games_won(player, value);
+        value
     }
 }
