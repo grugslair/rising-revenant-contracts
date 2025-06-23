@@ -1,0 +1,9 @@
+# The World address to index.
+world_address = "0x07f7a5a8a50761d0ca39c3955d842694017d7c77deb0180f154cc04862ee644c"
+
+# Default RPC URL configuration
+rpc = "https://api.cartridge.gg/x/starknet/sepolia"
+
+# Database configuration
+# Optional: If not specified, uses in-memory database
+db_dir = "torii/sepolia"

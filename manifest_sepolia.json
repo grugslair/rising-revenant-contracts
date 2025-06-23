@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x4c60dc46a8ca8bb47675b7b914053cef769afbf0e340523187336b72bd71d1f",
-    "address": "0x1648b1dba98bd71f0ea14ad3bc56726596ea67911b535d94678a8cb1b40380f",
-    "seed": "rising-revenant-0.9.0",
+    "address": "0x7f7a5a8a50761d0ca39c3955d842694017d7c77deb0180f154cc04862ee644c",
+    "seed": "rising-revenant-rc-0.9.0-1",
     "name": "rising-revenant",
     "entrypoints": [
       "uuid",
@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x70245591c76676ce8e3dc8523beccd83bd1b970b105f0efd60a6396c331ab21",
-      "class_hash": "0x84dfcf863ead53986dacbb5f91bfe9c10237c21d8548b5bf96fa72c235164a",
+      "address": "0x5786a907bc4a7bb96a5f366c5ff8afa15dbe22f36e602701ab589fd9e95e602",
+      "class_hash": "0x7a313213cd6a7b6ec5a9d1c4aea0a4cd5579ecf31204d11a0188ddb7a36a89",
       "abi": [
         {
           "type": "impl",
@@ -1679,8 +1679,8 @@
       ]
     },
     {
-      "address": "0x7507948ee59e64bc6fcb2ea536097a97ef150a7551f771c40b170ac322f57bc",
-      "class_hash": "0x7afb8092d580fa9519710b8a898213ed903a692ae4dcec86ec428f0524cdba7",
+      "address": "0x2888872db089f772c76cccf582fad65b9be90b6bc639ae89238b6905e3665dd",
+      "class_hash": "0x35af8fcdf263ba91f14965c44e4b8e9f27457d0c18f3e1ea6ade0bd686800c4",
       "abi": [
         {
           "type": "impl",
@@ -2300,8 +2300,8 @@
       ]
     },
     {
-      "address": "0x158149914c121c20606ff42787371eab5ca7008baef4bbdabecacd56d6c9feb",
-      "class_hash": "0x3b557cb74fcc693bf2fe98d808d4f17dc7222afb42d22a72aa326a94eb1b9ef",
+      "address": "0x256ac389b68d8f65914d9fc22aef7e7748b945b47b17ebd2117edbf4347bfe1",
+      "class_hash": "0x5f6725d09c0d0cd2399dc60e404841c3d3262fea95c8ba72fde143add770792",
       "abi": [
         {
           "type": "impl",
@@ -2652,7 +2652,7 @@
       ]
     },
     {
-      "address": "0x6a3b551cfedb2e3d911a417a851f946f3d4cb5111817156769b978580576ea8",
+      "address": "0x14e42316c3e8290bda84397a8ad4767b9c478edd0363d41c5a9eb1cd23084df",
       "class_hash": "0x1ec1a9c194ada8fbd4482e84c46e35addff42298700e4a6eb7a8fb95a816318",
       "abi": [
         {
@@ -2886,7 +2886,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x78072d7f599a0c830409c5be0fb7da1a01ed3d90b4092539929ef1dc8a34981",
+      "class_hash": "0x1fe5680d9f0d3de08e5f5135dea83404bf50a42b2fc5d6711e3a80563ca43f6",
       "tag": "rising_revenant-FortificationTokens",
       "selector": "0x3634b5fadd1b7501c2c9ff700f2bafb2bde52ac46e2b6b49a012fb43b723056"
     },

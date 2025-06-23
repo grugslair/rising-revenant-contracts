@@ -1,6 +1,6 @@
 [world]
 name = "rising-revenant"
-seed = "rising-revenant-0.9.0"
+seed = "rising-revenant-rc-0.9.0-1"
 
 [namespace]
 default = "rising_revenant"

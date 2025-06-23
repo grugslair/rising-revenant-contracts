@@ -1,8 +1,8 @@
-use core::{cmp::min, poseidon::HashState, num::traits::Bounded};
-use starknet::ContractAddress;
-use dojo::{world::WorldStorage, model::{ModelStorage, ModelValueStorage, Model}};
+use core::{cmp::min, num::traits::Bounded, poseidon::HashState};
 use cubit::f128::{Fixed, FixedTrait};
+use dojo::{model::{Model, ModelStorage, ModelValueStorage}, world::WorldStorage};
 use rising_revenant::{core::BoundedT, hash::UpdateHashToU128};
+use starknet::ContractAddress;
 
 
 /// Represents different types of fortifications.
@@ -35,10 +35,10 @@ mod models {
     struct FortificationTokens {
         #[key]
         game_id: felt252,
-        palisade: ContractAddress,
-        trench: ContractAddress,
-        wall: ContractAddress,
-        basement: ContractAddress,
+        palisades: ContractAddress,
+        trenches: ContractAddress,
+        walls: ContractAddress,
+        basements: ContractAddress,
     }
 }
 
@@ -46,16 +46,16 @@ use models::FortificationTokens as FortificationTokensModel;
 
 #[derive(Drop, Serde, Copy, Introspect)]
 struct FortificationTokens {
-    palisade: ContractAddress,
-    trench: ContractAddress,
-    wall: ContractAddress,
-    basement: ContractAddress,
+    palisades: ContractAddress,
+    trenches: ContractAddress,
+    walls: ContractAddress,
+    basements: ContractAddress,
 }
 
 impl FortificationTokensIntoArray of Into<FortificationTokens, Array<ContractAddress>> {
     /// Converts a `FortificationToken` instance into an array of `ContractAddress`.
     fn into(self: FortificationTokens) -> Array<ContractAddress> {
-        array![self.palisade, self.trench, self.wall, self.basement]
+        array![self.palisades, self.trenches, self.walls, self.basements]
     }
 }
 
@@ -136,10 +136,10 @@ impl U64IntoFortifications of Into<u64, Fortifications> {
 impl FortificationImpl of FortificationTrait {
     fn selector(self: @Fortification) -> felt252 {
         match self {
-            Fortification::Palisade => selector!("palisade"),
-            Fortification::Trench => selector!("trench"),
-            Fortification::Wall => selector!("wall"),
-            Fortification::Basement => selector!("basement"),
+            Fortification::Palisade => selector!("palisades"),
+            Fortification::Trench => selector!("trenches"),
+            Fortification::Wall => selector!("walls"),
+            Fortification::Basement => selector!("basements"),
         }
     }
     fn symbol(self: @Fortification) -> ByteArray {
@@ -265,11 +265,14 @@ impl FortificationStorageImpl of FortificationStorage {
     fn set_fortifications_contract_address(
         ref self: WorldStorage,
         game_id: felt252,
-        palisade: ContractAddress,
-        trench: ContractAddress,
-        wall: ContractAddress,
-        basement: ContractAddress,
+        palisades: ContractAddress,
+        trenches: ContractAddress,
+        walls: ContractAddress,
+        basements: ContractAddress,
     ) {
-        self.write_model(@FortificationTokensModel { game_id, palisade, trench, wall, basement });
+        self
+            .write_model(
+                @FortificationTokensModel { game_id, palisades, trenches, walls, basements },
+            );
     }
 }
