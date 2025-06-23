@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x4c60dc46a8ca8bb47675b7b914053cef769afbf0e340523187336b72bd71d1f",
-    "address": "0x7a0ebda7a706745b69841117a3d62ede3573ba4c844c2f26583a9188154bfcb",
-    "seed": "rising-revenant-0.8.0",
+    "address": "0x1648b1dba98bd71f0ea14ad3bc56726596ea67911b535d94678a8cb1b40380f",
+    "seed": "rising-revenant-0.9.0",
     "name": "rising-revenant",
     "entrypoints": [
       "uuid",
@@ -1328,7 +1328,7 @@
   },
   "contracts": [
     {
-      "address": "0x595e91b5f674eee015d81003ad37303905206d7ee9c8196a5a393fc6773077b",
+      "address": "0x70245591c76676ce8e3dc8523beccd83bd1b970b105f0efd60a6396c331ab21",
       "class_hash": "0x84dfcf863ead53986dacbb5f91bfe9c10237c21d8548b5bf96fa72c235164a",
       "abi": [
         {
@@ -1679,7 +1679,7 @@
       ]
     },
     {
-      "address": "0x1e042d7f90274e96b1469223e8d2c4082718d98a2f6b1eafd50b84b993defce",
+      "address": "0x7507948ee59e64bc6fcb2ea536097a97ef150a7551f771c40b170ac322f57bc",
       "class_hash": "0x7afb8092d580fa9519710b8a898213ed903a692ae4dcec86ec428f0524cdba7",
       "abi": [
         {
@@ -2300,7 +2300,7 @@
       ]
     },
     {
-      "address": "0x4db0ca9ada48b671265c3c22413265a34264fd255624db09bfa5af418fe5b9",
+      "address": "0x158149914c121c20606ff42787371eab5ca7008baef4bbdabecacd56d6c9feb",
       "class_hash": "0x3b557cb74fcc693bf2fe98d808d4f17dc7222afb42d22a72aa326a94eb1b9ef",
       "abi": [
         {
@@ -2652,7 +2652,7 @@
       ]
     },
     {
-      "address": "0x272498c0f0917f0e65e32baf0b59912398d35bdefbd8c9ac7bae2e65862f771",
+      "address": "0x6a3b551cfedb2e3d911a417a851f946f3d4cb5111817156769b978580576ea8",
       "class_hash": "0x1ec1a9c194ada8fbd4482e84c46e35addff42298700e4a6eb7a8fb95a816318",
       "abi": [
         {

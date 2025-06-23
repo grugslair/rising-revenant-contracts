@@ -1,5 +1,5 @@
-use starknet::{ContractAddress, ClassHash, SyscallResultTrait, syscalls::deploy_syscall};
 use openzeppelin_token::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
+use starknet::{ClassHash, ContractAddress, SyscallResultTrait, syscalls::deploy_syscall};
 #[starknet::interface]
 pub trait IERC20MintableBurnable<TContractState> {
     fn mint(ref self: TContractState, recipient: ContractAddress, amount: u256);
@@ -140,7 +140,7 @@ mod erc20_mintable_burnable {
             self.erc20.burn(get_caller_address(), amount);
         }
         fn burn_from(ref self: ContractState, account: ContractAddress, amount: u256) {
-            self.erc20._spend_allowance(get_caller_address(), account, amount);
+            self.erc20._spend_allowance(account, get_caller_address(), amount);
             self.erc20.burn(account, amount);
         }
     }
