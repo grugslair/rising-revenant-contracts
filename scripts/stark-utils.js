@@ -194,7 +194,7 @@ export const loadAccountManifest = async (
   );
   if (password && !privateKey) {
     await account_manifest.init_keystore(password);
-  } else if (account_manifest.dojo_toml.env.keystore_path) {
+  } else if (account_manifest.dojo_toml.env.keystore_path && !privateKey) {
     throw new Error(
       `Keystore path is set, but no password provided. Please provide a password.`
     );
