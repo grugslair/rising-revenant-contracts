@@ -21,7 +21,7 @@ import * as toml from "toml";
 import { version } from "os";
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = process.cwd();
 const returnKey =
   "0x17c9a55536e844e86b35cd70d23a4e304a30e5e08de591b6788319186160f50";
 
@@ -89,16 +89,17 @@ export const makeCall = (contract, entrypoint, calldata) => {
 };
 
 export class AccountManifest {
-  constructor(dojo_toml_path, manifest_path, profile) {
+  constructor(dojo_toml_path, manifest_path, profile, privateKey = null) {
     this.dojo_toml = loadToml(dojo_toml_path);
     this.manifest = loadJson(manifest_path);
     this.rpc_url = this.dojo_toml.env.rpc_url;
     this.profile = profile;
-    if (this.dojo_toml.env.private_key) {
+    privateKey = privateKey || this.dojo_toml.env.private_key;
+    if (privateKey) {
       this.account = new Account(
         { nodeUrl: this.rpc_url },
         this.dojo_toml.env.account_address,
-        this.dojo_toml.env.private_key
+        privateKey
       );
     }
     this.contracts = {};
@@ -180,13 +181,18 @@ export const splitCallDescriptions = (calls_metas) => {
   return [calls, descriptions];
 };
 
-export const loadAccountManifest = async (profile, password = null) => {
+export const loadAccountManifest = async (
+  profile,
+  password = null,
+  privateKey = null
+) => {
   const account_manifest = new AccountManifest(
-    `../dojo_${profile}.toml`,
-    `../manifest_${profile}.json`,
-    profile
+    `./dojo_${profile}.toml`,
+    `./manifest_${profile}.json`,
+    profile,
+    privateKey
   );
-  if (password) {
+  if (password && !privateKey) {
     await account_manifest.init_keystore(password);
   } else if (account_manifest.dojo_toml.env.keystore_path) {
     throw new Error(

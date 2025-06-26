@@ -7,40 +7,20 @@ import {
   Contract,
   hash,
 } from "starknet";
-
+import { loadAccountManifest, loadJson } from "./stark-utils.js";
 import * as fs from "fs";
+import commandLineArgs from "command-line-args";
+import { program } from "commander";
 import * as path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const profile = process.argv[2];
-const setupFileName = process.argv[3];
-const gameName = process.argv[4];
-const startTime = parseInt(process.argv[5]);
-
 const gameActionsTag = "rising_revenant-game_actions";
-
-const loadJson = (rpath) => {
-  return JSON.parse(fs.readFileSync(path.resolve(__dirname, rpath)));
-};
-
-const getContractAddress = (mainfest, contractName) => {
-  for (const contract of mainfest.contracts) {
-    if (contract.tag === contractName) {
-      return contract.address;
-    }
-  }
-  return null;
-};
-
-const getContract = async (provider, contractAddress) => {
-  console.log(contractAddress);
-  const { abi: abi } = await provider.getClassAt(contractAddress);
-  return new Contract(abi, contractAddress, provider);
-};
 
 const executeCalls = async (provider, account, calls) => {
   const transaction = await account.execute(calls);
@@ -50,20 +30,6 @@ const executeCalls = async (provider, account, calls) => {
   return response.transaction_hash;
 };
 
-const manifest = loadJson(`../manifest_${profile}.json`);
-
-// connect provider
-const provider = new RpcProvider({ nodeUrl: process.env.STARKNET_RPC_URL });
-
-// connect your account. To adapt to your own account:
-const account1Address = process.env.DOJO_ACCOUNT_ADDRESS;
-const privateKey1 = process.env.DOJO_PRIVATE_KEY;
-const account = new Account(provider, account1Address, privateKey1);
-
-const gameContract = await getContract(
-  provider,
-  getContractAddress(manifest, gameActionsTag)
-);
 const ONE_MAG = 0x10000000000000000;
 const Dec18 = 1e18;
 
@@ -142,12 +108,67 @@ const parseSetUpValues = (values, gameName, start_time) => {
   return new_values;
 };
 
-const config = loadJson(`../game_setup_configs/${setupFileName}.json`);
-console.log(config);
-const values = parseSetUpValues(config, gameName, startTime);
-console.log(values);
+const argv = yargs(hideBin(process.argv))
+  .usage("Usage: $0 <profile> <path> <name> <start_time> [options]")
+  .positional("profile", {
+    describe: 'The Scarb profile to use (e.g., "release", "sepolia")',
+    type: "string",
+  })
+  .positional("path", {
+    describe: "Path to the game configuration file",
+    type: "string",
+  })
+  .positional("name", {
+    describe: "Name of the Rising Revenant game",
+    type: "string",
+  })
+  .positional("start_time", {
+    describe: "Game start time in seconds since the Unix epoch (integer)",
+    type: "number",
+  })
+  .option("password", {
+    alias: "p",
+    type: "string",
+    describe:
+      "Password for the keystore (required if --private_key is not provided)",
+    default: null,
+  })
+  .option("private_key", {
+    alias: "k",
+    type: "string",
+    describe:
+      "Hex-encoded private key (required if --password is not provided)",
+    default: null,
+  })
+  .check((argv) => {
+    if (!argv.password && !argv.private_key) {
+      throw new Error("You must provide either --password or --private_key.");
+    }
+    const [profile, path, name, start_time] = argv._;
+    if (!Number.isInteger(start_time)) {
+      throw new Error(
+        "--start_time must be an integer (in seconds since epoch)."
+      );
+    }
+    Object.assign(argv, { profile, path, name, start_time });
+    return true;
+  })
+  .demandCommand(4, "You must provide: <profile> <path> <name> <start_time>")
+  .strict().argv;
 
-const tx_hash = await executeCalls(provider, account, [
-  gameContract.populate("create_game", values),
+console.log(argv);
+
+const account_manifest = await loadAccountManifest(
+  argv.profile,
+  argv.password,
+  argv.private_key
+);
+const game_contract = account_manifest.getContract(gameActionsTag);
+console.log();
+const config = loadJson(argv.path);
+const values = parseSetUpValues(config, argv.name, argv.start_time);
+console.log(values);
+const transaction_hash = await account_manifest.execute([
+  game_contract.populate("create_game", values),
 ]);
-console.log(tx_hash);
+console.log(transaction_hash);
