@@ -1,12 +1,12 @@
 [world]
 name = "rising-revenant"
-seed = "rising-revenant-rc-0.9.0-1"
+seed = "rising-revenant-0.9.0-rc.1"
 
 [namespace]
 default = "rising_revenant"
 
 [env]
-rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
+rpc_url = "https://starknet-sepolia.public.blastapi.io"
 account_address = "0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd"
 keystore_path = "/home/ben/sn-accounts/0x058e3b49d870f08c96a02f794c82b5f6c868c074deadd6ba04e8d2194723b5bd-keystore.json"
 
@@ -42,7 +42,10 @@ keystore_path = "/home/ben/sn-accounts/0x058e3b49d870f08c96a02f794c82b5f6c868c07
 "rising_revenant-OutpostsActive" = ["rising_revenant-outpost_actions"]
 
 "rising_revenant-CurrentEvent" = ["rising_revenant-world_event_actions"]
-"rising_revenant-LastEventOfType" = ["rising_revenant-world_event_actions"]
+"rising_revenant-LastEventOfType" = [
+    "rising_revenant-world_event_actions",
+    "rising_revenant-outpost_actions",
+]
 "rising_revenant-WorldEventEvent" = ["rising_revenant-world_event_actions"]
 
 "rising_revenant-UserContribution" = [

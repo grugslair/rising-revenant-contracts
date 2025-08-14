@@ -2,7 +2,7 @@
 cairo-version = "2.11.4"
 scarb-version = "2.11.4"
 name = "rising_revenant"
-version = "0.8.0"
+version = "0.9.0"
 
 [cairo]
 sierra-replace-ids = true

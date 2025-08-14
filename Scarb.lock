@@ -64,7 +64,7 @@ checksum = "sha256:bf799c794139837f397975ffdf6a7ed5032d198bbf70e87a8f44f144a9dfc
 
 [[package]]
 name = "rising_revenant"
-version = "0.8.0"
+version = "0.9.0"
 dependencies = [
  "cubit",
  "dojo",

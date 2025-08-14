@@ -10,3 +10,50 @@ rpc_url = "http://localhost:5050/"
 # Default account for katana with seed = 0
 account_address = "0x6162896d1d7ab204c7ccac6dd5f8e9e7c25ecd5ae4fcb4ad32e57786bb46e03"
 private_key = "0x1800000000300000180000000000030000000000003006001800006600"
+
+[writers]
+
+"rising_revenant-GameName" = ["rising_revenant-game_actions"]
+"rising_revenant-GameClassHash" = ["rising_revenant-game_actions"]
+"rising_revenant-GameContractAddress" = ["rising_revenant-game_actions"]
+"rising_revenant-FortificationTokens" = ["rising_revenant-game_actions"]
+"rising_revenant-ContributionWeight" = ["rising_revenant-game_actions"]
+"rising_revenant-GamePhases" = ["rising_revenant-game_actions"]
+"rising_revenant-MapSize" = ["rising_revenant-game_actions"]
+"rising_revenant-Permission" = ["rising_revenant-game_actions"]
+"rising_revenant-WorldEventMinInterval" = ["rising_revenant-game_actions"]
+"rising_revenant-WorldEventSetup" = ["rising_revenant-game_actions"]
+"rising_revenant-OutpostSetup" = ["rising_revenant-game_actions"]
+"rising_revenant-Winner" = ["rising_revenant-game_actions"]
+
+"rising_revenant-CarePackage" = ["rising_revenant-care_package_actions"]
+"rising_revenant-CarePackageContents" = ["rising_revenant-care_package_actions"]
+"rising_revenant-CarePackageSold" = ["rising_revenant-care_package_actions"]
+"rising_revenant-CarePackageMarket" = [
+    "rising_revenant-game_actions",
+    "rising_revenant-care_package_actions",
+]
+
+
+"rising_revenant-Map" = ["rising_revenant-outpost_actions"]
+"rising_revenant-Outpost" = ["rising_revenant-outpost_actions"]
+"rising_revenant-OutpostEvent" = ["rising_revenant-outpost_actions"]
+"rising_revenant-OutpostsActive" = ["rising_revenant-outpost_actions"]
+
+"rising_revenant-CurrentEvent" = ["rising_revenant-world_event_actions"]
+"rising_revenant-LastEventOfType" = [
+    "rising_revenant-world_event_actions",
+    "rising_revenant-outpost_actions",
+]
+"rising_revenant-WorldEventEvent" = ["rising_revenant-world_event_actions"]
+
+"rising_revenant-UserContribution" = [
+    "rising_revenant-outpost_actions",
+    "rising_revenant-world_event_actions",
+]
+
+"rising_revenant-GamePot" = [
+    "rising_revenant-game_actions",
+    "rising_revenant-care_package_actions",
+    "rising_revenant-outpost_actions",
+]
