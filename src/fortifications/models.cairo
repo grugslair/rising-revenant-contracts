@@ -1,7 +1,11 @@
-use core::{cmp::min, num::traits::Bounded, poseidon::HashState};
+use core::cmp::min;
+use core::num::traits::Bounded;
+use core::poseidon::HashState;
 use cubit::f128::{Fixed, FixedTrait};
-use dojo::{model::{Model, ModelStorage, ModelValueStorage}, world::WorldStorage};
-use rising_revenant::{core::BoundedT, hash::UpdateHashToU128};
+use dojo::model::{Model, ModelStorage, ModelValueStorage};
+use dojo::world::WorldStorage;
+use rising_revenant::core::BoundedT;
+use rising_revenant::hash::UpdateHashToU128;
 use starknet::ContractAddress;
 
 
@@ -9,17 +13,17 @@ use starknet::ContractAddress;
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
 enum Fortification {
     /// A palisade fortification.
-    Palisade,
+    Palisade, //wood
     /// A trench fortification.
-    Trench,
+    Trench, //dirt
     /// A wall fortification.
-    Wall,
+    Wall, //stone   
     /// A basement fortification.
-    Basement,
+    Basement // obsidian
 }
 
 /// Holds the count of each type of fortification.
-#[derive(Drop, Copy, Serde, Introspect, Default)]
+#[derive(Drop, Copy, Serde, Introspect, Default, DojoStore)]
 struct Fortifications {
     palisades: u64,
     trenches: u64,
@@ -41,7 +45,6 @@ mod models {
         basements: ContractAddress,
     }
 }
-
 use models::FortificationTokens as FortificationTokensModel;
 
 #[derive(Drop, Serde, Copy, Introspect)]
@@ -152,9 +155,7 @@ impl FortificationImpl of FortificationTrait {
     }
     fn iterate() -> Array<Fortification> {
         array![
-            Fortification::Palisade,
-            Fortification::Trench,
-            Fortification::Wall,
+            Fortification::Palisade, Fortification::Trench, Fortification::Wall,
             Fortification::Basement,
         ]
     }
@@ -180,9 +181,7 @@ impl FortificationsImpl of FortificationsTrait {
     /// Returns an array of all fortification types.
     fn array() -> Array<Fortification> {
         array![
-            Fortification::Palisade,
-            Fortification::Trench,
-            Fortification::Wall,
+            Fortification::Palisade, Fortification::Trench, Fortification::Wall,
             Fortification::Basement,
         ]
     }
@@ -234,10 +233,10 @@ fn fortifications_destroyed(
 ) -> u64 {
     if probability == 0 {
         return 0;
-    };
+    }
     if probability == Bounded::MAX {
         return Bounded::MAX;
-    };
+    }
     let randomness = FixedTrait::new(
         hash_state.update_to_u128(fortification) & BoundedT::<u64, u128>::max() + 1, false,
     );

@@ -1,15 +1,19 @@
-use starknet::ContractAddress;
-use dojo::{world::WorldStorage, model::{ModelStorage, Model}, event::EventStorage};
-use rising_revenant::{
-    fortifications::models::Fortifications, core::ToNonZero, utils::felt252_to_u128,
-    vrgda::{LogisticVRGDA, VRGDATrait}, fixed::FixedToDecimal,
-};
 use cubit::f128::{Fixed, FixedTrait, ONE_u128};
+use dojo::event::EventStorage;
+use dojo::model::{Model, ModelStorage};
+use dojo::world::WorldStorage;
+use rising_revenant::core::ToNonZero;
+use rising_revenant::fixed::FixedToDecimal;
+use rising_revenant::fortifications::models::Fortifications;
+use rising_revenant::utils::felt252_to_u128;
+use rising_revenant::vrgda::{LogisticVRGDA, VRGDATrait};
+use starknet::ContractAddress;
 
 const N_RARITIES: u128 = 5;
 const CARE_PACKAGE_CLASS_HASH_SELECTOR: felt252 = 'care-package';
-#[derive(Serde, Copy, Drop, PartialEq, Introspect)]
+#[derive(Serde, Copy, Drop, PartialEq, Introspect, DojoStore, Default)]
 enum Rarity {
+    #[default]
     None,
     Common,
     Rare,
@@ -17,7 +21,7 @@ enum Rarity {
     Legendary,
 }
 
-#[derive(Drop, Serde, Introspect)]
+#[derive(Drop, Serde, Introspect, DojoStore)]
 struct LogisticVRGDAStore {
     target_price_mag: u128,
     decay_constant_mag: u128,

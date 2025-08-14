@@ -1,8 +1,8 @@
 [package]
-cairo-version = "=2.10.1"
+cairo-version = "2.11.4"
+scarb-version = "2.11.4"
 name = "rising_revenant"
 version = "0.8.0"
-
 
 [cairo]
 sierra-replace-ids = true
@@ -11,16 +11,17 @@ sierra-replace-ids = true
 sort-module-level-items = true
 
 [dependencies]
-starknet = "2.10.1"
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.5.0" }
-openzeppelin_access = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v1.0.0" }
-openzeppelin_introspection = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v1.0.0" }
-openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v1.0.0" }
+starknet = "2.11.4"
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.7.0-alpha.0" }
+dojo_macros = { git = "https://github.com/dojoengine/dojo", tag = "v1.7.0-alpha.0" }
+openzeppelin_access = "2.0.0"
+openzeppelin_introspection = "2.0.0"
+openzeppelin_token = "2.0.0"
 cubit = { git = "https://github.com/bengineer42/cubit", tag = "cairo--2.8.0" }
 # cartridge_vrf = { git = "https://github.com/cartridge-gg/vrf-server" }
 
 [dev-dependencies]
-cairo_test = "=2.10.1"
+cairo_test = "2.11.4"
 
 [[target.starknet-contract]]
 sierra = true

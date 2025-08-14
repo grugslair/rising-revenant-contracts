@@ -7,7 +7,7 @@
     "js-toml": "^1.0.1",
     "pascal-case": "^3.1.2",
     "requirejs": "^2.3.7",
-    "starknet": "6.24.1",
+    "starknet": "7.6.4",
     "toml": "^3.0.0",
     "web3-eth-accounts": "^4.3.1",
     "yargs": "^18.0.0"

@@ -1,7 +1,8 @@
-use dojo::{
-    world::WorldStorage, model::{Model, ModelStorage}, event::EventStorage, meta::Introspect,
-};
-use starknet::{get_block_timestamp, ClassHash, get_caller_address, ContractAddress};
+use dojo::event::EventStorage;
+use dojo::meta::Introspect;
+use dojo::model::{Model, ModelStorage};
+use dojo::world::WorldStorage;
+use starknet::{ClassHash, ContractAddress, get_block_timestamp, get_caller_address};
 /// Represents the different phases a game can be in.
 ///
 /// * `NotCreated` - Game hasn't been created yet
@@ -31,8 +32,9 @@ struct Winner {
     outpost_id: felt252,
 }
 
-#[derive(Drop, Serde, Copy, PartialEq, Introspect)]
+#[derive(Drop, Serde, Copy, PartialEq, Introspect, DojoStore, Default)]
 enum ClassHashVariant {
+    #[default]
     ERC20MintableBurnable,
     ERC721Mintable,
     GamePot,

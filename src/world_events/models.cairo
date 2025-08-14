@@ -1,10 +1,10 @@
-use dojo::{
-    world::WorldStorage, model::{ModelStorage, Model, ModelValueStorage}, event::EventStorage,
-};
+use dojo::event::EventStorage;
+use dojo::model::{Model, ModelStorage, ModelValueStorage};
+use dojo::world::WorldStorage;
+use rising_revenant::core::in_range;
+use rising_revenant::fortifications::{Fortifications, FortificationsTrait};
+use rising_revenant::map::{Point, PointTrait};
 use starknet::ContractAddress;
-use rising_revenant::{
-    map::{Point, PointTrait}, fortifications::{Fortifications, FortificationsTrait}, core::in_range,
-};
 
 // use rising_revenant::world::ModelSchema;
 
@@ -23,7 +23,7 @@ struct WorldEventMinInterval {
 
 /// Represents different types of world events that can occur in the game
 
-#[derive(Copy, Drop, Serde, PartialEq, Introspect, Default)]
+#[derive(Copy, Drop, Serde, PartialEq, Introspect, Default, DojoStore)]
 enum WorldEventType {
     #[default]
     Dragon, /// A dragon attack event
@@ -55,7 +55,7 @@ struct CurrentEvent {
 }
 
 mod models {
-    use super::{WorldEventType, Fortifications};
+    use super::{Fortifications, WorldEventType};
     #[dojo::model]
     #[derive(Copy, Drop, Serde, Default)]
     struct LastEventOfType {
@@ -92,7 +92,6 @@ mod models {
         f_value: u64,
     }
 }
-
 use models::{LastEventOfType as LastEventOfTypeModel, WorldEventSetup as WorldEventSetupModel};
 
 #[derive(Drop, Serde, Introspect)]

@@ -1,15 +1,14 @@
-use starknet::{get_caller_address, ContractAddress};
-use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
 use core::num::traits::Zero;
+use dojo::model::{Model, ModelStorage};
+use dojo::world::WorldStorage;
+use starknet::{ContractAddress, get_caller_address};
 
 /// Represents different types of contribution events in the game
-#[derive(Drop, Serde, Copy, PartialEq, Introspect)]
+#[derive(Drop, Serde, Copy, PartialEq, Default, Introspect, DojoStore)]
 enum ContributionEvent {
-    /// Event when something is created
+    #[default]
     EventCreated,
-    /// Event when something is applied
     EventApplied,
-    /// Event when an outpost is destroyed
     OutpostDestroyed,
 }
 
@@ -17,13 +16,10 @@ enum ContributionEvent {
 #[dojo::model]
 #[derive(Drop, Serde)]
 struct UserContribution {
-    /// Unique identifier for the game
     #[key]
     game_id: felt252,
-    /// Address of the contributing user
     #[key]
     user: ContractAddress,
-    /// Total contribution score for this user
     amount: u128,
 }
 
@@ -32,13 +28,10 @@ struct UserContribution {
 #[dojo::model]
 #[derive(Drop, Serde)]
 struct ContributionWeight {
-    /// Unique identifier for the game
     #[key]
     game_id: felt252,
-    /// Type of contribution event
     #[key]
     event: ContributionEvent,
-    /// Weight value for this event type
     value: u128,
 }
 

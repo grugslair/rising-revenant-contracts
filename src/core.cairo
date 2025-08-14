@@ -1,9 +1,7 @@
-use core::{
-    traits::Neg, num::traits::{Bounded, Zero, One, OverflowingSub, OverflowingAdd, OverflowingMul},
-    cmp::{min, max}
-};
+use core::cmp::{max, min};
+use core::num::traits::{Bounded, One, OverflowingAdd, OverflowingMul, OverflowingSub, Zero};
+use core::traits::Neg;
 
-#[derive(Copy, Drop)]
 type TTupleSize5<T> = (T, T, T, T, T);
 
 trait BoundedT<T, S> {
@@ -50,7 +48,7 @@ pub trait SaturatingMul<T> {
 }
 
 pub impl TSaturatingAdd<
-    T, +Drop<T>, +Copy<T>, +OverflowingAdd<T>, +Bounded<T>, +Zero<T>, +PartialOrd<T>
+    T, +Drop<T>, +Copy<T>, +OverflowingAdd<T>, +Bounded<T>, +Zero<T>, +PartialOrd<T>,
 > of SaturatingAdd<T> {
     fn saturating_add(self: T, other: T) -> T {
         let (result, overflow) = self.overflowing_add(other);
@@ -66,7 +64,7 @@ pub impl TSaturatingAdd<
 }
 
 pub impl TSaturatingSub<
-    T, +Drop<T>, +Copy<T>, +OverflowingSub<T>, +Bounded<T>, +Zero<T>, +PartialOrd<T>
+    T, +Drop<T>, +Copy<T>, +OverflowingSub<T>, +Bounded<T>, +Zero<T>, +PartialOrd<T>,
 > of SaturatingSub<T> {
     fn saturating_sub(self: T, other: T) -> T {
         let (result, overflow) = self.overflowing_sub(other);
@@ -83,7 +81,7 @@ pub impl TSaturatingSub<
 
 
 pub impl TSaturatingMul<
-    T, +Drop<T>, +Copy<T>, +OverflowingMul<T>, +Bounded<T>, +Zero<T>, +PartialOrd<T>
+    T, +Drop<T>, +Copy<T>, +OverflowingMul<T>, +Bounded<T>, +Zero<T>, +PartialOrd<T>,
 > of SaturatingMul<T> {
     fn saturating_mul(self: T, other: T) -> T {
         let (result, overflow) = self.overflowing_mul(other);
@@ -101,7 +99,15 @@ pub impl TSaturatingMul<
 }
 
 pub impl TSaturatingIntoS<
-    T, S, +Drop<T>, +Copy<T>, +TryInto<T, S>, +Bounded<S>, +BoundedT<S, T>, +PartialOrd<T>, +Zero<T>
+    T,
+    S,
+    +Drop<T>,
+    +Copy<T>,
+    +TryInto<T, S>,
+    +Bounded<S>,
+    +BoundedT<S, T>,
+    +PartialOrd<T>,
+    +Zero<T>,
 > of SaturatingInto<T, S> {
     fn saturating_into(self: T) -> S {
         match self.try_into() {
@@ -110,13 +116,13 @@ pub impl TSaturatingIntoS<
                 Bounded::MAX
             } else {
                 Bounded::MIN
-            } }
+            } },
         }
     }
 }
 
 pub impl TTruncatingIntoS<
-    T, S, +Drop<T>, +TryInto<T, S>, +BoundedT<S, T>, +BitAnd<T>
+    T, S, +Drop<T>, +TryInto<T, S>, +BoundedT<S, T>, +BitAnd<T>,
 > of TruncatingInto<T, S> {
     fn truncating_into(self: T) -> S {
         let mask = BoundedT::<S, T>::max();
@@ -217,7 +223,7 @@ impl EnumerateArrayImpl<S, +Drop<S>> of Enumerate<Array<S>, S> {
                 },
                 Option::None => { break; },
             }
-        };
+        }
         result
     }
 }

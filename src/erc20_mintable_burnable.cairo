@@ -1,5 +1,6 @@
 use openzeppelin_token::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
-use starknet::{ClassHash, ContractAddress, SyscallResultTrait, syscalls::deploy_syscall};
+use starknet::syscalls::deploy_syscall;
+use starknet::{ClassHash, ContractAddress, SyscallResultTrait};
 #[starknet::interface]
 pub trait IERC20MintableBurnable<TContractState> {
     fn mint(ref self: TContractState, recipient: ContractAddress, amount: u256);
@@ -55,7 +56,8 @@ fn deploy_erc20_mintable_burnable(
 mod erc20_mintable_burnable {
     use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, interface::IERC20Metadata};
+    use openzeppelin_token::erc20::interface::IERC20Metadata;
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::{ContractAddress, get_caller_address};
     use super::IERC20MintableBurnable;
 
@@ -118,11 +120,11 @@ mod erc20_mintable_burnable {
     #[abi(embed_v0)]
     impl ERC20MetadataImpl of IERC20Metadata<ContractState> {
         fn name(self: @ContractState) -> ByteArray {
-            self.erc20.name()
+            self.erc20.ERC20_name.read()
         }
 
         fn symbol(self: @ContractState) -> ByteArray {
-            self.erc20.symbol()
+            self.erc20.ERC20_symbol.read()
         }
 
         fn decimals(self: @ContractState) -> u8 {

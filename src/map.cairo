@@ -1,14 +1,16 @@
-use dojo::{world::WorldStorage, model::{ModelStorage, Model}};
-use rising_revenant::{
-    utils::{felt252_to_u128, SeedProbability}, core::{ToNonZero, BoundedT}, hash::UpdateHashToU128,
-};
-use core::{
-    num::traits::{Bounded, WideMul}, integer::{u128_safe_divmod, u32_safe_divmod},
-    zeroable::NonZero, hash::HashStateTrait, poseidon::{HashState},
-};
+use core::hash::HashStateTrait;
+use core::integer::{u128_safe_divmod, u32_safe_divmod};
+use core::num::traits::{Bounded, WideMul};
+use core::poseidon::HashState;
+use core::zeroable::NonZero;
+use dojo::model::{Model, ModelStorage};
+use dojo::world::WorldStorage;
+use rising_revenant::core::{BoundedT, ToNonZero};
+use rising_revenant::hash::UpdateHashToU128;
+use rising_revenant::utils::{SeedProbability, felt252_to_u128};
 
 
-#[derive(Drop, Serde, Copy, IntrospectPacked, Default)]
+#[derive(Drop, Serde, Copy, Introspect, Default, DojoStore)]
 struct Point {
     x: u16,
     y: u16,
@@ -115,7 +117,7 @@ impl MapImpl of MapTrait {
             if seed < min_seed {
                 hash = hash.update('butter');
                 seed = hash.to_u128();
-            };
+            }
 
             let point = seed.generate_point(map_size);
             if self.is_position_empty(game_id, point) {
